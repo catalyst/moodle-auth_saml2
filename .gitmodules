@@ -1,0 +1,3 @@
+[submodule "simplesamlphp"]
+	path = simplesamlphp
+	url = git@github.com:simplesamlphp/simplesamlphp.git
