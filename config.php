@@ -47,7 +47,7 @@ $yesno = array(get_string('no'), get_string('yes'));
 <tr valign="top">
     <?php $field = 'certfingerprint' ?>
     <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
-    <td><input type="text" size="80" name="<?php echo $field ?>" value="<?php print $config->$field ?>"><br>
+    <td><textarea columns="80" rows="8" name="<?php echo $field ?>" style="width: 100%"><?php print $config->$field ?></textarea><br>
         <?php print_string($field.'_help', 'auth_saml2') ?></td>
 </tr>
 <tr valign="top">
