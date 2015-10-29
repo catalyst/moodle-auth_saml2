@@ -35,4 +35,7 @@ $string['certfingerprint'] = 'Certificate finger print';
 $string['certfingerprint_help'] = 'eg a bunch of hexidecimal chars';
 $string['debug'] = 'Debugging';
 $string['debug_help'] = 'This adds extra debugging to the normal moodle log';
+$string['spmetadata'] = 'SP Metdata';
+$string['spmetadata_link'] = 'View Service Provider Metadata (xml)';
+$string['spmetadata_help'] = 'You may need to give this to the IdP admin to whitelist you.';
 

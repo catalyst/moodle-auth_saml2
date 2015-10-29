@@ -15,7 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Metadata page for SAML SP XML
+ * Service provider metadata
+ *
+ * Unfortunately this file inside SSP couldn't be customized in any clean
+ * way so it has been copied here and forked. The main differences are
+ * the config lookup, but also using the proxy SP module urls.
  *
  * @package    auth_saml2
  * @copyright  Brendan Heywood <brendan@catalyst-au.net>
@@ -49,7 +53,7 @@ $slosvcdefault = array(
 );
 
 $slob = $spconfig->getArray('SingleLogoutServiceBinding', $slosvcdefault);
-$slol = SimpleSAML_Module::getModuleURL('saml/sp/saml2-logout.php/' . $sourceId);
+$slol = "$CFG->wwwroot/auth/saml2/saml2-logout.php";
 
 foreach ($slob as $binding) {
 	if ($binding == SAML2_Const::BINDING_SOAP && !($store instanceof SimpleSAML_Store_SQL)) {
@@ -83,23 +87,24 @@ foreach ($assertionsconsumerservices as $services) {
 	switch ($services) {
 	case 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST':
 		$acsArray['Binding'] = SAML2_Const::BINDING_HTTP_POST;
-		$acsArray['Location'] = SimpleSAML_Module::getModuleURL('saml/sp/saml2-acs.php/' . $sourceId);
+		$acsArray['Location'] = "$CFG->wwwroot/auth/saml2/saml2-acs.php";
 		break;
 	case 'urn:oasis:names:tc:SAML:1.0:profiles:browser-post':
 		$acsArray['Binding'] = 'urn:oasis:names:tc:SAML:1.0:profiles:browser-post';
 		$acsArray['Location'] = SimpleSAML_Module::getModuleURL('saml/sp/saml1-acs.php/' . $sourceId);
+		$acsArray['Location'] = "$CFG->wwwroot/auth/saml2/saml1-acs.php";
 		break;
 	case 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact':
 		$acsArray['Binding'] = 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact';
-		$acsArray['Location'] = SimpleSAML_Module::getModuleURL('saml/sp/saml2-acs.php/' . $sourceId);
+		$acsArray['Location'] = "$CFG->wwwroot/auth/saml2/saml2-acs.php";
 		break;
 	case 'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01':
 		$acsArray['Binding'] = 'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01';
-		$acsArray['Location'] = SimpleSAML_Module::getModuleURL('saml/sp/saml1-acs.php/' . $sourceId . '/artifact');
+		$acsArray['Location'] = "$CFG->wwwroot/auth/saml2/saml1-acs.php";
 		break;
 	case 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser':
 		$acsArray['Binding'] = 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser';
-		$acsArray['Location'] = SimpleSAML_Module::getModuleURL('saml/sp/saml2-acs.php/' . $sourceId);
+		$acsArray['Location'] = "$CFG->wwwroot/auth/saml2/saml2-acs.php";
 		$acsArray['hoksso:ProtocolBinding'] = SAML2_Const::BINDING_HTTP_REDIRECT;
 		break;
 	}

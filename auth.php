@@ -109,6 +109,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
      */
     public function config_form($config, $err, $userfields) {
         $config = (object) array_merge($this->defaults, (array) $config );
+        global $CFG;
         include("config.php");
     }
 

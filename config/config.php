@@ -45,7 +45,7 @@ $config = array(
      * external url, no matter where you come from (direct access or via the
      * reverse proxy).
      */
-    'baseurlpath' => 'auth/saml2/simplesaml/',
+    'baseurlpath' => 'auth/saml2/simplesaml/www/',
     'certdir' => 'cert/',
     'loggingdir' => 'log/',
     'datadir' => 'data/',
@@ -118,8 +118,8 @@ $config = array(
      * The email address will be used as the recipient address for error reports, and
      * also as the technical contact in generated metadata.
      */
-    'technicalcontact_name' => 'Administrator',
-    'technicalcontact_email' => 'na@example.org',
+    'technicalcontact_name' => $CFG->supportname,
+    'technicalcontact_email' => $CFG->supportemail,
 
     /*
      * The timezone of the server. This option should be set to the timezone you want
