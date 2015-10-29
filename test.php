@@ -24,9 +24,7 @@
 
 // define('ABORT_AFTER_CONFIG', true);
 
-require('../../config.php');
-
-require('loader.php');
+require('setup.php');
 
 $auth = new SimpleSAML_Auth_Simple('default-sp');
 
