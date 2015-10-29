@@ -58,3 +58,20 @@ spl_autoload_register(
     }
 );
 
+spl_autoload_register(
+    function($className) {
+        $classPath = explode('_', $className);
+        if ($classPath[0] != 'SAML2') {
+            $classPath = explode('\\', $className);
+            if ($classPath[0] != 'SAML2') {
+                return;
+            }
+        }
+
+        $filePath = dirname(__FILE__) . "/saml2/src/" . implode('/', $classPath) . '.php';
+        if (file_exists($filePath)) {
+            require_once($filePath);
+        }
+    }
+);
+

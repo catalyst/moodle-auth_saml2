@@ -1,3 +1,6 @@
 [submodule "simplesamlphp"]
 	path = simplesamlphp
 	url = git@github.com:simplesamlphp/simplesamlphp.git
+[submodule "saml2"]
+	path = saml2
+	url = git@github.com:simplesamlphp/saml2.git

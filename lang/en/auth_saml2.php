@@ -32,7 +32,7 @@ $string['ssourl_help'] = 'eg https://idp.example.com/SsoRedirect';
 $string['slourl'] = 'Logout Service URL';
 $string['slourl_help'] = 'eg https://idp.example.com/SloRedirect';
 $string['certfingerprint'] = 'Certificate finger print';
-$string['certfingerprint_help'] = 'eg 40 hex chars';
+$string['certfingerprint_help'] = 'eg a bunch of hexidecimal chars';
 $string['debug'] = 'Debugging';
 $string['debug_help'] = 'This adds extra debugging to the normal moodle log';
 

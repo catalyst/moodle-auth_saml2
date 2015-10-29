@@ -16,5 +16,4 @@ $metadata[$cfg->entityid] = array(
 	'certFingerprint'       => $cfg->certfingerprint,
 	'saml2.relaxvalidation' => array('noattributestatement')
 );
-e($metadata);
 

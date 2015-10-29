@@ -45,7 +45,10 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * Constructor.
      */
     public function __construct() {
+        global $CFG;
         $this->authtype = 'saml2';
+        $mdl = new moodle_url($CFG->wwwroot);
+        $this->spname = $mdl->get_host();
         $this->config = (object) array_merge($this->defaults, (array) get_config('auth_saml2') );
     }
 
