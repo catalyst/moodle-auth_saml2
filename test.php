@@ -1,21 +1,39 @@
 <?php
- // Use Composers autoloading
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Test page for SAML
+ *
+ * @package    auth_saml2
+ * @copyright  Brendan Heywood <brendan@catalyst-au.net>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+// define('ABORT_AFTER_CONFIG', true);
 
 require('../../config.php');
 
-require('autoload.php');
+require('loader.php');
 
-// Implement the Container interface (out of scope for example)
-// require 'container.php';
-$container = new SAML2_Compat_Ssp_Container();
-SAML2_Compat_ContainerSingleton::setContainer($container);
+$auth = new SimpleSAML_Auth_Simple('default-sp');
 
-// Set up an AuthnRequest
-$request = new SAML2_AuthnRequest();
-$request->setId($container->generateId());
-$request->setIssuer('https://sp.example.edu');
-$request->setDestination('https://idp.example.edu');
+if (!$auth->isAuthenticated()) {
+    /* Show login link. */
+    print('<a href="/login">Login</a>');
+} else {
+    print('Authed!');
+}
 
-// Send it off using the HTTP-Redirect binding
-$binding = new SAML2_HTTPRedirect();
-$binding->send($request);

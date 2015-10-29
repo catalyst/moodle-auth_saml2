@@ -1,20 +1,8 @@
 
 == Embedded SSP ==
 
-Embed simplesamlphp inside a moodle auth plugin 
-
-* there is already the shiboleth plugin in moodle, we could put it inside that but perhaps it's better to fork it under a different name eg auth_saml2
-* add the whole source as a submodule with a submodule so we can better track upstream changes in the future
-
-OR
-
-* actually leaning towards a fresh clean plugin, the shib plugin has an awful lot of baggage in there which we don't need or want
-
 === Moodle todo ===
 
-
-* Clone from shibboleth and rename
-** fix up shitty code guidelines errors in whole plugin
 
 /auth/saml2/config.php
 * in moodle make a config page:

@@ -15,20 +15,27 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Anobody can login using saml2
+ * Class loader for SAML2 libs
  *
- * @package   auth_saml2
- * @copyright Brendan Heywood <brendan@catalyst-au.net>
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    auth_saml2
+ * @copyright  Brendan Heywood <brendan@catalyst-au.net>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'SAML2';
+spl_autoload_register(
+    function($className) {
+        $classPath = explode('_', $className);
+        if ($classPath[0] != 'SimpleSAML') {
+            $classPath = explode('\\', $className);
+            if ($classPath[0] != 'SimpleSAML') {
+                return;
+            }
+        }
 
-$string['auth_saml2description'] = 'Authenticate with an SAML2 IdP';
-$string['ssourl'] = 'Signin Service URL';
-$string['ssourl_help'] = 'eg https://idp.example.com/SsoRedirect';
-$string['slourl'] = 'Logout Service URL';
-$string['slourl_help'] = 'eg https://idp.example.com/SloRedirect';
-$string['debug'] = 'Debugging';
-$string['debug_help'] = 'This adds extra debugging to the normal moodle log';
+        $filePath = dirname(__FILE__) . '/simplesamlphp/lib/' . implode('/', $classPath) . '.php';
+        if (file_exists($filePath)) {
+            require_once($filePath);
+        }
+    }
+);
 
