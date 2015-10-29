@@ -15,29 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Test page for SAML
+ * SSP auth sources which inherits from Moodle config
  *
  * @package    auth_saml2
  * @copyright  Brendan Heywood <brendan@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// define('ABORT_AFTER_CONFIG', true);
-
-require('setup.php');
-
-$trylogin = optional_param('login', '', PARAM_RAW);
-
-$auth = new SimpleSAML_Auth_Simple('default-sp');
-
-if (!$auth->isAuthenticated() && $trylogin) {
-
-    $auth->requireAuth();
-    echo "Hello, authenticated user!";
-
-} elseif (!$auth->isAuthenticated()) {
-    echo 'You are not logged in: <a href="?login=true">Login</a>';
-} else {
-    echo 'Authed!';
-}
+$config = array(
+	'default-sp' => array(
+		'saml:SP',
+		'idp' => get_config('auth_saml2', 'entityid'),
+	),
+);
 

@@ -24,11 +24,15 @@
 
 $string['pluginname'] = 'SAML2';
 
-$string['auth_saml2description'] = 'Authenticate with an SAML2 IdP';
+$string['auth_saml2description'] = 'Authenticate with a SAML2 IdP';
+$string['entityid'] = 'IdP Entity ID';
+$string['entityid_help'] = 'eg https://idp.example.com/';
 $string['ssourl'] = 'Signin Service URL';
 $string['ssourl_help'] = 'eg https://idp.example.com/SsoRedirect';
 $string['slourl'] = 'Logout Service URL';
 $string['slourl_help'] = 'eg https://idp.example.com/SloRedirect';
+$string['certfingerprint'] = 'Certificate finger print';
+$string['certfingerprint_help'] = 'eg 40 hex chars';
 $string['debug'] = 'Debugging';
 $string['debug_help'] = 'This adds extra debugging to the normal moodle log';
 

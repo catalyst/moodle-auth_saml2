@@ -33,9 +33,10 @@ require_once($CFG->libdir.'/authlib.php');
 class auth_plugin_saml2 extends auth_plugin_base {
 
     public $defaults = array(
+        'entityid'        => '',
         'ssourl'          => '',
         'slourl'          => '',
-        // 'certfingerprint' => 0,
+        'certfingerprint' => '',
         // 'memcacheurl'     => '',
         'debug'           => 0,
     );
@@ -49,8 +50,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
     }
 
     /**
-     * A debug function, dumps to the php log as well as into the
-     * response headers for easy curl based debugging
+     * A debug function, dumps to the php log
      *
      */
     private function log($msg) {

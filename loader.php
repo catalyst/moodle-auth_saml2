@@ -39,3 +39,22 @@ spl_autoload_register(
     }
 );
 
+spl_autoload_register(
+    function($className) {
+        $classPath = explode('_', $className);
+        if ($classPath[0] != 'sspmod') {
+            $classPath = explode('\\', $className);
+            if ($classPath[0] != 'sspmod') {
+                return;
+            }
+        }
+        array_shift($classPath);
+        $module = array_shift($classPath);
+
+        $filePath = dirname(__FILE__) . "/simplesamlphp/modules/$module/lib/" . implode('/', $classPath) . '.php';
+        if (file_exists($filePath)) {
+            require_once($filePath);
+        }
+    }
+);
+

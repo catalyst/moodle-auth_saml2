@@ -27,22 +27,34 @@ $yesno = array(get_string('no'), get_string('yes'));
 ?>
 <table cellspacing="0" cellpadding="5" border="0">
 <tr valign="top">
+    <?php $field = 'entityid' ?>
+    <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
+    <td><input type="text" size="80" name="<?php echo $field ?>" value="<?php print $config->$field ?>"><br>
+        <?php print_string($field.'_help', 'auth_saml2') ?></td>
+</tr>
+<tr valign="top">
     <?php $field = 'ssourl' ?>
     <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
-    <td><input type="text" name="<?php echo $field ?>" value="<?php print $config->$field ?>"></td>
-    <td><?php print_string($field.'_help', 'auth_saml2') ?></td>
+    <td><input type="text" size="80" name="<?php echo $field ?>" value="<?php print $config->$field ?>"><br>
+        <?php print_string($field.'_help', 'auth_saml2') ?></td>
 </tr>
 <tr valign="top">
     <?php $field = 'slourl' ?>
     <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
-    <td><input type="text" name="<?php echo $field ?>" value="<?php print $config->$field ?>"></td>
-    <td><?php print_string($field.'_help', 'auth_saml2') ?></td>
+    <td><input type="text" size="80" name="<?php echo $field ?>" value="<?php print $config->$field ?>"><br>
+        <?php print_string($field.'_help', 'auth_saml2') ?></td>
+</tr>
+<tr valign="top">
+    <?php $field = 'certfingerprint' ?>
+    <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
+    <td><input type="text" size="80" name="<?php echo $field ?>" value="<?php print $config->$field ?>"><br>
+        <?php print_string($field.'_help', 'auth_saml2') ?></td>
 </tr>
 <tr valign="top">
     <?php $field = 'debug' ?>
     <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
-    <td><?php echo html_writer::select($yesno, $field, $config->$field, false) ?></td>
-    <td><?php print_string($field.'_help', 'auth_saml2') ?></td>
+    <td><?php echo html_writer::select($yesno, $field, $config->$field, false) ?>
+        <?php print_string($field.'_help', 'auth_saml2') ?></td>
 </tr>
 </table>
 
