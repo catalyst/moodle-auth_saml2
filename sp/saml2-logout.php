@@ -13,20 +13,20 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * The SAML 2.0 remote IdP metadata for simpleSAMLphp.
+ * Test page for SAML
  *
- * @package   auth_saml2
- * @copyright Brendan Heywood <brendan@catalyst-au.net>
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    auth_saml2
+ * @copyright  Brendan Heywood <brendan@catalyst-au.net>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-global $saml2auth;
-$cfg = $saml2auth->config;
-$metadata[$cfg->entityid] = array(
-    'SingleSignOnService'   => $cfg->ssourl,
-    'SingleLogoutService'   => $cfg->slourl,
-    'certFingerprint'       => $cfg->certfingerprint,
-    'saml2.relaxvalidation' => array('noattributestatement')
-);
+require_once('../setup.php');
+
+// First setup the PATH_INFO because that's how SSP rolls.
+$_SERVER['PATH_INFO'] = '/' . $saml2auth->spname;;
+
+require('../extlib/xmlseclibs/xmlseclibs.php');
+require('../extlib/simplesamlphp/modules/saml/www/sp/saml2-logout.php');
 

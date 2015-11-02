@@ -32,6 +32,9 @@ require_once($CFG->libdir.'/authlib.php');
  */
 class auth_plugin_saml2 extends auth_plugin_base {
 
+    /**
+     * @var $defaults The config defaults
+     */
     public $defaults = array(
         'entityid'        => '',
         'ssourl'          => '',
@@ -54,6 +57,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
     /**
      * A debug function, dumps to the php log
      *
+     * @param string $msg Log message
      */
     private function log($msg) {
         if ($this->config->debug) {
@@ -65,9 +69,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * All the checking happens before the login page in this hook
      */
     public function pre_loginpage_hook() {
-
         $this->log(__FUNCTION__ . ' enter');
-        // $this->loginpage_hook(); TODO
+        $this->loginpage_hook();
         $this->log(__FUNCTION__ . ' exit');
     }
 
@@ -75,10 +78,9 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * All the checking happens before the login page in this hook
      */
     public function loginpage_hook() {
-
         global $CFG, $DB, $USER, $SESSION, $SITE, $PAGE, $OUTPUT, $saml2auth;
 
-        $this->log(__FUNCTION__);
+        $this->log(__FUNCTION__ . ' enter');
 
         require_once('setup.php');
         $auth = new SimpleSAML_Auth_Simple($this->spname);
@@ -119,11 +121,33 @@ class auth_plugin_saml2 extends auth_plugin_base {
             echo $OUTPUT->footer();
             // TODO kill session to enable login as somebody else with an account.
         }
-        exit;
 
     }
 
+    /**
+     * Make sure we also cleanup the SAML session AND log out of the IdP
+     */
     public function logoutpage_hook() {
+
+        global $CFG, $saml2auth, $redirect;
+
+        $this->log(__FUNCTION__);
+
+        // Only do this if SLO url is configured.
+        if (empty($this->config->slourl)) {
+            return;
+        }
+
+        // Do the normal moodle logout first as we redirect away before it gets called.
+        require_logout();
+
+        require_once('setup.php');
+        $auth = new SimpleSAML_Auth_Simple($this->spname);
+
+        // Only log out of the IdP if we logged in via the IdP. TODO check session timeouts
+        if ($auth->isAuthenticated()) {
+            $auth->logout($redirect);
+        }
     }
 
 
@@ -167,7 +191,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         return true;
     }
 
-    /*
+    /**
      * A simple GUI tester which shows the raw API output
      */
     public function test_settings() {
