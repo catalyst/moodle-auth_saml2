@@ -161,7 +161,7 @@ if ($name !== NULL && !empty($attributes)) {
 	if (empty($metaArray20['attributes.required'])) {
 	    unset($metaArray20['attributes.required']);
 	}
-	
+
 	$description = $spconfig->getArray('description', NULL);
 	if ($description !== NULL) {
 		$metaArray20['description'] = $description;

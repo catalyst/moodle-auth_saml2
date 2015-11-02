@@ -22,13 +22,19 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-global $saml2auth, $CFG;
+global $saml2auth, $CFG, $SITE;
 
 $config = array(
 	$saml2auth->spname => array(
 		'saml:SP',
         'entityID' => $CFG->wwwroot . '/auth/saml2/sp/metadata.php',
 		'idp' => $saml2auth->config->entityid,
+        'OrganizationName' => array(
+            'en' => $SITE->fullname,
+        ),
+        'OrganizationURL' => array(
+            'en' => $CFG->wwwroot,
+        ),
 	),
 );
 
