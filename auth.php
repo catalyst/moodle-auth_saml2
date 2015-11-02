@@ -41,6 +41,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
         'slourl'          => '',
         'certfingerprint' => '',
         'debug'           => 0,
+// TODO SSP debug levels
+// force login for all + dual login page with _GET
     );
 
     /**
@@ -119,6 +121,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
             echo $OUTPUT->header();
             echo $OUTPUT->box(get_string('nouser', 'auth_saml2', $username));
             echo $OUTPUT->footer();
+            exit;
             // TODO kill session to enable login as somebody else with an account.
         }
 
