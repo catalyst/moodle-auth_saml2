@@ -37,7 +37,6 @@ class auth_plugin_saml2 extends auth_plugin_base {
         'ssourl'          => '',
         'slourl'          => '',
         'certfingerprint' => '',
-        // 'memcacheurl'     => '',
         'debug'           => 0,
     );
 
@@ -68,7 +67,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
     public function pre_loginpage_hook() {
 
         $this->log(__FUNCTION__ . ' enter');
-        // $this->loginpage_hook();
+        // $this->loginpage_hook(); TODO
         $this->log(__FUNCTION__ . ' exit');
     }
 
@@ -123,6 +122,10 @@ class auth_plugin_saml2 extends auth_plugin_base {
         exit;
 
     }
+
+    public function logoutpage_hook() {
+    }
+
 
     /**
      * Returns false regardless of the username and password as we never get

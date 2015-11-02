@@ -26,33 +26,10 @@ global $CFG;
 
 $config = array(
 
-    /**
-     * Setup the following parameters to match the directory of your installation.
-     * See the user manual for more details.
-     *
-     * Valid format for baseurlpath is:
-     * [(http|https)://(hostname|fqdn)[:port]]/[path/to/simplesaml/]
-     * (note that it must end with a '/')
-     *
-     * The full url format is useful if your simpleSAMLphp setup is hosted behind
-     * a reverse proxy. In that case you can specify the external url here.
-     *
-     * Please note that simpleSAMLphp will then redirect all queries to the
-     * external url, no matter where you come from (direct access or via the
-     * reverse proxy).
-     */
-    // 'baseurlpath' => $CFG->wwwroot . '/auth/saml2/simplesaml/www/',
-    'certdir' => 'cert/',
-    'loggingdir' => 'log/',
-    'datadir' => 'data/',
-
-    /*
-     * A directory where simpleSAMLphp can save temporary files.
-     *
-     * SimpleSAMLphp will attempt to create this directory if it doesn't exist.
-     */
+    'certdir' => 'cert/', // TODO
+    'loggingdir' => 'log/', // TODO
+    'datadir' => 'data/', // TODO.
     'tempdir' => '/tmp/simplesaml',
-
 
     /*
      * If you enable this option, simpleSAMLphp will log all sent and received messages
@@ -75,21 +52,9 @@ $config = array(
     'showerrors' => true,
     'errorreporting' => true,
 
-    /**
-     * This option allows you to enable validation of XML data against its
-     * schemas. A warning will be written to the log if validation fails.
-     */
     'debug.validatexml' => false,
 
-    /**
-     * This is a secret salt used by simpleSAMLphp when it needs to generate a secure hash
-     * of a value. It must be changed from its default value to a secret value. The value of
-     * 'secretsalt' can be any valid string of any length.
-     *
-     * A possible way to generate a random salt is by running the following command from a unix shell:
-     * tr -c -d '0123456789abcdefghijklmnopqrstuvwxyz' </dev/urandom | dd bs=32 count=1 2>/dev/null;echo
-     */
-    'secretsalt' => get_site_identifier(), // Safe?? TODO
+    'secretsalt' => get_site_identifier(), // TODO is this safe?
 
     /*
      * Some information about the technical persons running this installation.
@@ -124,7 +89,7 @@ $config = array(
      *
      */
     'logging.level' => SimpleSAML_Logger::NOTICE,
-    'logging.handler' => 'errorlog', // TODO check working
+    'logging.handler' => 'errorlog', // TODO check working.
 
 
     /* (New) statistics output configuration.
@@ -161,99 +126,15 @@ $config = array(
     'enable.wsfed-sp' => false,
     'enable.authmemcookie' => false,
 
-
-    /*
-     * Module enable configuration
-     *
-     * Configuration to override module enabling/disabling.
-     *
-     * Example:
-     *
-     * 'module.enable' => array(
-     * 	// Setting to TRUE enables.
-     * 	'exampleauth' => TRUE,
-     * 	// Setting to FALSE disables.
-     * 	'saml' => FALSE,
-     * 	// Unset or NULL uses default.
-     * 	'core' => NULL,
-     * ),
-     *
-     */
-
-
-    /*
-     * This value is the duration of the session in seconds. Make sure that the time duration of
-     * cookies both at the SP and the IdP exceeds this duration.
-     */
-    'session.duration' => 8 * (60 * 60), // 8 hours.
-
-    /*
-     * Sets the duration, in seconds, data should be stored in the datastore. As the datastore is used for
-     * login and logout requests, thid option will control the maximum time these operations can take.
-     * The default is 4 hours (4*60*60) seconds, which should be more than enough for these operations.
-     */
-    'session.datastore.timeout' => (4 * 60 * 60), // 4 hours
-
-    /*
-     * Sets the duration, in seconds, auth state should be stored.
-     */
-    'session.state.timeout' => (60 * 60), // 1 hour
-
-    /*
-     * Option to override the default settings for the session cookie name
-     */
+    'session.duration' => 8 * (60 * 60), // 8 hours. TODO same as moodle.
+    'session.datastore.timeout' => (4 * 60 * 60),
+    'session.state.timeout' => (60 * 60),
     'session.cookie.name' => 'SimpleSAMLSessionID',
-
-    /*
-     * Expiration time for the session cookie, in seconds.
-     *
-     * Defaults to 0, which means that the cookie expires when the browser is closed.
-     *
-     * Example:
-     *  'session.cookie.lifetime' => 30*60,
-     */
     'session.cookie.lifetime' => 0,
-
-    /*
-     * Limit the path of the cookies.
-     *
-     * Can be used to limit the path of the cookies to a specific subdirectory.
-     *
-     * Example:
-     *  'session.cookie.path' => '/simplesaml/',
-     */
     'session.cookie.path' => '/',
-
-    /*
-     * Cookie domain.
-     *
-     * Can be used to make the session cookie available to several domains.
-     *
-     * Example:
-     *  'session.cookie.domain' => '.example.org',
-     */
     'session.cookie.domain' => null,
+    'session.cookie.secure' => false, // TODO.
 
-    /*
-     * Set the secure flag in the cookie.
-     *
-     * Set this to TRUE if the user only accesses your service
-     * through https. If the user can access the service through
-     * both http and https, this must be set to FALSE.
-     */
-    'session.cookie.secure' => false, // TODO
-
-    /*
-     * Enable secure POST from HTTPS to HTTP.
-     *
-     * If you have some SP's on HTTP and IdP is normally on HTTPS, this option
-     * enables secure POSTing to HTTP endpoint without warning from browser.
-     *
-     * For this to work, module.php/core/postredirect.php must be accessible
-     * also via HTTP on IdP, e.g. if your IdP is on
-     * https://idp.example.org/ssp/, then
-     * http://idp.example.org/ssp/module.php/core/postredirect.php must be accessible.
-     */
     'enable.http_post' => false,
 
     /*
@@ -267,31 +148,6 @@ $config = array(
      * Option to override the default settings for the auth token cookie
      */
     'session.authtoken.cookiename' => 'SimpleSAMLAuthToken',
-
-    /*
-     * Options for remember me feature for IdP sessions. Remember me feature
-     * has to be also implemented in authentication source used.
-     *
-     * Option 'session.cookie.lifetime' should be set to zero (0), i.e. cookie
-     * expires on browser session if remember me is not checked.
-     *
-     * Session duration ('session.duration' option) should be set according to
-     * 'session.rememberme.lifetime' option.
-     *
-     * It's advised to use remember me feature with session checking function
-     * defined with 'session.check_function' option.
-     */
-    'session.rememberme.enable' => false,
-    'session.rememberme.checked' => false,
-    'session.rememberme.lifetime' => (14 * 86400),
-
-    /**
-     * Custom function for session checking called on session init and loading.
-     * See docs/simplesamlphp-advancedfeatures.txt for function code example.
-     *
-     * Example:
-     *   'session.check_function' => array('sspmod_example_Util', 'checkSession'),
-     */
 
     /*
      * Languages available, RTL languages, and what language is default
@@ -318,100 +174,16 @@ $config = array(
     'language.cookie.path' => '/',
     'language.cookie.lifetime' => (60 * 60 * 24 * 900),
 
-    /**
-     * Custom getLanguage function called from SimpleSAML_XHTML_Template::getLanguage().
-     * Function should return language code of one of the available languages or NULL.
-     * See SimpleSAML_XHTML_Template::getLanguage() source code for more info.
-     *
-     * This option can be used to implement a custom function for determining
-     * the default language for the user.
-     *
-     * Example:
-     *   'language.get_language_function' => array('sspmod_example_Template', 'getLanguage'),
-     */
-
-    /*
-     * Extra dictionary for attribute names.
-     * This can be used to define local attributes.
-     *
-     * The format of the parameter is a string with <module>:<dictionary>.
-     *
-     * Specifying this option will cause us to look for modules/<module>/dictionaries/<dictionary>.definition.json
-     * The dictionary should look something like:
-     *
-     * {
-     *     "firstattribute": {
-     *         "en": "English name",
-     *         "no": "Norwegian name"
-     *     },
-     *     "secondattribute": {
-     *         "en": "English name",
-     *         "no": "Norwegian name"
-     *     }
-     * }
-     *
-     * Note that all attribute names in the dictionary must in lowercase.
-     *
-     * Example: 'attributes.extradictionary' => 'ourmodule:ourattributes',
-     */
-    'attributes.extradictionary' => null,
-
-    /*
-     * Which theme directory should be used?
-     */
-    'theme.use' => 'default',
-
-
     /*
      * Default IdP for WS-Fed.
      */
     'default-wsfed-idp' => 'urn:federation:pingfederate:localhost',
 
-    /*
-     * Whether the discovery service should allow the user to save his choice of IdP.
-     */
-    'idpdisco.enableremember' => true,
-    'idpdisco.rememberchecked' => true,
-
-    // Disco service only accepts entities it knows.
-    'idpdisco.validate' => true,
-
-    'idpdisco.extDiscoveryStorage' => null,
-
-    /*
-     * IdP Discovery service look configuration.
-     * Wether to display a list of idp or to display a dropdown box. For many IdP' a dropdown box
-     * gives the best use experience.
-     *
-     * When using dropdown box a cookie is used to highlight the previously chosen IdP in the dropdown.
-     * This makes it easier for the user to choose the IdP
-     *
-     * Options: [links,dropdown]
-     *
-     */
-    'idpdisco.layout' => 'dropdown',
-
-    /*
-     * Whether simpleSAMLphp should sign the response or the assertion in SAML 1.1 authentication
-     * responses.
-     *
-     * The default is to sign the assertion element, but that can be overridden by setting this
-     * option to TRUE. It can also be overridden on a pr. SP basis by adding an option with the
-     * same name to the metadata of the SP.
-     */
-    'shib13.signresponse' => true,
-    // TODO
-
-    /*
-     * Authentication processing filters that will be executed for all SPs
-     * Both Shibboleth and SAML 2.0
-     */
     'authproc.sp' => array(
         90 => 'core:LanguageAdaptor',
     ),
 
     'metadatadir' => "$CFG->dirroot/auth/saml2/metadata",
-
     'metadata.sources' => array(
         array('type' => 'flatfile'),
     ),
@@ -419,24 +191,18 @@ $config = array(
     /*
      * Piggy back sessions inside the moodle DB
      */
-    'store.type'          => 'sql',
+    'store.type'           => 'sql',
     'store.sql.username'   => $CFG->dbuser,
     'store.sql.password'   => $CFG->dbpass,
     'store.sql.prefix'     => $CFG->prefix . 'authsaml_',
     'store.sql.persistent' => false,
+    // TODO this should be broken for psql as not supported by SSP but works! why?
     'store.sql.dsn'        => (
-          $CFG->dbtype == 'pgsql' ? "pgsql:host={$CFG->dbhost};dbname={$CFG->dbname}"
-        : $CFG->dbtype == 'mysql' ? "mysql:host={$CFG->dbhost};dbname={$CFG->dbname}"
-        : 'unknowndbtype'
+        $CFG->dbtype == 'pgsql' ? "pgsql:host={$CFG->dbhost};dbname={$CFG->dbname}" :
+        $CFG->dbtype == 'mysql' ? "mysql:host={$CFG->dbhost};dbname={$CFG->dbname}" :
+        'unknowndbtype'
     ),
 
-
-    /*
-     * Should signing of generated metadata be enabled by default.
-     *
-     * Metadata signing can also be enabled for a individual SP or IdP by setting the
-     * same option in the metadata for the SP or IdP.
-     */
     'metadata.sign.enable' => false,
 
     /*
@@ -453,15 +219,6 @@ $config = array(
     'metadata.sign.privatekey_pass' => null,
     'metadata.sign.certificate' => null,
 
-
-    /*
-     * Proxy to use for retrieving URLs.
-     *
-     * Example:
-     *   'proxy' => 'tcp://proxy.example.com:5100'
-     */
-    'proxy' => null, // TODO inherit from moodle conf see http://moodle.local/admin/settings.php?section=http
-
-    'trusted.url.domains' => array(),
+    'proxy' => null, // TODO inherit from moodle conf see http://moodle.local/admin/settings.php?section=http for more.
 
 );

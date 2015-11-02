@@ -28,4 +28,11 @@
     <license>Custom</license>
     <licenseversion></licenseversion>
   </library>
+  <library>
+    <location>sp/metadata.php</location>
+    <name>SP metadata</name>
+    <version></version>
+    <license></license>
+    <licenseversion></licenseversion>
+  </library>
 </libraries>

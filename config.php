@@ -47,7 +47,8 @@ $yesno = array(get_string('no'), get_string('yes'));
 <tr valign="top">
     <?php $field = 'certfingerprint' ?>
     <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
-    <td><textarea columns="80" rows="10" name="<?php echo $field ?>" style="width: 100%"><?php print $config->$field ?></textarea><br>
+    <td><textarea columns="80" rows="10" name="<?php echo $field ?>" style="width: 100%">
+        <?php print $config->$field ?></textarea><br>
         <?php print_string($field.'_help', 'auth_saml2') ?></td>
 </tr>
 <tr valign="top">
@@ -59,7 +60,8 @@ $yesno = array(get_string('no'), get_string('yes'));
 <tr valign="top">
     <?php $field = 'spmetadata' ?>
     <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
-    <td><p><a href="<?php echo "$CFG->wwwroot/auth/saml2/sp/metadata.php" ?>"><?php print_string($field . '_link', 'auth_saml2') ?></a></p>
+    <td><p><a href="<?php echo "$CFG->wwwroot/auth/saml2/sp/metadata.php" ?>">
+        <?php print_string($field . '_link', 'auth_saml2') ?></a></p>
         <p><?php print_string($field.'_help', 'auth_saml2') ?></p></td>
 </tr>
 </table>

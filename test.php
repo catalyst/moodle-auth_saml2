@@ -33,15 +33,15 @@ if (!$auth->isAuthenticated() && $trylogin) {
     $auth->requireAuth();
     echo "Hello, authenticated user!";
     $attributes = $as->getAttributes();
-    print_r($attributes);
+    var_dump($attributes);
 
-} elseif (!$auth->isAuthenticated()) {
+} else if (!$auth->isAuthenticated()) {
     echo '<p>You are not logged in: <a href="?login=true">Login</a></p>';
 } else {
     echo 'Authed!';
     $attributes = $auth->getAttributes();
     echo '<pre>';
-    print_r($attributes);
+    var_dump($attributes);
     echo '</pre>';
 }
 
