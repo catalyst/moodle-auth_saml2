@@ -4,3 +4,7 @@
 [submodule "saml2"]
 	path = saml2
 	url = git@github.com:simplesamlphp/saml2.git
+[submodule "xmlseclibs"]
+    branch = 1.4
+	path = xmlseclibs
+	url = git@github.com:robrichards/xmlseclibs.git

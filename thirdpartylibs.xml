@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<libraries>
+  <library>
+    <location>simplesamlphp</location>
+    <name>SimpleSamlPHP</name>
+    <version>1.10</version>
+    <license>LGPL</license>
+    <licenseversion>2.1+</licenseversion>
+  </library>
+  <library>
+    <location>saml2</location>
+    <name>saml2</name>
+    <version>1.7</version>
+    <license>LGPL</license>
+    <licenseversion>2.1+</licenseversion>
+  </library>
+  <library>
+    <location>xmlseclibs</location>
+    <name>XmlSecLibs</name>
+    <version>1.10</version>
+    <license>Custom</license>
+    <licenseversion></licenseversion>
+  </library>
+</libraries>

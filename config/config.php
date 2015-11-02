@@ -21,10 +21,6 @@
  * @copyright  Brendan Heywood <brendan@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-/*
- * The configuration of SimpleSAMLphp
- *
- */
 
 global $CFG;
 
@@ -45,7 +41,7 @@ $config = array(
      * external url, no matter where you come from (direct access or via the
      * reverse proxy).
      */
-    'baseurlpath' => 'auth/saml2/simplesaml/www/',
+    // 'baseurlpath' => $CFG->wwwroot . '/auth/saml2/simplesaml/www/',
     'certdir' => 'cert/',
     'loggingdir' => 'log/',
     'datadir' => 'data/',
@@ -80,28 +76,10 @@ $config = array(
     'errorreporting' => true,
 
     /**
-     * Custom error show function called from SimpleSAML_Error_Error::show.
-     * See docs/simplesamlphp-errorhandling.txt for function code example.
-     *
-     * Example:
-     *   'errors.show_function' => array('sspmod_example_Error_Show', 'show'),
-     */
-
-    /**
      * This option allows you to enable validation of XML data against its
      * schemas. A warning will be written to the log if validation fails.
      */
     'debug.validatexml' => false,
-
-    /**
-     * This password must be kept secret, and modified from the default value 123.
-     * This password will give access to the installation page of simpleSAMLphp with
-     * metadata listing and diagnostics pages.
-     * You can also put a hash here; run "bin/pwgen.php" to generate one.
-     */
-    'auth.adminpassword' => '123',
-    'admin.protectindexpage' => false,
-    'admin.protectmetadata' => false,
 
     /**
      * This is a secret salt used by simpleSAMLphp when it needs to generate a secure hash
@@ -111,7 +89,7 @@ $config = array(
      * A possible way to generate a random salt is by running the following command from a unix shell:
      * tr -c -d '0123456789abcdefghijklmnopqrstuvwxyz' </dev/urandom | dd bs=32 count=1 2>/dev/null;echo
      */
-    'secretsalt' => 'defaultsecretsalt',
+    'secretsalt' => get_site_identifier(), // Safe?? TODO
 
     /*
      * Some information about the technical persons running this installation.
@@ -146,58 +124,8 @@ $config = array(
      *
      */
     'logging.level' => SimpleSAML_Logger::NOTICE,
-    'logging.handler' => 'syslog',
+    'logging.handler' => 'errorlog', // TODO check working
 
-    /*
-     * Specify the format of the logs. Its use varies depending on the log handler used (for instance, you cannot
-     * control here how dates are displayed when using the syslog or errorlog handlers), but in general the options
-     * are:
-     *
-     * - %date{<format>}: the date and time, with its format specified inside the brackets. See the PHP documentation
-     *   of the strftime() function for more information on the format. If the brackets are omitted, the standard
-     *   format is applied. This can be useful if you just want to control the placement of the date, but don't care
-     *   about the format.
-     *
-     * - %process: the name of the SimpleSAMLphp process. Remember you can configure this in the 'logging.processname'
-     *   option below.
-     *
-     * - %level: the log level (name or number depending on the handler used).
-     *
-     * - %stat: if the log entry is intended for statistical purposes, it will print the string 'STAT ' (bear in mind
-     *   the trailing space).
-     *
-     * - %trackid: the track ID, an identifier that allows you to track a single session.
-     *
-     * - %srcip: the IP address of the client. If you are behind a proxy, make sure to modify the
-     *   $_SERVER['REMOTE_ADDR'] variable on your code accordingly to the X-Forwarded-For header.
-     *
-     * - %msg: the message to be logged.
-     *
-     */
-    //'logging.format' => '%date{%b %d %H:%M:%S} %process %level %stat[%trackid] %msg',
-
-    /*
-     * Choose which facility should be used when logging with syslog.
-     *
-     * These can be used for filtering the syslog output from simpleSAMLphp into its
-     * own file by configuring the syslog daemon.
-     *
-     * See the documentation for openlog (http://php.net/manual/en/function.openlog.php) for available
-     * facilities. Note that only LOG_USER is valid on windows.
-     *
-     * The default is to use LOG_LOCAL5 if available, and fall back to LOG_USER if not.
-     */
-    'logging.facility' => defined('LOG_LOCAL5') ? constant('LOG_LOCAL5') : LOG_USER,
-
-    /*
-     * The process name that should be used when logging to syslog.
-     * The value is also written out by the other logging handlers.
-     */
-    'logging.processname' => 'simplesamlphp',
-
-    /* Logging: file - Logfilename in the loggingdir from above.
-     */
-    'logging.logfile' => 'simplesamlphp.log',
 
     /* (New) statistics output configuration.
      *
@@ -313,7 +241,7 @@ $config = array(
      * through https. If the user can access the service through
      * both http and https, this must be set to FALSE.
      */
-    'session.cookie.secure' => false,
+    'session.cookie.secure' => false, // TODO
 
     /*
      * Enable secure POST from HTTPS to HTTP.
@@ -475,220 +403,33 @@ $config = array(
     // TODO
 
     /*
-     * Authentication processing filters that will be executed for all IdPs
-     * Both Shibboleth and SAML 2.0
-     */
-    'authproc.idp' => array(
-        /* Enable the authproc filter below to add URN Prefixces to all attributes
-         10 => array(
-             'class' => 'core:AttributeMap', 'addurnprefix'
-         ), */
-        /* Enable the authproc filter below to automatically generated eduPersonTargetedID.
-        20 => 'core:TargetedID',
-        */
-
-        // Adopts language from attribute to use in UI
-        30 => 'core:LanguageAdaptor',
-
-        /* Add a realm attribute from edupersonprincipalname
-        40 => 'core:AttributeRealm',
-         */
-        45 => array(
-            'class'         => 'core:StatisticsWithAttribute',
-            'attributename' => 'realm',
-            'type'          => 'saml20-idp-SSO',
-        ),
-
-        /* When called without parameters, it will fallback to filter attributes ‹the old way›
-         * by checking the 'attributes' parameter in metadata on IdP hosted and SP remote.
-         */
-        50 => 'core:AttributeLimit',
-
-        /*
-         * Search attribute "distinguishedName" for pattern and replaces if found
-
-        60 => array(
-            'class' => 'core:AttributeAlter',
-            'pattern' => '/OU=studerende/',
-            'replacement' => 'Student',
-            'subject' => 'distinguishedName',
-            '%replace',
-        ),
-         */
-
-        /*
-         * Consent module is enabled (with no permanent storage, using cookies).
-
-        90 => array(
-            'class' => 'consent:Consent',
-            'store' => 'consent:Cookie',
-            'focus' => 'yes',
-            'checked' => TRUE
-        ),
-         */
-        // If language is set in Consent module it will be added as an attribute.
-        99 => 'core:LanguageAdaptor',
-    ),
-    /*
      * Authentication processing filters that will be executed for all SPs
      * Both Shibboleth and SAML 2.0
      */
     'authproc.sp' => array(
-        /*
-        10 => array(
-            'class' => 'core:AttributeMap', 'removeurnprefix'
-        ),
-        */
-
-        /*
-         * Generate the 'group' attribute populated from other variables, including eduPersonAffiliation.
-         60 => array(
-            'class' => 'core:GenerateGroups', 'eduPersonAffiliation'
-        ),
-        */
-        /*
-         * All users will be members of 'users' and 'members'
-        61 => array(
-            'class' => 'core:AttributeAdd', 'groups' => array('users', 'members')
-        ),
-        */
-
-        // Adopts language from attribute to use in UI
         90 => 'core:LanguageAdaptor',
-
     ),
 
     'metadatadir' => "$CFG->dirroot/auth/saml2/metadata",
 
-    /*
-     * This option configures the metadata sources. The metadata sources is given as an array with
-     * different metadata sources. When searching for metadata, simpleSAMPphp will search through
-     * the array from start to end.
-     *
-     * Each element in the array is an associative array which configures the metadata source.
-     * The type of the metadata source is given by the 'type' element. For each type we have
-     * different configuration options.
-     *
-     * Flat file metadata handler:
-     * - 'type': This is always 'flatfile'.
-     * - 'directory': The directory we will load the metadata files from. The default value for
-     *                this option is the value of the 'metadatadir' configuration option, or
-     *                'metadata/' if that option is unset.
-     *
-     * XML metadata handler:
-     * This metadata handler parses an XML file with either an EntityDescriptor element or an
-     * EntitiesDescriptor element. The XML file may be stored locally, or (for debugging) on a remote
-     * web server.
-     * The XML hetadata handler defines the following options:
-     * - 'type': This is always 'xml'.
-     * - 'file': Path to the XML file with the metadata.
-     * - 'url': The URL to fetch metadata from. THIS IS ONLY FOR DEBUGGING - THERE IS NO CACHING OF THE RESPONSE.
-     *
-     */
     'metadata.sources' => array(
         array('type' => 'flatfile'),
     ),
 
-
     /*
-     * Configure the datastore for simpleSAMLphp.
-     *
-     * - 'phpsession': Limited datastore, which uses the PHP session.
-     * - 'memcache': Key-value datastore, based on memcache.
-     * - 'sql': SQL datastore, using PDO.
-     *
-     * The default datastore is 'phpsession'.
-     *
-     * (This option replaces the old 'session.handler'-option.)
+     * Piggy back sessions inside the moodle DB
      */
-    'store.type'                    => 'phpsession',
-
-    /*
-     * Configuration for the 'memcache' session store. This allows you to store
-     * multiple redundant copies of sessions on different memcache servers.
-     *
-     * 'memcache_store.servers' is an array of server groups. Every data
-     * item will be mirrored in every server group.
-     *
-     * Each server group is an array of servers. The data items will be
-     * load-balanced between all servers in each server group.
-     *
-     * Each server is an array of parameters for the server. The following
-     * options are available:
-     *  - 'hostname': This is the hostname or ip address where the
-     *    memcache server runs. This is the only required option.
-     *  - 'port': This is the port number of the memcache server. If this
-     *    option isn't set, then we will use the 'memcache.default_port'
-     *    ini setting. This is 11211 by default.
-     *  - 'weight': This sets the weight of this server in this server
-     *    group. http://php.net/manual/en/function.Memcache-addServer.php
-     *    contains more information about the weight option.
-     *  - 'timeout': The timeout for this server. By default, the timeout
-     *    is 3 seconds.
-     *
-     * Example of redundant configuration with load balancing:
-     * This configuration makes it possible to lose both servers in the
-     * a-group or both servers in the b-group without losing any sessions.
-     * Note that sessions will be lost if one server is lost from both the
-     * a-group and the b-group.
-     *
-     * 'memcache_store.servers' => array(
-     *     array(
-     *         array('hostname' => 'mc_a1'),
-     *         array('hostname' => 'mc_a2'),
-     *     ),
-     *     array(
-     *         array('hostname' => 'mc_b1'),
-     *         array('hostname' => 'mc_b2'),
-     *     ),
-     * ),
-     *
-     * Example of simple configuration with only one memcache server,
-     * running on the same computer as the web server:
-     * Note that all sessions will be lost if the memcache server crashes.
-     *
-     * 'memcache_store.servers' => array(
-     *     array(
-     *         array('hostname' => 'localhost'),
-     *     ),
-     * ),
-     *
-     */
-    'memcache_store.servers' => array(
-        array(
-            array('hostname' => 'localhost'),
-        ),
+    'store.type'          => 'sql',
+    'store.sql.username'   => $CFG->dbuser,
+    'store.sql.password'   => $CFG->dbpass,
+    'store.sql.prefix'     => $CFG->prefix . 'authsaml_',
+    'store.sql.persistent' => false,
+    'store.sql.dsn'        => (
+          $CFG->dbtype == 'pgsql' ? "pgsql:host={$CFG->dbhost};dbname={$CFG->dbname}"
+        : $CFG->dbtype == 'mysql' ? "mysql:host={$CFG->dbhost};dbname={$CFG->dbname}"
+        : 'unknowndbtype'
     ),
-    // TODO
 
-    /*
-     * This value allows you to set a prefix for memcache-keys. The default
-     * for this value is 'simpleSAMLphp', which is fine in most cases.
-     *
-     * When running multiple instances of SSP on the same host, and more
-     * than one instance is using memcache, you probably want to assign
-     * a unique value per instance to this setting to avoid data collision.
-     */
-    'memcache_store.prefix' => null,
-
-
-    /*
-     * This value is the duration data should be stored in memcache. Data
-     * will be dropped from the memcache servers when this time expires.
-     * The time will be reset every time the data is written to the
-     * memcache servers.
-     *
-     * This value should always be larger than the 'session.duration'
-     * option. Not doing this may result in the session being deleted from
-     * the memcache servers while it is still in use.
-     *
-     * Set this value to 0 if you don't want data to expire.
-     *
-     * Note: The oldest data will always be deleted if the memcache server
-     * runs out of storage space.
-     */
-    'memcache_store.expires' => 36 * (60 * 60), // 36 hours.
-    // TODO
 
     /*
      * Should signing of generated metadata be enabled by default.
@@ -719,30 +460,8 @@ $config = array(
      * Example:
      *   'proxy' => 'tcp://proxy.example.com:5100'
      */
-    'proxy' => null,
+    'proxy' => null, // TODO inherit from moodle conf see http://moodle.local/admin/settings.php?section=http
 
-    /*
-     * Array of domains that are allowed when generating links or redirections
-     * to URLs. simpleSAMLphp will use this option to determine whether to
-     * to consider a given URL valid or not, but you should always validate
-     * URLs obtained from the input on your own (i.e. ReturnTo or RelayState
-     * parameters obtained from the $_REQUEST array).
-     *
-     * simpleSAMLphp will automatically add your own domain (either by checking
-     * it dynamically, or by using the domain defined in the 'baseurlpath'
-     * directive, the latter having precedence) to the list of trusted domains,
-     * in case this option is NOT set to NULL. In that case, you are explicitly
-     * telling simpleSAMLphp to verify URLs.
-     *
-     * Set to an empty array to disallow ALL redirections or links pointing to
-     * an external URL other than your own domain. This is the default behaviour.
-     *
-     * Set to NULL to disable checking of URLs. DO NOT DO THIS UNLESS YOU KNOW
-     * WHAT YOU ARE DOING!
-     *
-     * Example:
-     *   'trusted.url.domains' => array('sp.example.com', 'app.example.com'),
-     */
     'trusted.url.domains' => array(),
 
 );
