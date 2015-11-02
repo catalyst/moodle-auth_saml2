@@ -23,9 +23,9 @@
  */
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
-require_once('auth.php');
-require_once('autoload.php');
+require_once("$CFG->dirroot/auth/saml2/auth.php");
+require_once("$CFG->dirroot/auth/saml2/autoload.php");
 
 $saml2auth = new auth_plugin_saml2();
-SimpleSAML_Configuration::setConfigDir($CFG->dirroot . '/auth/saml2/config');
+SimpleSAML_Configuration::setConfigDir("$CFG->dirroot/auth/saml2/config");
 

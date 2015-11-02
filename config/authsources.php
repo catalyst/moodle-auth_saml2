@@ -27,7 +27,7 @@ global $saml2auth, $CFG, $SITE;
 $config = array(
 	$saml2auth->spname => array(
 		'saml:SP',
-        'entityID' => $CFG->wwwroot . '/auth/saml2/sp/metadata.php',
+        'entityID' => "$CFG->wwwroot/auth/saml2/sp/metadata.php",
 		'idp' => $saml2auth->config->entityid,
         'OrganizationName' => array(
             'en' => $SITE->shortname,

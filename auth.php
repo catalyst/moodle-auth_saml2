@@ -77,7 +77,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
      */
     public function loginpage_hook() {
 
-        global $CFG, $DB, $USER, $SESSION, $SITE, $PAGE, $OUTPUT;
+        global $CFG, $DB, $USER, $SESSION, $SITE, $PAGE, $OUTPUT, $saml2auth;
 
         $this->log(__FUNCTION__);
 
