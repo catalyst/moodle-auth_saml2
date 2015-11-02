@@ -27,13 +27,12 @@ Why is is better?
 How does it work?
 =================
 
-It completely embeds a SimpleSamlPhp instance which is dynamically configured
-the way it should be and inherits almost all of it's configuration from moodle
-configuration. In the future we should be able to swap to a differnt internal
-SAML implementation and the plugin GUI shouldn't need to change at all.
+It completely embeds a SimpleSamlPhp instance as an internal dependancy which
+is dynamically configured the way it should be and inherits almost all of it's
+configuration from moodle configuration. In the future we should be able to
+swap to a differnt internal SAML implementation and the plugin GUI shouldn't
+need to change at all.
 
-
-== Embedded SSP ==
 
 === Moodle TODO ===
 

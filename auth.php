@@ -43,6 +43,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         'debug'           => 0,
 // TODO SSP debug levels
 // force login for all + dual login page with _GET
+// TODO test can_change_password for new user test
     );
 
     /**
@@ -85,6 +86,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $this->log(__FUNCTION__ . ' enter');
 
         require_once('setup.php');
+        require_once("$CFG->dirroot/login/lib.php");
         $auth = new SimpleSAML_Auth_Simple($this->spname);
         $auth->requireAuth();
         $attributes = $auth->getAttributes();
@@ -94,19 +96,11 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
             $this->log(__FUNCTION__ . ' found user '.$user->username);
             complete_user_login($user);
-
-            if (isset($SESSION->wantsurl) && !empty($SESSION->wantsurl)) {
-                $urltogo = $SESSION->wantsurl;
-            } else if (isset($_GET['wantsurl'])) {
-                $urltogo = $_GET['wantsurl'];
-            } else {
-                $urltogo = $CFG->wwwroot;
-            }
-
             $USER->loggedin = true;
             $USER->site = $CFG->wwwroot;
             set_moodle_cookie($USER->username);
 
+            $urltogo = core_login_get_return_url();
             // If we are not on the page we want, then redirect to it.
             if ( qualified_me() !== $urltogo ) {
                 $this->log(__FUNCTION__ . " redirecting to $urltogo");
