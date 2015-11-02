@@ -77,11 +77,50 @@ class auth_plugin_saml2 extends auth_plugin_base {
      */
     public function loginpage_hook() {
 
-        global $CFG, $DB, $USER, $SESSION;
+        global $CFG, $DB, $USER, $SESSION, $SITE, $PAGE, $OUTPUT;
 
         $this->log(__FUNCTION__);
 
-        // TODO everything goes here
+        require_once('setup.php');
+        $auth = new SimpleSAML_Auth_Simple($this->spname);
+        $auth->requireAuth();
+        $attributes = $auth->getAttributes();
+
+        $username = $attributes['uid'][0];
+        if ($user = $DB->get_record('user', array( 'username' => $username ))) {
+
+            $this->log(__FUNCTION__ . ' found user '.$user->username);
+            complete_user_login($user);
+
+            if (isset($SESSION->wantsurl) && !empty($SESSION->wantsurl)) {
+                $urltogo = $SESSION->wantsurl;
+            } else if (isset($_GET['wantsurl'])) {
+                $urltogo = $_GET['wantsurl'];
+            } else {
+                $urltogo = $CFG->wwwroot;
+            }
+
+            $USER->loggedin = true;
+            $USER->site = $CFG->wwwroot;
+            set_moodle_cookie($USER->username);
+
+            // If we are not on the page we want, then redirect to it.
+            if ( qualified_me() !== $urltogo ) {
+                $this->log(__FUNCTION__ . " redirecting to $urltogo");
+                redirect($urltogo);
+                exit;
+            } else {
+                $this->log(__FUNCTION__ . " continuing onto " . qualified_me() );
+            }
+        } else {
+            $this->log(__FUNCTION__ . ' user ' . $username . ' is not in moodle');
+            $PAGE->set_course($SITE);
+            echo $OUTPUT->header();
+            echo $OUTPUT->box(get_string('nouser', 'auth_saml2', $username));
+            echo $OUTPUT->footer();
+            // TODO kill session to enable login as somebody else with an account.
+        }
+        exit;
 
     }
 

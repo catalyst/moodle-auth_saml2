@@ -5,7 +5,7 @@
 
 * have option for dual login - half copy from other saml plugin but use a hook instead
 * option to strip or map domain?
-*
+* have option to allow login regardless of auth type
 
 
 /auth/saml2/config.php

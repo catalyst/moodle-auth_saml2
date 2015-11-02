@@ -24,72 +24,7 @@
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once('auth.php');
-
-spl_autoload_register(
-    function($className) {
-        $classPath = explode('_', $className);
-        if ($classPath[0] != 'SimpleSAML') {
-            $classPath = explode('\\', $className);
-            if ($classPath[0] != 'SimpleSAML') {
-                return;
-            }
-        }
-        $filePath = dirname(__FILE__) . '/extlib/simplesamlphp/lib/' . implode('/', $classPath) . '.php';
-        if (file_exists($filePath)) {
-            require_once($filePath);
-        }
-    }
-);
-
-spl_autoload_register(
-    function($className) {
-        $classPath = explode('_', $className);
-        if ($classPath[0] != 'sspmod') {
-            $classPath = explode('\\', $className);
-            if ($classPath[0] != 'sspmod') {
-                return;
-            }
-        }
-        array_shift($classPath);
-        $module = array_shift($classPath);
-        $filePath = dirname(__FILE__) . "/extlib/simplesamlphp/modules/$module/lib/" . implode('/', $classPath) . '.php';
-        if (file_exists($filePath)) {
-            require_once($filePath);
-        }
-    }
-);
-
-spl_autoload_register(
-    function($className) {
-        $classPath = explode('_', $className);
-        if ($classPath[0] != 'SAML2') {
-            $classPath = explode('\\', $className);
-            if ($classPath[0] != 'SAML2') {
-                return;
-            }
-        }
-        $filePath = dirname(__FILE__) . "/extlib/saml2/src/" . implode('/', $classPath) . '.php';
-        if (file_exists($filePath)) {
-            require_once($filePath);
-        }
-    }
-);
-
-spl_autoload_register(
-    function($className) {
-        $classPath = explode('_', $className);
-        if ($classPath[0] != 'Psr') {
-            $classPath = explode('\\', $className);
-            if ($classPath[0] != 'Psr') {
-                return;
-            }
-        }
-        $filePath = dirname(__FILE__) . "/extlib/php-fig-log/" . implode('/', $classPath) . '.php';
-        if (file_exists($filePath)) {
-            require_once($filePath);
-        }
-    }
-);
+require_once('autoload.php');
 
 $saml2auth = new auth_plugin_saml2();
 SimpleSAML_Configuration::setConfigDir($CFG->dirroot . '/auth/saml2/config');
