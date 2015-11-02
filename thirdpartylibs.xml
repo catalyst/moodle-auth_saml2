@@ -1,23 +1,30 @@
 <?xml version="1.0"?>
 <libraries>
   <library>
-    <location>simplesamlphp</location>
+    <location>extlib/simplesamlphp</location>
     <name>SimpleSamlPHP</name>
     <version>1.10</version>
     <license>LGPL</license>
     <licenseversion>2.1+</licenseversion>
   </library>
   <library>
-    <location>saml2</location>
+    <location>extlib/saml2</location>
     <name>saml2</name>
     <version>1.7</version>
     <license>LGPL</license>
     <licenseversion>2.1+</licenseversion>
   </library>
   <library>
-    <location>xmlseclibs</location>
+    <location>extlib/xmlseclibs</location>
     <name>XmlSecLibs</name>
     <version>1.10</version>
+    <license>Custom</license>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
+    <location>extlib/php-fig-log</location>
+    <name>Psr Log</name>
+    <version>1.0</version>
     <license>Custom</license>
     <licenseversion></licenseversion>
   </library>
