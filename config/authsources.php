@@ -30,6 +30,9 @@ $config = array(
         'entityID' => $CFG->wwwroot . '/auth/saml2/sp/metadata.php',
 		'idp' => $saml2auth->config->entityid,
         'OrganizationName' => array(
+            'en' => $SITE->shortname,
+        ),
+        'OrganizationDisplayName' => array(
             'en' => $SITE->fullname,
         ),
         'OrganizationURL' => array(
