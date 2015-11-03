@@ -32,6 +32,34 @@ configuration from moodle configuration. In the future we should be able to
 swap to a differnt internal SAML implementation and the plugin GUI shouldn't
 need to change at all.
 
+Other SAML plugins
+------------------
+
+The diversity and variable quality and features of SAML moodle plugins is a
+reflection of a great need for a solid SAML plugin, but the negligence to do
+it properly in core. SAML2 is by far the most robust and supported protocol
+across the internet and should be fully integrated into moodle core as both
+a Service Provider and as an Identity Provider.
+
+Here is a quick run down of the alternatives:
+
+**Core:**
+
+/auth/shibboleth - This requires a separate Shibolleth install
+
+**Plugins:**
+
+* https://moodle.org/plugins/view/auth_saml - This requires a separate SimpleSamlPHP install
+
+* https://moodle.org/plugins/view/auth_zilink_saml - This is a custom fork of above
+
+* https://github.com/piersharding/moodle-auth_saml - This is another custom fork of above
+
+* https://moodle.org/plugins/view/auth_onelogin_saml - This one uses it's own embedded
+saml library which is great and promising, however it doesn't support 'back channel logout'
+which is critical for security in any large organisation.
+
+
 
 === Moodle TODO ===
 
