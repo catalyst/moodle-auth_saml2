@@ -39,7 +39,8 @@ The diversity and variable quality and features of SAML moodle plugins is a
 reflection of a great need for a solid SAML plugin, but the negligence to do
 it properly in core. SAML2 is by far the most robust and supported protocol
 across the internet and should be fully integrated into moodle core as both
-a Service Provider and as an Identity Provider.
+a Service Provider and as an Identity Provider, and without any external
+dependancies to manage.
 
 Here is a quick run down of the alternatives:
 
