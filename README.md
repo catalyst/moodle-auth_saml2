@@ -46,20 +46,31 @@ Here is a quick run down of the alternatives:
 
 **Core:**
 
-/auth/shibboleth - This requires a separate Shibolleth install
+* /auth/shibboleth - This requires a separately installed and configured
+  Shibolleth install
 
-**Plugins:**
 
-* https://moodle.org/plugins/view/auth_saml - This requires a separate SimpleSamlPHP install
+**Plugins that require SimpleSamlPHP**
 
-* https://moodle.org/plugins/view/auth_zilink_saml - This is a custom fork of above
+These are all forks of each other, and unfortunaly have diverged quite early
+making it difficult to cross port features or fixes between them.
 
-* https://github.com/piersharding/moodle-auth_saml - This is another custom fork of above
+* https://moodle.org/plugins/view/auth_saml
 
-* https://moodle.org/plugins/view/auth_onelogin_saml - This one uses it's own embedded
-saml library which is great and promising, however it doesn't support 'back channel logout'
-which is critical for security in any large organisation.
+* https://moodle.org/plugins/view/auth_zilink_saml
 
+* https://github.com/piersharding/moodle-auth_saml
+
+**Plugins which embed a SAML client lib:**
+
+These are much easier to manage and configure.
+
+* https://moodle.org/plugins/view/auth_onelogin_saml - This one uses it's own
+  embedded saml library which is great and promising, however it doesn't support
+  'back channel logout' which is critical for security in any large organisation.
+
+* This plugin, with an embedded and dynamically configured SimpleSamlPHP
+  instance under the hood
 
 
 === Moodle TODO ===
