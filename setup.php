@@ -23,9 +23,41 @@
  */
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
-require_once("$CFG->dirroot/auth/saml2/auth.php");
 require_once("$CFG->dirroot/auth/saml2/autoload.php");
+require_once("$CFG->dirroot/auth/saml2/auth.php");
 
 $saml2auth = new auth_plugin_saml2();
+
+// Auto create unique certificates for this SP
+//
+// This is one area which many SSP instances get horridly wrong and leave the
+// default certificates which is very insecure.
+if (!file_exists($saml2auth->certdir)) {
+    mkdir($saml2auth->certdir);
+}
+if (!file_exists($saml2auth->certpem) || !file_exists($saml2auth->certcrt)) {
+
+    $dn = array(
+        'countryName' => 'AU',
+        'stateOrProvinceName' => 'moodle',
+        'localityName' => 'moodleville',
+        'organizationName' => $SITE->shortname,
+        'organizationalUnitName' => 'moodle',
+        'commonName' => 'moodle',
+        'emailAddress' => $CFG->supportemail,
+    );
+
+    $privkeypass = get_site_identifier();
+    $numberofdays = 3650; // 10 years.
+
+    $privkey = openssl_pkey_new();
+    $csr = openssl_csr_new($dn, $privkey);
+    $sscert = openssl_csr_sign($csr, null, $privkey, $numberofdays);
+    openssl_x509_export($sscert, $publickey);
+    openssl_pkey_export($privkey, $privatekey, $privkeypass);
+    file_put_contents($saml2auth->certpem, $privatekey);
+    file_put_contents($saml2auth->certcrt, $publickey);
+}
+
 SimpleSAML_Configuration::setConfigDir("$CFG->dirroot/auth/saml2/config");
 

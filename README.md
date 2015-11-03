@@ -32,6 +32,20 @@ configuration from moodle configuration. In the future we should be able to
 swap to a differnt internal SAML implementation and the plugin GUI shouldn't
 need to change at all.
 
+Features
+--------
+
+* Dual login VS forced login for all as an option
+* user domain mapping
+* Automatic certificate creation
+
+Feature excluded on purpose:
+
+* Auto create users - this should not be in an auth plugin
+* Enrolment - this should be an enrol plugin and not in an auth plugin
+* Profile field mapping - see above
+* Role mapping - see above
+
 Other SAML plugins
 ------------------
 
@@ -46,13 +60,19 @@ Here is a quick run down of the alternatives:
 
 **Core:**
 
+One big issue with this, and the category below, is as there is a whole extra
+application between moodle and the IdP, the login and logout processes have
+more latency due to extra redirects. Latency on potentially slow mobile
+networks is by far the biggest bottle neck for login speed and the biggest
+complaint by our users.
+
 * /auth/shibboleth - This requires a separately installed and configured
   Shibolleth install
 
 
 **Plugins that require SimpleSamlPHP**
 
-These are all forks of each other, and unfortunaly have diverged quite early
+These are all forks of each other, and unfortunately have diverged quite early
 making it difficult to cross port features or fixes between them.
 
 * https://moodle.org/plugins/view/auth_saml
@@ -63,7 +83,7 @@ making it difficult to cross port features or fixes between them.
 
 **Plugins which embed a SAML client lib:**
 
-These are much easier to manage and configure.
+These are generally much easier to manage and configure as they are standalone.
 
 * https://moodle.org/plugins/view/auth_onelogin_saml - This one uses it's own
   embedded saml library which is great and promising, however it doesn't support

@@ -25,8 +25,7 @@
 require_once('../setup.php');
 
 // First setup the PATH_INFO because that's how SSP rolls.
-$_SERVER['PATH_INFO'] = '/' . $saml2auth->spname;;
+$_SERVER['PATH_INFO'] = '/' . $saml2auth->spname;
 
-require('../extlib/xmlseclibs/xmlseclibs.php');
 require('../extlib/simplesamlphp/modules/saml/www/sp/saml2-logout.php');
 

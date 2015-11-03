@@ -38,6 +38,8 @@ $config = array(
         'OrganizationURL' => array(
             'en' => $CFG->wwwroot,
         ),
+        'privatekey' => $saml2auth->spname . '.pem',
+        'certificate' => $saml2auth->spname . '.crt',
     ),
 );
 

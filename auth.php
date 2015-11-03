@@ -41,9 +41,9 @@ class auth_plugin_saml2 extends auth_plugin_base {
         'slourl'          => '',
         'certfingerprint' => '',
         'debug'           => 0,
-// TODO SSP debug levels
-// force login for all + dual login page with _GET
-// TODO test can_change_password for new user test
+        // TODO SSP debug levels.
+        // force login for all + dual login page with _GET.
+        // TODO test can_change_password for new user test.
     );
 
     /**
@@ -54,6 +54,9 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $this->authtype = 'saml2';
         $mdl = new moodle_url($CFG->wwwroot);
         $this->spname = $mdl->get_host();
+        $this->certdir = "$CFG->dataroot/saml2/";
+        $this->certpem = $this->certdir . $this->spname . '.pem';
+        $this->certcrt = $this->certdir . $this->spname . '.crt';
         $this->config = (object) array_merge($this->defaults, (array) get_config('auth_saml2') );
     }
 
@@ -141,7 +144,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         require_once('setup.php');
         $auth = new SimpleSAML_Auth_Simple($this->spname);
 
-        // Only log out of the IdP if we logged in via the IdP. TODO check session timeouts
+        // Only log out of the IdP if we logged in via the IdP. TODO check session timeouts.
         if ($auth->isAuthenticated()) {
             $auth->logout($redirect);
         }

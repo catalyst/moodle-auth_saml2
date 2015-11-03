@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+require_once('extlib/xmlseclibs/xmlseclibs.php');
+
 spl_autoload_register(
     function($classname) {
         $classpath = explode('_', $classname);

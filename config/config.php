@@ -22,11 +22,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-global $CFG;
+global $CFG, $saml2auth;
 
 $config = array(
 
-    'certdir' => 'cert/', // TODO
+    'certdir' => $saml2auth->certdir,
     'loggingdir' => 'log/', // TODO
     'datadir' => 'data/', // TODO.
     'tempdir' => '/tmp/simplesaml',
