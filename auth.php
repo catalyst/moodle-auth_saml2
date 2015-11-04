@@ -36,13 +36,14 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * @var $defaults The config defaults
      */
     public $defaults = array(
+        'idpname'         => 'SAML IdP',
         'entityid'        => '',
         'ssourl'          => '',
         'slourl'          => '',
         'certfingerprint' => '',
         'debug'           => 0,
+        'duallogin'       => 1,
         // TODO SSP debug levels.
-        // force login for all + dual login page with _GET.
         // TODO test can_change_password for new user test.
     );
 
@@ -54,7 +55,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $this->authtype = 'saml2';
         $mdl = new moodle_url($CFG->wwwroot);
         $this->spname = $mdl->get_host();
-        $this->certdir = "$CFG->dataroot/saml2/";
+        $this->certdir = "$CFG->dataroot/saml2/"; // TODO make this overridable?
         $this->certpem = $this->certdir . $this->spname . '.pem';
         $this->certcrt = $this->certdir . $this->spname . '.crt';
         $this->config = (object) array_merge($this->defaults, (array) get_config('auth_saml2') );
@@ -81,12 +82,45 @@ class auth_plugin_saml2 extends auth_plugin_base {
     }
 
     /**
+     * Returns a list of potential IdPs that this authentication plugin supports.
+     * This is used to provide links on the login page.
+     *
+     * @param string $wantsurl the relative url fragment the user wants to get to.
+     *
+     * @return array of IdP's
+     */
+    public function loginpage_idp_list($url) {
+
+        return array(
+            array(
+                'url'  => new moodle_url($url, array('saml' => 'on')),
+                'icon' => new pix_icon('i/user', 'Login'),
+                'name' => $this->config->idpname,
+            ),
+        );
+    }
+
+    /**
      * All the checking happens before the login page in this hook
      */
     public function loginpage_hook() {
         global $CFG, $DB, $USER, $SESSION, $SITE, $PAGE, $OUTPUT, $saml2auth;
 
         $this->log(__FUNCTION__ . ' enter');
+
+        // If ?saml=on even when duallogin is on, go directly to IdP.
+        $saml = optional_param('saml', 0, PARAM_BOOL);
+        if (!$saml && $this->config->duallogin == 1) {
+            $this->log(__FUNCTION__ . ' skipping due to dual auth');
+            return;
+        }
+
+        // If ?saml=off then show the login page.
+        $saml = optional_param('saml', 1, PARAM_BOOL);
+        if ($saml == 0) {
+            $this->log(__FUNCTION__ . ' skipping due to ?saml=off');
+            return;
+        }
 
         require_once('setup.php');
         require_once("$CFG->dirroot/login/lib.php");

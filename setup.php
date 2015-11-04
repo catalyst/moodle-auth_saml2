@@ -33,7 +33,7 @@ $saml2auth = new auth_plugin_saml2();
 // This is one area which many SSP instances get horridly wrong and leave the
 // default certificates which is very insecure. Here we create a customized
 // cert/key pair just-in-time. If for some reason you do want to use existing
-// files then just copy them over the files in /sitedata/saml2/
+// files then just copy them over the files in /sitedata/saml2/.
 if (!file_exists($saml2auth->certdir)) {
     mkdir($saml2auth->certdir);
 }
@@ -46,12 +46,12 @@ if (!file_exists($saml2auth->certpem) || !file_exists($saml2auth->certcrt)) {
         'localityName' => 'moodleville',
         'organizationName' => $SITE->shortname,
         'organizationalUnitName' => 'moodle',
-        'commonName' => 'moodle', // TODO change to sp name
+        'commonName' => 'moodle', // TODO change to sp name.
         'emailAddress' => $CFG->supportemail,
     );
 
     $privkeypass = get_site_identifier();
-    $numberofdays = 3650; // 10 years. TODO how to renew? need a GUI reset button
+    $numberofdays = 3650; // 10 years. TODO how to renew? need a GUI reset button.
 
     $privkey = openssl_pkey_new();
     $csr     = openssl_csr_new($dn, $privkey);

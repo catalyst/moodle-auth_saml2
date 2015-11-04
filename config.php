@@ -25,7 +25,13 @@
 $yesno = array(get_string('no'), get_string('yes'));
 
 ?>
-<table cellspacing="0" cellpadding="5" border="0">
+<table cellspacing="0" cellpadding="5" border="0" class="generaltable">
+<tr valign="top">
+    <?php $field = 'idpname' ?>
+    <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
+    <td><input type="text" size="40" name="<?php echo $field ?>" value="<?php print $config->$field ?>"><br>
+        <?php print_string($field.'_help', 'auth_saml2') ?></td>
+</tr>
 <tr valign="top">
     <?php $field = 'entityid' ?>
     <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
@@ -63,6 +69,12 @@ $yesno = array(get_string('no'), get_string('yes'));
     <td><p><a href="<?php echo "$CFG->wwwroot/auth/saml2/sp/metadata.php" ?>">
         <?php print_string($field . '_link', 'auth_saml2') ?></a></p>
         <p><?php print_string($field.'_help', 'auth_saml2') ?></p></td>
+</tr>
+<tr valign="top">
+    <?php $field = 'duallogin' ?>
+    <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
+    <td><?php echo html_writer::select($yesno, $field, $config->$field, false) ?>
+        <?php print_string($field.'_help', 'auth_saml2') ?></td>
 </tr>
 </table>
 

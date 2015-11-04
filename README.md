@@ -35,8 +35,8 @@ need to change at all.
 Features
 --------
 
-* Dual login VS forced login for all as an option
-* user domain mapping
+* Dual login VS forced login for all as an option, with ?saml=off on the login page, and ?saml=on supported everywhere
+* user domain mapping TODO
 * Automatic certificate creation
 
 Feature excluded on purpose:
@@ -60,20 +60,20 @@ Here is a quick run down of the alternatives:
 
 **Core:**
 
-One big issue with this, and the category below, is as there is a whole extra
-application between moodle and the IdP, the login and logout processes have
-more latency due to extra redirects. Latency on potentially slow mobile
-networks is by far the biggest bottle neck for login speed and the biggest
-complaint by our users.
-
 * /auth/shibboleth - This requires a separately installed and configured
   Shibolleth install
 
+One big issue with this, and the category below, is as there is a whole extra
+application between moodle and the IdP, so the login and logout processes have
+more latency due to extra redirects. Latency on potentially slow mobile
+networks is by far the biggest bottle neck for login speed and the biggest
+complaint by end users in our experience.
 
 **Plugins that require SimpleSamlPHP**
 
 These are all forks of each other, and unfortunately have diverged quite early
-making it difficult to cross port features or fixes between them.
+or have no common git history making it difficult to cross port features or
+fixes between them.
 
 * https://moodle.org/plugins/view/auth_saml
 
@@ -92,16 +92,13 @@ These are generally much easier to manage and configure as they are standalone.
 * This plugin, with an embedded and dynamically configured SimpleSamlPHP
   instance under the hood
 
-
 === Moodle TODO ===
 
-* have option for dual login - half copy from other saml plugin but use a hook instead
 * option to strip or map domain?
 * have option to allow login regardless of auth type
 
 === SimpleSamlPhp TODO ===
 
-* lookup the moodle config and honour the debug settings here
 * set timezone to moodle timezone
 * point the logging handler to a custom logging handler that appends into moodle log, so only 1 log file to look into
 
