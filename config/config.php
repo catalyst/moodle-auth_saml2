@@ -196,28 +196,12 @@ $config = array(
     'store.sql.password'   => $CFG->dbpass,
     'store.sql.prefix'     => $CFG->prefix . 'authsaml_',
     'store.sql.persistent' => false,
-    // TODO this should be broken for psql as not supported by SSP but works! why?
-    'store.sql.dsn'        => (
-        $CFG->dbtype == 'pgsql' ? "pgsql:host={$CFG->dbhost};dbname={$CFG->dbname}" :
-        $CFG->dbtype == 'mysql' ? "mysql:host={$CFG->dbhost};dbname={$CFG->dbname}" :
-        'unknowndbtype'
-    ),
+    'store.sql.dsn'        => "{$CFG->dbtype}:host={$CFG->dbhost};dbname={$CFG->dbname}",
 
-    'metadata.sign.enable' => false,
-
-    /*
-     * The default key & certificate which should be used to sign generated metadata. These
-     * are files stored in the cert dir.
-     * These values can be overridden by the options with the same names in the SP or
-     * IdP metadata.
-     *
-     * If these aren't specified here or in the metadata for the SP or IdP, then
-     * the 'certificate' and 'privatekey' option in the metadata will be used.
-     * if those aren't set, signing of metadata will fail.
-     */
-    'metadata.sign.privatekey' => null,
-    'metadata.sign.privatekey_pass' => null,
-    'metadata.sign.certificate' => null,
+    'metadata.sign.enable' => true,
+    'metadata.sign.privatekey' => $saml2auth->certpem,
+    'metadata.sign.privatekey_pass' => get_site_identifier(),
+    'metadata.sign.certificate' => $saml2auth->certcrt,
 
     'proxy' => null, // TODO inherit from moodle conf see http://moodle.local/admin/settings.php?section=http for more.
 
