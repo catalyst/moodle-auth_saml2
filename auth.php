@@ -89,11 +89,11 @@ class auth_plugin_saml2 extends auth_plugin_base {
      *
      * @return array of IdP's
      */
-    public function loginpage_idp_list($url) {
+    public function loginpage_idp_list($wantsurl) {
 
         return array(
             array(
-                'url'  => new moodle_url($url, array('saml' => 'on')),
+                'url'  => new moodle_url($wantsurl, array('saml' => 'on')),
                 'icon' => new pix_icon('i/user', 'Login'),
                 'name' => $this->config->idpname,
             ),
