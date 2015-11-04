@@ -28,31 +28,34 @@ require_once("$CFG->dirroot/auth/saml2/auth.php");
 
 $saml2auth = new auth_plugin_saml2();
 
-// Auto create unique certificates for this SP
+// Auto create unique certificates for this moodle SP.
 //
 // This is one area which many SSP instances get horridly wrong and leave the
-// default certificates which is very insecure.
+// default certificates which is very insecure. Here we create a customized
+// cert/key pair just-in-time. If for some reason you do want to use existing
+// files then just copy them over the files in /sitedata/saml2/
 if (!file_exists($saml2auth->certdir)) {
     mkdir($saml2auth->certdir);
 }
 if (!file_exists($saml2auth->certpem) || !file_exists($saml2auth->certcrt)) {
 
+    // These are somewhat arbitrary and aren't really seen or used anywhere.
     $dn = array(
         'countryName' => 'AU',
         'stateOrProvinceName' => 'moodle',
         'localityName' => 'moodleville',
         'organizationName' => $SITE->shortname,
         'organizationalUnitName' => 'moodle',
-        'commonName' => 'moodle',
+        'commonName' => 'moodle', // TODO change to sp name
         'emailAddress' => $CFG->supportemail,
     );
 
     $privkeypass = get_site_identifier();
-    $numberofdays = 3650; // 10 years.
+    $numberofdays = 3650; // 10 years. TODO how to renew? need a GUI reset button
 
     $privkey = openssl_pkey_new();
-    $csr = openssl_csr_new($dn, $privkey);
-    $sscert = openssl_csr_sign($csr, null, $privkey, $numberofdays);
+    $csr     = openssl_csr_new($dn, $privkey);
+    $sscert  = openssl_csr_sign($csr, null, $privkey, $numberofdays);
     openssl_x509_export($sscert, $publickey);
     openssl_pkey_export($privkey, $privatekey, $privkeypass);
     file_put_contents($saml2auth->certpem, $privatekey);
