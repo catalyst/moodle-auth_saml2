@@ -66,9 +66,10 @@ $yesno = array(get_string('no'), get_string('yes'));
 <tr valign="top">
     <?php $field = 'spmetadata' ?>
     <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
-    <td><p><a href="<?php echo "$CFG->wwwroot/auth/saml2/sp/metadata.php" ?>">
-        <?php print_string($field . '_link', 'auth_saml2') ?></a></p>
-        <p><?php print_string($field.'_help', 'auth_saml2') ?></p></td>
+    <td><?php print_string($field.'_help', 'auth_saml2', array(
+        "meta" => "$CFG->wwwroot/auth/saml2/sp/metadata.php",
+        "debug" => "$CFG->wwwroot/auth/saml2/debug.php",
+    )) ?></td>
 </tr>
 <tr valign="top">
     <?php $field = 'duallogin' ?>

@@ -37,8 +37,10 @@ $string['certfingerprint_help'] = 'eg a bunch of hexidecimal chars';
 $string['debug'] = 'Debugging';
 $string['debug_help'] = 'This adds extra debugging to the normal moodle log';
 $string['spmetadata'] = 'SP Metdata';
-$string['spmetadata_link'] = 'View Service Provider Metadata (xml)';
-$string['spmetadata_help'] = 'You may need to give this to the IdP admin to whitelist you.';
+$string['spmetadata_help'] = '
+<p>View <a href=\'{$a->meta}\'>Service Provider Metadata (xml)</a> | Debug <a href=\'{$a->debug}\'>SSP config</a></p>
+<p>You may need to give this to the IdP admin to whitelist you.</p>
+';
 $string['duallogin'] = 'Dual login';
 $string['duallogin_help'] = '
 <p>If on, then users will see both manual and a SAML login button. If off they will always be taken directly to the IdP login page.</p>

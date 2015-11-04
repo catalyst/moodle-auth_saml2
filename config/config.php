@@ -91,41 +91,6 @@ $config = array(
     'logging.level' => SimpleSAML_Logger::NOTICE,
     'logging.handler' => 'errorlog', // TODO check working.
 
-
-    /* (New) statistics output configuration.
-     *
-     * This is an array of outputs. Each output has at least a 'class' option, which
-     * selects the output.
-     */
-    'statistics.out' => array(// Log statistics to the normal log.
-        /*
-        array(
-            'class' => 'core:Log',
-            'level' => 'notice',
-        ),
-        */
-        // Log statistics to files in a directory. One file per day.
-        /*
-        array(
-            'class' => 'core:File',
-            'directory' => '/var/log/stats',
-        ),
-        */
-    ),
-
-    /*
-     * Enable
-     *
-     * Which functionality in simpleSAMLphp do you want to enable. Normally you would enable only
-     * one of the functionalities below, but in some cases you could run multiple functionalities.
-     * In example when you are setting up a federation bridge.
-     */
-    'enable.saml20-idp' => false,
-    'enable.shib13-idp' => false,
-    'enable.adfs-idp' => false,
-    'enable.wsfed-sp' => false,
-    'enable.authmemcookie' => false,
-
     'session.duration' => 8 * (60 * 60), // 8 hours. TODO same as moodle.
     'session.datastore.timeout' => (4 * 60 * 60),
     'session.state.timeout' => (60 * 60),
@@ -148,36 +113,6 @@ $config = array(
      * Option to override the default settings for the auth token cookie
      */
     'session.authtoken.cookiename' => 'SimpleSAMLAuthToken',
-
-    /*
-     * Languages available, RTL languages, and what language is default
-     */
-    'language.available' => array(
-        'en', 'no', 'nn', 'se', 'da', 'de', 'sv', 'fi', 'es', 'fr', 'it', 'nl', 'lb', 'cs',
-        'sl', 'lt', 'hr', 'hu', 'pl', 'pt', 'pt-br', 'tr', 'ja', 'zh', 'zh-tw', 'ru', 'et',
-        'he', 'id', 'sr', 'lv', 'ro', 'eu'
-    ),
-    'language.rtl' => array('ar', 'dv', 'fa', 'ur', 'he'),
-    'language.default' => 'en',
-
-    /*
-     * Options to override the default settings for the language parameter
-     */
-    'language.parameter.name' => 'language',
-    'language.parameter.setcookie' => true,
-
-    /*
-     * Options to override the default settings for the language cookie
-     */
-    'language.cookie.name' => 'language',
-    'language.cookie.domain' => null,
-    'language.cookie.path' => '/',
-    'language.cookie.lifetime' => (60 * 60 * 24 * 900),
-
-    /*
-     * Default IdP for WS-Fed.
-     */
-    'default-wsfed-idp' => 'urn:federation:pingfederate:localhost',
 
     'authproc.sp' => array(
         90 => 'core:LanguageAdaptor',
