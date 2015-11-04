@@ -43,6 +43,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         'certfingerprint' => '',
         'debug'           => 0,
         'duallogin'       => 1,
+        'anyauth'         => 1,
         // TODO SSP debug levels.
         // TODO test can_change_password for new user test.
     );
@@ -131,6 +132,15 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $username = $attributes['uid'][0];
         if ($user = $DB->get_record('user', array( 'username' => $username ))) {
 
+            if (!$this->config->anyauth && $user->auth != 'saml2') {
+                $this->log(__FUNCTION__ . " user $username is auth type: $user->auth");
+                $PAGE->set_course($SITE);
+                echo $OUTPUT->header();
+                echo $OUTPUT->box(get_string('wrongauth', 'auth_saml2', $username));
+                echo $OUTPUT->footer();
+                exit;
+            }
+
             $this->log(__FUNCTION__ . ' found user '.$user->username);
             complete_user_login($user);
             $USER->loggedin = true;
@@ -147,7 +157,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
                 $this->log(__FUNCTION__ . " continuing onto " . qualified_me() );
             }
         } else {
-            $this->log(__FUNCTION__ . ' user ' . $username . ' is not in moodle');
+            $this->log(__FUNCTION__ . " user $username is not in moodle");
             $PAGE->set_course($SITE);
             echo $OUTPUT->header();
             echo $OUTPUT->box(get_string('nouser', 'auth_saml2', $username));

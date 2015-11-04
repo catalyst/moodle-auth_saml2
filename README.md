@@ -11,9 +11,9 @@ What isn't it?
 
 It does not do any user creation and assumes users are already provisioned
 via some other means such as ldap sync or a custom enrolment plugin. In our
-experience this is how almost all large uni's and corp's want it and it make
-the most sense architecturally because students need to be in class lists
-and groups well before they may ever log in.
+experience this is how almost all large uni's and corp's want it and it makes
+the most sense architecturally because students need to be in the class lists
+and groups well before they may ever log in, if ever.
 
 Why is is better?
 -----------------
@@ -92,14 +92,7 @@ These are generally much easier to manage and configure as they are standalone.
 * This plugin, with an embedded and dynamically configured SimpleSamlPHP
   instance under the hood
 
-=== Moodle TODO ===
-
-* option to strip or map domain?
-* have option to allow login regardless of auth type
-
-=== SimpleSamlPhp TODO ===
-
-* set timezone to moodle timezone
-* point the logging handler to a custom logging handler that appends into moodle log, so only 1 log file to look into
-
+* TODO option to strip or map domain?
+* TODO set timezone to moodle timezone
+* TODO point the logging handler to a custom logging handler that appends into moodle log, so only 1 log file to look into
 

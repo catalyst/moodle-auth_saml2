@@ -45,5 +45,8 @@ $string['duallogin_help'] = '
 <p>If off, then admins can still see the manual login page via /login/index.php?saml=off</p>
 <p>If on, then external pages can deep link into moodle using saml eg /course/view.php?id=45&saml=on</p>
 ';
+$string['anyauth'] = 'Allowed any auth type';
+$string['anyauth_help'] = 'Yes: Allow SAML login for all users? No: Only users who have saml2 as their type.';
+$string['wrongauth'] = 'You have logged in succesfully as \'{$a}\' but are not authorized to access Moodle.';
 $string['nouser'] = 'You have logged in succesfully as \'{$a}\' but do not have an account in Moodle.';
 
