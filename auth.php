@@ -135,6 +135,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
             if (!$this->config->anyauth && $user->auth != 'saml2') {
                 $this->log(__FUNCTION__ . " user $username is auth type: $user->auth");
                 $PAGE->set_course($SITE);
+                $PAGE->set_url('/');
                 echo $OUTPUT->header();
                 echo $OUTPUT->box(get_string('wrongauth', 'auth_saml2', $username));
                 echo $OUTPUT->footer();
@@ -159,6 +160,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         } else {
             $this->log(__FUNCTION__ . " user $username is not in moodle");
             $PAGE->set_course($SITE);
+            $PAGE->set_url('/');
             echo $OUTPUT->header();
             echo $OUTPUT->box(get_string('nouser', 'auth_saml2', $username));
             echo $OUTPUT->footer();
