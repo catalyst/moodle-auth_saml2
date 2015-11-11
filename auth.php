@@ -42,8 +42,6 @@ class auth_plugin_saml2 extends auth_plugin_base {
         'debug'           => 0,
         'duallogin'       => 1,
         'anyauth'         => 1,
-        // TODO SSP debug levels.
-        // TODO test can_change_password for new user test.
     );
 
     /**
@@ -54,7 +52,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $this->authtype = 'saml2';
         $mdl = new moodle_url($CFG->wwwroot);
         $this->spname = $mdl->get_host();
-        $this->certdir = "$CFG->dataroot/saml2/"; // TODO make this overridable?
+        $this->certdir = "$CFG->dataroot/saml2/";
         $this->certpem = $this->certdir . $this->spname . '.pem';
         $this->certcrt = $this->certdir . $this->spname . '.crt';
         $this->config = (object) array_merge($this->defaults, (array) get_config('auth_saml2') );
@@ -127,6 +125,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $auth->requireAuth();
         $attributes = $auth->getAttributes();
 
+        $username = '';
         $username = $attributes['uid'][0];
         if ($user = $DB->get_record('user', array( 'username' => $username ))) {
 

@@ -98,11 +98,9 @@ Testing
 This plugin has been tested against:
 
 * SimpleSamlPHP set up as an IdP
-* testshib.org - issues with 
-
+* testshib.org
 
 * TODO option to strip or map domain?
-* TODO set timezone to moodle timezone
 
 * TODO double check htaccess on config saml dir and check nothing can get in etc (green check on config page?)
 * TODO check autoload using saml lib _autoload.php
