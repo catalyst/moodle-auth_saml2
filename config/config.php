@@ -27,9 +27,6 @@ global $CFG, $saml2auth;
 $config = array(
 
     'certdir' => $saml2auth->certdir,
-    'loggingdir' => 'log/', // TODO
-    'datadir' => 'data/', // TODO.
-    'tempdir' => '/tmp/simplesaml',
 
     /*
      * If you enable this option, simpleSAMLphp will log all sent and received messages
@@ -40,7 +37,7 @@ $config = array(
      * Note: The messages are logged with the DEBUG log level, so you also need to set
      * the 'logging.level' option to LOG_DEBUG.
      */
-    'debug' => false,
+    'debug' => $saml2auth->config->debug,
 
     /*
      * When showerrors is enabled, all error messages and stack traces will be output
@@ -49,8 +46,8 @@ $config = array(
      * When errorreporting is enabled, a form will be presented for the user to report
      * the error to technicalcontact_email.
      */
-    'showerrors' => true, // TODO
-    'errorreporting' => true, // TODO
+    'showerrors' => $saml2auth->config->debug,
+    'errorreporting' => $saml2auth->config->debug,
 
     'debug.validatexml' => false, // TODO
 

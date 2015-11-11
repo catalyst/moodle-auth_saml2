@@ -39,6 +39,7 @@ $config = array(
             'en' => $CFG->wwwroot,
         ),
         'privatekey' => $saml2auth->spname . '.pem',
+        'privatekey_pass' => get_site_identifier(),
         'certificate' => $saml2auth->spname . '.crt',
     ),
 );
