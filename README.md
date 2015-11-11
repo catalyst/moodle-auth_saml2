@@ -96,3 +96,6 @@ These are generally much easier to manage and configure as they are standalone.
 * TODO set timezone to moodle timezone
 * TODO point the logging handler to a custom logging handler that appends into moodle log, so only 1 log file to look into
 
+* TODO double check htaccess on config saml dir and check nothing can get in etc (green check on config page?)
+* TODO check autoload using saml lib _autoload.php
+

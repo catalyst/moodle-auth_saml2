@@ -30,37 +30,22 @@ $yesno = array(get_string('no'), get_string('yes'));
     <?php $field = 'idpname' ?>
     <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
     <td><input type="text" size="40" name="<?php echo $field ?>" value="<?php print $config->$field ?>"><br>
+        <?php if (isset($err[$field])) { echo $OUTPUT->notification($err[$field], 'notifyfailure'); } ?>
         <?php print_string($field.'_help', 'auth_saml2') ?></td>
 </tr>
 <tr valign="top">
-    <?php $field = 'entityid' ?>
-    <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
-    <td><input type="text" size="80" name="<?php echo $field ?>" value="<?php print $config->$field ?>"><br>
-        <?php print_string($field.'_help', 'auth_saml2') ?></td>
-</tr>
-<tr valign="top">
-    <?php $field = 'ssourl' ?>
-    <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
-    <td><input type="text" size="80" name="<?php echo $field ?>" value="<?php print $config->$field ?>"><br>
-        <?php print_string($field.'_help', 'auth_saml2') ?></td>
-</tr>
-<tr valign="top">
-    <?php $field = 'slourl' ?>
-    <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
-    <td><input type="text" size="80" name="<?php echo $field ?>" value="<?php print $config->$field ?>"><br>
-        <?php print_string($field.'_help', 'auth_saml2') ?></td>
-</tr>
-<tr valign="top">
-    <?php $field = 'certfingerprint' ?>
+    <?php $field = 'idpmetadata' ?>
     <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
     <td><textarea columns="80" rows="10" name="<?php echo $field ?>" style="width: 100%"
     ><?php print $config->$field ?></textarea><br>
+        <?php if (isset($err[$field])) { echo $OUTPUT->notification($err[$field], 'notifyfailure'); } ?>
         <?php print_string($field.'_help', 'auth_saml2') ?></td>
 </tr>
 <tr valign="top">
     <?php $field = 'debug' ?>
     <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
     <td><?php echo html_writer::select($yesno, $field, $config->$field, false) ?>
+        <?php if (isset($err[$field])) { echo $OUTPUT->notification($err[$field], 'notifyfailure'); } ?>
         <?php print_string($field.'_help', 'auth_saml2') ?></td>
 </tr>
 <tr valign="top">
@@ -69,18 +54,22 @@ $yesno = array(get_string('no'), get_string('yes'));
     <td><?php print_string($field.'_help', 'auth_saml2', array(
         "meta" => "$CFG->wwwroot/auth/saml2/sp/metadata.php",
         "debug" => "$CFG->wwwroot/auth/saml2/debug.php",
-    )) ?></td>
+    )) ?>
+        <?php if (isset($err[$field])) { echo $OUTPUT->notification($err[$field], 'notifyfailure'); } ?>
+    </td>
 </tr>
 <tr valign="top">
     <?php $field = 'duallogin' ?>
     <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
     <td><?php echo html_writer::select($yesno, $field, $config->$field, false) ?>
+        <?php if (isset($err[$field])) { echo $OUTPUT->notification($err[$field], 'notifyfailure'); } ?>
         <?php print_string($field.'_help', 'auth_saml2') ?></td>
 </tr>
 <tr valign="top">
     <?php $field = 'anyauth' ?>
     <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
     <td><?php echo html_writer::select($yesno, $field, $config->$field, false) ?>
+        <?php if (isset($err[$field])) { echo $OUTPUT->notification($err[$field], 'notifyfailure'); } ?>
         <?php print_string($field.'_help', 'auth_saml2') ?></td>
 </tr>
 </table>

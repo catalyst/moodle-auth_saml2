@@ -38,9 +38,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
     public $defaults = array(
         'idpname'         => 'SAML IdP',
         'entityid'        => '',
-        'ssourl'          => '',
-        'slourl'          => '',
-        'certfingerprint' => '',
+        'idpmetadata'     => '',
         'debug'           => 0,
         'duallogin'       => 1,
         'anyauth'         => 1,
@@ -139,6 +137,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
                 echo $OUTPUT->header();
                 echo $OUTPUT->box(get_string('wrongauth', 'auth_saml2', $username));
                 echo $OUTPUT->footer();
+                // TODO kill session to enable login as somebody else with the right auth type.
                 exit;
             }
 
@@ -164,8 +163,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
             echo $OUTPUT->header();
             echo $OUTPUT->box(get_string('nouser', 'auth_saml2', $username));
             echo $OUTPUT->footer();
-            exit;
             // TODO kill session to enable login as somebody else with an account.
+            exit;
         }
 
     }
@@ -177,14 +176,10 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         global $CFG, $saml2auth, $redirect;
 
-        $this->log(__FUNCTION__);
+        $this->log(__FUNCTION__ . ' Do moodle logout');
 
-        // Only do this if SLO url is configured.
-        if (empty($this->config->slourl)) {
-            return;
-        }
-
-        // Do the normal moodle logout first as we redirect away before it gets called.
+        // Do the normal moodle logout first as we may redirect away before it
+        // gets called by the normal core process.
         require_logout();
 
         require_once('setup.php');
@@ -192,6 +187,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         // Only log out of the IdP if we logged in via the IdP. TODO check session timeouts.
         if ($auth->isAuthenticated()) {
+            $this->log(__FUNCTION__ . ' Do SSP logout');
             $auth->logout($redirect);
         }
     }
@@ -221,9 +217,29 @@ class auth_plugin_saml2 extends auth_plugin_base {
      */
     public function config_form($config, $err, $userfields) {
         $config = (object) array_merge($this->defaults, (array) $config );
-        global $CFG;
+        global $CFG, $OUTPUT;
         include("config.php");
     }
+
+    /**
+     * A chance to validate form data, and last chance to
+     * do stuff before it is inserted in config_plugin
+     * @param object object with submitted configuration settings (without system magic quotes)
+     * @param array $err array of error messages
+     */
+     function validate_form($form, &$err) {
+
+        global $CFG;
+
+        // The IdP entityName needs to be parsed out of the XML.
+        try {
+            $xml = new SimpleXMLElement($form->idpmetadata);
+            $form->entityid = ''.$xml['entityID'];
+            file_put_contents("$CFG->dataroot/saml2/idp.xml" , $form->idpmetadata);
+        } catch (Exception $e) {
+            $err['idpmetadata'] = get_string('idpmetadata_invalid', 'auth_saml2');
+        }
+     }
 
     /**
      * Processes and stores configuration data for this authentication plugin.

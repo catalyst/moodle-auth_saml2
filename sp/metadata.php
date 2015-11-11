@@ -21,6 +21,8 @@
  * way so it has been copied here and forked. The main differences are
  * the config lookup, but also using the proxy SP module urls.
  *
+ * Original file is: extlib/simplesamlphp/modules/saml/www/sp/metadata.php
+ *
  * @package    auth_saml2
  * @copyright  Brendan Heywood <brendan@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -91,7 +93,6 @@ foreach ($assertionsconsumerservices as $services) {
 		break;
 	case 'urn:oasis:names:tc:SAML:1.0:profiles:browser-post':
 		$acsArray['Binding'] = 'urn:oasis:names:tc:SAML:1.0:profiles:browser-post';
-		$acsArray['Location'] = SimpleSAML_Module::getModuleURL('saml/sp/saml1-acs.php/' . $sourceId);
 		$acsArray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml1-acs.php/{$sourceId}";
 		break;
 	case 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact':
@@ -100,7 +101,7 @@ foreach ($assertionsconsumerservices as $services) {
 		break;
 	case 'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01':
 		$acsArray['Binding'] = 'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01';
-		$acsArray['Location'] = "$CFG->wwwroot/auth/saml2/sp/aml1-acs.php/{$sourceId}";
+		$acsArray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml1-acs.php/{$sourceId}";
 		break;
 	case 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser':
 		$acsArray['Binding'] = 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser';

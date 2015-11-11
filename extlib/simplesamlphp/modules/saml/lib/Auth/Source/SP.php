@@ -180,13 +180,17 @@ class sspmod_saml_Auth_Source_SP extends SimpleSAML_Auth_Source {
 	 */
 	private function startSSO2(SimpleSAML_Configuration $idpMetadata, array $state) {
 	
+        global $CFG, $saml2auth;
+
 		if (isset($state['saml:ProxyCount']) && $state['saml:ProxyCount'] < 0) {
 			SimpleSAML_Auth_State::throwException($state, new SimpleSAML_Error_ProxyCountExceeded("ProxyCountExceeded"));
 		}
 
 		$ar = sspmod_saml_Message::buildAuthnRequest($this->metadata, $idpMetadata);
 
-		$ar->setAssertionConsumerServiceURL(SimpleSAML_Module::getModuleURL('saml/sp/saml2-acs.php/' . $this->authId));
+		// $ar->setAssertionConsumerServiceURL(SimpleSAML_Module::getModuleURL('saml/sp/saml2-acs.php/' . $this->authId));
+        // auth_saml2 modification:
+		$ar->setAssertionConsumerServiceURL( $CFG->wwwroot . '/auth/saml2/sp/saml2-acs.php/' . $saml2auth->spname);
 
 		if (isset($state['SimpleSAML_Auth_Source.ReturnURL'])) {
 			$ar->setRelayState($state['SimpleSAML_Auth_Source.ReturnURL']);

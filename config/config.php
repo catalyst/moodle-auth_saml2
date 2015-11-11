@@ -49,10 +49,10 @@ $config = array(
      * When errorreporting is enabled, a form will be presented for the user to report
      * the error to technicalcontact_email.
      */
-    'showerrors' => true,
-    'errorreporting' => true,
+    'showerrors' => true, // TODO
+    'errorreporting' => true, // TODO
 
-    'debug.validatexml' => false,
+    'debug.validatexml' => false, // TODO
 
     'secretsalt' => get_site_identifier(), // TODO is this safe?
 
@@ -118,9 +118,8 @@ $config = array(
         90 => 'core:LanguageAdaptor',
     ),
 
-    'metadatadir' => "$CFG->dirroot/auth/saml2/metadata",
     'metadata.sources' => array(
-        array('type' => 'flatfile'),
+        array('type' => 'xml', 'file' => "$CFG->dataroot/saml2/idp.xml"),
     ),
 
     /*
