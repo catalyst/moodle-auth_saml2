@@ -27,13 +27,17 @@ $string['auth_saml2description'] = 'Authenticate with a SAML2 IdP';
 $string['idpname'] = 'IdP Name';
 $string['idpname_help'] = 'eg myUNI - this will show on the dual login page if enabled';
 $string['idpmetadata'] = 'IdP metadata xml';
-$string['idpmetadata_help'] = 'eg a big chunk of XML';
+$string['idpmetadata_help'] = 'eg XML with a root tag of EntityDescriptor';
 $string['idpmetadata_invalid'] = 'The IdP XML isn\'t valid';
+$string['idpmetadata_noentityid'] = 'The IdP XML has no entityID';
 $string['debug'] = 'Debugging';
 $string['debug_help'] = 'This adds extra debugging to the normal moodle log';
 $string['spmetadata'] = 'SP Metdata';
 $string['spmetadata_help'] = '
-<p>View <a href=\'{$a->meta}\'>Service Provider Metadata (xml)</a> | Debug <a href=\'{$a->debug}\'>SSP config</a></p>
+<p>View <a href=\'{$a->meta}\'>Service Provider Metadata (xml)</a>
+ | Debug <a href=\'{$a->debug}\'>SSP config</a>
+ | <a href=\'{$a->cert}\'>Manage SP certificate</a>
+</p>
 <p>You may need to give this to the IdP admin to whitelist you.</p>
 ';
 $string['duallogin'] = 'Dual login';

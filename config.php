@@ -53,6 +53,7 @@ $yesno = array(get_string('no'), get_string('yes'));
     <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
     <td><?php print_string($field.'_help', 'auth_saml2', array(
         "meta" => "$CFG->wwwroot/auth/saml2/sp/metadata.php",
+        "cert" => "$CFG->wwwroot/auth/saml2/cert.php",
         "debug" => "$CFG->wwwroot/auth/saml2/debug.php",
     )) ?>
         <?php if (isset($err[$field])) { echo $OUTPUT->notification($err[$field], 'notifyfailure'); } ?>

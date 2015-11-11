@@ -227,7 +227,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * @param object object with submitted configuration settings (without system magic quotes)
      * @param array $err array of error messages
      */
-     function validate_form($form, &$err) {
+    public function validate_form($form, &$err) {
 
         global $CFG;
 
@@ -235,11 +235,15 @@ class auth_plugin_saml2 extends auth_plugin_base {
         try {
             $xml = new SimpleXMLElement($form->idpmetadata);
             $form->entityid = ''.$xml['entityID'];
-            file_put_contents("$CFG->dataroot/saml2/idp.xml" , $form->idpmetadata);
+            if (empty($form->entityid)) {
+                $err['idpmetadata'] = get_string('idpmetadata_noentityid', 'auth_saml2');
+            } else {
+                file_put_contents("$CFG->dataroot/saml2/idp.xml" , $form->idpmetadata);
+            }
         } catch (Exception $e) {
             $err['idpmetadata'] = get_string('idpmetadata_invalid', 'auth_saml2');
         }
-     }
+    }
 
     /**
      * Processes and stores configuration data for this authentication plugin.

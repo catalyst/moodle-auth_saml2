@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Dump the internal SSP config for review
+ * Dump the auto generated cert info for review
  *
  * @package    auth_saml2
  * @copyright  Brendan Heywood <brendan@catalyst-au.net>
@@ -26,11 +26,14 @@ require('setup.php');
 require_login();
 require_capability('moodle/site:config', context_system::instance());
 
-$config = SimpleSAML_Configuration::getInstance();
+$path = $saml2auth->certdir . $saml2auth->spname . '.crt';
+$data = openssl_x509_parse(file_get_contents($path));
 
 $PAGE->set_url("$CFG->httpswwwroot/auth/saml2/debug.php");
 $PAGE->set_course($SITE);
 echo $OUTPUT->header();
-echo '<pre>' . print_r($config, 1) . '</pre>';
+echo "<h1>SAML2 auto generated public certificate contents</h1>";
+echo "<p>Path: $path</p>";
+echo '<pre>' . print_r($data, 1) . '</pre>';
 echo $OUTPUT->footer();
 
