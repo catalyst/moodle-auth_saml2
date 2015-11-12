@@ -39,18 +39,20 @@ Features
 * user attribute to moodle mapping
 * Automatic certificate creation
 
-Feature excluded on purpose:
+Features excluded on purpose:
 
 * Auto create users - this should not be in an auth plugin
 * Enrolment - this should be an enrol plugin and not in an auth plugin
 * Profile field mapping - see above
 * Role mapping - see above
 
+That said, if there is desire for this then we're open to adding it in.
+
 Other SAML plugins
 ------------------
 
 The diversity and variable quality and features of SAML moodle plugins is a
-reflection of a great need for a solid SAML plugin, but the negligence to do
+reflection of a great need for a solid SAML plugin, but the neglect to do
 it properly in core. SAML2 is by far the most robust and supported protocol
 across the internet and should be fully integrated into moodle core as both
 a Service Provider and as an Identity Provider, and without any external
@@ -99,7 +101,4 @@ This plugin has been tested against:
 
 * SimpleSamlPHP set up as an IdP
 * testshib.org
-
-* TODO double check htaccess on config saml dir and check nothing can get in etc (green check on config page?)
-* TODO check autoload using saml lib _autoload.php
 
