@@ -19,7 +19,8 @@ Why is is better?
 -----------------
 
 * 100% configured in the Moodle GUI (no installation of a whole separate app)
-* Minimal configuration needed, in most cases 2 urls (no XML wrangling)
+* Minimal configuration needed, in most cases just copy the IdP metadata in
+  and then give the SP metadata to your IdP admin and that's it.
 * Fast! - 3 redirects instead of 7
 * Supports back channel Single Logout which most big organisations require (unlike OneLogin)
 
