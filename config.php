@@ -84,7 +84,7 @@ $fields = array(
     <?php $field = 'mapping' ?>
     <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
     <td>
-        <input type="text" size="15" name="idpattr" value="<?php print $config->idpattr ?>">
+        <input type="text" size="25" name="idpattr" value="<?php print $config->idpattr ?>">
         <?php echo html_writer::select($fields, 'mdlattr', $config->mdlattr, false) ?>
         <?php if (isset($err[$field])) { echo $OUTPUT->notification($err[$field], 'notifyfailure'); } ?>
         <?php print_string($field.'_help', 'auth_saml2') ?></td>

@@ -145,20 +145,22 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $auth->requireAuth();
         $attributes = $auth->getAttributes();
 
-        $uid = '';
         $attr = $this->config->idpattr;
-        if (!empty($attributes[$attr]) ) {
-            $uid = $attributes[$attr][0];
-        }
-        if (!$uid) {
+        if (empty($attributes[$attr]) ) {
             $this->error_page(get_string('noattribute', 'auth_saml2', $attr));
         }
-        if ($this->config->tolower) {
-            $this->log(__FUNCTION__ . ' to lowercase');
-            $uid = strtolower($uid);
-        }
-        if ($user = $DB->get_record('user', array( $this->config->mdlattr => $uid ))) {
 
+        $user = null;
+        foreach ($attributes[$attr] as $key => $uid) {
+            if ($this->config->tolower) {
+                $this->log(__FUNCTION__ . ' to lowercase');
+                $uid = strtolower($uid);
+            }
+            if ($user = $DB->get_record('user', array( $this->config->mdlattr => $uid ))) {
+                continue;
+            }
+        }
+        if ($user) {
             if (!$this->config->anyauth && $user->auth != 'saml2') {
                 $this->log(__FUNCTION__ . " user $uid is auth type: $user->auth");
                 $this->error_page(get_string('wrongauth', 'auth_saml2', $uid));
@@ -179,9 +181,11 @@ class auth_plugin_saml2 extends auth_plugin_base {
             } else {
                 $this->log(__FUNCTION__ . " continuing onto " . qualified_me() );
             }
+            return;
         } else {
-            $this->log(__FUNCTION__ . " user $uid is not in moodle");
-            $this->error_page(get_string('nouser', 'auth_saml2', $uid));
+            $data = print_r($attributes[$attr], 1);
+            $this->log(__FUNCTION__ . " user $data is not in moodle");
+            $this->error_page(get_string('nouser', 'auth_saml2', $data));
         }
 
     }
