@@ -50,4 +50,5 @@ $string['anyauth'] = 'Allowed any auth type';
 $string['anyauth_help'] = 'Yes: Allow SAML login for all users? No: Only users who have saml2 as their type.';
 $string['wrongauth'] = 'You have logged in succesfully as \'{$a}\' but are not authorized to access Moodle.';
 $string['nouser'] = 'You have logged in succesfully as \'{$a}\' but do not have an account in Moodle.';
+$string['noattribute'] = 'You have logged in succesfully but we could not find your \'{$a}\' attribute to associate you to an account in Moodle.';
 

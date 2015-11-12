@@ -98,10 +98,27 @@ class auth_plugin_saml2 extends auth_plugin_base {
     }
 
     /**
+     * Shows an error page for various authenticatio issues.
+     *
+     * @param string $msg The error message.
+     */
+    public function error_page($msg) {
+        global $PAGE, $OUTPUT, $SITE;
+
+        $PAGE->set_course($SITE);
+        $PAGE->set_url('/');
+        echo $OUTPUT->header();
+        echo $OUTPUT->box($msg);
+        echo $OUTPUT->footer();
+        // TODO kill session to enable login as somebody else.
+        exit;
+    }
+
+    /**
      * All the checking happens before the login page in this hook
      */
     public function loginpage_hook() {
-        global $CFG, $DB, $USER, $SESSION, $SITE, $PAGE, $OUTPUT, $saml2auth;
+        global $CFG, $DB, $USER, $SESSION, $saml2auth;
 
         $this->log(__FUNCTION__ . ' enter');
 
@@ -126,18 +143,18 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $attributes = $auth->getAttributes();
 
         $username = '';
-        $username = $attributes['uid'][0];
-        if ($user = $DB->get_record('user', array( 'username' => $username ))) {
+        $attr = 'uid';
+        if (!empty($attributes[$attr]) ) {
+            $username = $attributes[$attr][0];
+        }
+        if (!$username) {
+            $this->error_page(get_string('noattribute', 'auth_saml2', $attr));
+        }
+        if ($username && $user = $DB->get_record('user', array( 'username' => $username ))) {
 
             if (!$this->config->anyauth && $user->auth != 'saml2') {
                 $this->log(__FUNCTION__ . " user $username is auth type: $user->auth");
-                $PAGE->set_course($SITE);
-                $PAGE->set_url('/');
-                echo $OUTPUT->header();
-                echo $OUTPUT->box(get_string('wrongauth', 'auth_saml2', $username));
-                echo $OUTPUT->footer();
-                // TODO kill session to enable login as somebody else with the right auth type.
-                exit;
+                $this->error_page(get_string('wrongauth', 'auth_saml2', $username));
             }
 
             $this->log(__FUNCTION__ . ' found user '.$user->username);
@@ -157,13 +174,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
             }
         } else {
             $this->log(__FUNCTION__ . " user $username is not in moodle");
-            $PAGE->set_course($SITE);
-            $PAGE->set_url('/');
-            echo $OUTPUT->header();
-            echo $OUTPUT->box(get_string('nouser', 'auth_saml2', $username));
-            echo $OUTPUT->footer();
-            // TODO kill session to enable login as somebody else with an account.
-            exit;
+            $this->error_page(get_string('nouser', 'auth_saml2', $username));
         }
 
     }
