@@ -28,8 +28,7 @@ $config = array(
 
     'certdir'           => $saml2auth->certdir,
     'debug'             => $saml2auth->config->debug ? true : false,
-    'logging.level'     => $saml2auth->config->debug ? SimpleSAML_Logger::DEBUG
-                                                     : SimpleSAML_Logger::ERR,
+    'logging.level'     => $saml2auth->config->debug ? SimpleSAML_Logger::DEBUG : SimpleSAML_Logger::ERR,
     'logging.handler'   => 'errorlog',
     'showerrors'        => $CFG->debugdisplay ? true : false,
     'errorreporting'    => false,
@@ -48,12 +47,12 @@ $config = array(
      */
     'timezone' => 'crap',
 
-    'session.duration'          => 8 * 60 * 60, // 8 hours. TODO same as moodle.
-    'session.datastore.timeout' => 4 * 60 * 60,
-    'session.state.timeout'     =>     60 * 60,
+    'session.duration'          => 60 * 60 * 8, // 8 hours. TODO same as moodle.
+    'session.datastore.timeout' => 60 * 60 * 4,
+    'session.state.timeout'     => 60 * 60,
 
     'session.cookie.name'     => 'SimpleSAMLSessionID',
-    'session.cookie.path'     => '/', // TODO restrict to moodle path
+    'session.cookie.path'     => '/', // TODO restrict to moodle path.
     'session.cookie.domain'   => null,
     'session.cookie.secure'   => false, // TODO.
     'session.cookie.lifetime' => 0,

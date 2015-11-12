@@ -36,7 +36,7 @@ Features
 --------
 
 * Dual login VS forced login for all as an option, with ?saml=off on the login page, and ?saml=on supported everywhere
-* user domain mapping TODO
+* user attribute to moodle mapping
 * Automatic certificate creation
 
 Feature excluded on purpose:
@@ -99,8 +99,6 @@ This plugin has been tested against:
 
 * SimpleSamlPHP set up as an IdP
 * testshib.org
-
-* TODO option to strip or map domain?
 
 * TODO double check htaccess on config saml dir and check nothing can get in etc (green check on config page?)
 * TODO check autoload using saml lib _autoload.php

@@ -42,6 +42,9 @@ class auth_plugin_saml2 extends auth_plugin_base {
         'debug'           => 0,
         'duallogin'       => 1,
         'anyauth'         => 1,
+        'idpattr'         => 'uid',
+        'mdlattr'         => 'username',
+        'tolower'         => 0,
     );
 
     /**
@@ -142,19 +145,23 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $auth->requireAuth();
         $attributes = $auth->getAttributes();
 
-        $username = '';
-        $attr = 'uid';
+        $uid = '';
+        $attr = $this->config->idpattr;
         if (!empty($attributes[$attr]) ) {
-            $username = $attributes[$attr][0];
+            $uid = $attributes[$attr][0];
         }
-        if (!$username) {
+        if (!$uid) {
             $this->error_page(get_string('noattribute', 'auth_saml2', $attr));
         }
-        if ($username && $user = $DB->get_record('user', array( 'username' => $username ))) {
+        if ($this->config->tolower) {
+            $this->log(__FUNCTION__ . ' to lowercase');
+            $uid = strtolower($uid);
+        }
+        if ($user = $DB->get_record('user', array( $this->config->mdlattr => $uid ))) {
 
             if (!$this->config->anyauth && $user->auth != 'saml2') {
-                $this->log(__FUNCTION__ . " user $username is auth type: $user->auth");
-                $this->error_page(get_string('wrongauth', 'auth_saml2', $username));
+                $this->log(__FUNCTION__ . " user $uid is auth type: $user->auth");
+                $this->error_page(get_string('wrongauth', 'auth_saml2', $uid));
             }
 
             $this->log(__FUNCTION__ . ' found user '.$user->username);
@@ -173,8 +180,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
                 $this->log(__FUNCTION__ . " continuing onto " . qualified_me() );
             }
         } else {
-            $this->log(__FUNCTION__ . " user $username is not in moodle");
-            $this->error_page(get_string('nouser', 'auth_saml2', $username));
+            $this->log(__FUNCTION__ . " user $uid is not in moodle");
+            $this->error_page(get_string('nouser', 'auth_saml2', $uid));
         }
 
     }
@@ -234,8 +241,11 @@ class auth_plugin_saml2 extends auth_plugin_base {
     /**
      * A chance to validate form data, and last chance to
      * do stuff before it is inserted in config_plugin
-     * @param object object with submitted configuration settings (without system magic quotes)
+     *
+     * @param object $form with submitted configuration settings (without system magic quotes)
      * @param array $err array of error messages
+     *
+     * @return array of any errors
      */
     public function validate_form($form, &$err) {
 

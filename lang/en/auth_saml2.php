@@ -51,4 +51,8 @@ $string['anyauth_help'] = 'Yes: Allow SAML login for all users? No: Only users w
 $string['wrongauth'] = 'You have logged in succesfully as \'{$a}\' but are not authorized to access Moodle.';
 $string['nouser'] = 'You have logged in succesfully as \'{$a}\' but do not have an account in Moodle.';
 $string['noattribute'] = 'You have logged in succesfully but we could not find your \'{$a}\' attribute to associate you to an account in Moodle.';
+$string['tolower'] = 'Lowercase';
+$string['tolower_help'] = 'Apply lowercase to IdP attribute before matching?';
+$string['mapping'] = 'IdP to Moodle mapping';
+$string['mapping_help'] = 'What attribute in the IdP should match which field in Moodle?';
 
