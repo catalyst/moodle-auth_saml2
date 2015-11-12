@@ -57,14 +57,14 @@ reflection of a great need for a solid SAML plugin, but the neglect to do
 it properly in core. SAML2 is by far the most robust and supported protocol
 across the internet and should be fully integrated into moodle core as both
 a Service Provider and as an Identity Provider, and without any external
-dependancies to manage.
+dependencies to manage.
 
 Here is a quick run down of the alternatives:
 
 **Core:**
 
 * /auth/shibboleth - This requires a separately installed and configured
-  Shibolleth install
+  Shibbolleth install
 
 One big issue with this, and the category below, is as there is a whole extra
 application between moodle and the IdP, so the login and logout processes have
@@ -101,5 +101,7 @@ Testing
 This plugin has been tested against:
 
 * SimpleSamlPHP set up as an IdP
+* openidp.feide.no
 * testshib.org
+* An AAF instance of Shibboleth
 
