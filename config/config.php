@@ -45,7 +45,7 @@ $config = array(
      *
      * See this page for a list of valid timezones: http://php.net/manual/en/timezones.php
      */
-    'timezone' => 'crap',
+    'timezone' => '', // TODO
 
     'session.duration'          => 60 * 60 * 8, // 8 hours. TODO same as moodle.
     'session.datastore.timeout' => 60 * 60 * 4,
