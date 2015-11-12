@@ -85,4 +85,10 @@ $config = array(
 
     'proxy' => null, // TODO inherit from moodle conf see http://moodle.local/admin/settings.php?section=http for more.
 
+    'authproc.sp' => array(
+        50 => array(
+            'class' => 'core:AttributeMap',
+            'oid2name',
+        ),
+    ),
 );
