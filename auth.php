@@ -183,7 +183,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
             }
             return;
         } else {
-            $data = print_r($attributes[$attr], 1);
+            $data = pretty_print($attributes[$attr]);
             $this->log(__FUNCTION__ . " user $data is not in moodle");
             $this->error_page(get_string('nouser', 'auth_saml2', $data));
         }
@@ -239,7 +239,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
     public function config_form($config, $err, $userfields) {
         $config = (object) array_merge($this->defaults, (array) $config );
         global $CFG, $OUTPUT;
-        include("config.php");
+        include("settings.html");
     }
 
     /**

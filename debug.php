@@ -31,6 +31,6 @@ $config = SimpleSAML_Configuration::getInstance();
 $PAGE->set_url("$CFG->httpswwwroot/auth/saml2/debug.php");
 $PAGE->set_course($SITE);
 echo $OUTPUT->header();
-echo '<pre>' . print_r($config, 1) . '</pre>';
+echo pretty_print($config);
 echo $OUTPUT->footer();
 

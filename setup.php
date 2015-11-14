@@ -64,3 +64,25 @@ if (!file_exists($saml2auth->certpem) || !file_exists($saml2auth->certcrt)) {
 
 SimpleSAML_Configuration::setConfigDir("$CFG->dirroot/auth/saml2/config");
 
+function pretty_print($arr) {
+    if (is_object($arr)) {
+        $arr = (array) $arr;
+    }
+    $retstr = '<table class="generaltable">';
+    $retstr .= '<tr><th width=20%>Key</th><th width=80%>Value</th></tr>';
+    if (is_array($arr)) {
+        foreach ($arr as $key => $val) {
+            if (is_object($val)) {
+                $val = (array) $val;
+            }
+            if (is_array($val)) {
+                $retstr .= '<tr><td>' . $key . '</td><td>' . pretty_print($val) . '</td></tr>';
+            } else {
+                $retstr .= '<tt><td>' . $key . '</td><td>' . ($val == '' ? '""' : $val) . '</td></tr>';
+            }
+        }
+    }
+    $retstr .= '</table>';
+    return $retstr;
+}
+

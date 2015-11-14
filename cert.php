@@ -34,6 +34,6 @@ $PAGE->set_course($SITE);
 echo $OUTPUT->header();
 echo "<h1>SAML2 auto generated public certificate contents</h1>";
 echo "<p>Path: $path</p>";
-echo '<pre>' . print_r($data, 1) . '</pre>';
+echo pretty_print($data);
 echo $OUTPUT->footer();
 
