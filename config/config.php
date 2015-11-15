@@ -82,4 +82,14 @@ $config = array(
             'oid2name',
         ),
     ),
+
+    // TODO setting for signature.algorithm (ADFS 3 requires http://www.w3.org/2001/04/xmldsig-more#rsa-sha256)
+    // TODO setting for redirect.sign
+    // TODO setting for NameIDPolicy
+    // TODO automated IDP metadata import from public metadata URL e.g. 
+    // https://adfs.nmit.ac.nz/federationmetadata/2007-06/federationmetadata.xml (ADFS rotates its keys automatically every year)
+    // TODO More options for post-processing of the UID - essentially we need a safer version of SSPHP's authproc. A basic plugin system would be ideal as requirements here can vary wildly.
+    //
+    // TODO session.cookie.secure should use the same setting as Moodle.
+    // TODO 'Test Settings' link on Manage authentication page fails with Fatal error: require_once(): Failed opening required '/auth/saml2/autoload.php'
 );
