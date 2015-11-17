@@ -1,5 +1,5 @@
-A SAML2 auth plugin which is actually simple
-============================================
+100% Moodle SAML fast, simple, secure
+=====================================
 
 ![Churchill quote](/pix/churchill.jpg?raw=true)
 
