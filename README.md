@@ -1,6 +1,8 @@
 A SAML2 auth plugin which is actually simple
 ============================================
 
+![Churchill quote](/pix/churchill.jpg?raw=true)
+
 What is this?
 -------------
 
