@@ -58,8 +58,16 @@ if (!file_exists($saml2auth->certpem) || !file_exists($saml2auth->certcrt)) {
     $sscert  = openssl_csr_sign($csr, null, $privkey, $numberofdays);
     openssl_x509_export($sscert, $publickey);
     openssl_pkey_export($privkey, $privatekey, $privkeypass);
-    file_put_contents($saml2auth->certpem, $privatekey);
-    file_put_contents($saml2auth->certcrt, $publickey);
+
+    // Write Private Key and Certifiacte files to disk.
+    // If there was a generation error with either explode.
+    if ($privkey != false || $sscert != false){
+        file_put_contents($saml2auth->certpem, $privatekey);
+        file_put_contents($saml2auth->certcrt, $publickey);
+    }
+    else {
+        throw new SimpleSAML_Error_Exception(get_string('nullcert', 'auth_saml2'));
+    }
 }
 
 SimpleSAML_Configuration::setConfigDir("$CFG->dirroot/auth/saml2/config");

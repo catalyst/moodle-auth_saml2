@@ -55,4 +55,5 @@ $string['tolower'] = 'Lowercase';
 $string['tolower_help'] = 'Apply lowercase to IdP attribute before matching?';
 $string['mapping'] = 'IdP to Moodle mapping';
 $string['mapping_help'] = 'What attribute in the IdP should match which field in Moodle?';
+$string['nullcert'] = 'Creation of Private Key or Certificate failed.  One of the generated values returned False';
 
