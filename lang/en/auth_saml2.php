@@ -31,15 +31,10 @@ $string['idpmetadata_help'] = 'eg XML with a root tag of EntityDescriptor';
 $string['idpmetadata_invalid'] = 'The IdP XML isn\'t valid';
 $string['idpmetadata_noentityid'] = 'The IdP XML has no entityID';
 $string['debug'] = 'Debugging';
-$string['debug_help'] = 'This adds extra debugging to the normal moodle log';
+$string['debug_help'] = '<p>This adds extra debugging to the normal moodle log | <a href=\'{$a}\'>View SSP config</a></p>';
 $string['spmetadata'] = 'SP Metdata';
-$string['spmetadata_help'] = '
-<p>View <a href=\'{$a->meta}\'>Service Provider Metadata (xml)</a>
- | Debug <a href=\'{$a->debug}\'>SSP config</a>
- | <a href=\'{$a->cert}\'>Manage SP certificate</a>
-</p>
-<p>You may need to give this to the IdP admin to whitelist you.</p>
-';
+$string['spmetadata_help'] = 'View <a href=\'{$a}\'>Service Provider Metadata (xml)</a>
+<p>You may need to give this to the IdP admin to whitelist you.</p>';
 $string['duallogin'] = 'Dual login';
 $string['duallogin_help'] = '
 <p>If on, then users will see both manual and a SAML login button. If off they will always be taken directly to the IdP login page.</p>
@@ -56,8 +51,8 @@ $string['tolower_help'] = 'Apply lowercase to IdP attribute before matching?';
 $string['mapping'] = 'IdP to Moodle mapping';
 $string['mapping_help'] = 'What attribute in the IdP should match which field in Moodle?';
 $string['nullcert'] = 'Creation of Private Key or Certificate failed.  One of the generated values returned False';
-$string['credentials'] = 'Regenerate credentials';
-$string['credentials_help'] = 'Regenerate the Private Key and Certificate used by this SP.';
+$string['certificate'] = 'Regenerate certificate';
+$string['certificate_help'] = 'Regenerate the Private Key and Certificate used by this SP. | <a href=\'{$a}\'>View SP certificate</a>';
 $string['countryname'] = 'Country';
 $string['stateorprovincename'] = 'State or Province';
 $string['localityname'] = 'Locality';

@@ -38,24 +38,24 @@ if (!file_exists($saml2auth->certdir)) {
     mkdir($saml2auth->certdir);
 }
 if (!file_exists($saml2auth->certpem) || !file_exists($saml2auth->certcrt)) {
-   create_certificates($saml2auth);
+    create_certificates($saml2auth);
 }
 
 SimpleSAML_Configuration::setConfigDir("$CFG->dirroot/auth/saml2/config");
 
-function create_certificates($saml2auth, $dn = false, $numberofdays = 3650){
+function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
     global $CFG, $SITE;
 
-    if ($dn == false){
+    if ($dn == false) {
         // These are somewhat arbitrary and aren't really seen or used anywhere.
         $dn = array(
-                        'countryName' => 'AU',
-                        'stateOrProvinceName' => 'moodle',
-                        'localityName' => 'moodleville',
-                        'organizationName' => $SITE->shortname,
-                        'organizationalUnitName' => 'moodle',
-                        'commonName' => 'moodle', // TODO change to sp name.
-                        'emailAddress' => $CFG->supportemail,
+            'commonName' => 'moodle',
+            'countryName' => 'AU',
+            'localityName' => 'moodleville',
+            'emailAddress' => $CFG->supportemail,
+            'organizationName' => $SITE->shortname,
+            'stateOrProvinceName' => 'moodle',
+            'organizationalUnitName' => 'moodle',
         );
     }
 
@@ -66,13 +66,12 @@ function create_certificates($saml2auth, $dn = false, $numberofdays = 3650){
     openssl_x509_export($sscert, $publickey);
     openssl_pkey_export($privkey, $privatekey, $privkeypass);
 
-    // Write Private Key and Certifiacte files to disk.
+    // Write Private Key and Certificate files to disk.
     // If there was a generation error with either explode.
-    if ($privkey != false || $sscert != false){
+    if ($privkey != false || $sscert != false) {
         file_put_contents($saml2auth->certpem, $privatekey);
         file_put_contents($saml2auth->certcrt, $publickey);
-    }
-    else {
+    } else {
         throw new SimpleSAML_Error_Exception(get_string('nullcert', 'auth_saml2'));
     }
 

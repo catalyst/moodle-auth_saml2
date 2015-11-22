@@ -73,12 +73,8 @@ class regenerate_form extends moodleform {
         $mform->addRule('expirydays', get_string('requireint', 'auth_saml2'),
                 'required', null, 'client');
 
-        $this->add_action_buttons($cancel = false, $submitlabel=get_string('regenerate_submit', 'auth_saml2'));
+        $this->add_action_buttons($cancel = true, $submitlabel = get_string('regenerate_submit', 'auth_saml2'));
 
     }
 
-    //Custom validation should be added here
-    function validation($data, $files) {
-        return array();
-    }
 }

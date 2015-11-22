@@ -27,11 +27,14 @@ require('regenerate_form.php');
 
 require_login();
 require_capability('moodle/site:config', context_system::instance());
-$PAGE->set_url("$CFG->httpswwwroot/auth/saml2/regenerate.php");
+$PAGE->set_url("$CFG->wwwroot/auth/saml2/regenerate.php");
 $PAGE->set_course($SITE);
 
 $mform = new regenerate_form();
 
+if ($mform->is_cancelled()) {
+    redirect("$CFG->wwwroot/admin/auth_config.php?auth=saml2");
+}
 if ($fromform = $mform->get_data()) {
     $dn = array( 'countryName' => $fromform->countryname,
                         'stateOrProvinceName' => $fromform->stateorprovincename,
@@ -51,30 +54,31 @@ if ($fromform = $mform->get_data()) {
     $data = openssl_x509_parse(file_get_contents($path));
 
     echo $OUTPUT->header();
-    //TODO: generate all this the Moodle way
+    // TODO: generate all this the Moodle way.
     echo "<h1>Regenerate Private Key and Certificate</h1>";
     echo "<p>Path: $path</p>";
     echo "<h3>Warning: Generating a new certificate will overwrite the current one and you may need to update your IDP.</h3>";
 
-    //Set default data
-    $date1 = date("Y-m-d\TH:i:s\Z",str_replace ('Z', '', $data['validFrom_time_t']));
-    $date2 =date("Y-m-d\TH:i:s\Z",str_replace ('Z', '', $data['validTo_time_t']));
+    // Calculate date expirey interval.
+    $date1 = date("Y-m-d\TH:i:s\Z", str_replace ('Z', '', $data['validFrom_time_t']));
+    $date2 = date("Y-m-d\TH:i:s\Z", str_replace ('Z', '', $data['validTo_time_t']));
     $datetime1 = new DateTime($date1);
     $datetime2 = new DateTime($date2);
     $interval = $datetime1->diff($datetime2);
     $expirydays = $interval->format('%a');
 
-    $toform = array ("countryname"=>$data['subject']['C'],
-                    "stateorprovincename"=>$data['subject']['ST'],
-                    "localityname"=>$data['subject']['L'],
-                    "organizationname"=>$data['subject']['O'],
-                    "organizationalunitname"=>$data['subject']['OU'],
-                    "commonname"=>$data['subject']['CN'],
-                    "email"=>$data['subject']['emailAddress'],
-                    "expirydays"=>$expirydays
+    $toform = array (
+        "email" => $data['subject']['emailAddress'],
+        "expirydays" => $expirydays,
+        "commonname" => $data['subject']['CN'],
+        "countryname" => $data['subject']['C'],
+        "localityname" => $data['subject']['L'],
+        "organizationname" => $data['subject']['O'],
+        "stateorprovincename" => $data['subject']['ST'],
+        "organizationalunitname" => $data['subject']['OU'],
     );
-    $mform->set_data($toform); // Load current data into form
-    $mform->display(); // Displays the form
+    $mform->set_data($toform); // Load current data into form.
+    $mform->display(); // Displays the form.
 
     echo $OUTPUT->footer();
 
