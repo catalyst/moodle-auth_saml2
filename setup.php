@@ -38,21 +38,28 @@ if (!file_exists($saml2auth->certdir)) {
     mkdir($saml2auth->certdir);
 }
 if (!file_exists($saml2auth->certpem) || !file_exists($saml2auth->certcrt)) {
+   create_certificates($saml2auth);
+}
 
-    // These are somewhat arbitrary and aren't really seen or used anywhere.
-    $dn = array(
-        'countryName' => 'AU',
-        'stateOrProvinceName' => 'moodle',
-        'localityName' => 'moodleville',
-        'organizationName' => $SITE->shortname,
-        'organizationalUnitName' => 'moodle',
-        'commonName' => 'moodle', // TODO change to sp name.
-        'emailAddress' => $CFG->supportemail,
-    );
+SimpleSAML_Configuration::setConfigDir("$CFG->dirroot/auth/saml2/config");
+
+function create_certificates($saml2auth, $dn_array = false, $numberofdays = 3650){
+    global $CFG, $SITE;
+
+    if ($dn_array == false){
+        // These are somewhat arbitrary and aren't really seen or used anywhere.
+        $dn = array(
+                        'countryName' => 'AU',
+                        'stateOrProvinceName' => 'moodle',
+                        'localityName' => 'moodleville',
+                        'organizationName' => $SITE->shortname,
+                        'organizationalUnitName' => 'moodle',
+                        'commonName' => 'moodle', // TODO change to sp name.
+                        'emailAddress' => $CFG->supportemail,
+        );
+    }
 
     $privkeypass = get_site_identifier();
-    $numberofdays = 3650; // 10 years. TODO how to renew? need a GUI reset button.
-
     $privkey = openssl_pkey_new();
     $csr     = openssl_csr_new($dn, $privkey);
     $sscert  = openssl_csr_sign($csr, null, $privkey, $numberofdays);
@@ -68,9 +75,8 @@ if (!file_exists($saml2auth->certpem) || !file_exists($saml2auth->certcrt)) {
     else {
         throw new SimpleSAML_Error_Exception(get_string('nullcert', 'auth_saml2'));
     }
-}
 
-SimpleSAML_Configuration::setConfigDir("$CFG->dirroot/auth/saml2/config");
+}
 
 function pretty_print($arr) {
     if (is_object($arr)) {
