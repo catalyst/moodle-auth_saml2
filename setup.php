@@ -68,7 +68,7 @@ function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
 
     // Write Private Key and Certificate files to disk.
     // If there was a generation error with either explode.
-    if ($privkey != false || $sscert != false) {
+    if ($privatekey != false || $publickey != false) {
         file_put_contents($saml2auth->certpem, $privatekey);
         file_put_contents($saml2auth->certcrt, $publickey);
     } else {
