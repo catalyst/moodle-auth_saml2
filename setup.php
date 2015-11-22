@@ -43,10 +43,10 @@ if (!file_exists($saml2auth->certpem) || !file_exists($saml2auth->certcrt)) {
 
 SimpleSAML_Configuration::setConfigDir("$CFG->dirroot/auth/saml2/config");
 
-function create_certificates($saml2auth, $dn_array = false, $numberofdays = 3650){
+function create_certificates($saml2auth, $dn = false, $numberofdays = 3650){
     global $CFG, $SITE;
 
-    if ($dn_array == false){
+    if ($dn == false){
         // These are somewhat arbitrary and aren't really seen or used anywhere.
         $dn = array(
                         'countryName' => 'AU',

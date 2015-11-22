@@ -56,4 +56,15 @@ $string['tolower_help'] = 'Apply lowercase to IdP attribute before matching?';
 $string['mapping'] = 'IdP to Moodle mapping';
 $string['mapping_help'] = 'What attribute in the IdP should match which field in Moodle?';
 $string['nullcert'] = 'Creation of Private Key or Certificate failed.  One of the generated values returned False';
-
+$string['credentials'] = 'Regenerate credentials';
+$string['credentials_help'] = 'Regenerate the Private Key and Certificate used by this SP.';
+$string['countryname'] = 'Country';
+$string['stateorprovincename'] = 'State or Province';
+$string['localityname'] = 'Locality';
+$string['organizationname'] = 'Organisation';
+$string['organizationalunitname'] = 'Organisational Unit';
+$string['commonname'] = 'Common Name';
+$string['expirydays'] = 'Expiry in Days';
+$string['required'] = 'This field is required';
+$string['requireint'] = 'This field is required and needs to be a positive integer';
+$string['regenerate_submit'] = 'Regenerate';
