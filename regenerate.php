@@ -35,29 +35,33 @@ $mform = new regenerate_form();
 if ($mform->is_cancelled()) {
     redirect("$CFG->wwwroot/admin/auth_config.php?auth=saml2");
 }
+
+$path = $saml2auth->certdir . $saml2auth->spname . '.crt';
+$error = '';
+
 if ($fromform = $mform->get_data()) {
-    $dn = array( 'countryName' => $fromform->countryname,
-                        'stateOrProvinceName' => $fromform->stateorprovincename,
-                        'localityName' => $fromform->localityname,
-                        'organizationName' => $fromform->organizationname,
-                        'organizationalUnitName' => $fromform->organizationalunitname,
-                        'commonName' => $fromform->commonname,
-                        'emailAddress' => $fromform->email
-                    );
+    $dn = array(
+        'commonName' => $fromform->commonname,
+        'countryName' => $fromform->countryname,
+        'emailAddress' => $fromform->email,
+        'localityName' => $fromform->localityname,
+        'organizationName' => $fromform->organizationname,
+        'stateOrProvinceName' => $fromform->stateorprovincename,
+        'organizationalUnitName' => $fromform->organizationalunitname,
+    );
     $numberofdays = $fromform->expirydays;
 
     $saml2auth = new auth_plugin_saml2();
-    create_certificates($saml2auth, $dn, $numberofdays);
+    $error = create_certificates($saml2auth, $dn, $numberofdays);
 
-}
-    $path = $saml2auth->certdir . $saml2auth->spname . '.crt';
+    if (empty($error)) {
+        redirect("$CFG->wwwroot/admin/auth_config.php?auth=saml2");
+    }
+
+} else {
+
+    // Load data from the current certificate.
     $data = openssl_x509_parse(file_get_contents($path));
-
-    echo $OUTPUT->header();
-    // TODO: generate all this the Moodle way.
-    echo "<h1>Regenerate Private Key and Certificate</h1>";
-    echo "<p>Path: $path</p>";
-    echo "<h3>Warning: Generating a new certificate will overwrite the current one and you may need to update your IDP.</h3>";
 
     // Calculate date expirey interval.
     $date1 = date("Y-m-d\TH:i:s\Z", str_replace ('Z', '', $data['validFrom_time_t']));
@@ -78,7 +82,19 @@ if ($fromform = $mform->get_data()) {
         "organizationalunitname" => $data['subject']['OU'],
     );
     $mform->set_data($toform); // Load current data into form.
-    $mform->display(); // Displays the form.
 
-    echo $OUTPUT->footer();
+}
+
+echo $OUTPUT->header();
+echo "<h1>Regenerate Private Key and Certificate</h1>";
+echo "<p>Path: $path</p>";
+echo "<h3>Warning: Generating a new certificate will overwrite the current one and you may need to update your IDP.</h3>";
+
+if ($error) {
+    echo $OUTPUT->notification($OUTPUT->error_text($error), 'notifyproblem');
+}
+
+$mform->display(); // Displays the form.
+
+echo $OUTPUT->footer();
 

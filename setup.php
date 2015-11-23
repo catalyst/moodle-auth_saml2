@@ -38,7 +38,10 @@ if (!file_exists($saml2auth->certdir)) {
     mkdir($saml2auth->certdir);
 }
 if (!file_exists($saml2auth->certpem) || !file_exists($saml2auth->certcrt)) {
-    create_certificates($saml2auth);
+    $error = create_certificates($saml2auth);
+    if ($error) {
+        error_log($error);
+    }
 }
 
 SimpleSAML_Configuration::setConfigDir("$CFG->dirroot/auth/saml2/config");
@@ -68,11 +71,18 @@ function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
 
     // Write Private Key and Certificate files to disk.
     // If there was a generation error with either explode.
-    if ($privatekey != false || $publickey != false) {
-        file_put_contents($saml2auth->certpem, $privatekey);
-        file_put_contents($saml2auth->certcrt, $publickey);
-    } else {
-        throw new SimpleSAML_Error_Exception(get_string('nullcert', 'auth_saml2'));
+    if (empty($privatekey)) {
+        return get_string('nullprivatecert', 'auth_saml2');
+    }
+    if (empty($publickey)) {
+        return get_string('nullpubliccert', 'auth_saml2');
+    }
+
+    if ( !file_put_contents($saml2auth->certpem, $privatekey) ) {
+        return get_string('nullprivatecert', 'auth_saml2');
+    }
+    if ( !file_put_contents($saml2auth->certcrt, $publickey) ) {
+        return get_string('nullpubliccert', 'auth_saml2');
     }
 
 }
@@ -91,7 +101,7 @@ function pretty_print($arr) {
             if (is_array($val)) {
                 $retstr .= '<tr><td>' . $key . '</td><td>' . pretty_print($val) . '</td></tr>';
             } else {
-                $retstr .= '<tt><td>' . $key . '</td><td>' . ($val == '' ? '""' : $val) . '</td></tr>';
+                $retstr .= '<tr><td>' . $key . '</td><td>' . ($val == '' ? '""' : $val) . '</td></tr>';
             }
         }
     }
