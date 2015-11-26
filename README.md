@@ -17,7 +17,7 @@ experience this is how almost all large uni's and corp's want it and it makes
 the most sense architecturally because students need to be in the class lists
 and groups well before they may ever log in, if ever.
 
-Why is is better?
+Why is it better?
 -----------------
 
 * 100% configured in the Moodle GUI (no installation of a whole separate app)
@@ -32,7 +32,7 @@ How does it work?
 It completely embeds a SimpleSamlPhp instance as an internal dependancy which
 is dynamically configured the way it should be and inherits almost all of it's
 configuration from moodle configuration. In the future we should be able to
-swap to a differnt internal SAML implementation and the plugin GUI shouldn't
+swap to a different internal SAML implementation and the plugin GUI shouldn't
 need to change at all.
 
 Features

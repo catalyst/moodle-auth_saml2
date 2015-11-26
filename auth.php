@@ -193,7 +193,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
     /**
      * Make sure we also cleanup the SAML session AND log out of the IdP
      */
-    public function logoutpage_hook() {
+    public function pre_logoutpage_hook() {
 
         global $CFG, $saml2auth, $redirect;
 
