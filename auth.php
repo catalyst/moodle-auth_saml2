@@ -285,7 +285,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * A simple GUI tester which shows the raw API output
      */
     public function test_settings() {
-        include('test.php');
+        include('tester.php');
     }
 }
 

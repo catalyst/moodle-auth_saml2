@@ -24,7 +24,7 @@
 
 $string['pluginname'] = 'SAML2';
 $string['auth_saml2description'] = 'Authenticate with a SAML2 IdP';
-$string['idpname'] = 'IdP Name';
+$string['idpname'] = 'IdP login label';
 $string['idpname_help'] = 'eg myUNI - this will show on the dual login page if enabled';
 $string['idpmetadata'] = 'IdP metadata xml';
 $string['idpmetadata_help'] = 'eg XML with a root tag of EntityDescriptor';
@@ -33,7 +33,7 @@ $string['idpmetadata_noentityid'] = 'The IdP XML has no entityID';
 $string['debug'] = 'Debugging';
 $string['debug_help'] = '<p>This adds extra debugging to the normal moodle log | <a href=\'{$a}\'>View SSP config</a></p>';
 $string['spmetadata'] = 'SP Metdata';
-$string['spmetadata_help'] = 'View <a href=\'{$a}\'>Service Provider Metadata (xml)</a>
+$string['spmetadata_help'] = '<a href=\'{$a}\'>View Service Provider Metadata</a> | <a href=\'{$a}?download=1\'>Download SP Metadata</a>
 <p>You may need to give this to the IdP admin to whitelist you.</p>';
 $string['duallogin'] = 'Dual login';
 $string['duallogin_help'] = '
@@ -64,3 +64,6 @@ $string['expirydays'] = 'Expiry in Days';
 $string['required'] = 'This field is required';
 $string['requireint'] = 'This field is required and needs to be a positive integer';
 $string['regenerate_submit'] = 'Regenerate';
+$string['test_passive'] = '<a href="{$a}">Test using isPassive</a>';
+$string['test_auth'] = '<a href="{$a}">Test isAuthenticated and login</a>';
+

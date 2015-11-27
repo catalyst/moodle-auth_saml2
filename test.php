@@ -24,11 +24,22 @@
 
 require('setup.php');
 
+$passive = optional_param('passive', '', PARAM_RAW);
 $trylogin = optional_param('login', '', PARAM_RAW);
 
 $auth = new SimpleSAML_Auth_Simple($saml2auth->spname);
 
-if (!$auth->isAuthenticated() && $trylogin) {
+if ($passive) {
+
+    $auth->requireAuth();
+    echo "<p>Passive auth check:</p>";
+    if (!$auth->isAuthenticated() ) {
+        $attributes = $auth->getAttributes();
+    } else {
+        echo "You are not logged in";
+    }
+
+} else if (!$auth->isAuthenticated() && $trylogin) {
 
     $auth->requireAuth();
     echo "Hello, authenticated user!";

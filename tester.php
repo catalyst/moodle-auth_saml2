@@ -15,18 +15,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information
+ * A test GUI
  *
  * @package    auth_saml2
  * @copyright  Brendan Heywood <brendan@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+global $CFG;
 
-$plugin->version   = 2015111602;    // The current plugin version (Date: YYYYMMDDXX).
-$plugin->release   = 2015111602;    // Match release exactly to version.
-$plugin->requires  = 2014050800;    // Requires this Moodle version.
-$plugin->component = 'auth_saml2';  // Full name of the plugin (used for diagnostics).
-$plugin->maturity  = MATURITY_STABLE;
+echo '<p>' . get_string('test_passive', 'auth_saml2', $CFG->wwwroot . '/auth/saml2/test.php') . '</p>';
+echo '<p>' . get_string('test_auth', 'auth_saml2', $CFG->wwwroot . '/auth/saml2/test.php') . '</p>';
+
 

@@ -32,6 +32,11 @@ require('../setup.php');
 
 $auth = new SimpleSAML_Auth_Simple($saml2auth->spname);
 
+$download = optional_param('download', '', PARAM_RAW);
+if ($download) {
+    header('Content-Disposition: attachment; filename=' . $saml2auth->spname . '.xml');
+}
+
 $config = SimpleSAML_Configuration::getInstance();
 $sourceId = $saml2auth->spname;
 $source = SimpleSAML_Auth_Source::getById($sourceId);
