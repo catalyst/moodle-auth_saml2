@@ -36,8 +36,9 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * @var $defaults The config defaults
      */
     public $defaults = array(
-        'idpname'         => 'SAML IdP',
+        'idpname'         => '',
         'entityid'        => '',
+        'idpdefaultname'  => '', // Set in constructor.
         'idpmetadata'     => '',
         'debug'           => 0,
         'duallogin'       => 1,
@@ -52,6 +53,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
      */
     public function __construct() {
         global $CFG;
+        $this->defaults['idpdefaultname'] = get_string('idpnamedefault', 'auth_saml2');
         $this->authtype = 'saml2';
         $mdl = new moodle_url($CFG->wwwroot);
         $this->spname = $mdl->get_host();
@@ -91,11 +93,12 @@ class auth_plugin_saml2 extends auth_plugin_base {
      */
     public function loginpage_idp_list($wantsurl) {
 
+        $conf = $this->config;
         return array(
             array(
                 'url'  => new moodle_url($wantsurl, array('saml' => 'on')),
                 'icon' => new pix_icon('i/user', 'Login'),
-                'name' => $this->config->idpname,
+                'name' => (!empty($conf->idpname) ? $conf->idpname : $conf->idpdefaultname),
             ),
         );
     }
@@ -255,14 +258,37 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         global $CFG;
 
-        // The IdP entityName needs to be parsed out of the XML.
+        // The IdP entityID needs to be parsed out of the XML.
+        // It will use the first IdP entityID it finds.
+        $form->entityid = '';
+        $form->idpdefaultname = $this->defaults['idpdefaultname'];
         try {
-            $xml = new SimpleXMLElement($form->idpmetadata);
-            $form->entityid = ''.$xml['entityID'];
+            $rawxml = $form->idpmetadata;
+
+            // If rawxml looks like a url, then go scrape it first.
+            if (substr($rawxml, 0, 8) == 'https://') {
+                $rawxml = file_get_contents($rawxml);
+            }
+
+            $xml = new SimpleXMLElement($rawxml);
+            $xml->registerXPathNamespace('md',   'urn:oasis:names:tc:SAML:2.0:metadata');
+            $xml->registerXPathNamespace('mdui', 'urn:oasis:names:tc:SAML:metadata:ui');
+
+            // Find all IDPSSODescriptor elements and then work back up to the entityID.
+            $idps = $xml->xpath('//md:EntityDescriptor[//md:IDPSSODescriptor]');
+            if ($idps && isset($idps[0])) {
+                $form->entityid = (string)$idps[0]->attributes('', true)->entityID[0];
+
+                try {
+                    $form->idpdefaultname = (string)$idps[0]->xpath('//mdui:DisplayName')[0];
+                } catch (Exception $e) {
+                }
+            }
+
             if (empty($form->entityid)) {
                 $err['idpmetadata'] = get_string('idpmetadata_noentityid', 'auth_saml2');
             } else {
-                file_put_contents("$CFG->dataroot/saml2/idp.xml" , $form->idpmetadata);
+                file_put_contents("$CFG->dataroot/saml2/idp.xml" , $rawxml);
             }
         } catch (Exception $e) {
             $err['idpmetadata'] = get_string('idpmetadata_invalid', 'auth_saml2');

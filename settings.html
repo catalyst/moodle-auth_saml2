@@ -27,17 +27,17 @@ $yesno = array(get_string('no'), get_string('yes'));
 ?>
 <table cellspacing="0" cellpadding="5" border="0" class="generaltable">
 <tr valign="top">
-    <?php $field = 'idpname' ?>
+    <?php $field = 'idpmetadata' ?>
     <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
-    <td><input type="text" size="40" name="<?php echo $field ?>" value="<?php print $config->$field ?>"><br>
+    <td><textarea columns="80" rows="5" name="<?php echo $field ?>" style="width: 100%"
+    ><?php print $config->$field ?></textarea><br>
         <?php if (isset($err[$field])) { echo $OUTPUT->notification($err[$field], 'notifyfailure'); } ?>
         <?php print_string($field.'_help', 'auth_saml2') ?></td>
 </tr>
 <tr valign="top">
-    <?php $field = 'idpmetadata' ?>
+    <?php $field = 'idpname' ?>
     <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
-    <td><textarea columns="80" rows="10" name="<?php echo $field ?>" style="width: 100%"
-    ><?php print $config->$field ?></textarea><br>
+    <td><input type="text" size="40" name="<?php echo $field ?>" value="<?php print $config->$field ?>" placeholder="<?php print $config->idpdefaultname ?>"><br>
         <?php if (isset($err[$field])) { echo $OUTPUT->notification($err[$field], 'notifyfailure'); } ?>
         <?php print_string($field.'_help', 'auth_saml2') ?></td>
 </tr>

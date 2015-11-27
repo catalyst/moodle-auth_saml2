@@ -24,10 +24,11 @@
 
 $string['pluginname'] = 'SAML2';
 $string['auth_saml2description'] = 'Authenticate with a SAML2 IdP';
-$string['idpname'] = 'IdP login label';
-$string['idpname_help'] = 'eg myUNI - this will show on the dual login page if enabled';
-$string['idpmetadata'] = 'IdP metadata xml';
-$string['idpmetadata_help'] = 'eg XML with a root tag of EntityDescriptor';
+$string['idpname'] = 'IdP label override';
+$string['idpnamedefault'] = 'Login via SAML2';
+$string['idpname_help'] = 'eg myUNI - this is detected from the metadata and will show on the dual login page (if enabled)';
+$string['idpmetadata'] = 'IdP metadata xml or URL';
+$string['idpmetadata_help'] = 'eg XML containing an EntityDescriptor element';
 $string['idpmetadata_invalid'] = 'The IdP XML isn\'t valid';
 $string['idpmetadata_noentityid'] = 'The IdP XML has no entityID';
 $string['debug'] = 'Debugging';
