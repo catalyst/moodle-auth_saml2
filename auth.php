@@ -281,10 +281,9 @@ class auth_plugin_saml2 extends auth_plugin_base {
             if ($idps && isset($idps[0])) {
                 $form->entityid = (string)$idps[0]->attributes('', true)->entityID[0];
 
-                try {
-                    $form->idpdefaultname = (string)$idps[0]->xpath('//mdui:DisplayName')[0];
-                } catch (Exception $e) {
-                    // Do nothing.
+                $names = $idps[0]->xpath('//mdui:DisplayName');
+                if ($names && isset($names[0]) {
+                    $form->idpdefaultname = (string)$names[0];
                 }
             }
 
