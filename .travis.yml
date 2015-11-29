@@ -23,10 +23,10 @@ env:
   - DB=pgsql MOODLE_BRANCH=MOODLE_28_STABLE
   - DB=pgsql MOODLE_BRANCH=MOODLE_29_STABLE
   - DB=pgsql MOODLE_BRANCH=MOODLE_30_STABLE
-#  - DB=mysqli MOODLE_BRANCH=MOODLE_27_STABLE
-#  - DB=mysqli MOODLE_BRANCH=MOODLE_28_STABLE
-#  - DB=mysqli MOODLE_BRANCH=MOODLE_29_STABLE
-#  - DB=mysqli MOODLE_BRANCH=MOODLE_30_STABLE
+  - DB=mysqli MOODLE_BRANCH=MOODLE_27_STABLE
+  - DB=mysqli MOODLE_BRANCH=MOODLE_28_STABLE
+  - DB=mysqli MOODLE_BRANCH=MOODLE_29_STABLE
+  - DB=mysqli MOODLE_BRANCH=MOODLE_30_STABLE
 
 before_install:
   - cd ../..
@@ -42,9 +42,11 @@ script:
   - moodle-plugin-ci phpcpd
   - moodle-plugin-ci phpmd
   - moodle-plugin-ci codechecker
-  - moodle-plugin-ci csslint
+# No CSS
+#  - moodle-plugin-ci csslint
   - moodle-plugin-ci shifter
-  - moodle-plugin-ci jshint
+# No JS
+#  - moodle-plugin-ci jshint
 # No tests yet
 #  - moodle-plugin-ci phpunit
 #  - moodle-plugin-ci behat
