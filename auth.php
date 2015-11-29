@@ -70,7 +70,9 @@ class auth_plugin_saml2 extends auth_plugin_base {
      */
     private function log($msg) {
         if ($this->config->debug) {
+            // @codingStandardsIgnoreStart
             error_log('auth_saml2: ' . $msg);
+            // @codingStandardsIgnoreEnd
         }
     }
 

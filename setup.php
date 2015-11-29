@@ -40,7 +40,9 @@ if (!file_exists($saml2auth->certdir)) {
 if (!file_exists($saml2auth->certpem) || !file_exists($saml2auth->certcrt)) {
     $error = create_certificates($saml2auth);
     if ($error) {
+        // @codingStandardsIgnoreStart
         error_log($error);
+        // @codingStandardsIgnoreEnd
     }
 }
 
