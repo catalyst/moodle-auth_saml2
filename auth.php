@@ -282,6 +282,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
                 try {
                     $form->idpdefaultname = (string)$idps[0]->xpath('//mdui:DisplayName')[0];
                 } catch (Exception $e) {
+                    // Do nothing.
                 }
             }
 

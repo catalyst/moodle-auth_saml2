@@ -40,14 +40,11 @@ install:
 script:
   - moodle-plugin-ci phplint
   - moodle-plugin-ci phpcpd
-  - moodle-plugin-ci phpmd
+# - moodle-plugin-ci phpmd      # This throws too many stupid warnings
   - moodle-plugin-ci codechecker
-# No CSS
-#  - moodle-plugin-ci csslint
+# - moodle-plugin-ci csslint    # No CSS
   - moodle-plugin-ci shifter
-# No JS
-#  - moodle-plugin-ci jshint
-# No tests yet
-#  - moodle-plugin-ci phpunit
-#  - moodle-plugin-ci behat
+# - moodle-plugin-ci jshint     # No JS
+# - moodle-plugin-ci phpunit    # No tests yet
+# - moodle-plugin-ci behat      # No tests yet
 

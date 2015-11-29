@@ -27,8 +27,6 @@ require_once("$CFG->libdir/formslib.php");
 class regenerate_form extends moodleform {
 
     public function definition() {
-        global $CFG;
-
         $mform = $this->_form;
 
         $mform->addElement('text', 'countryname', get_string('countryname', 'auth_saml2'), 'size = 70');
@@ -73,7 +71,7 @@ class regenerate_form extends moodleform {
         $mform->addRule('expirydays', get_string('requireint', 'auth_saml2'),
                 'required', null, 'client');
 
-        $this->add_action_buttons($cancel = true, $submitlabel = get_string('regenerate_submit', 'auth_saml2'));
+        $this->add_action_buttons(true, get_string('regenerate_submit', 'auth_saml2'));
 
     }
 
