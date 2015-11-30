@@ -1,6 +1,11 @@
 
 language: php
 
+notifications:
+  email:
+    recipients:
+    - brendan.heywood@gmail.com
+
 sudo: false
 
 cache:
