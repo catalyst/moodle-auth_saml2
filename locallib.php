@@ -24,27 +24,31 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ *
+ * @SuppressWarnings(PHPMD)
+ */
 function auth_saml2_get_sp_metadata() {
 
     global $saml2auth, $CFG;
 
     $auth = new SimpleSAML_Auth_Simple($saml2auth->spname);
     $config = SimpleSAML_Configuration::getInstance();
-    $sourceId = $saml2auth->spname;
-    $source = SimpleSAML_Auth_Source::getById($sourceId);
-    if ($source === NULL) {
-        throw new SimpleSAML_Error_NotFound('Could not find authentication source with id ' . $sourceId);
+    $sourceid = $saml2auth->spname;
+    $source = SimpleSAML_Auth_Source::getById($sourceid);
+    if ($source === null) {
+        throw new SimpleSAML_Error_NotFound('Could not find authentication source with id ' . $sourceid);
     }
 
     if (!($source instanceof sspmod_saml_Auth_Source_SP)) {
-        throw new SimpleSAML_Error_NotFound('Source isn\'t a SAML SP: ' . var_export($sourceId, TRUE));
+        throw new SimpleSAML_Error_NotFound('Source isn\'t a SAML SP: ' . var_export($sourceid, true));
     }
 
-    $entityId = $source->getEntityId();
+    $entityid = $source->getentityid();
     $spconfig = $source->getMetadata();
     $store = SimpleSAML_Store::getInstance();
 
-    $metaArray20 = array();
+    $metaarray20 = array();
 
     $slosvcdefault = array(
         SAML2_Const::BINDING_HTTP_REDIRECT,
@@ -52,14 +56,14 @@ function auth_saml2_get_sp_metadata() {
     );
 
     $slob = $spconfig->getArray('SingleLogoutServiceBinding', $slosvcdefault);
-    $slol = "$CFG->wwwroot/auth/saml2/sp/saml2-logout.php/{$sourceId}";
+    $slol = "$CFG->wwwroot/auth/saml2/sp/saml2-logout.php/{$sourceid}";
 
     foreach ($slob as $binding) {
         if ($binding == SAML2_Const::BINDING_SOAP && !($store instanceof SimpleSAML_Store_SQL)) {
             /* We cannot properly support SOAP logout. */
             continue;
         }
-        $metaArray20['SingleLogoutService'][] = array(
+        $metaarray20['SingleLogoutService'][] = array(
             'Binding' => $binding,
             'Location' => $slol,
         );
@@ -73,7 +77,7 @@ function auth_saml2_get_sp_metadata() {
     );
 
     if ($spconfig->getString('ProtocolBinding', '') == 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser') {
-        $assertionsconsumerservicesdefault[] = 	'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser';
+        $assertionsconsumerservicesdefault[] = 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser';
     }
 
     $assertionsconsumerservices = $spconfig->getArray('acs.Bindings', $assertionsconsumerservicesdefault);
@@ -82,107 +86,107 @@ function auth_saml2_get_sp_metadata() {
     $eps = array();
     foreach ($assertionsconsumerservices as $services) {
 
-        $acsArray = array('index' => $index);
+        $acsarray = array('index' => $index);
         switch ($services) {
-        case 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST':
-            $acsArray['Binding'] = SAML2_Const::BINDING_HTTP_POST;
-            $acsArray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml2-acs.php/{$sourceId}";
-            break;
-        case 'urn:oasis:names:tc:SAML:1.0:profiles:browser-post':
-            $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:1.0:profiles:browser-post';
-            $acsArray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml1-acs.php/{$sourceId}";
-            break;
-        case 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact':
-            $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact';
-            $acsArray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml2-acs.php/{$sourceId}";
-            break;
-        case 'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01':
-            $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01';
-            $acsArray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml1-acs.php/{$sourceId}";
-            break;
-        case 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser':
-            $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser';
-            $acsArray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml2-acs.php/{$sourceId}";
-            $acsArray['hoksso:ProtocolBinding'] = SAML2_Const::BINDING_HTTP_REDIRECT;
-            break;
+            case 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST':
+                $acsarray['Binding'] = SAML2_Const::BINDING_HTTP_POST;
+                $acsarray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml2-acs.php/{$sourceid}";
+                break;
+            case 'urn:oasis:names:tc:SAML:1.0:profiles:browser-post':
+                $acsarray['Binding'] = 'urn:oasis:names:tc:SAML:1.0:profiles:browser-post';
+                $acsarray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml1-acs.php/{$sourceid}";
+                break;
+            case 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact':
+                $acsarray['Binding'] = 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact';
+                $acsarray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml2-acs.php/{$sourceid}";
+                break;
+            case 'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01':
+                $acsarray['Binding'] = 'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01';
+                $acsarray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml1-acs.php/{$sourceid}";
+                break;
+            case 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser':
+                $acsarray['Binding'] = 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser';
+                $acsarray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml2-acs.php/{$sourceid}";
+                $acsarray['hoksso:ProtocolBinding'] = SAML2_Const::BINDING_HTTP_REDIRECT;
+                break;
         }
-        $eps[] = $acsArray;
+        $eps[] = $acsarray;
         $index++;
     }
 
-    $metaArray20['AssertionConsumerService'] = $eps;
+    $metaarray20['AssertionConsumerService'] = $eps;
 
     $keys = array();
-    $certInfo = SimpleSAML\Utils\Crypto::loadPublicKey($spconfig, FALSE, 'new_');
-    if ($certInfo !== NULL && array_key_exists('certData', $certInfo)) {
-        $hasNewCert = TRUE;
+    $certinfo = SimpleSAML\Utils\Crypto::loadPublicKey($spconfig, false, 'new_');
+    if ($certinfo !== null && array_key_exists('certdata', $certinfo)) {
+        $hasnewcert = true;
 
-        $certData = $certInfo['certData'];
-
-        $keys[] = array(
-            'type' => 'X509Certificate',
-            'signing' => TRUE,
-            'encryption' => TRUE,
-            'X509Certificate' => $certInfo['certData'],
-        );
-    } else {
-        $hasNewCert = FALSE;
-    }
-
-    $certInfo = SimpleSAML\Utils\Crypto::loadPublicKey($spconfig);
-    if ($certInfo !== NULL && array_key_exists('certData', $certInfo)) {
-        $certData = $certInfo['certData'];
+        $certdata = $certinfo['certdata'];
 
         $keys[] = array(
             'type' => 'X509Certificate',
-            'signing' => TRUE,
-            'encryption' => ($hasNewCert ? FALSE : TRUE),
-            'X509Certificate' => $certInfo['certData'],
+            'signing' => true,
+            'encryption' => true,
+            'X509Certificate' => $certinfo['certdata'],
         );
     } else {
-        $certData = NULL;
+        $hasnewcert = false;
     }
 
-    $format = $spconfig->getString('NameIDPolicy', NULL);
-    if ($format !== NULL) {
-        $metaArray20['NameIDFormat'] = $format;
+    $certinfo = SimpleSAML\Utils\Crypto::loadPublicKey($spconfig);
+    if ($certinfo !== null && array_key_exists('certdata', $certinfo)) {
+        $certdata = $certinfo['certdata'];
+
+        $keys[] = array(
+            'type' => 'X509Certificate',
+            'signing' => true,
+            'encryption' => ($hasnewcert ? false : true),
+            'X509Certificate' => $certinfo['certdata'],
+        );
+    } else {
+        $certdata = null;
     }
 
-    $name = $spconfig->getLocalizedString('name', NULL);
+    $format = $spconfig->getString('NameIDPolicy', null);
+    if ($format !== null) {
+        $metaarray20['NameIDFormat'] = $format;
+    }
+
+    $name = $spconfig->getLocalizedString('name', null);
     $attributes = $spconfig->getArray('attributes', array());
 
-    if ($name !== NULL && !empty($attributes)) {
-        $metaArray20['name'] = $name;
-        $metaArray20['attributes'] = $attributes;
-        $metaArray20['attributes.required'] = $spconfig->getArray('attributes.required', array());
+    if ($name !== null && !empty($attributes)) {
+        $metaarray20['name'] = $name;
+        $metaarray20['attributes'] = $attributes;
+        $metaarray20['attributes.required'] = $spconfig->getArray('attributes.required', array());
 
-        if (empty($metaArray20['attributes.required'])) {
-            unset($metaArray20['attributes.required']);
+        if (empty($metaarray20['attributes.required'])) {
+            unset($metaarray20['attributes.required']);
         }
 
-        $description = $spconfig->getArray('description', NULL);
-        if ($description !== NULL) {
-            $metaArray20['description'] = $description;
+        $description = $spconfig->getArray('description', null);
+        if ($description !== null) {
+            $metaarray20['description'] = $description;
         }
 
-        $nameFormat = $spconfig->getString('attributes.NameFormat', NULL);
-        if ($nameFormat !== NULL) {
-            $metaArray20['attributes.NameFormat'] = $nameFormat;
+        $nameformat = $spconfig->getString('attributes.nameformat', null);
+        if ($nameformat !== null) {
+            $metaarray20['attributes.nameformat'] = $nameformat;
         }
     }
 
-    // add organization info
-    $orgName = $spconfig->getLocalizedString('OrganizationName', NULL);
-    if ($orgName !== NULL) {
-        $metaArray20['OrganizationName'] = $orgName;
+    // Add organization info.
+    $orgname = $spconfig->getLocalizedString('OrganizationName', null);
+    if ($orgname !== null) {
+        $metaarray20['OrganizationName'] = $orgname;
 
-        $metaArray20['OrganizationDisplayName'] = $spconfig->getLocalizedString('OrganizationDisplayName', NULL);
-        if ($metaArray20['OrganizationDisplayName'] === NULL) {
-            $metaArray20['OrganizationDisplayName'] = $orgName;
+        $metaarray20['OrganizationDisplayName'] = $spconfig->getLocalizedString('OrganizationDisplayName', null);
+        if ($metaarray20['OrganizationDisplayName'] === null) {
+            $metaarray20['OrganizationDisplayName'] = $orgname;
         }
 
-        $metaArray20['OrganizationURL'] = $spconfig->getLocalizedString('OrganizationURL', NULL);
-        if ($metaArray20['OrganizationURL'] === NULL) {
+        $metaarray20['OrganizationURL'] = $spconfig->getLocalizedString('OrganizationURL', null);
+        if ($metaarray20['OrganizationURL'] === null) {
             throw new SimpleSAML_Error_Exception('If OrganizationName is set, OrganizationURL must also be set.');
         }
     }
@@ -190,69 +194,69 @@ function auth_saml2_get_sp_metadata() {
     if ($spconfig->hasValue('contacts')) {
         $contacts = $spconfig->getArray('contacts');
         foreach ($contacts as $contact) {
-            $metaArray20['contacts'][] = \SimpleSAML\Utils\Config\Metadata::getContact($contact);
+            $metaarray20['contacts'][] = \SimpleSAML\Utils\Config\Metadata::getContact($contact);
         }
     }
 
-    // add technical contact
-    $email = $config->getString('technicalcontact_email', 'na@example.org', FALSE);
+    // Add technical contact.
+    $email = $config->getString('technicalcontact_email', 'na@example.org', false);
     if ($email && $email !== 'na@example.org') {
         $techcontact['emailAddress'] = $email;
-        $techcontact['name'] = $config->getString('technicalcontact_name', NULL);
+        $techcontact['name'] = $config->getString('technicalcontact_name', null);
         $techcontact['contactType'] = 'technical';
-        $metaArray20['contacts'][] = \SimpleSAML\Utils\Config\Metadata::getContact($techcontact);
+        $metaarray20['contacts'][] = \SimpleSAML\Utils\Config\Metadata::getContact($techcontact);
     }
 
-    // add certificate
+    // Add certificate.
     if (count($keys) === 1) {
-        $metaArray20['certData'] = $keys[0]['X509Certificate'];
-    } elseif (count($keys) > 1) {
-        $metaArray20['keys'] = $keys;
+        $metaarray20['certdata'] = $keys[0]['X509Certificate'];
+    } else if (count($keys) > 1) {
+        $metaarray20['keys'] = $keys;
     }
 
-    // add EntityAttributes extension
+    // Add EntityAttributes extension.
     if ($spconfig->hasValue('EntityAttributes')) {
-        $metaArray20['EntityAttributes'] = $spconfig->getArray('EntityAttributes');
+        $metaarray20['EntityAttributes'] = $spconfig->getArray('EntityAttributes');
     }
 
-    // add UIInfo extension
+    // Add UIInfo extension.
     if ($spconfig->hasValue('UIInfo')) {
-        $metaArray20['UIInfo'] = $spconfig->getArray('UIInfo');
+        $metaarray20['UIInfo'] = $spconfig->getArray('UIInfo');
     }
 
-    // add RegistrationInfo extension
+    // Add RegistrationInfo extension.
     if ($spconfig->hasValue('RegistrationInfo')) {
-        $metaArray20['RegistrationInfo'] = $spconfig->getArray('RegistrationInfo');
+        $metaarray20['RegistrationInfo'] = $spconfig->getArray('RegistrationInfo');
     }
 
-    // add signature options
+    // Add signature options.
     if ($spconfig->hasValue('WantAssertionsSigned')) {
-        $metaArray20['saml20.sign.assertion'] = $spconfig->getBoolean('WantAssertionsSigned');
+        $metaarray20['saml20.sign.assertion'] = $spconfig->getBoolean('WantAssertionsSigned');
     }
     if ($spconfig->hasValue('redirect.sign')) {
-        $metaArray20['redirect.validate'] = $spconfig->getBoolean('redirect.sign');
-    } elseif ($spconfig->hasValue('sign.authnrequest')) {
-        $metaArray20['validate.authnrequest'] = $spconfig->getBoolean('sign.authnrequest');
+        $metaarray20['redirect.validate'] = $spconfig->getBoolean('redirect.sign');
+    } else if ($spconfig->hasValue('sign.authnrequest')) {
+        $metaarray20['validate.authnrequest'] = $spconfig->getBoolean('sign.authnrequest');
     }
 
-    $supported_protocols = array('urn:oasis:names:tc:SAML:1.1:protocol', SAML2_Const::NS_SAMLP);
+    $supportedprotocols = array('urn:oasis:names:tc:SAML:1.1:protocol', SAML2_Const::NS_SAMLP);
 
-    $metaArray20['metadata-set'] = 'saml20-sp-remote';
-    $metaArray20['entityid'] = $entityId;
+    $metaarray20['metadata-set'] = 'saml20-sp-remote';
+    $metaarray20['entityid'] = $entityid;
 
-    $metaBuilder = new SimpleSAML_Metadata_SAMLBuilder($entityId);
-    $metaBuilder->addMetadataSP20($metaArray20, $supported_protocols);
-    $metaBuilder->addOrganizationInfo($metaArray20);
+    $metabuilder = new SimpleSAML_Metadata_SAMLBuilder($entityid);
+    $metabuilder->addMetadataSP20($metaarray20, $supportedprotocols);
+    $metabuilder->addOrganizationInfo($metaarray20);
 
-    $xml = $metaBuilder->getEntityDescriptorText();
+    $xml = $metabuilder->getEntityDescriptorText();
 
-    unset($metaArray20['UIInfo']);
-    unset($metaArray20['metadata-set']);
-    unset($metaArray20['entityid']);
+    unset($metaarray20['UIInfo']);
+    unset($metaarray20['metadata-set']);
+    unset($metaarray20['entityid']);
 
-    // sanitize the attributes array to remove friendly names
-    if (isset($metaArray20['attributes']) && is_array($metaArray20['attributes'])) {
-        $metaArray20['attributes'] = array_values($metaArray20['attributes']);
+    // Sanitize the attributes array to remove friendly names.
+    if (isset($metaarray20['attributes']) && is_array($metaarray20['attributes'])) {
+        $metaarray20['attributes'] = array_values($metaarray20['attributes']);
     }
 
     /* Sign the metadata if enabled. */
