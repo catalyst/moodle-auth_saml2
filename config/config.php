@@ -24,6 +24,16 @@
 
 global $CFG, $saml2auth;
 
+switch ($CFG->dbtype) {
+    case "pgsql":
+        $sspdbtype = "pgsql";
+        break;
+    case "mysqli":
+        $sspdbtype = "mysql";
+        break;
+    throw coding_exception('Unknown db type');
+}
+
 $config = array(
 
     'certdir'           => $saml2auth->certdir,
@@ -72,7 +82,7 @@ $config = array(
     'store.sql.password'   => $CFG->dbpass,
     'store.sql.prefix'     => $CFG->prefix . 'authsaml_',
     'store.sql.persistent' => false,
-    'store.sql.dsn'        => "{$CFG->dbtype}:host={$CFG->dbhost};dbname={$CFG->dbname}",
+    'store.sql.dsn'        => "{$sspdbtype}:host={$CFG->dbhost};dbname={$CFG->dbname}",
 
     'proxy' => null, // TODO inherit from moodle conf see http://moodle.local/admin/settings.php?section=http for more.
 
