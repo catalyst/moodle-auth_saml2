@@ -117,8 +117,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $PAGE->set_url('/');
         echo $OUTPUT->header();
         echo $OUTPUT->box($msg);
+        echo html_writer::link('/auth/saml2/logout.php', get_string('logout'));
         echo $OUTPUT->footer();
-        // TODO kill session to enable login as somebody else.
         exit;
     }
 
@@ -126,7 +126,10 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * All the checking happens before the login page in this hook
      */
     public function loginpage_hook() {
+
+        // @codingStandardsIgnoreStart
         global $CFG, $DB, $USER, $SESSION, $saml2auth;
+        // @codingStandardsIgnoreEnd
 
         $this->log(__FUNCTION__ . ' enter');
 
@@ -158,7 +161,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $user = null;
         foreach ($attributes[$attr] as $key => $uid) {
             if ($this->config->tolower) {
-                $this->log(__FUNCTION__ . ' to lowercase');
+                $this->log(__FUNCTION__ . " to lowercase for $key => $uid");
                 $uid = strtolower($uid);
             }
             if ($user = $DB->get_record('user', array( $this->config->mdlattr => $uid ))) {
@@ -226,6 +229,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * @param string $username The username
      * @param string $password The password
      * @return bool Authentication success or failure.
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
     public function user_login ($username, $password) {
         return false;
@@ -240,6 +245,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * @param object $config
      * @param object $err
      * @param array $userfields
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
     public function config_form($config, $err, $userfields) {
         $config = (object) array_merge($this->defaults, (array) $config );
