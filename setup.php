@@ -57,7 +57,7 @@ function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
             'commonName' => 'moodle',
             'countryName' => 'AU',
             'localityName' => 'moodleville',
-            'emailAddress' => $CFG->supportemail,
+            'emailAddress' => $CFG->supportemail ? $CFG->supportemail : $CFG->noreplyaddress,
             'organizationName' => $SITE->shortname,
             'stateOrProvinceName' => 'moodle',
             'organizationalUnitName' => 'moodle',
@@ -94,7 +94,7 @@ function pretty_print($arr) {
         $arr = (array) $arr;
     }
     $retstr = '<table class="generaltable">';
-    $retstr .= '<tr><th width=20%>Key</th><th width=80%>Value</th></tr>';
+    $retstr .= '<tr><th>Key</th><th>Value</th></tr>';
     if (is_array($arr)) {
         foreach ($arr as $key => $val) {
             if (is_object($val)) {

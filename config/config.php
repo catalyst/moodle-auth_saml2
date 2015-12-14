@@ -45,7 +45,7 @@ $config = array(
     'debug.validatexml' => false,
     'secretsalt'        => get_site_identifier(),
     'technicalcontact_name'  => $CFG->supportname,
-    'technicalcontact_email' => $CFG->supportemail,
+    'technicalcontact_email' => $CFG->supportemail ? $CFG->supportemail : $CFG->noreplyaddress,
     'timezone' => core_date::get_server_timezone(),
 
     'session.duration'          => 60 * 60 * 8, // 8 hours. TODO same as moodle.

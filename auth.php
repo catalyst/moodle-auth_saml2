@@ -265,7 +265,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
      */
     public function validate_form($form, &$err) {
 
-        global $CFG;
+        global $CFG, $saml2auth;
+        require_once('setup.php');
 
         // The IdP entityID needs to be parsed out of the XML.
         // It will use the first IdP entityID it finds.
@@ -288,7 +289,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
             if ($idps && isset($idps[0])) {
                 $form->entityid = (string)$idps[0]->attributes('', true)->entityID[0];
 
-                $names = $idps[0]->xpath('//mdui:DisplayName');
+                $names = @$idps[0]->xpath('//mdui:DisplayName');
                 if ($names && isset($names[0])) {
                     $form->idpdefaultname = (string)$names[0];
                 }
@@ -297,7 +298,10 @@ class auth_plugin_saml2 extends auth_plugin_base {
             if (empty($form->entityid)) {
                 $err['idpmetadata'] = get_string('idpmetadata_noentityid', 'auth_saml2');
             } else {
-                file_put_contents("$CFG->dataroot/saml2/idp.xml" , $rawxml);
+                if (!file_exists($saml2auth->certdir)) {
+                    mkdir($saml2auth->certdir);
+                }
+                file_put_contents($saml2auth->certdir . 'idp.xml' , $rawxml);
             }
         } catch (Exception $e) {
             $err['idpmetadata'] = get_string('idpmetadata_invalid', 'auth_saml2');
