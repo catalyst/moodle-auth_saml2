@@ -24,12 +24,13 @@ matrix:
 
 env:
  matrix:
-  - DB=pgsql MOODLE_BRANCH=MOODLE_27_STABLE
-  - DB=pgsql MOODLE_BRANCH=MOODLE_28_STABLE
+# 2.8 is required for core_date - we can work around this if there is demand
+#  - DB=pgsql MOODLE_BRANCH=MOODLE_27_STABLE
+#  - DB=pgsql MOODLE_BRANCH=MOODLE_28_STABLE
   - DB=pgsql MOODLE_BRANCH=MOODLE_29_STABLE
   - DB=pgsql MOODLE_BRANCH=MOODLE_30_STABLE
-  - DB=mysqli MOODLE_BRANCH=MOODLE_27_STABLE
-  - DB=mysqli MOODLE_BRANCH=MOODLE_28_STABLE
+#  - DB=mysqli MOODLE_BRANCH=MOODLE_27_STABLE
+#  - DB=mysqli MOODLE_BRANCH=MOODLE_28_STABLE
   - DB=mysqli MOODLE_BRANCH=MOODLE_29_STABLE
   - DB=mysqli MOODLE_BRANCH=MOODLE_30_STABLE
 
@@ -45,7 +46,7 @@ install:
 script:
   - moodle-plugin-ci phplint
   - moodle-plugin-ci phpcpd
-  - moodle-plugin-ci phpmd
+# - moodle-plugin-ci phpmd
   - moodle-plugin-ci codechecker
 # - moodle-plugin-ci csslint    # No CSS
   - moodle-plugin-ci shifter
