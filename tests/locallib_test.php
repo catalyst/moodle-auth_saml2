@@ -25,6 +25,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ *
+ * @SuppressWarnings(PHPMD)
+ */
 class auth_saml2_locallib_testcase extends advanced_testcase {
 
     public function test_auth_saml2_sp_metadata() {
