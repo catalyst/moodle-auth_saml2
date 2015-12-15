@@ -89,7 +89,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $conf = $this->config;
         return array(
             array(
-                'url'  => new moodle_url($wantsurl, array('saml' => 'on')),
+                'url'  => new moodle_url('/auth/saml2/login.php', array('wants' => $wantsurl)),
                 'icon' => new pix_icon('i/user', 'Login'),
                 'name' => (!empty($conf->idpname) ? $conf->idpname : $conf->idpdefaultname),
             ),
