@@ -21,7 +21,6 @@ php:
 matrix:
  allow_failures:
   - php: 7.0
-  - DB=mysqli
 
 env:
  matrix:
@@ -32,8 +31,8 @@ env:
   - DB=pgsql MOODLE_BRANCH=MOODLE_30_STABLE
 #  - DB=mysqli MOODLE_BRANCH=MOODLE_27_STABLE
 #  - DB=mysqli MOODLE_BRANCH=MOODLE_28_STABLE
-  - DB=mysqli MOODLE_BRANCH=MOODLE_29_STABLE
-  - DB=mysqli MOODLE_BRANCH=MOODLE_30_STABLE
+#  - DB=mysqli MOODLE_BRANCH=MOODLE_29_STABLE
+#  - DB=mysqli MOODLE_BRANCH=MOODLE_30_STABLE
 
 before_install:
   - cd ../..
