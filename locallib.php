@@ -24,6 +24,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+// @codingStandardsIgnoreStart
+// This function is mostly a direct cut and paste from SimpleSAMLPHP with
+// only minor bootstrapping differences. As such it is formatted according
+// to the SSPHP rules not moodles so we ignore it here.
+
 function auth_saml2_get_sp_metadata() {
 
     global $saml2auth, $CFG;
@@ -261,5 +266,5 @@ function auth_saml2_get_sp_metadata() {
     return $xml;
 }
 
-
+// @codingStandardsIgnoreEnd
 
