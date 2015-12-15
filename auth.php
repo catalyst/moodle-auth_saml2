@@ -77,15 +77,6 @@ class auth_plugin_saml2 extends auth_plugin_base {
     }
 
     /**
-     * All the checking happens before the login page in this hook
-     */
-    public function pre_loginpage_hook() {
-        $this->log(__FUNCTION__ . ' enter');
-        $this->loginpage_hook();
-        $this->log(__FUNCTION__ . ' exit');
-    }
-
-    /**
      * Returns a list of potential IdPs that this authentication plugin supports.
      * This is used to provide links on the login page.
      *
@@ -125,11 +116,16 @@ class auth_plugin_saml2 extends auth_plugin_base {
     /**
      * All the checking happens before the login page in this hook
      */
-    public function loginpage_hook() {
+    public function pre_loginpage_hook() {
+        $this->log(__FUNCTION__ . ' enter');
+        $this->loginpage_hook();
+        $this->log(__FUNCTION__ . ' exit');
+    }
 
-        // @codingStandardsIgnoreStart
-        global $CFG, $DB, $USER, $SESSION, $saml2auth;
-        // @codingStandardsIgnoreEnd
+    /**
+     * All the checking happens before the login page in this hook
+     */
+    public function loginpage_hook() {
 
         $this->log(__FUNCTION__ . ' enter');
 
@@ -146,6 +142,19 @@ class auth_plugin_saml2 extends auth_plugin_base {
             $this->log(__FUNCTION__ . ' skipping due to ?saml=off');
             return;
         }
+
+        $this->saml_login();
+
+    }
+
+    /**
+     * All the checking happens before the login page in this hook
+     */
+    public function saml_login() {
+
+        // @codingStandardsIgnoreStart
+        global $CFG, $DB, $USER, $SESSION, $saml2auth;
+        // @codingStandardsIgnoreEnd
 
         require_once('setup.php');
         require_once("$CFG->dirroot/login/lib.php");
