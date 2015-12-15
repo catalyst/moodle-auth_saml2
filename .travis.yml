@@ -21,6 +21,7 @@ php:
 matrix:
  allow_failures:
   - php: 7.0
+  - DB=mysqli
 
 env:
  matrix:
