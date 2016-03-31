@@ -24,11 +24,14 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-// @codingStandardsIgnoreStart
-// This function is mostly a direct cut and paste from SimpleSAMLPHP with
-// only minor bootstrapping differences. As such it is formatted according
-// to the SSPHP rules not moodles so we ignore it here.
 
+/**
+ * This function is mostly a direct cut and paste from SimpleSAMLPHP with
+ * only minor bootstrapping differences. As such it is formatted according
+ * to the SSPHP rules not moodles so we ignore it here. This is to make it
+ * easier when upgrading SSPHP.
+ */
+// @codingStandardsIgnoreStart
 function auth_saml2_get_sp_metadata() {
 
     global $saml2auth, $CFG;

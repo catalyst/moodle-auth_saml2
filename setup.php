@@ -23,7 +23,7 @@
  */
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
-require_once("$CFG->dirroot/auth/saml2/autoload.php");
+require_once(dirname(__FILE__).'/autoload.php');
 require_once("$CFG->dirroot/auth/saml2/auth.php");
 
 $saml2auth = new auth_plugin_saml2();
@@ -48,6 +48,12 @@ if (!file_exists($saml2auth->certpem) || !file_exists($saml2auth->certcrt)) {
 
 SimpleSAML_Configuration::setConfigDir("$CFG->dirroot/auth/saml2/config");
 
+/**
+ * Ensure that valid certificates exist.
+ *
+ * @copyright  Brendan Heywood <brendan@catalyst-au.net>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
     global $CFG, $SITE;
 
@@ -58,6 +64,7 @@ function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
             'countryName' => 'AU',
             'localityName' => 'moodleville',
             'emailAddress' => $CFG->supportemail ? $CFG->supportemail : $CFG->noreplyaddress,
+    // TODO \core_user::get_support_user();
             'organizationName' => $SITE->shortname,
             'stateOrProvinceName' => 'moodle',
             'organizationalUnitName' => 'moodle',
@@ -89,6 +96,12 @@ function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
 
 }
 
+/**
+ * A nicer version of print_r
+ *
+ * @param $arr mixed A variable to display
+ * @return string
+ */
 function pretty_print($arr) {
     if (is_object($arr)) {
         $arr = (array) $arr;
