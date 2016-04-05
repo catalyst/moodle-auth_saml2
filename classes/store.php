@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * A pure Moodle DB based store for SimpleSAMLPHP
+ *
  * @package    auth_saml2
  * @copyright  2016 Brendan Heywood <brendan@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -33,6 +35,9 @@ defined('MOODLE_INTERNAL') || die();
  *
  * This is essentially a clone of extlib/simplesamlphp/lib/SimpleSAML/Store/SQL.php
  * but with the SQL rewritten to use the moodle api $DB->blah() instead of PDO;
+ *
+ * @copyright  2016 Brendan Heywood <brendan@catalyst-au.net>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class store extends \SimpleSAML_Store {
 

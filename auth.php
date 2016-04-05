@@ -241,7 +241,6 @@ class auth_plugin_saml2 extends auth_plugin_base {
         }
     }
 
-
     /**
      * Returns false regardless of the username and password as we never get
      * to the web form. If we do, some other auth plugin will handle it

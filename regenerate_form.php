@@ -24,8 +24,17 @@
 
 require_once("$CFG->libdir/formslib.php");
 
+/**
+ * Regenerate the Private Key and Certificate files
+ *
+ * @copyright  Matt Porritt <mattp@catalyst-au.net>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class regenerate_form extends moodleform {
 
+    /**
+     * Definition
+     */
     public function definition() {
         $mform = $this->_form;
 
@@ -76,3 +85,4 @@ class regenerate_form extends moodleform {
     }
 
 }
+

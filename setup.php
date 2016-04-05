@@ -53,6 +53,10 @@ SimpleSAML_Configuration::setConfigDir("$CFG->dirroot/auth/saml2/config");
  *
  * @copyright  Brendan Heywood <brendan@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ * @param stdObj  $saml2auth config object
+ * @param array   $dn Certificate Distinguished name details
+ * @param integer $numberofdays Certificate expirey period
  */
 function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
     global $CFG, $SITE;
@@ -100,8 +104,8 @@ function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
 /**
  * A nicer version of print_r
  *
- * @param $arr mixed A variable to display
- * @return string
+ * @param mixed $arr A variable to display
+ * @return string html table
  */
 function pretty_print($arr) {
     if (is_object($arr)) {
