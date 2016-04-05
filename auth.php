@@ -248,8 +248,6 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * @param string $username The username
      * @param string $password The password
      * @return bool Authentication success or failure.
-     *
-     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
     public function user_login ($username, $password) {
         return false;
@@ -264,8 +262,6 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * @param object $config
      * @param object $err
      * @param array $userfields
-     *
-     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
     public function config_form($config, $err, $userfields) {
         $config = (object) array_merge($this->defaults, (array) $config );
