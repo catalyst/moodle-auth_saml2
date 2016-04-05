@@ -58,13 +58,14 @@ function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
     global $CFG, $SITE;
 
     if ($dn == false) {
-        // These are somewhat arbitrary and aren't really seen or used anywhere.
+        // These are somewhat arbitrary and aren't really seen except inside
+        // the auto created certificate used to sign saml requests.
         $dn = array(
             'commonName' => 'moodle',
             'countryName' => 'AU',
             'localityName' => 'moodleville',
             'emailAddress' => $CFG->supportemail ? $CFG->supportemail : $CFG->noreplyaddress,
-    // TODO \core_user::get_support_user();
+            // TODO \core_user::get_support_user().
             'organizationName' => $SITE->shortname,
             'stateOrProvinceName' => 'moodle',
             'organizationalUnitName' => 'moodle',

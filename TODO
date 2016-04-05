@@ -1,4 +1,9 @@
 
+in upgrade detect old version and remove tableds create by ssphp
+
+add auto create user
+add config for attribute mappings, on create, on login, never etc
+
 TODO test openam eg https://identity.cqu.edu.au/openam/saml2/jsp/exportmetadata.jsp
 TODO test ADFS
 

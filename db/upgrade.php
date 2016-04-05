@@ -56,6 +56,16 @@ function xmldb_auth_saml2_upgrade($oldversion) {
             $dbman->create_table($table);
         }
 
+        // Remove legacy tables not created by moodle.
+        $table = new xmldb_table('auth_saml_tableVersion');
+        if ($dbman->table_exists($table)) {
+            $dbman->drop_table($table);
+        }
+        $table = new xmldb_table('auth_saml_kvstore');
+        if ($dbman->table_exists($table)) {
+            $dbman->drop_table($table);
+        }
+
         // Saml2 savepoint reached.
         upgrade_plugin_savepoint(true, 2016031701, 'auth', 'saml2');
     }

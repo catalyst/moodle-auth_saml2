@@ -36,24 +36,24 @@ defined('MOODLE_INTERNAL') || die();
  */
 class store extends \SimpleSAML_Store {
 
-	/**
-	 * Retrieve a value from the datastore.
-	 *
-	 * @param string $type  The datatype.
-	 * @param string $key  The key.
-	 * @return mixed|NULL  The value.
-	 */
-	public function get($type, $key) {
+    /**
+     * Retrieve a value from the datastore.
+     *
+     * @param string $type  The datatype.
+     * @param string $key  The key.
+     * @return mixed|NULL  The value.
+     */
+    public function get($type, $key) {
         global $DB;
 
-		assert('is_string($type)');
-		assert('is_string($key)');
+        assert('is_string($type)');
+        assert('is_string($key)');
 
-		if (strlen($key) > 50) {
-			$key = sha1($key);
-		}
+        if (strlen($key) > 50) {
+            $key = sha1($key);
+        }
 
-		$query = '
+        $query = '
             SELECT id, value
               FROM {auth_samltwo_kvstore}
              WHERE type = :type
@@ -61,64 +61,64 @@ class store extends \SimpleSAML_Store {
                AND (expire IS NULL
                    OR expire > :now
                    )';
-		$params = array(
+        $params = array(
             'type' => $type,
             'key' => $key,
             'now' => time(),
         );
 
-		$rows = $DB->get_records_sql($query, $params);
-		if (empty($rows)) {
-			return null;
-		}
+        $rows = $DB->get_records_sql($query, $params);
+        if (empty($rows)) {
+            return null;
+        }
         $row = reset($rows);
-		$value = $row->value;
-		$value = urldecode($value);
-		$value = unserialize($value);
+        $value = $row->value;
+        $value = urldecode($value);
+        $value = unserialize($value);
 
         if ($value === false) {
             return null;
         }
-		return $value;
-	}
+        return $value;
+    }
 
-	/**
-	 * Save a value to the datastore.
-	 *
-	 * @param string   $type   The datatype.
-	 * @param string   $key    The key.
-	 * @param mixed    $value  The value.
-	 * @param int|null $expire The expiration time (unix timestamp), or NULL if it never expires.
-	 */
-	public function set($type, $key, $value, $expire = null) {
+    /**
+     * Save a value to the datastore.
+     *
+     * @param string   $type   The datatype.
+     * @param string   $key    The key.
+     * @param mixed    $value  The value.
+     * @param int|null $expire The expiration time (unix timestamp), or NULL if it never expires.
+     */
+    public function set($type, $key, $value, $expire = null) {
 
         global $DB, $CFG;
 
-		assert('is_string($type)');
-		assert('is_string($key)');
-		assert('is_null($expire) || (is_int($expire) && $expire > 2592000)');
+        assert('is_string($type)');
+        assert('is_string($key)');
+        assert('is_null($expire) || (is_int($expire) && $expire > 2592000)');
 
-		if (rand(0, 1000) < 10) {
-			$this->delete_expired(); // TODO convert to task
-		}
+        if (rand(0, 1000) < 10) {
+            $this->delete_expired(); // TODO convert to task.
+        }
 
-		if (strlen($key) > 50) {
-			$key = sha1($key);
-		}
+        if (strlen($key) > 50) {
+            $key = sha1($key);
+        }
 
-		$value = serialize($value);
-		$value = rawurlencode($value);
+        $value = serialize($value);
+        $value = rawurlencode($value);
 
-		$data = array(
-			'type' => $type,
-			'key' => $key,
-			'value' => $value,
-			'expire' => $expire,
-		);
+        $data = array(
+            'type' => $type,
+            'key' => $key,
+            'value' => $value,
+            'expire' => $expire,
+        );
 
         $find = array(
-			'type' => $type,
-			'key' => $key,
+            'type' => $type,
+            'key' => $key,
         );
 
         $record = $DB->get_record('auth_samltwo_kvstore', $find);
@@ -128,41 +128,41 @@ class store extends \SimpleSAML_Store {
         } else {
             $DB->insert_record('auth_samltwo_kvstore', $data);
         }
-	}
+    }
 
-	/**
-	 * Delete a value from the datastore.
-	 *
-	 * @param string $type The datatype.
-	 * @param string $key  The key.
-	 */
-	public function delete($type, $key) {
-		assert('is_string($type)');
-		assert('is_string($key)');
+    /**
+     * Delete a value from the datastore.
+     *
+     * @param string $type The datatype.
+     * @param string $key  The key.
+     */
+    public function delete($type, $key) {
+        assert('is_string($type)');
+        assert('is_string($key)');
 
-		if (strlen($key) > 50) {
-			$key = sha1($key);
-		}
+        if (strlen($key) > 50) {
+            $key = sha1($key);
+        }
 
-		$data = array(
-			'type' => $type,
-			'key' => $key,
-		);
+        $data = array(
+            'type' => $type,
+            'key' => $key,
+        );
 
-		$DB->delete_records('auth_samltwo_kvstore', $data);
-	}
+        $DB->delete_records('auth_samltwo_kvstore', $data);
+    }
 
-	/**
-	 * Clean the key-value table of expired entries.
-	 */
-	public function delete_expired() {
+    /**
+     * Clean the key-value table of expired entries.
+     */
+    public function delete_expired() {
         global $DB;
-		$sql = 'DELETE FROM {auth_samltwo_kvstore}
+        $sql = 'DELETE FROM {auth_samltwo_kvstore}
                  WHERE expire < :now';
-		$params = array('now' => time());
+        $params = array('now' => time());
 
-		$DB->execute($sql, $params);
-	}
+        $DB->execute($sql, $params);
+    }
 
 }
 
