@@ -53,18 +53,23 @@ SimpleSAML_Configuration::setConfigDir("$CFG->dirroot/auth/saml2/config");
  *
  * @copyright  Brendan Heywood <brendan@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ * @param stdObj  $saml2auth config object
+ * @param array   $dn Certificate Distinguished name details
+ * @param integer $numberofdays Certificate expirey period
  */
 function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
     global $CFG, $SITE;
 
     if ($dn == false) {
-        // These are somewhat arbitrary and aren't really seen or used anywhere.
+        // These are somewhat arbitrary and aren't really seen except inside
+        // the auto created certificate used to sign saml requests.
         $dn = array(
             'commonName' => 'moodle',
             'countryName' => 'AU',
             'localityName' => 'moodleville',
             'emailAddress' => $CFG->supportemail ? $CFG->supportemail : $CFG->noreplyaddress,
-    // TODO \core_user::get_support_user();
+            // TODO \core_user::get_support_user().
             'organizationName' => $SITE->shortname,
             'stateOrProvinceName' => 'moodle',
             'organizationalUnitName' => 'moodle',
@@ -99,8 +104,8 @@ function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
 /**
  * A nicer version of print_r
  *
- * @param $arr mixed A variable to display
- * @return string
+ * @param mixed $arr A variable to display
+ * @return string html table
  */
 function pretty_print($arr) {
     if (is_object($arr)) {

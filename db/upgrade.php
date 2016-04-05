@@ -25,6 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
+ * Upgrade script
+ *
  * @param int $oldversion the version we are upgrading from
  * @return bool result
  */
@@ -54,6 +56,16 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         // Conditionally launch create table for auth_saml2_vkstore.
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
+        }
+
+        // Remove legacy tables not created by moodle.
+        $table = new xmldb_table('auth_saml_tableVersion');
+        if ($dbman->table_exists($table)) {
+            $dbman->drop_table($table);
+        }
+        $table = new xmldb_table('auth_saml_kvstore');
+        if ($dbman->table_exists($table)) {
+            $dbman->drop_table($table);
         }
 
         // Saml2 savepoint reached.
