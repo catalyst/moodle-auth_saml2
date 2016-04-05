@@ -35,6 +35,7 @@ function xmldb_auth_saml2_upgrade($oldversion) {
 
     $dbman = $DB->get_manager();
 
+
     if ($oldversion < 2016031701) {
 
         // Define table auth_saml2_vkstore to be created.
@@ -71,5 +72,7 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         // Saml2 savepoint reached.
         upgrade_plugin_savepoint(true, 2016031701, 'auth', 'saml2');
     }
+
+    return true;
 }
 
