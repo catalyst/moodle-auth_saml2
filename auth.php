@@ -204,15 +204,15 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         // Do we need to update any user fields? Unlike ldap, we can only do
         // this now. We cannot query the IdP at any time.
-        $map_config = get_config('auth/saml2');
-        $all_keys = array_keys(get_object_vars($map_config));
+        $mapconfig = get_config('auth/saml2');
+        $allkeys = array_keys(get_object_vars($mapconfig));
         $touched = false;
-        foreach ($all_keys as $key) {
+        foreach ($allkeys as $key) {
             if (preg_match('/^field_updatelocal_(.+)$/', $key, $match)) {
                 $field = $match[1];
-                if (!empty($map_config->{'field_map_'.$field})) {
-                    $attr = $map_config->{'field_map_'.$field};
-                    $updateonlogin = $map_config->{'field_updatelocal_'.$field} === 'onlogin';
+                if (!empty($mapconfig->{'field_map_'.$field})) {
+                    $attr = $mapconfig->{'field_map_'.$field};
+                    $updateonlogin = $mapconfig->{'field_updatelocal_'.$field} === 'onlogin';
 
                     if ($newuser || $updateonlogin) {
                         $user->$field = $attributes[$attr][0];

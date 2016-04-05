@@ -35,7 +35,6 @@ function xmldb_auth_saml2_upgrade($oldversion) {
 
     $dbman = $DB->get_manager();
 
-
     if ($oldversion < 2016031701) {
 
         // Define table auth_saml2_vkstore to be created.
