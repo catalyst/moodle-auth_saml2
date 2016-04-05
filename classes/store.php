@@ -62,13 +62,13 @@ class store extends \SimpleSAML_Store {
             SELECT id, value
               FROM {auth_samltwo_kvstore}
              WHERE type = :type
-               AND key = :key
+               AND k = :k
                AND (expire IS NULL
                    OR expire > :now
                    )';
         $params = array(
             'type' => $type,
-            'key' => $key,
+            'k' => $key,
             'now' => time(),
         );
 
@@ -116,14 +116,14 @@ class store extends \SimpleSAML_Store {
 
         $data = array(
             'type' => $type,
-            'key' => $key,
+            'k' => $key,
             'value' => $value,
             'expire' => $expire,
         );
 
         $find = array(
             'type' => $type,
-            'key' => $key,
+            'k' => $key,
         );
 
         $record = $DB->get_record('auth_samltwo_kvstore', $find);
@@ -151,7 +151,7 @@ class store extends \SimpleSAML_Store {
 
         $data = array(
             'type' => $type,
-            'key' => $key,
+            'k' => $key,
         );
 
         $DB->delete_records('auth_samltwo_kvstore', $data);

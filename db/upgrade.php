@@ -43,15 +43,15 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         // Adding fields to table auth_saml2_vkstore.
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('type', XMLDB_TYPE_CHAR, '30', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('key', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('value', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('k', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('v', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
         $table->add_field('expire', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
 
         // Adding keys to table auth_saml2_vkstore.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
 
         // Adding indexes to table auth_saml2_vkstore.
-        $table->add_index('key_type', XMLDB_INDEX_UNIQUE, array('key', 'type'));
+        $table->add_index('key_type', XMLDB_INDEX_UNIQUE, array('k', 'type'));
 
         // Conditionally launch create table for auth_saml2_vkstore.
         if (!$dbman->table_exists($table)) {
