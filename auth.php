@@ -86,10 +86,17 @@ class auth_plugin_saml2 extends auth_plugin_base {
      */
     public function loginpage_idp_list($wantsurl) {
 
+        // The wants url may already be routed via login.php so don't re-re-route it.
+        if (strpos($wantsurl, '/auth/saml2/login.php')) {
+            $wantsurl = new moodle_url($wantsurl);
+        } else {
+            $wantsurl = new moodle_url('/auth/saml2/login.php', array('wants' => $wantsurl));
+        }
+
         $conf = $this->config;
         return array(
             array(
-                'url'  => new moodle_url('/auth/saml2/login.php', array('wants' => $wantsurl)),
+                'url'  => $wantsurl,
                 'icon' => new pix_icon('i/user', 'Login'),
                 'name' => (!empty($conf->idpname) ? $conf->idpname : $conf->idpdefaultname),
             ),
