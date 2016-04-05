@@ -184,6 +184,10 @@ class auth_plugin_saml2 extends auth_plugin_base {
             }
 
             $this->log(__FUNCTION__ . ' found user '.$user->username);
+
+            // Make sure all user data is fetched.
+            $user = get_complete_user_data('username', $user->username);
+
             complete_user_login($user);
             $USER->loggedin = true;
             $USER->site = $CFG->wwwroot;

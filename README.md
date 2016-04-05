@@ -46,14 +46,13 @@ Features
 * user attribute to moodle mapping
 * Automatic certificate creation
 
-Features excluded on purpose:
+Features excluded:
 
-* Auto create users - this should not be in an auth plugin
+* Auto create users - not yet implemented
 * Enrolment - this should be an enrol plugin and not in an auth plugin
-* Profile field mapping - see above
-* Role mapping - see above
+* Profile field mapping - not yet implemented
+* Role mapping - not yet implemented
 
-That said, if there is desire for this then we're open to adding it in.
 
 Other SAML plugins
 ------------------

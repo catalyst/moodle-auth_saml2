@@ -37,7 +37,7 @@ $config = array(
     'technicalcontact_name'  => $CFG->supportname,
     'technicalcontact_email' => $CFG->supportemail ? $CFG->supportemail : $CFG->noreplyaddress,
     // \core_user::get_support_user();
-    'timezone' => core_date::get_server_timezone(),
+    'timezone' => class_exists('core_date') ? core_date::get_server_timezone() : null,
 
     'session.duration'          => 60 * 60 * 8, // 8 hours. TODO same as moodle.
     'session.datastore.timeout' => 60 * 60 * 4,
