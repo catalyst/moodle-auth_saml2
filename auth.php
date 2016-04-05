@@ -211,9 +211,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
             }
             return;
         } else {
-            $data = pretty_print($attributes[$attr]);
-            $this->log(__FUNCTION__ . " user $data is not in moodle");
-            $this->error_page(get_string('nouser', 'auth_saml2', $data));
+            $this->log(__FUNCTION__ . " user $uid is not in moodle");
+            $this->error_page(get_string('nouser', 'auth_saml2', $uid));
         }
 
     }
