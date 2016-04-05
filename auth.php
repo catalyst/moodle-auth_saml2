@@ -46,6 +46,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         'idpattr'         => 'uid',
         'mdlattr'         => 'username',
         'tolower'         => 0,
+        'autocreate'      => 0,
     );
 
     /**
@@ -184,37 +185,68 @@ class auth_plugin_saml2 extends auth_plugin_base {
                 continue;
             }
         }
-        if ($user) {
-            if (!$this->config->anyauth && $user->auth != 'saml2') {
-                $this->log(__FUNCTION__ . " user $uid is auth type: $user->auth");
-                $this->error_page(get_string('wrongauth', 'auth_saml2', $uid));
+
+        $newuser = false;
+        if (!$user) {
+            if ($this->config->autocreate) {
+                $this->log(__FUNCTION__ . " user '$uid' is not in moodle so autocreating");
+                $user = create_user_record($uid, '', 'saml2');
+                $newuser = true;
+            } else {
+                $this->log(__FUNCTION__ . " user '$uid' is not in moodle so error");
+                $this->error_page(get_string('nouser', 'auth_saml2', $uid));
             }
-
-            $this->log(__FUNCTION__ . ' found user '.$user->username);
-
+        } else {
             // Make sure all user data is fetched.
             $user = get_complete_user_data('username', $user->username);
-
-            complete_user_login($user);
-            $USER->loggedin = true;
-            $USER->site = $CFG->wwwroot;
-            set_moodle_cookie($USER->username);
-
-            $urltogo = core_login_get_return_url();
-            // If we are not on the page we want, then redirect to it.
-            if ( qualified_me() !== $urltogo ) {
-                $this->log(__FUNCTION__ . " redirecting to $urltogo");
-                redirect($urltogo);
-                exit;
-            } else {
-                $this->log(__FUNCTION__ . " continuing onto " . qualified_me() );
-            }
-            return;
-        } else {
-            $this->log(__FUNCTION__ . " user $uid is not in moodle");
-            $this->error_page(get_string('nouser', 'auth_saml2', $uid));
+            $this->log(__FUNCTION__ . ' found user '.$user->username);
         }
 
+        // Do we need to update any user fields? Unlike ldap, we can only do
+        // this now. We cannot query the IdP at any time.
+        $map_config = get_config('auth/saml2');
+        $all_keys = array_keys(get_object_vars($map_config));
+        $touched = false;
+        foreach ($all_keys as $key) {
+            if (preg_match('/^field_updatelocal_(.+)$/', $key, $match)) {
+                $field = $match[1];
+                if (!empty($map_config->{'field_map_'.$field})) {
+                    $attr = $map_config->{'field_map_'.$field};
+                    $updateonlogin = $map_config->{'field_updatelocal_'.$field} === 'onlogin';
+
+                    if ($newuser || $updateonlogin) {
+                        $user->$field = $attributes[$attr][0];
+                        $touched = true;
+                    }
+                }
+            }
+        }
+        if ($touched) {
+            require_once($CFG->dirroot . '/user/lib.php');
+            user_update_user($user, false, false);
+        }
+
+        if (!$this->config->anyauth && $user->auth != 'saml2') {
+            $this->log(__FUNCTION__ . " user $uid is auth type: $user->auth");
+            $this->error_page(get_string('wrongauth', 'auth_saml2', $uid));
+        }
+
+        complete_user_login($user);
+        $USER->loggedin = true;
+        $USER->site = $CFG->wwwroot;
+        set_moodle_cookie($USER->username);
+
+        $urltogo = core_login_get_return_url();
+        // If we are not on the page we want, then redirect to it.
+        if ( qualified_me() !== $urltogo ) {
+            $this->log(__FUNCTION__ . " redirecting to $urltogo");
+            redirect($urltogo);
+            exit;
+        } else {
+            $this->log(__FUNCTION__ . " continuing onto " . qualified_me() );
+        }
+
+        return;
     }
 
     /**

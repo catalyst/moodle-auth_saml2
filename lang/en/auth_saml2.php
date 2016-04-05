@@ -24,6 +24,8 @@
 
 $string['pluginname'] = 'SAML2';
 $string['auth_saml2description'] = 'Authenticate with a SAML2 IdP';
+$string['autocreate'] = 'Auto create users';
+$string['autocreate_help'] = 'If users are in the IdP but not in moodle create a moodle account.';
 $string['idpname'] = 'IdP label override';
 $string['idpnamedefault'] = 'Login via SAML2';
 $string['idpname_help'] = 'eg myUNI - this is detected from the metadata and will show on the dual login page (if enabled)';
