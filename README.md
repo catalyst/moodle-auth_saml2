@@ -111,10 +111,14 @@ Thanks to the various authors and contributors to the other plugins above.
 Thanks to LaTrobe university in Melbourne for sponsoring the initial creation
 of this plugin:
 
+http://www.latrobe.edu.au
+
 ![LaTrobe](/pix/latrobe.png?raw=true)
 
 Thanks to Centre de gestion informatique de l’éducation in Luxembourg for
 sponsoring the user autocreation and field mapping work:
+
+http://www.cgie.lu
 
 ![CGIE](/pix/cgie.png?raw=true)
 
