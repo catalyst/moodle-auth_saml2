@@ -168,5 +168,5 @@ This plugin was developed by Catalyst IT Australia:
 
 https://www.catalyst-au.net/
 
-![Catalyst IT](/pix/catalyst-logo.svg?raw=true | width=200)
+![Catalyst IT](/pix/catalyst-logo.svg?raw=true)
 
