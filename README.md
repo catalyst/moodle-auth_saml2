@@ -10,16 +10,7 @@
 What is this?
 -------------
 
-This plugin does authentication and that's it.
-
-What isn't it?
---------------
-
-It does not do any user creation and assumes users are already provisioned
-via some other means such as ldap sync or a custom enrolment plugin. In our
-experience this is how almost all large uni's and corp's want it and it makes
-the most sense architecturally because students need to be in the class lists
-and groups well before they may ever log in, if ever.
+This plugin does authentication, user auto creation with field mapping.
 
 Why is it better?
 -----------------
@@ -45,13 +36,24 @@ Features
 * Dual login VS forced login for all as an option, with ?saml=off on the login page, and ?saml=on supported everywhere
 * user attribute to moodle mapping
 * Automatic certificate creation
+* Optionally auto create users
+* Profile field mapping on login or creation
 
-Features excluded:
+Features not yet implemented:
 
-* Auto create users - not yet implemented
 * Enrolment - this should be an enrol plugin and not in an auth plugin
-* Profile field mapping - not yet implemented
 * Role mapping - not yet implemented
+
+
+Testing
+-------
+
+This plugin has been tested against:
+
+* SimpleSamlPHP set up as an IdP
+* openidp.feide.no
+* testshib.org
+* An AAF instance of Shibboleth
 
 
 Other SAML plugins
@@ -100,13 +102,19 @@ These are generally much easier to manage and configure as they are standalone.
 * This plugin, with an embedded and dynamically configured SimpleSamlPHP
   instance under the hood
 
-Testing
--------
 
-This plugin has been tested against:
+Warm thanks
+-----------
 
-* SimpleSamlPHP set up as an IdP
-* openidp.feide.no
-* testshib.org
-* An AAF instance of Shibboleth
+Thanks to the various authors and contributors to the other plugins above.
+
+Thanks to LaTrobe university in Melbourne for sponsoring the initial creation
+of this plugin:
+
+![LaTrobe](/pix/latrobe.jpg?raw=true)
+
+Thanks to Centre de gestion informatique de l’éducation in Luxembourg for
+sponsoring the user autocreation and field mapping work:
+
+![CGIE](/pix/cgie.jpg?raw=true)
 
