@@ -63,7 +63,7 @@ Installation
 ------------
 
 1) Install the plugin the same as any standard moodle plugin either via the
-Moodle plygin directory, or you can use git to clone it into your source:
+Moodle plugin directory, or you can use git to clone it into your source:
 
  git clone git@github.com:CatalystIT-AU/moodle-auth_saml2.git auth/saml2
 
