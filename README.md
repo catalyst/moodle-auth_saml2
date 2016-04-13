@@ -164,3 +164,9 @@ http://www.cgie.lu
 
 ![CGIE](/pix/cgie.png?raw=true)
 
+This plugin was developed by Catalyst IT Australia:
+
+https://www.catalyst-au.net/
+
+![Catalyst IT](/pix/catalyst-logo.svg?raw=true | width=200)
+
