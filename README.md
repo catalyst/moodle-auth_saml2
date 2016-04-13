@@ -7,37 +7,43 @@
 
 ![Churchill quote](/pix/churchill.jpg?raw=true)
 
+
 What is this?
 -------------
 
 This plugin does authentication, user auto creation with field mapping.
 
+
 Why is it better?
 -----------------
 
-* 100% configured in the Moodle GUI (no installation of a whole separate app)
+* 100% configured in the Moodle GUI - no installation of a whole separate app,
+  and no touching of config files or generating certificates.
 * Minimal configuration needed, in most cases just copy the IdP metadata in
   and then give the SP metadata to your IdP admin and that's it.
 * Fast! - 3 redirects instead of 7
 * Supports back channel Single Logout which most big organisations require (unlike OneLogin)
 
+
 How does it work?
 -----------------
 
-It completely embeds a SimpleSamlPhp instance as an internal dependancy which
+It completely embeds a SimpleSamlPHP instance as an internal dependancy which
 is dynamically configured the way it should be and inherits almost all of it's
-configuration from moodle configuration. In the future we should be able to
+configuration from Moodle configuration. In the future we should be able to
 swap to a different internal SAML implementation and the plugin GUI shouldn't
 need to change at all.
+
 
 Features
 --------
 
-* Dual login VS forced login for all as an option, with ?saml=off on the login page, and ?saml=on supported everywhere
-* user attribute to moodle mapping
+* Dual login VS forced login for all as an option, with ?saml=off on the login
+  page for manual accounts, and ?saml=on supported everywhere to deep link and
+  force login via saml if dual auth is on.
+* SAML attributes to Moodle user field mapping
 * Automatic certificate creation
 * Optionally auto create users
-* Profile field mapping on login or creation
 
 Features not yet implemented:
 
