@@ -14,7 +14,7 @@
 * [Installation](#installation)
 * [Testing](#testing)
 * [Other SAML plugins](#other-saml-plugins)
-* [Warm thanks](#warms-thanks)
+* [Warm thanks](#warm-thanks)
 
 What is this?
 -------------
