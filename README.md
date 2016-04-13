@@ -7,6 +7,14 @@
 
 ![Churchill quote](/pix/churchill.jpg?raw=true)
 
+* [What is this?](#what-is-this)
+* [Why is it better?](#why-is-it-better)
+* [How does it work?](#how-does-it-work)
+* [Features](#features)
+* [Installation](#installation)
+* [Testing](#testing)
+* [Other SAML plugins](#other-saml-plugins)
+* [Warm thanks](#warms-thanks)
 
 What is this?
 -------------
@@ -49,6 +57,34 @@ Features not yet implemented:
 
 * Enrolment - this should be an enrol plugin and not in an auth plugin
 * Role mapping - not yet implemented
+
+
+Installation
+------------
+
+1) Install the plugin the same as any standard moodle plugin either via the
+Moodle plygin directory, or you can use git to clone it into your source:
+
+ git clone git@github.com:CatalystIT-AU/moodle-auth_saml2.git auth/saml2
+
+2) Then run the Moodle upgrade
+3) If your IdP has a publicly available XML descriptor, copy this url into
+   the SAML2 auth config settings page
+4) If your IdP requires whitelisting each SP then in the settings page is
+   links to download the XML, or you can provide that url to your IdP
+   administrator.
+
+For most simple setups this is enough to get authentication working, there are
+many more settings to define how to handle new accounts, dual authentication,
+and to easily debug the plugin if things are not working.
+
+If you have issues please log them in github here:
+
+https://github.com/CatalystIT-AU/moodle-auth_saml2/issues
+
+Or if you want paid support please contact Catalyst IT Australia:
+
+https://www.catalyst-au.net/contact-us
 
 
 Testing
