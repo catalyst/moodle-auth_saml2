@@ -1,5 +1,5 @@
-<a href="https://travis-ci.org/brendanheywood/moodle-auth_saml2">
-<img src="https://travis-ci.org/brendanheywood/moodle-auth_saml2.svg?branch=master">
+<a href="https://travis-ci.org/CatalystIT-AU/moodle-auth_saml2">
+<img src="https://travis-ci.org/CatalystIT-AU/moodle-auth_saml2.svg?branch=master">
 </a>
 
 100% Moodle SAML fast, simple, secure
