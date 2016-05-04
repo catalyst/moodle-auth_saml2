@@ -2,6 +2,8 @@
 <img src="https://travis-ci.org/CatalystIT-AU/moodle-auth_saml2.svg?branch=master">
 </a>
 
+https://moodle.org/plugins/auth_saml2
+
 100% Moodle SAML fast, simple, secure
 =====================================
 
@@ -66,6 +68,10 @@ Installation
 Moodle plugin directory, or you can use git to clone it into your source:
 
  git clone git@github.com:CatalystIT-AU/moodle-auth_saml2.git auth/saml2
+
+Or install via the Moodle plugin directory:
+
+https://moodle.org/plugins/auth_saml2
 
 2) Then run the Moodle upgrade
 3) If your IdP has a publicly available XML descriptor, copy this url into
