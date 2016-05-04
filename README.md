@@ -64,19 +64,19 @@ Features not yet implemented:
 Installation
 ------------
 
-1) Install the plugin the same as any standard moodle plugin either via the
+1. Install the plugin the same as any standard moodle plugin either via the
 Moodle plugin directory, or you can use git to clone it into your source:
 
- git clone git@github.com:CatalystIT-AU/moodle-auth_saml2.git auth/saml2
+     git clone git@github.com:CatalystIT-AU/moodle-auth_saml2.git auth/saml2
 
-Or install via the Moodle plugin directory:
+    Or install via the Moodle plugin directory:
+    
+     https://moodle.org/plugins/auth_saml2
 
-https://moodle.org/plugins/auth_saml2
-
-2) Then run the Moodle upgrade
-3) If your IdP has a publicly available XML descriptor, copy this url into
+2. Then run the Moodle upgrade
+3. If your IdP has a publicly available XML descriptor, copy this url into
    the SAML2 auth config settings page
-4) If your IdP requires whitelisting each SP then in the settings page is
+4. If your IdP requires whitelisting each SP then in the settings page is
    links to download the XML, or you can provide that url to your IdP
    administrator.
 
