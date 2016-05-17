@@ -32,5 +32,5 @@ if (isset($CFG->sslproxy) && $CFG->sslproxy) {
     $_SERVER['SERVER_PORT'] = '443';
 }
 
-require('../extlib/simplesamlphp/modules/saml/www/sp/saml2-acs.php');
+require($CFG->dirroot.'/auth/saml2/extlib/simplesamlphp/modules/saml/www/sp/saml2-acs.php');
 

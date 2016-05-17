@@ -22,12 +22,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 defined('MOODLE_INTERNAL') || die();
 
 /**
+ * Tests for SAML
  *
- * @SuppressWarnings(PHPMD)
+ * @copyright  Brendan Heywood <brendan@catalyst-au.net>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class auth_saml2_locallib_testcase extends advanced_testcase {
 

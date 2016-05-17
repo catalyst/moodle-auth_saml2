@@ -24,16 +24,6 @@
 
 global $CFG, $saml2auth;
 
-switch ($CFG->dbtype) {
-    case "pgsql":
-        $sspdbtype = "pgsql";
-        break;
-    case "mysqli":
-        $sspdbtype = "mysql";
-        break;
-    throw coding_exception('Unknown db type');
-}
-
 $config = array(
 
     'certdir'           => $saml2auth->certdir,
@@ -46,7 +36,8 @@ $config = array(
     'secretsalt'        => get_site_identifier(),
     'technicalcontact_name'  => $CFG->supportname,
     'technicalcontact_email' => $CFG->supportemail ? $CFG->supportemail : $CFG->noreplyaddress,
-    'timezone' => core_date::get_server_timezone(),
+    // TODO \core_user::get_support_user().
+    'timezone' => class_exists('core_date') ? core_date::get_server_timezone() : null,
 
     'session.duration'          => 60 * 60 * 8, // 8 hours. TODO same as moodle.
     'session.datastore.timeout' => 60 * 60 * 4,
@@ -74,15 +65,7 @@ $config = array(
         array('type' => 'xml', 'file' => "$CFG->dataroot/saml2/idp.xml"),
     ),
 
-    /*
-     * Piggy back SAML sessions inside the moodle DB
-     */
-    'store.type'           => 'sql',
-    'store.sql.username'   => $CFG->dbuser,
-    'store.sql.password'   => $CFG->dbpass,
-    'store.sql.prefix'     => $CFG->prefix . 'authsaml_',
-    'store.sql.persistent' => false,
-    'store.sql.dsn'        => "{$sspdbtype}:host={$CFG->dbhost};dbname={$CFG->dbname}",
+    'store.type' => '\\auth_saml2\\store',
 
     'proxy' => null, // TODO inherit from moodle conf see http://moodle.local/admin/settings.php?section=http for more.
 
