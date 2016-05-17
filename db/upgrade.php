@@ -44,7 +44,7 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('type', XMLDB_TYPE_CHAR, '30', null, XMLDB_NOTNULL, null, null);
         $table->add_field('k', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('v', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('value', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
         $table->add_field('expire', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
 
         // Adding keys to table auth_saml2_vkstore.
