@@ -31,9 +31,10 @@ $data = openssl_x509_parse(file_get_contents($path));
 
 $PAGE->set_url("$CFG->httpswwwroot/auth/saml2/debug.php");
 $PAGE->set_course($SITE);
+$PAGE->set_title(get_string('certificatedetails', 'auth_saml2'));
 echo $OUTPUT->header();
-echo "<h1>SAML2 auto generated public certificate contents</h1>";
-echo "<p>Path: $path</p>";
+echo get_string('certificatedetailshelp', 'auth_saml2');
+echo "<p>$path</p>";
 echo pretty_print($data);
 echo $OUTPUT->footer();
 

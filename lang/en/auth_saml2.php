@@ -57,6 +57,10 @@ $string['nullpubliccert'] = 'Creation of Public Certificate failed.';
 $string['nullprivatecert'] = 'Creation of Private Certificate failed.';
 $string['certificate'] = 'Regenerate certificate';
 $string['certificate_help'] = 'Regenerate the Private Key and Certificate used by this SP. | <a href=\'{$a}\'>View SP certificate</a>';
+$string['certificatedetails'] = 'Certificate details';
+$string['certificatedetailshelp'] = '<h1>SAML2 auto generated public certificate contents</h1>
+<p>The path for the cert is here:</p>
+';
 $string['countryname'] = 'Country';
 $string['stateorprovincename'] = 'State or Province';
 $string['localityname'] = 'Locality';
