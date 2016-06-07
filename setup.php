@@ -112,7 +112,7 @@ function pretty_print($arr) {
         $arr = (array) $arr;
     }
     $retstr = '<table class="generaltable">';
-    $retstr .= '<tr><th>Key</th><th>Value</th></tr>';
+    $retstr .= '<tr><th class="header">Key</th><th class="header">Value</th></tr>';
     if (is_array($arr)) {
         foreach ($arr as $key => $val) {
             if (is_object($val)) {
