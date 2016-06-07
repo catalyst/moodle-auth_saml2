@@ -121,6 +121,9 @@ function pretty_print($arr) {
             if (is_array($val)) {
                 $retstr .= '<tr><td>' . $key . '</td><td>' . pretty_print($val) . '</td></tr>';
             } else {
+                if (strpos($key, 'valid') !== false && ($val * 1) === $val) {
+                    $val = userdate($val) . " ($val)";
+                }
                 $retstr .= '<tr><td>' . $key . '</td><td>' . ($val == '' ? '""' : $val) . '</td></tr>';
             }
         }
