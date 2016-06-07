@@ -108,13 +108,13 @@ accessible over the internet. Turn on the SAML2 plugin and then configure it:
 
 Home ► Site administration ► Plugins ► Authentication ► SAML2
 
-1) Set the Idp URL to: https://www.testshib.org/metadata/testshib-providers.xml
-2) Set dual auth to Yes
-3) Set auto create users to Yes
-4) Click on 'Download SP Metadata'
-5) Save the settings
-6) Upload that file to: https://www.testshib.org/register.html
-7) Logout and login, you should see 'TestShib Test IdP' as an alternate login method
+1. Set the Idp URL to: https://www.testshib.org/metadata/testshib-providers.xml
+2. Set dual auth to Yes
+3. Set auto create users to Yes
+4. Click on 'Download SP Metadata'
+5. Save the settings
+6. Upload that file to: https://www.testshib.org/register.html
+7. Logout and login, you should see 'TestShib Test IdP' as an alternate login method
    and be able to login via the example credentials.
 
 
