@@ -35,9 +35,16 @@ function auth_saml2_get_sp_metadata() {
 
     global $saml2auth, $CFG;
 
-    $auth = new SimpleSAML_Auth_Simple($saml2auth->spname);
-    $config = SimpleSAML_Configuration::getInstance();
     $sourceId = $saml2auth->spname;
+
+    $file = $saml2auth->certdir . $saml2auth->spname . '.xml';
+    if (file_exists($file)) {
+        $xml = file_get_contents($file);
+        return $xml;
+    }
+
+    $auth = new SimpleSAML_Auth_Simple($sourceId);
+    $config = SimpleSAML_Configuration::getInstance();
     $source = SimpleSAML_Auth_Source::getById($sourceId);
     if ($source === NULL) {
         throw new SimpleSAML_Error_NotFound('Could not find authentication source with id ' . $sourceId);
@@ -264,6 +271,9 @@ function auth_saml2_get_sp_metadata() {
 
     /* Sign the metadata if enabled. */
     $xml = SimpleSAML_Metadata_Signer::sign($xml, $spconfig->toArray(), 'SAML 2 SP');
+
+    // Store the file so it is exactly the same next time.
+    file_put_contents($file, $xml);
 
     return $xml;
 }

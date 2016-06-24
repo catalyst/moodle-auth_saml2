@@ -54,6 +54,10 @@ if ($fromform = $mform->get_data()) {
     $saml2auth = new auth_plugin_saml2();
     $error = create_certificates($saml2auth, $dn, $numberofdays);
 
+    // Also refresh the SP metadata as well.
+    $file = $saml2auth->certdir . $saml2auth->spname . '.xml';
+    @unlink($file);
+
     if (empty($error)) {
         redirect("$CFG->wwwroot/admin/auth_config.php?auth=saml2");
     }

@@ -363,10 +363,18 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * @param object $config
      */
     public function process_config($config) {
+        $haschanged = false;
+
         foreach ($this->defaults as $key => $value) {
-            set_config($key, $config->$key, 'auth_saml2');
+            if ($config->$key != $this->config->$key) {
+                set_config($key, $config->$key, 'auth_saml2');
+                $haschanged = true;
+            }
         }
-        return true;
+
+        if ($haschanged) {
+            $file = $this->certdir . $this->spname . '.xml';
+            @unlink($file);
     }
 
     /**
