@@ -1,4 +1,6 @@
 
+make a bash script for monitoring, (also implement nagios / status plugin api)
+
 in upgrade detect old version and remove tableds create by ssphp
 
 add auto create user

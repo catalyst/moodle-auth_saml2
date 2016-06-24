@@ -257,6 +257,12 @@ class auth_plugin_saml2 extends auth_plugin_base {
      */
     public function logoutpage_hook() {
 
+        // This is a little tricky, there are 3 sessions we need to logout:
+        //
+        // 1) The moodle session
+        // 2) The SimpleSAML SP session
+        // 3) The IdP session, if the IdP supports SingleSignout
+
         global $CFG, $saml2auth, $redirect;
 
         $this->log(__FUNCTION__ . ' Do moodle logout');
@@ -383,5 +389,6 @@ class auth_plugin_saml2 extends auth_plugin_base {
     public function test_settings() {
         include('tester.php');
     }
+
 }
 
