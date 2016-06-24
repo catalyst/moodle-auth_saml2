@@ -134,6 +134,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * All the checking happens before the login page in this hook
      */
     public function loginpage_hook() {
+        global $SESSION;
 
         $this->log(__FUNCTION__ . ' enter');
 
@@ -144,9 +145,22 @@ class auth_plugin_saml2 extends auth_plugin_base {
             return;
         }
 
+        // Check whether we've skipped saml already.
+        // This is here because loginpage_hook is called again during form
+        // submission (all of login.php is processed) and ?saml=off is not
+        // preserved forcing us to the IdP.
+        // 
+        // This isn't needed when duallogin is on because $saml will default to 0
+        // and duallogin is not part of the request
+        if ((isset($SESSION->saml) && $SESSION->saml == 0)) {
+            $this->log(__FUNCTION__ . ' skipping due to no sso session');
+            return;
+        }
+
         // If ?saml=off then show the login page.
         $saml = optional_param('saml', 1, PARAM_BOOL);
         if ($saml == 0) {
+            $SESSION->saml = $saml;
             $this->log(__FUNCTION__ . ' skipping due to ?saml=off');
             return;
         }
