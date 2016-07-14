@@ -42,6 +42,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         'idpmetadata'     => '',
         'debug'           => 0,
         'duallogin'       => 1,
+	'customloginpage'       => 1,
         'anyauth'         => 1,
         'idpattr'         => 'uid',
         'mdlattr'         => 'username',
@@ -149,6 +150,21 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         $this->log(__FUNCTION__ . ' enter');
 
+	// If customlogin page is set and the saml parameter is not 
+        // then dispaly the custom login page
+        $saml = optional_param('saml', NULL , PARAM_BOOL);
+        if ($this->config->customloginpage == 1 && is_null($saml)) {
+           $this->log(__FUNCTION__ . ' displaying custom login page');
+           $PAGE->set_url('/login/index.php');
+           $PAGE->set_heading($SITE->fullname);
+           echo $OUTPUT->header();
+           include($CFG->dirroot.'/auth/saml2/saml2_form.html');
+           echo $OUTPUT->footer();
+           exit();
+        }
+
+
+
         $saml = optional_param('saml', 0, PARAM_BOOL);
 
         // If dual auth then stop and show login page.
@@ -160,7 +176,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         // If ?saml=on even when duallogin is on, go directly to IdP.
         if ($saml == 1) {
             $this->log(__FUNCTION__ . ' skipping due to query param ?saml=on');
-            return;
+            //return; Seems a but to me, should trigger saml auth
         }
 
         // Check whether we've skipped saml already.

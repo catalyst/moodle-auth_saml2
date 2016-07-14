@@ -44,6 +44,10 @@ $string['duallogin_help'] = '
 <p>If off, then admins can still see the manual login page via /login/index.php?saml=off</p>
 <p>If on, then external pages can deep link into moodle using saml eg /course/view.php?id=45&saml=on</p>
 ';
+$string['customloginpage'] = 'Display a custom login page';
+$string['customloginpage_help'] = '
+<p>If on displays a custom simplified login page where users can choose to proceed to the IdP or to the classic login page. This is sometime needed when user gets confused by a login page where login/password fields are displayed</p>
+';
 $string['anyauth'] = 'Allowed any auth type';
 $string['anyauth_help'] = 'Yes: Allow SAML login for all users? No: Only users who have saml2 as their type.';
 $string['wrongauth'] = 'You have logged in succesfully as \'{$a}\' but are not authorized to access Moodle.';
@@ -73,4 +77,5 @@ $string['requireint'] = 'This field is required and needs to be a positive integ
 $string['regenerate_submit'] = 'Regenerate';
 $string['test_passive'] = '<a href="{$a}">Test using isPassive</a>';
 $string['test_auth'] = '<a href="{$a}">Test isAuthenticated and login</a>';
-
+$string['accesssaml'] = 'Login with your institution credentials';
+$string['accessnosaml'] = 'Login with local moodle credentials';
