@@ -423,6 +423,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
             $file = $this->certdir . $this->spname . '.xml';
             @unlink($file);
         }
+        return true;
     }
 
     /**
