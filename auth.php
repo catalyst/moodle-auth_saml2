@@ -372,8 +372,14 @@ class auth_plugin_saml2 extends auth_plugin_base {
             $rawxml = $form->idpmetadata;
 
             // If rawxml looks like a url, then go scrape it first.
-            if (substr($rawxml, 0, 8) == 'https://') {
+            if (substr($rawxml, 0, 8) == 'https://' ||
+                substr($rawxml, 0, 7) == 'http://') {
                 $rawxml = file_get_contents($rawxml);
+
+                if (!$rawxml) {
+                    $err['idpmetadata'] = get_string('idpmetadata_badurl', 'auth_saml2');
+                    return;
+                }
             }
 
             $xml = new SimpleXMLElement($rawxml);

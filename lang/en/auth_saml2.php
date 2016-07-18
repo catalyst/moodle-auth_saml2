@@ -33,6 +33,7 @@ $string['idpmetadata'] = 'IdP metadata xml OR public xml URL';
 $string['idpmetadata_help'] = 'eg XML containing an EntityDescriptor element';
 $string['idpmetadata_invalid'] = 'The IdP XML isn\'t valid';
 $string['idpmetadata_noentityid'] = 'The IdP XML has no entityID';
+$string['idpmetadata_badurl'] = 'The url didn\'t return any data';
 $string['debug'] = 'Debugging';
 $string['debug_help'] = '<p>This adds extra debugging to the normal moodle log | <a href=\'{$a}\'>View SSP config</a></p>';
 $string['spmetadata'] = 'SP Metdata';
