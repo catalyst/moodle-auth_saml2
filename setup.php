@@ -23,7 +23,7 @@
  */
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
-require_once(dirname(__FILE__).'/autoload.php');
+require_once(dirname(__FILE__).'/_autoload.php');
 require_once("$CFG->dirroot/auth/saml2/auth.php");
 
 $saml2auth = new auth_plugin_saml2();
