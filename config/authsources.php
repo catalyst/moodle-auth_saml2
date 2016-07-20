@@ -29,6 +29,7 @@ $config = array(
         'saml:SP',
         'entityID' => "$CFG->wwwroot/auth/saml2/sp/metadata.php",
         'idp' => $saml2auth->config->entityid,
+        'NameIDPolicy' => null,
         'OrganizationName' => array(
             'en' => $SITE->shortname,
         ),
