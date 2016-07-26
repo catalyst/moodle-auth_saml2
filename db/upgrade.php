@@ -72,6 +72,18 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2016031701, 'auth', 'saml2');
     }
 
+    if ($oldversion < 2016071201) {
+        // Update plugin configuration settings from auth_saml2 to auth/saml2
+        $rs = $DB->get_recordset_select('config_plugins', 'plugin = ?', array('auth_saml2'));
+        foreach ($rs as $record) {
+            $record->plugin = 'auth/saml2';
+            $DB->update_record('config_plugins', $record);
+        }
+        $rs->close();
+        // Saml2 savepoint reached.
+        upgrade_plugin_savepoint(true, 2016071201, 'auth', 'saml2');
+    }
+
     return true;
 }
 
