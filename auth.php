@@ -50,6 +50,12 @@ class auth_plugin_saml2 extends auth_plugin_base {
     );
 
     /**
+     * The name of the component. Used by the configuration.
+     */
+    const COMPONENT_NAME = 'auth_saml2';
+    const LEGACY_COMPONENT_NAME = 'auth/saml2';
+
+    /**
      * Constructor.
      */
     public function __construct() {
@@ -61,7 +67,9 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $this->certdir = "$CFG->dataroot/saml2/";
         $this->certpem = $this->certdir . $this->spname . '.pem';
         $this->certcrt = $this->certdir . $this->spname . '.crt';
-        $this->config = (object) array_merge($this->defaults, (array) get_config('auth_saml2') );
+        $config = get_config(self::COMPONENT_NAME);
+        $legacyconfig = get_config(self::LEGACY_COMPONENT_NAME);
+        $this->config = (object) array_merge( (array) $legacyconfig, (array) $config );
     }
 
     /**
