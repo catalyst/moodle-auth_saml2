@@ -69,7 +69,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $this->certcrt = $this->certdir . $this->spname . '.crt';
         $config = get_config(self::COMPONENT_NAME);
         $legacyconfig = get_config(self::LEGACY_COMPONENT_NAME);
-        $this->config = (object) array_merge( (array) $legacyconfig, (array) $config );
+        $this->config = (object) array_merge( (array) $legacyconfig, (array) $config,  $this->defaults);
     }
 
     /**
