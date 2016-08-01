@@ -25,7 +25,7 @@
 global $CFG, $saml2auth;
 
 $config = array(
-
+    'baseurlpath'       => $CFG->wwwroot . '/auth/saml2/sp/',
     'certdir'           => $saml2auth->certdir,
     'debug'             => $saml2auth->config->debug ? true : false,
     'logging.level'     => $saml2auth->config->debug ? SimpleSAML_Logger::DEBUG : SimpleSAML_Logger::ERR,
