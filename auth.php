@@ -264,7 +264,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
                     $updateonlogin = $mapconfig->{'field_updatelocal_'.$field} === 'onlogin';
 
                     if ($newuser || $updateonlogin) {
-                        //Determine which fields are custom profile fields and act accordingly
+                        // Determine which fields are custom profile fields and act accordingly.
                         if (in_array($field, $customFields)) {
                                 $user->{'profile_field_'.$field} = $attributes[$attr][0];
                                 //TODO WARNING data validation should be done before saving custom fields back currently if the SAML data is not of the correct type an error is displayed to the user and they cannot log in!
