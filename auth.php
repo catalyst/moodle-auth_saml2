@@ -61,7 +61,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $this->certdir = "$CFG->dataroot/saml2/";
         $this->certpem = $this->certdir . $this->spname . '.pem';
         $this->certcrt = $this->certdir . $this->spname . '.crt';
-        $this->config = (object) array_merge($this->defaults, (array) get_config('auth_saml2') );
+        $this->config = (object) array_merge($this->defaults, (array) get_config('auth/saml2') );
     }
 
     /**
@@ -420,7 +420,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         foreach ($this->defaults as $key => $value) {
             if ($config->$key != $this->config->$key) {
-                set_config($key, $config->$key, 'auth_saml2');
+                set_config($key, $config->$key, 'auth/saml2');
                 $haschanged = true;
             }
         }
