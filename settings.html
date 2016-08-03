@@ -120,14 +120,6 @@ $fields = array(
 </tr>
 
 <?php
-        //Grab custom profile fields from Moodle and put into an array that we can pass to print_auth_lock_options()
-        global $DB;
-        $customProfileFieldsData = $DB->get_records('user_info_field');
-        $customFields = array();
-        foreach($customProfileFieldsData as $field){
-                $customFields[] = $field->shortname;
-        }
-
-        print_auth_lock_options('saml2', $userfields, '<!-- empty help -->', true, false, $customFields);
+        print_auth_lock_options('saml2', $userfields, '<!-- empty help -->', true, false, $this->get_custom_user_profile_fields());
 </table>
 
