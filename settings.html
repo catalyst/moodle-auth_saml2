@@ -119,6 +119,7 @@ $fields = array(
         <?php print_string($field.'_help', 'auth_saml2') ?></td>
 </tr>
 
-<?php print_auth_lock_options('saml2', $userfields, '<!-- empty help -->', true, false); ?>
+<?php
+        print_auth_lock_options('saml2', $userfields, '<!-- empty help -->', true, false, $this->get_custom_user_profile_fields());
 </table>
 
