@@ -46,7 +46,7 @@ $config = array(
     'session.cookie.name'     => 'SimpleSAMLSessionID',
     'session.cookie.path'     => '/', // TODO restrict to moodle path.
     'session.cookie.domain'   => null,
-    'session.cookie.secure'   => false, // TODO.
+    'session.cookie.secure'   => !empty($CFG->cookiesecure),
     'session.cookie.lifetime' => 0,
 
     'session.phpsession.cookiename' => null,
