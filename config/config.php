@@ -25,7 +25,7 @@
 global $CFG, $saml2auth;
 
 $config = array(
-
+    'baseurlpath'       => $CFG->wwwroot . '/auth/saml2/sp/',
     'certdir'           => $saml2auth->certdir,
     'debug'             => $saml2auth->config->debug ? true : false,
     'logging.level'     => $saml2auth->config->debug ? SimpleSAML_Logger::DEBUG : SimpleSAML_Logger::ERR,
@@ -46,7 +46,7 @@ $config = array(
     'session.cookie.name'     => 'SimpleSAMLSessionID',
     'session.cookie.path'     => '/', // TODO restrict to moodle path.
     'session.cookie.domain'   => null,
-    'session.cookie.secure'   => false, // TODO.
+    'session.cookie.secure'   => !empty($CFG->cookiesecure),
     'session.cookie.lifetime' => 0,
 
     'session.phpsession.cookiename' => null,
