@@ -169,7 +169,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         // preserved forcing us to the IdP.
         //
         // This isn't needed when duallogin is on because $saml will default to 0
-        // and duallogin is not part of the request
+        // and duallogin is not part of the request.
         if ((isset($SESSION->saml) && $SESSION->saml == 0)) {
             $this->log(__FUNCTION__ . ' skipping due to no sso session');
             return;
@@ -300,9 +300,9 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         // This is a little tricky, there are 3 sessions we need to logout:
         //
-        // 1) The moodle session
-        // 2) The SimpleSAML SP session
-        // 3) The IdP session, if the IdP supports SingleSignout
+        // 1) The moodle session.
+        // 2) The SimpleSAML SP session.
+        // 3) The IdP session, if the IdP supports SingleSignout.
 
         global $CFG, $saml2auth, $redirect;
 

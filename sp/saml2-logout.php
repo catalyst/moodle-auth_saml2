@@ -29,7 +29,7 @@ $_SERVER['PATH_INFO'] = '/' . $saml2auth->spname;
 
 try {
     require('../extlib/simplesamlphp/modules/saml/www/sp/saml2-logout.php');
-} catch (Exception $e){
+} catch (Exception $e) {
     // TODO SSPHP uses Exceptions for handling valid conditions, so a succesful
     // logout is an Exception. This is a workaround to just go back to the home
     // page but we should probably handle SimpleSAML_Error_Error similar to how
