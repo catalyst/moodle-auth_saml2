@@ -4,7 +4,7 @@ language: php
 notifications:
   email:
     recipients:
-    - brendan.heywood@gmail.com
+    - brendan@catalyst-au.net
 
 sudo: false
 
