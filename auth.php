@@ -105,6 +105,15 @@ class auth_plugin_saml2 extends auth_plugin_base {
     }
 
     /**
+     * We don't manage passwords internally.
+     *
+     * @return bool Always false
+     */
+    function is_internal() {
+        return false;
+    }
+
+    /**
      * Shows an error page for various authenticatio issues.
      *
      * @param string $msg The error message.
