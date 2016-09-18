@@ -109,7 +109,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
      *
      * @return bool Always false
      */
-    function is_internal() {
+    public function is_internal() {
         return false;
     }
 
