@@ -134,6 +134,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * All the checking happens before the login page in this hook
      */
     public function pre_loginpage_hook() {
+
         global $SESSION;
 
         $this->log(__FUNCTION__ . ' enter');
@@ -154,6 +155,23 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * All the checking happens before the login page in this hook
      */
     public function loginpage_hook() {
+        $this->log(__FUNCTION__ . ' enter');
+
+        if ($this->should_login_redirect()) {
+            $this->log(__FUNCTION__ . ' exit');
+            return;
+        } else {
+            $this->saml_login();
+        }
+
+    }
+
+    /**
+     * Determines if we will redirect to the SAML login.
+     *
+     * @return bool If this returns true then we redirect to the SAML login.
+     */
+    public function should_login_redirect() {
         global $SESSION;
 
         $this->log(__FUNCTION__ . ' enter');
@@ -163,13 +181,13 @@ class auth_plugin_saml2 extends auth_plugin_base {
         // If dual auth then stop and show login page.
         if ($this->config->duallogin == 1 && $saml == 0) {
             $this->log(__FUNCTION__ . ' skipping due to dual auth');
-            return;
+            return false;
         }
 
         // If ?saml=on even when duallogin is on, go directly to IdP.
         if ($saml == 1) {
-            $this->log(__FUNCTION__ . ' skipping due to query param ?saml=on');
-            return;
+            $this->log(__FUNCTION__ . ' redirecting due to query param ?saml=on');
+            return true;
         }
 
         // Check whether we've skipped saml already.
@@ -181,18 +199,18 @@ class auth_plugin_saml2 extends auth_plugin_base {
         // and duallogin is not part of the request.
         if ((isset($SESSION->saml) && $SESSION->saml == 0)) {
             $this->log(__FUNCTION__ . ' skipping due to no sso session');
-            return;
+            return false;
         }
 
         // If ?saml=off even when duallogin is off, then always show the login page.
         // Additionally store this in the session so if the password fails we get
         // the login page again, and don't get booted to the IdP on the second
-        // attemp to login manually.
+        // attempt to login manually.
         $saml = optional_param('saml', 1, PARAM_BOOL);
         if ($saml == 0) {
             $SESSION->saml = $saml;
             $this->log(__FUNCTION__ . ' skipping due to ?saml=off');
-            return;
+            return false;
         }
 
         // We are off to SAML land so reset the force in SESSION.
@@ -201,8 +219,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
             unset($SESSION->saml);
         }
 
-        $this->saml_login();
-
+        return true;
     }
 
     /**

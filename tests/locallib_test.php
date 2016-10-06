@@ -57,5 +57,58 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
 
     }
 
+    /**
+     * Test test_should_login_redirect
+     *
+     * @dataProvider should_login_redirect_testcases
+     * @param bool $duallogin
+     * @param bool $param
+     * @param bool $session
+     * @param bool $expected The expected return value
+     */
+    public function test_should_login_redirect($duallogin, $param, $session, $expected) {
+        global $SESSION;
+
+        $this->resetAfterTest();
+
+        set_config('duallogin', $duallogin, 'auth/saml2');
+
+        $SESSION->saml = $session;
+
+        // HTML get param optional_param('saml', 0, PARAM_BOOL).
+        if ($param !== null) {
+            $_GET['saml'] = $param;
+        }
+
+        $auth = get_auth_plugin('saml2');
+        $result = $auth->should_login_redirect();
+
+        $this->assertTrue($result === $expected);
+
+        unset($_GET['saml']);
+        unset($SESSION->saml);
+    }
+
+    /**
+     * Dataprovider for the test_should_login_redirect testcase
+     *
+     * @return array of testcases
+     */
+    public function should_login_redirect_testcases() {
+        return [
+            "1. DUALcfg: true, SAMLparam: null, SAMLsession: false" => [true, null, false, false],  // Login normal, dual login on.
+            "2. DUALcfg: true, SAMLparam: off, SAMLsession: false"  => [true, 'off', false, false], // Login normal, dual login on.
+            "3. DUALcfg: true, SAMLparam: on, SAMLsession: false"   => [true, 'on', false, true], // SAML redirect, ?saml=on.
+
+            "4. DUALcfg: false, SAMLparam: null, SAMLsession: false" => [false, null, false, false],  // Login normal, $SESSION->saml=0.
+            "5. DUALcfg: false, SAMLparam: off, SAMLsession: false"  => [false, 'off', false, false], // Login normal, ?saml=off.
+            "6. DUALcfg: false, SAMLparam: on, SAMLsession: false"   => [false, 'on', false, true], // SAML redirect, ?saml=on.
+
+            "7. DUALcfg: false, SAMLparam: null, SAMLsession: true" => [false, null, true, true], // SAML redirect, $SESSION->saml=1.
+            "8. DUALcfg: false, SAMLparam: off, SAMLsession: true"  => [false, 'off', true, false], // Login normal, ?saml=off.
+            "9. DUALcfg: false, SAMLparam: on, SAMLsession: true"   => [false, 'on', true, true], // SAML redirect, ?saml=on.
+        ];
+    }
+
 }
 
