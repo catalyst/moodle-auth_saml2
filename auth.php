@@ -158,10 +158,10 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $this->log(__FUNCTION__ . ' enter');
 
         if ($this->should_login_redirect()) {
+            $this->saml_login();
+        } else {
             $this->log(__FUNCTION__ . ' exit');
             return;
-        } else {
-            $this->saml_login();
         }
 
     }
