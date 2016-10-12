@@ -253,12 +253,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         }
 
         // Grab custom profile fields list for use later on
-        // TODO Probably a better way to do this?
-        $customprofilefieldsdata = $DB->get_records('user_info_field');
-        $customfields = array();
-        foreach ($customprofilefieldsdata as $field) {
-                $customfields[] = $field->shortname;
-        }
+        $customprofilefields = $this->get_custom_user_profile_fields();
 
         // Do we need to update any user fields? Unlike ldap, we can only do
         // this now. We cannot query the IdP at any time.
@@ -274,11 +269,25 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
                     if ($newuser || $updateonlogin) {
                         // Determine which fields are custom profile fields and act accordingly.
-                        if (in_array($field, $customfields)) {
-                                $user->{'profile_field_'.$field} = $attributes[$attr][0];
+                        if (in_array($field, $customprofilefields)) {
+
+                            // Check to see if the attributes exist before mapping the data.
+                            if (array_key_exists($attr, $attributes)) {
                                 // TODO data validation should be done before saving custom fields back currently if the SAML data is not of the correct type an error is displayed.
+                                // Handing an empty array of attributes.
+                                if (!empty($attributes[$attr])) {
+                                    $user->{'profile_field_'.$field} = $attributes[$attr][0];
+                                }
+                            }
+
                         } else {
-                                $user->$field = $attributes[$attr][0];
+                            // Basic error handling, check to see if the attributes exist before mapping the data.
+                            if (array_key_exists($attr, $attributes)) {
+                                // Handing an empty array of attributes.
+                                if (!empty($attributes[$attr])) {
+                                    $user->$field = $attributes[$attr][0];
+                                }
+                            }
                         }
 
                         $touched = true;
