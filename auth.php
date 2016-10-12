@@ -252,6 +252,9 @@ class auth_plugin_saml2 extends auth_plugin_base {
             $this->log(__FUNCTION__ . ' found user '.$user->username);
         }
 
+        // Grab custom profile fields list for use later on
+        $customprofilefields = $this->get_custom_user_profile_fields();
+
         // Do we need to update any user fields? Unlike ldap, we can only do
         // this now. We cannot query the IdP at any time.
         $mapconfig = get_config('auth/saml2');
@@ -265,7 +268,28 @@ class auth_plugin_saml2 extends auth_plugin_base {
                     $updateonlogin = $mapconfig->{'field_updatelocal_'.$field} === 'onlogin';
 
                     if ($newuser || $updateonlogin) {
-                        $user->$field = $attributes[$attr][0];
+                        // Determine which fields are custom profile fields and act accordingly.
+                        if (in_array($field, $customprofilefields)) {
+
+                            // Check to see if the attributes exist before mapping the data.
+                            if (array_key_exists($attr, $attributes)) {
+                                // TODO data validation should be done before saving custom fields back currently if the SAML data is not of the correct type an error is displayed.
+                                // Handing an empty array of attributes.
+                                if (!empty($attributes[$attr])) {
+                                    $user->{'profile_field_'.$field} = $attributes[$attr][0];
+                                }
+                            }
+
+                        } else {
+                            // Basic error handling, check to see if the attributes exist before mapping the data.
+                            if (array_key_exists($attr, $attributes)) {
+                                // Handing an empty array of attributes.
+                                if (!empty($attributes[$attr])) {
+                                    $user->$field = $attributes[$attr][0];
+                                }
+                            }
+                        }
+
                         $touched = true;
                     }
                 }
@@ -274,6 +298,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
         if ($touched) {
             require_once($CFG->dirroot . '/user/lib.php');
             user_update_user($user, false, false);
+            // Save custom profile fields.
+            profile_save_data($user);
         }
 
         if (!$this->config->anyauth && $user->auth != 'saml2') {
@@ -356,7 +382,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
     public function config_form($config, $err, $userfields) {
         $config = (object) array_merge($this->defaults, (array) $config );
         global $CFG, $OUTPUT;
-        include("settings.html");
+        include($CFG->dirroot.'/auth/saml2/settings.html');
     }
 
     /**
