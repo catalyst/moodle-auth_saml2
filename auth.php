@@ -86,6 +86,10 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * @return array of IdP's
      */
     public function loginpage_idp_list($wantsurl) {
+        // If the plugin has not been configured then do not return an IdP link.
+        if ($this->is_configured() === false) {
+            return array();
+        }
 
         // The wants url may already be routed via login.php so don't re-re-route it.
         if (strpos($wantsurl, '/auth/saml2/login.php')) {
@@ -114,7 +118,26 @@ class auth_plugin_saml2 extends auth_plugin_base {
     }
 
     /**
-     * Shows an error page for various authenticatio issues.
+     * Checks to see if the plugin has been configured and the IdP/SP metadata files exist.
+     *
+     * @return bool
+     */
+    public function is_configured() {
+        $file = $this->certdir . $this->spname . '.xml';
+        if (!file_exists($file)) {
+            return false;
+        }
+
+        $file = $this->certdir . 'idp.xml';
+        if (!file_exists($file)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Shows an error page for various authentication issues.
      *
      * @param string $msg The error message.
      */
