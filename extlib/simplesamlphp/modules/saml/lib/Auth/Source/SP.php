@@ -142,6 +142,7 @@ class sspmod_saml_Auth_Source_SP extends SimpleSAML_Auth_Source {
 	 * @param array $state  The state array for the current authentication.
 	 */
 	private function startSSO1(SimpleSAML_Configuration $idpMetadata, array $state) {
+        global $CFG;
 
 		$idpEntityId = $idpMetadata->getString('entityid');
 
