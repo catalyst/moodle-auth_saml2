@@ -269,42 +269,9 @@ class auth_plugin_saml2 extends auth_plugin_base {
             $this->log(__FUNCTION__ . ' found user '.$user->username);
         }
 
-        // Grab custom profile fields list for use later on
-        $customprofilefields = $this->get_custom_user_profile_fields();
-
         // Do we need to update any user fields? Unlike ldap, we can only do
         // this now. We cannot query the IdP at any time.
-        $mapconfig = get_config('auth/saml2');
-        $allkeys = array_keys(get_object_vars($mapconfig));
-        $touched = false;
-        foreach ($allkeys as $key) {
-            if (preg_match('/^field_updatelocal_(.+)$/', $key, $match)) {
-                $field = $match[1];
-                if (!empty($mapconfig->{'field_map_'.$field})) {
-                    $attr = $mapconfig->{'field_map_'.$field};
-                    $updateonlogin = $mapconfig->{'field_updatelocal_'.$field} === 'onlogin';
-
-                    if ($newuser || $updateonlogin) {
-
-                        // Basic error handling, check to see if the attributes exist before mapping the data.
-                        if (array_key_exists($attr, $attributes)) {
-                            // Handing an empty array of attributes.
-                            if (!empty($attributes[$attr])) {
-                                // Custom profile fields have the prefix profile_field_ and will be saved as profile field data.
-                                $user->$field = $attributes[$attr][0];
-                                $touched = true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        if ($touched) {
-            require_once($CFG->dirroot . '/user/lib.php');
-            user_update_user($user, false, false);
-            // Save custom profile fields.
-            profile_save_data($user);
-        }
+        $this->update_user_profile_fields($user, $attributes, $newuser);
 
         if (!$this->config->anyauth && $user->auth != 'saml2') {
             $this->log(__FUNCTION__ . " user $uid is auth type: $user->auth");
@@ -330,6 +297,53 @@ class auth_plugin_saml2 extends auth_plugin_base {
         }
 
         return;
+    }
+
+    /**
+     * Checks the field map config for values that update onlogin or when a new user is created
+     * and returns true when the fields have been merged into the user object.
+     *
+     * @param $attributes
+     * @param bool $newuser
+     * @return bool true on success
+     */
+    public function update_user_profile_fields(&$user, $attributes, $newuser = false) {
+        global $CFG;
+
+        $mapconfig = get_config('auth/saml2');
+        $allkeys = array_keys(get_object_vars($mapconfig));
+        $update = false;
+
+        foreach ($allkeys as $key) {
+            if (preg_match('/^field_updatelocal_(.+)$/', $key, $match)) {
+                $field = $match[1];
+                if (!empty($mapconfig->{'field_map_'.$field})) {
+                    $attr = $mapconfig->{'field_map_'.$field};
+                    $updateonlogin = $mapconfig->{'field_updatelocal_'.$field} === 'onlogin';
+
+                    if ($newuser || $updateonlogin) {
+                        // Basic error handling, check to see if the attributes exist before mapping the data.
+                        if (array_key_exists($attr, $attributes)) {
+                            // Handing an empty array of attributes.
+                            if (!empty($attributes[$attr])) {
+                                // Custom profile fields have the prefix profile_field_ and will be saved as profile field data.
+                                $user->$field = $attributes[$attr][0];
+                                $update = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($update) {
+            require_once($CFG->dirroot . '/user/lib.php');
+            user_update_user($user, false, false);
+            // Save custom profile fields.
+            profile_save_data($user);
+        }
+
+        return $update;
     }
 
     /**

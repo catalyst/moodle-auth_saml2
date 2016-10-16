@@ -110,5 +110,146 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         ];
     }
 
+    /**
+     * Test test_update_custom_user_profile_fields
+     *
+     * @dataProvider get_update_custom_user_profile_fields
+     */
+    public function test_update_custom_user_profile_fields($attributes) {
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/user/profile/lib.php');
+
+        $this->resetAfterTest();
+
+        $auth = get_auth_plugin('saml2');
+
+        $user = $this->getDataGenerator()->create_user();
+
+        $fieldname = key($attributes);
+        $fielddata = $attributes[$fieldname][0];
+
+        // Add a custom profile field named $fieldname.
+        $pid = $DB->insert_record('user_info_field', array(
+            'shortname'  => $fieldname,
+            'name'       => 'Test Field',
+            'categoryid' => 1,
+            'datatype'   => 'text'));
+
+        // Check both are returned using normal options.
+        $fields = profile_get_custom_fields();
+        $this->assertArrayHasKey($pid, $fields);
+        $this->assertEquals($fieldname, $fields[$pid]->shortname);
+
+        // Is the key the same?
+        $customprofilefields = $auth->get_custom_user_profile_fields();
+        $key = 'profile_field_' . $fields[$pid]->shortname;
+        $this->assertTrue(in_array($key, $customprofilefields));
+
+        // Function print_auth_lock_options creates variables in the config object.
+        set_config("field_map_$key", $fieldname, 'auth/saml2');
+        set_config("field_updatelocal_$key", 'onlogin', 'auth/saml2');
+        set_config("field_lock_$key", 'locked', 'auth/saml2');
+
+        $update = $auth->update_user_profile_fields($user, $attributes);
+        $this->assertTrue($update);
+    }
+
+    /**
+     * Dataprovider for the test_update_custom_user_profile_fields testcase
+     *
+     * @return array of testcases
+     */
+    public function get_update_custom_user_profile_fields() {
+        return array(
+            array(['testfield' => array('Test data')]),
+            array(['secondfield' => array('A different string')]),
+        );
+    }
+
+    /**
+     * Test test_missing_user_custom_profile_fields
+     * The custom profile field does not exist, but IdP attribute data is mapped.
+     *
+     * @dataProvider get_missing_user_custom_profile_fields
+     */
+    public function test_missing_user_custom_profile_fields($attributes) {
+        global $CFG;
+        require_once($CFG->dirroot . '/user/profile/lib.php');
+
+        $this->resetAfterTest();
+
+        $auth = get_auth_plugin('saml2');
+
+        $user = $this->getDataGenerator()->create_user();
+
+        $fieldname = key($attributes);
+
+        $fields = profile_get_custom_fields();
+
+        $key = 'profile_field_' . $fieldname;
+        $this->assertFalse(in_array($key, $fields));
+
+        // Function print_auth_lock_options creates variables in the config object.
+        set_config("field_map_$key", $fieldname, 'auth/saml2');
+        set_config("field_updatelocal_$key", 'onlogin', 'auth/saml2');
+        set_config("field_lock_$key", 'locked', 'auth/saml2');
+
+        $update = $auth->update_user_profile_fields($user, $attributes);
+        $this->assertTrue($update);
+    }
+
+    /**
+     * Dataprovider for the test_missing_user_custom_profile_fields testcase
+     *
+     * @return array of testcases
+     */
+    public function get_missing_user_custom_profile_fields() {
+        return array(
+            array(['missingfield' => array('Test data')]),
+            array(['secondfield' => array('A different string')]),
+        );
+    }
+
+    /**
+     * Test test_invalid_map_user_profile_fields
+     *
+     * @dataProvider get_invalid_map_user_profile_fields
+     */
+    public function test_invalid_map_user_profile_fields($mapping, $attributes) {
+        global $CFG;
+        require_once($CFG->dirroot . '/user/profile/lib.php');
+
+        $this->resetAfterTest();
+
+        $auth = get_auth_plugin('saml2');
+
+        $user = $this->getDataGenerator()->create_user();
+
+        $field = $mapping['field'];
+        $map = $mapping['mapping'];
+
+        // Function print_auth_lock_options creates variables in the config object.
+        set_config("field_map_$field", $map, 'auth/saml2');
+        set_config("field_updatelocal_$field", 'onlogin', 'auth/saml2');
+        set_config("field_lock_$field", 'locked', 'auth/saml2');
+
+        $updateprofile = $auth->update_user_profile_fields($user, $attributes);
+        $this->assertFalse($updateprofile);
+    }
+
+    /**
+     * Dataprovider for the test_invalid_map_user_profile_fields testcase
+     *
+     * @return array of testcases
+     */
+    public function get_invalid_map_user_profile_fields() {
+        return array(
+            array(
+                ['field' => 'userame', 'mapping' => 'invalid'],
+                ['attributefield' => array('Test data')],
+            ),
+        );
+    }
+
 }
 
