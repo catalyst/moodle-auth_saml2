@@ -47,6 +47,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         'mdlattr'         => 'username',
         'tolower'         => 0,
         'autocreate'      => 0,
+        'spmetadatasign'  => true,
     );
 
     /**
