@@ -57,7 +57,7 @@ $config = array(
 
     'enable.http_post' => false,
 
-    'metadata.sign.enable'          => true,
+    'metadata.sign.enable'          => $saml2auth->config->spmetadatasign ? true : false,
     'metadata.sign.certificate'     => $saml2auth->certcrt,
     'metadata.sign.privatekey'      => $saml2auth->certpem,
     'metadata.sign.privatekey_pass' => get_site_identifier(),

@@ -39,6 +39,8 @@ $string['debug_help'] = '<p>This adds extra debugging to the normal moodle log |
 $string['spmetadata'] = 'SP Metdata';
 $string['spmetadata_help'] = '<a href=\'{$a}\'>View Service Provider Metadata</a> | <a href=\'{$a}?download=1\'>Download SP Metadata</a>
 <p>You may need to give this to the IdP admin to whitelist you.</p>';
+$string['spmetadatasign'] = 'SP Metadata signature';
+$string['spmetadatasign_help'] = 'Sign the SP Metadata.';
 $string['duallogin'] = 'Dual login';
 $string['duallogin_help'] = '
 <p>If on, then users will see both manual and a SAML login button. If off they will always be taken directly to the IdP login page.</p>
