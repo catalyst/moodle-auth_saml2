@@ -41,6 +41,8 @@ $string['spmetadata_help'] = '<a href=\'{$a}\'>View Service Provider Metadata</a
 <p>You may need to give this to the IdP admin to whitelist you.</p>';
 $string['spmetadatasign'] = 'SP Metadata signature';
 $string['spmetadatasign_help'] = 'Sign the SP Metadata.';
+$string['suppressidplink'] = 'Suppress IdP link display';
+$string['suppressidplink_help'] = 'This will suppress the display of the IdP link.';
 $string['duallogin'] = 'Dual login';
 $string['duallogin_help'] = '
 <p>If on, then users will see both manual and a SAML login button. If off they will always be taken directly to the IdP login page.</p>
