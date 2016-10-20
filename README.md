@@ -131,6 +131,21 @@ Home ► Site administration ► Plugins ► Authentication ► SAML2
 7. Logout and login, you should see 'TestShib Test IdP' as an alternate login method
    and be able to login via the example credentials.
 
+Gotchas
+-------
+
+**OpenAM**
+
+If you are getting signature issues with OpenAM then you may need to manually
+yank out the contents of the ds:X509Certificate element into a file and then
+import it into OpenAM's certificate store:
+
+```bash
+$ keytool -import -trustcacerts -alias moodle.example.edu -file moodle.example.edu.crt -keystore keystore.jks
+```
+
+Then follow the prompts and restart OpenAM.
+
 
 Other SAML plugins
 ------------------
