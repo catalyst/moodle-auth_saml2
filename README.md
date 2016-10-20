@@ -15,6 +15,7 @@ https://moodle.org/plugins/auth_saml2
 * [Features](#features)
 * [Installation](#installation)
 * [Testing](#testing)
+* [Gotchas](#gotchas)
 * [Other SAML plugins](#other-saml-plugins)
 * [Warm thanks](#warm-thanks)
 
@@ -141,6 +142,10 @@ yank out the contents of the ds:X509Certificate element into a file and then
 import it into OpenAM's certificate store:
 
 ```bash
+$ cat moodle.example.edu.crt 
+-----BEGIN CERTIFICATE-----
+thesuperlongcertificatestringgoeshere=
+-----END CERTIFICATE-----
 $ keytool -import -trustcacerts -alias moodle.example.edu -file moodle.example.edu.crt -keystore keystore.jks
 ```
 
