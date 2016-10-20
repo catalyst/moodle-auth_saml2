@@ -48,7 +48,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         'tolower'         => 0,
         'autocreate'      => 0,
         'spmetadatasign'  => true,
-        'suppressidplink' => false,
+        'showidplink'     => true,
     );
 
     /**
@@ -88,8 +88,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * @return array of IdP's
      */
     public function loginpage_idp_list($wantsurl) {
-        // If we have enabled the suppression of the idp link, return with an empty array right away.
-        if ($this->config->suppressidplink) {
+        // If we have disabled the visibility of the idp link, return with an empty array right away.
+        if (!$this->config->showidplink) {
             return array();
         }
         // If the plugin has not been configured then do not return an IdP link.
