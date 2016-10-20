@@ -142,11 +142,11 @@ yank out the contents of the ds:X509Certificate element into a file and then
 import it into OpenAM's certificate store:
 
 ```bash
-$ cat moodle.example.edu.crt 
+$ cat moodle.edu.crt 
 -----BEGIN CERTIFICATE-----
 thesuperlongcertificatestringgoeshere=
 -----END CERTIFICATE-----
-$ keytool -import -trustcacerts -alias moodle.example.edu -file moodle.example.edu.crt -keystore keystore.jks
+$ keytool -import -trustcacerts -alias moodle.edu -file moodle.edu.crt -keystore keystore.jks
 ```
 
 Then follow the prompts and restart OpenAM.
