@@ -36,7 +36,7 @@ $string['idpmetadata_noentityid'] = 'The IdP XML has no entityID';
 $string['idpmetadata_badurl'] = 'The url didn\'t return any data';
 $string['debug'] = 'Debugging';
 $string['debug_help'] = '<p>This adds extra debugging to the normal moodle log | <a href=\'{$a}\'>View SSP config</a></p>';
-$string['spmetadata'] = 'SP Metdata';
+$string['spmetadata'] = 'SP Metadata';
 $string['spmetadata_help'] = '<a href=\'{$a}\'>View Service Provider Metadata</a> | <a href=\'{$a}?download=1\'>Download SP Metadata</a>
 <p>You may need to give this to the IdP admin to whitelist you.</p>';
 $string['spmetadatasign'] = 'SP Metadata signature';
