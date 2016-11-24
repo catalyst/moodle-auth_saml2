@@ -150,11 +150,13 @@ class auth_plugin_saml2 extends auth_plugin_base {
     public function error_page($msg) {
         global $PAGE, $OUTPUT, $SITE;
 
+        $logouturl = new moodle_url('/auth/saml2/logout.php');
+
         $PAGE->set_course($SITE);
         $PAGE->set_url('/');
         echo $OUTPUT->header();
         echo $OUTPUT->box($msg);
-        echo html_writer::link('/auth/saml2/logout.php', get_string('logout'));
+        echo html_writer::link($logouturl, get_string('logout'));
         echo $OUTPUT->footer();
         exit;
     }
