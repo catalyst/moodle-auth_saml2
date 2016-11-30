@@ -56,19 +56,66 @@ $yesno = array(get_string('no'), get_string('yes'));
         <?php print_string($field.'_help', 'auth_saml2', "$CFG->wwwroot/auth/saml2/debug.php") ?></td>
 </tr>
 <tr valign="top">
+    <?php $field = 'certificatelock' ?>
+    <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
+    <td>
+        <?php
+
+        $saml2auth = new auth_plugin_saml2();
+        $certfiles = array($saml2auth->certpem, $saml2auth->certcrt);
+        $enabled = true;
+
+        foreach ($certfiles as $certfile) {
+            if (!is_writable($certfile)) {
+                $enabled = false;
+            }
+        }
+
+        if ($enabled) {
+            $value = get_string($field, 'auth_saml2');
+            $onclick = "location.href='". $CFG->wwwroot . "/auth/saml2/certificatelock.php'";
+            $class = '';
+        } else {
+            $value = get_string($field.'_locked', 'auth_saml2');
+            $onclick = '';
+            $class = 'disabled';
+        }
+
+        $params = array(
+            "type" => "button",
+            "value" => $value,
+            "onclick" => $onclick,
+            "class" => $class,
+        );
+
+        echo html_writer::tag(
+            'input',
+            '',
+            $params
+        );
+        ?>
+        <br/>
+        <?php print_string($field.'_help', 'auth_saml2', "$CFG->wwwroot/auth/saml2/cert.php") ?>
+    </td>
+</tr>
+<tr valign="top">
     <?php $field = 'certificate' ?>
     <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
     <td>
         <?php
-            $link = "location.href='". $CFG->wwwroot . "/auth/saml2/regenerate.php'";
-            $value = get_string($field, 'auth_saml2');
-            echo html_writer::tag(  'input',
-                                     '',
-                                     array("type"=>"button",
-                                           "value"=>$value,
-                                           "onclick"=>$link,
-                                     )
-                                  );
+        $link = "location.href='". $CFG->wwwroot . "/auth/saml2/regenerate.php'";
+        $value = get_string($field, 'auth_saml2');
+        $params = array(
+            "type" => "button",
+            "value" => $value,
+            "onclick" => $link,
+        );
+
+        echo html_writer::tag(
+            'input',
+            '',
+            $params
+        );
         ?>
         <br/>
         <?php print_string($field.'_help', 'auth_saml2', "$CFG->wwwroot/auth/saml2/cert.php") ?>
