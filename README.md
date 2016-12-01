@@ -151,6 +151,18 @@ $ keytool -import -trustcacerts -alias moodle.edu -file moodle.edu.crt -keystore
 
 Then follow the prompts and restart OpenAM.
 
+**Certificate Locking**
+
+It is only possible to unlock the certificates via the command line.
+These certificates are located in the $CFG->dataroot/saml2 directory.
+
+To unlock the certificates please restore the write permissions to the required files.
+```bash
+$ cd $CFG->dataroot/saml2
+$ chmod 0660 site.example.crt
+$ chmod 0660 site.example.pem
+```
+
 
 Other SAML plugins
 ------------------
