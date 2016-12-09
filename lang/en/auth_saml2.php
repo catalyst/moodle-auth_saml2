@@ -65,6 +65,7 @@ $string['certificate_help'] = 'Regenerate the Private Key and Certificate used b
 $string['certificatelock'] = 'Lock certificate';
 $string['certificatelock_help'] = 'Locking the certificates will prevent them from being overwritten once generated.';
 $string['certificatelock_locked'] = 'The certificate is locked';
+$string['certificatelock_warning'] = 'Warning. You are about to lock the certificates, are you sure you want to do this?';
 $string['certificatedetails'] = 'Certificate details';
 $string['certificatedetailshelp'] = '<h1>SAML2 auto generated public certificate contents</h1>
 <p>The path for the cert is here:</p>

@@ -22,15 +22,36 @@
  * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-require('setup.php');
+
+require_once(dirname(__FILE__) . '/../../config.php');
+require_once($CFG->libdir . '/adminlib.php');
 
 require_login();
 require_capability('moodle/site:config', context_system::instance());
+admin_externalpage_setup('authsettingsaml2');
 
-$certfiles = array($saml2auth->certpem, $saml2auth->certcrt);
+require('setup.php');
 
-foreach ($certfiles as $certfile) {
-    @chmod($certfile, 0440);
+$form = new \auth_saml2\form\lockcertificate();
+
+$baseurl = new moodle_url('/admin/auth_config.php?auth=saml2');
+
+if ($data = $form->get_data()) {
+
+    if ($form->is_submitted()) {
+
+        $certfiles = array($saml2auth->certpem, $saml2auth->certcrt);
+        foreach ($certfiles as $certfile) {
+            chmod($certfile, 0440);
+        }
+
+        redirect($baseurl);
+    }
+} else if ($form->is_cancelled()) {
+    redirect($baseurl);
 }
 
-redirect(new moodle_url('/admin/auth_config.php?auth=saml2'));
+echo $OUTPUT->header();
+echo $OUTPUT->heading(get_string('certificatelock', 'auth_saml2'));
+echo $form->display();
+echo $OUTPUT->footer();
