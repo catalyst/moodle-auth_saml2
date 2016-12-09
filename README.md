@@ -45,6 +45,8 @@ configuration from Moodle configuration. In the future we should be able to
 swap to a different internal SAML implementation and the plugin GUI shouldn't
 need to change at all.
 
+* SimpleSAMLphp version 1.14.10
+
 
 Features
 --------
