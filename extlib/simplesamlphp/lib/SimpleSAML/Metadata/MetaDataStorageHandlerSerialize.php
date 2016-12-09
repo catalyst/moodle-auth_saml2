@@ -42,7 +42,7 @@ class SimpleSAML_Metadata_MetaDataStorageHandlerSerialize extends SimpleSAML_Met
 
         $this->directory = $cfgHelp->getString('directory');
 
-        /* Resolve this directory relative to the simpleSAMLphp directory (unless it is
+        /* Resolve this directory relative to the SimpleSAMLphp directory (unless it is
          * an absolute path).
          */
         $this->directory = $globalConfig->resolvePath($this->directory);
@@ -193,6 +193,10 @@ class SimpleSAML_Metadata_MetaDataStorageHandlerSerialize extends SimpleSAML_Met
         if ($data === false) {
             SimpleSAML_Logger::warning('Error unserializing file: '.$filePath);
             return null;
+        }
+
+        if (!array_key_exists('entityid', $data)) {
+            $data['entityid'] = $entityId;
         }
 
         return $data;

@@ -4,7 +4,7 @@
  * Authentication source for Apache 'htpasswd' files.
  *
  * @author Dyonisius (Dick) Visser, TERENA.
- * @package simpleSAMLphp
+ * @package SimpleSAMLphp
  */
 
 use WhiteHat101\Crypt\APR1_MD5;
@@ -27,7 +27,7 @@ class sspmod_authcrypt_Auth_Source_Htpasswd extends sspmod_core_Auth_UserPassBas
 		assert('is_array($info)');
 		assert('is_array($config)');
 
-		/* Call the parent constructor first, as required by the interface. */
+		// Call the parent constructor first, as required by the interface
 		parent::__construct($info, $config);
 
 		$this->users = array();
@@ -80,7 +80,7 @@ class sspmod_authcrypt_Auth_Source_Htpasswd extends sspmod_core_Auth_UserPassBas
 				}
 
 				// Apache's custom MD5
-				if(APR1_MD5::check($crypted, $password)) {
+				if(APR1_MD5::check($password, $crypted)) {
 					SimpleSAML_Logger::debug('User '. $username . ' authenticated successfully');
 					return $attributes;
 				}

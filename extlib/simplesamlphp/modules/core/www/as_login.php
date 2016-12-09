@@ -3,14 +3,14 @@
 /**
  * Endpoint for logging in with an authentication source.
  *
- * @package simpleSAMLphp
+ * @package SimpleSAMLphp
  */
 
-if (!is_string($_REQUEST['ReturnTo'])) {
+if (!isset($_REQUEST['ReturnTo'])) {
 	throw new SimpleSAML_Error_BadRequest('Missing ReturnTo parameter.');
 }
 
-if (!is_string($_REQUEST['AuthId'])) {
+if (!isset($_REQUEST['AuthId'])) {
 	throw new SimpleSAML_Error_BadRequest('Missing AuthId parameter.');
 }
 

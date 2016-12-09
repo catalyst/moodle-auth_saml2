@@ -121,8 +121,10 @@ class SimpleSAML_Configuration
             // file does not exist, but is required
             throw new Exception('Missing configuration file: '.$filename);
         } else {
-            // file does not exist, but is optional
-            $config = array();
+            // file does not exist, but is optional, so return an empty configuration object without saving it
+            $cfg = new SimpleSAML_Configuration(array(), $filename);
+            $cfg->filename = $filename;
+            return $cfg;
         }
 
         $cfg = new SimpleSAML_Configuration($config, $filename);
@@ -323,7 +325,7 @@ class SimpleSAML_Configuration
      */
     public function getVersion()
     {
-        return 'trunk';
+        return '1.14.10';
     }
 
 
@@ -507,8 +509,8 @@ class SimpleSAML_Configuration
         $dir = $this->getString('basedir', null);
         if ($dir !== null) {
             // add trailing slash if it is missing
-            if (substr($dir, -1) !== '/') {
-                $dir .= '/';
+            if (substr($dir, -1) !== DIRECTORY_SEPARATOR) {
+                $dir .= DIRECTORY_SEPARATOR;
             }
 
             return $dir;
@@ -526,8 +528,8 @@ class SimpleSAML_Configuration
 
         $dir = dirname($dir);
 
-        /* Add trailing slash. */
-        $dir .= '/';
+        // Add trailing directory separator
+        $dir .= DIRECTORY_SEPARATOR;
 
         return $dir;
     }
@@ -1216,7 +1218,7 @@ class SimpleSAML_Configuration
                     continue;
                 }
                 if (isset($key['X509Certificate'])) {
-                    /* Strip whitespace from key. */
+                    // Strip whitespace from key
                     $key['X509Certificate'] = preg_replace('/\s+/', '', $key['X509Certificate']);
                 }
                 $ret[] = $key;

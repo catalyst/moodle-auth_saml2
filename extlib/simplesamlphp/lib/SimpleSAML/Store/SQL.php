@@ -3,7 +3,7 @@
 /**
  * A SQL datastore.
  *
- * @package simpleSAMLphp
+ * @package SimpleSAMLphp
  */
 class SimpleSAML_Store_SQL extends SimpleSAML_Store {
 
@@ -91,11 +91,16 @@ class SimpleSAML_Store_SQL extends SimpleSAML_Store {
 	private function initKVTable() {
 
 		if ($this->getTableVersion('kvstore') === 1) {
-			/* Table initialized. */
+			// Table initialized
 			return;
 		}
 
-		$query = 'CREATE TABLE ' . $this->prefix . '_kvstore (_type VARCHAR(30) NOT NULL, _key VARCHAR(50) NOT NULL, _value TEXT NOT NULL, _expire TIMESTAMP, PRIMARY KEY (_key, _type))';
+		$text_t = 'TEXT';
+		if ($this->driver === 'mysql') {
+			// TEXT data type has size constraints that can be hit at some point, so we use LONGTEXT instead
+			$text_t = 'LONGTEXT';
+		}
+		$query = 'CREATE TABLE ' . $this->prefix . '_kvstore (_type VARCHAR(30) NOT NULL, _key VARCHAR(50) NOT NULL, _value '.$text_t.' NOT NULL, _expire TIMESTAMP, PRIMARY KEY (_key, _type))';
 		$this->pdo->exec($query);
 
 		$query = 'CREATE INDEX ' . $this->prefix . '_kvstore_expire ON '  . $this->prefix . '_kvstore (_expire)';
@@ -167,7 +172,7 @@ class SimpleSAML_Store_SQL extends SimpleSAML_Store {
 			return;
 		}
 
-		/* Default implementation. Try INSERT, and UPDATE if that fails. */
+		// Default implementation. Try INSERT, and UPDATE if that fails.
 
 		$insertQuery = 'INSERT INTO ' . $table . ' ' . $colNames . ' ' . $values;
 		$insertQuery = $this->pdo->prepare($insertQuery);
@@ -177,7 +182,7 @@ class SimpleSAML_Store_SQL extends SimpleSAML_Store {
 		} catch (PDOException $e) {
 			$ecode = (string)$e->getCode();
 			switch ($ecode) {
-			case '23505': /* PostgreSQL */
+			case '23505': // PostgreSQL
 				break;
 			default:
 				SimpleSAML_Logger::error('Error while saving data: ' . $e->getMessage());

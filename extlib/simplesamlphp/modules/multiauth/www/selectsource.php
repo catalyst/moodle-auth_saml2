@@ -7,10 +7,10 @@
  * delegateAuthentication method on it.
  *
  * @author Lorenzo Gil, Yaco Sistemas S.L.
- * @package simpleSAMLphp
+ * @package SimpleSAMLphp
  */
 
-/* Retrieve the authentication state. */
+// Retrieve the authentication state
 if (!array_key_exists('AuthState', $_REQUEST)) {
 	throw new SimpleSAML_Error_BadRequest('Missing AuthState parameter.');
 }

@@ -7,7 +7,7 @@
  * save the session information it got from the authentication client in the users session.
  *
  * @author Olav Morken, UNINETT AS.
- * @package simpleSAMLphp
+ * @package SimpleSAMLphp
  *
  * @deprecated This class will be removed in SSP 2.0.
  */
@@ -60,7 +60,7 @@ class SimpleSAML_Auth_Default {
 
 		$as = SimpleSAML_Auth_Source::getById($authority);
 		if ($as === NULL) {
-			/* The authority wasn't an authentication source... */
+			// The authority wasn't an authentication source...
 			self::logoutCompleted($state);
  		}
 

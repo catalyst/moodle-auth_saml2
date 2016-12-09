@@ -44,7 +44,7 @@ class sspmod_saml_Auth_Source_SP extends SimpleSAML_Auth_Source {
 		assert('is_array($info)');
 		assert('is_array($config)');
 
-		/* Call the parent constructor first, as required by the interface. */
+		// Call the parent constructor first, as required by the interface
 		parent::__construct($info, $config);
 
 		if (!isset($config['entityID'])) {
@@ -115,7 +115,7 @@ class sspmod_saml_Auth_Source_SP extends SimpleSAML_Auth_Source {
 
 		$metadataHandler = SimpleSAML_Metadata_MetaDataStorageHandler::getMetadataHandler();
 
-		/* First, look in saml20-idp-remote. */
+		// First, look in saml20-idp-remote.
 		try {
 			return $metadataHandler->getMetaDataConfig($entityId, 'saml20-idp-remote');
 		} catch (Exception $e) {
@@ -142,7 +142,6 @@ class sspmod_saml_Auth_Source_SP extends SimpleSAML_Auth_Source {
 	 * @param array $state  The state array for the current authentication.
 	 */
 	private function startSSO1(SimpleSAML_Configuration $idpMetadata, array $state) {
-        global $CFG;
 
 		$idpEntityId = $idpMetadata->getString('entityid');
 
@@ -154,7 +153,16 @@ class sspmod_saml_Auth_Source_SP extends SimpleSAML_Auth_Source {
 		$id = SimpleSAML_Auth_State::saveState($state, 'saml:sp:sso');
 		$ar->setRelayState($id);
 
-        $shire =  $CFG->wwwroot . '/auth/saml2/sp/saml1-acs.php/' . $this->authId;
+		$useArtifact = $idpMetadata->getBoolean('saml1.useartifact', NULL);
+		if ($useArtifact === NULL) {
+			$useArtifact = $this->metadata->getBoolean('saml1.useartifact', FALSE);
+		}
+
+		if ($useArtifact) {
+			$shire = SimpleSAML_Module::getModuleURL('saml/sp/saml1-acs.php/' . $this->authId . '/artifact');
+		} else {
+			$shire = SimpleSAML_Module::getModuleURL('saml/sp/saml1-acs.php/' . $this->authId);
+		}
 
 		$url = $ar->createRedirect($idpEntityId, $shire);
 
@@ -172,17 +180,13 @@ class sspmod_saml_Auth_Source_SP extends SimpleSAML_Auth_Source {
 	 */
 	private function startSSO2(SimpleSAML_Configuration $idpMetadata, array $state) {
 	
-        global $CFG, $saml2auth;
-
 		if (isset($state['saml:ProxyCount']) && $state['saml:ProxyCount'] < 0) {
 			SimpleSAML_Auth_State::throwException($state, new SimpleSAML_Error_ProxyCountExceeded("ProxyCountExceeded"));
 		}
 
 		$ar = sspmod_saml_Message::buildAuthnRequest($this->metadata, $idpMetadata);
 
-		// $ar->setAssertionConsumerServiceURL(SimpleSAML_Module::getModuleURL('saml/sp/saml2-acs.php/' . $this->authId));
-        // auth_saml2 modification:
-		$ar->setAssertionConsumerServiceURL( $CFG->wwwroot . '/auth/saml2/sp/saml2-acs.php/' . $saml2auth->spname);
+		$ar->setAssertionConsumerServiceURL(SimpleSAML_Module::getModuleURL('saml/sp/saml2-acs.php/' . $this->authId));
 
 		if (isset($state['SimpleSAML_Auth_Source.ReturnURL'])) {
 			$ar->setRelayState($state['SimpleSAML_Auth_Source.ReturnURL']);
@@ -271,11 +275,6 @@ class sspmod_saml_Auth_Source_SP extends SimpleSAML_Auth_Source {
 
 		$b = SAML2_Binding::getBinding($dst['Binding']);
 
-        // This is a Moodle hack. Both moodle and SSPHP rely on automatic
-        // destructors to cleanup the $DB var and the SSPHP session but
-        // this order is not guaranteed, so we force session saving here.
-        $session = SimpleSAML_Session::getSessionFromRequest();
-        $session->save();
 		$this->sendSAML2AuthnRequest($state, $b, $ar);
 
 		assert('FALSE');
