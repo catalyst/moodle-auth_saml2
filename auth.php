@@ -523,5 +523,12 @@ class auth_plugin_saml2 extends auth_plugin_base {
         include('tester.php');
     }
 
+    public function get_ssp_version() {
+        global $CFG, $saml2auth;
+        require_once('setup.php');
+        $config = new SimpleSAML_Configuration(array(), '');
+        return $config->getVersion();
+    }
+
 }
 
