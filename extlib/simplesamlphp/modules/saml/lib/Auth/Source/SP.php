@@ -58,7 +58,7 @@ class sspmod_saml_Auth_Source_SP extends SimpleSAML_Auth_Source {
 		$this->entityId = $this->metadata->getString('entityID');
 		$this->idp = $this->metadata->getString('idp', NULL);
 		$this->discoURL = $this->metadata->getString('discoURL', NULL);
-		
+
 		if (empty($this->discoURL) && SimpleSAML_Module::isModuleEnabled('discojuice')) {
 			$this->discoURL = SimpleSAML_Module::getModuleURL('discojuice/central.php');
 		}
@@ -142,6 +142,7 @@ class sspmod_saml_Auth_Source_SP extends SimpleSAML_Auth_Source {
 	 * @param array $state  The state array for the current authentication.
 	 */
 	private function startSSO1(SimpleSAML_Configuration $idpMetadata, array $state) {
+		global $CFG;
 
 		$idpEntityId = $idpMetadata->getString('entityid');
 
@@ -153,16 +154,7 @@ class sspmod_saml_Auth_Source_SP extends SimpleSAML_Auth_Source {
 		$id = SimpleSAML_Auth_State::saveState($state, 'saml:sp:sso');
 		$ar->setRelayState($id);
 
-		$useArtifact = $idpMetadata->getBoolean('saml1.useartifact', NULL);
-		if ($useArtifact === NULL) {
-			$useArtifact = $this->metadata->getBoolean('saml1.useartifact', FALSE);
-		}
-
-		if ($useArtifact) {
-			$shire = SimpleSAML_Module::getModuleURL('saml/sp/saml1-acs.php/' . $this->authId . '/artifact');
-		} else {
-			$shire = SimpleSAML_Module::getModuleURL('saml/sp/saml1-acs.php/' . $this->authId);
-		}
+		$shire = $CFG->wwwroot . '/auth/saml2/sp/saml1-acs.php/' . $this->authId;
 
 		$url = $ar->createRedirect($idpEntityId, $shire);
 
@@ -179,14 +171,18 @@ class sspmod_saml_Auth_Source_SP extends SimpleSAML_Auth_Source {
 	 * @param array $state  The state array for the current authentication.
 	 */
 	private function startSSO2(SimpleSAML_Configuration $idpMetadata, array $state) {
-	
+		// auth_saml2 modification:
+		global $CFG, $saml2auth;
+
 		if (isset($state['saml:ProxyCount']) && $state['saml:ProxyCount'] < 0) {
 			SimpleSAML_Auth_State::throwException($state, new SimpleSAML_Error_ProxyCountExceeded("ProxyCountExceeded"));
 		}
 
 		$ar = sspmod_saml_Message::buildAuthnRequest($this->metadata, $idpMetadata);
 
-		$ar->setAssertionConsumerServiceURL(SimpleSAML_Module::getModuleURL('saml/sp/saml2-acs.php/' . $this->authId));
+		//$ar->setAssertionConsumerServiceURL(SimpleSAML_Module::getModuleURL('saml/sp/saml2-acs.php/' . $this->authId));
+		// auth_saml2 modification:
+		$ar->setAssertionConsumerServiceURL($CFG->wwwroot . '/auth/saml2/sp/saml2-acs.php/' . $saml2auth->spname);
 
 		if (isset($state['SimpleSAML_Auth_Source.ReturnURL'])) {
 			$ar->setRelayState($state['SimpleSAML_Auth_Source.ReturnURL']);
@@ -224,11 +220,11 @@ class sspmod_saml_Auth_Source_SP extends SimpleSAML_Auth_Source {
 		} else {
 			$IDPList = array();
 		}
-		
-		$ar->setIDPList(array_unique(array_merge($this->metadata->getArray('IDPList', array()), 
+
+		$ar->setIDPList(array_unique(array_merge($this->metadata->getArray('IDPList', array()),
 												$idpMetadata->getArray('IDPList', array()),
 												(array) $IDPList)));
-		
+
 		if (isset($state['saml:ProxyCount']) && $state['saml:ProxyCount'] !== null) {
 			$ar->setProxyCount($state['saml:ProxyCount']);
 		} elseif ($idpMetadata->getInteger('ProxyCount', null) !== null) {
@@ -236,18 +232,18 @@ class sspmod_saml_Auth_Source_SP extends SimpleSAML_Auth_Source {
 		} elseif ($this->metadata->getInteger('ProxyCount', null) !== null) {
 			$ar->setProxyCount($this->metadata->getInteger('ProxyCount', null));
 		}
-		
+
 		$requesterID = array();
 		if (isset($state['saml:RequesterID'])) {
 			$requesterID = $state['saml:RequesterID'];
 		}
-		
+
 		if (isset($state['core:SP'])) {
 			$requesterID[] = $state['core:SP'];
 		}
-		
+
 		$ar->setRequesterID($requesterID);
-		
+
 		if (isset($state['saml:Extensions'])) {
 			$ar->setExtensions($state['saml:Extensions']);
 		}
@@ -275,6 +271,11 @@ class sspmod_saml_Auth_Source_SP extends SimpleSAML_Auth_Source {
 
 		$b = SAML2_Binding::getBinding($dst['Binding']);
 
+		// This is a Moodle hack. Both moodle and SSPHP rely on automatic
+		// destructors to cleanup the $DB var and the SSPHP session but
+		// this order is not guaranteed, so we force session saving here.
+		$session = SimpleSAML_Session::getSessionFromRequest();
+		$session->save();
 		$this->sendSAML2AuthnRequest($state, $b, $ar);
 
 		assert('FALSE');
@@ -340,13 +341,13 @@ class sspmod_saml_Auth_Source_SP extends SimpleSAML_Auth_Source {
 		}
 
 		$returnTo = SimpleSAML_Module::getModuleURL('saml/sp/discoresp.php', array('AuthID' => $id));
-		
+
 		$params = array(
 			'entityID' => $this->entityId,
 			'return' => $returnTo,
 			'returnIDParam' => 'idpentityid'
 		);
-		
+
 		if(isset($state['saml:IDPList'])) {
 			$params['IDPList'] = $state['saml:IDPList'];
 		}
@@ -531,7 +532,7 @@ class sspmod_saml_Auth_Source_SP extends SimpleSAML_Auth_Source {
 		assert('is_string($idp)');
 		assert('array_key_exists("LogoutState", $state)');
 		assert('array_key_exists("saml:logout:Type", $state["LogoutState"])');
-		
+
 		$idpMetadata = $this->getIdpMetadata($idp);
 
 		$spMetadataArray = $this->metadata->toArray();
