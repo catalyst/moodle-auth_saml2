@@ -405,7 +405,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
             $this->log(__FUNCTION__ . ' Do SSP logout');
             $local_config = get_config('auth/saml2');
             if (isset($local_config->alterlogout) && $local_config->alterlogout) {
-                $this->log(__FUNCTION__ . ' Do SSP alternare URL logout');
+                $this->log(__FUNCTION__ . ' Do SSP alternate URL logout');
                 $redirect = $local_config->alterlogout;
             }
             $auth->logout($redirect);
