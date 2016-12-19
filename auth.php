@@ -408,10 +408,10 @@ class auth_plugin_saml2 extends auth_plugin_base {
         // Only log out of the IdP if we logged in via the IdP. TODO check session timeouts.
         if ($auth->isAuthenticated()) {
             $this->log(__FUNCTION__ . ' Do SSP logout');
-            $local_config = get_config('auth/saml2');
-            if (isset($local_config->alterlogout) && $local_config->alterlogout) {
-                $this->log(__FUNCTION__ . ' Do SSP alternate URL logout');
-                $redirect = $local_config->alterlogout;
+            $alterlogout = $this->config->alterlogout;
+            if (!empty($alterlogout)) {
+                $this->log(__FUNCTION__ . " Do SSP alternate URL logout $alterlogout");
+                $redirect = $alterlogout;
             }
             $auth->logout($redirect);
         }
