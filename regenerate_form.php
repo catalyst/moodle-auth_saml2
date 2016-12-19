@@ -38,42 +38,42 @@ class regenerate_form extends moodleform {
     public function definition() {
         $mform = $this->_form;
 
-        $mform->addElement('text', 'countryname', get_string('countryname', 'auth_saml2'), 'size = 70');
+        $mform->addElement('text', 'countryname', get_string('countryname', 'auth_saml2'), 'size=64');
         $mform->setType('countryname', PARAM_TEXT);
         $mform->addRule('countryname', get_string('required', 'auth_saml2'),
                 'required', null, 'client');
 
-        $mform->addElement('text', 'stateorprovincename', get_string('stateorprovincename', 'auth_saml2'), 'size = 70');
+        $mform->addElement('text', 'stateorprovincename', get_string('stateorprovincename', 'auth_saml2'), 'size=64');
         $mform->setType('stateorprovincename', PARAM_TEXT);
         $mform->addRule('stateorprovincename', get_string('required', 'auth_saml2'),
                 'required', null, 'client');
 
-        $mform->addElement('text', 'localityname', get_string('localityname', 'auth_saml2'), 'size = 70');
+        $mform->addElement('text', 'localityname', get_string('localityname', 'auth_saml2'), 'size=64');
         $mform->setType('localityname', PARAM_TEXT);
         $mform->addRule('localityname', get_string('required', 'auth_saml2'),
                 'required', null, 'client');
 
-        $mform->addElement('text', 'organizationname', get_string('organizationname', 'auth_saml2'), 'size = 70');
+        $mform->addElement('text', 'organizationname', get_string('organizationname', 'auth_saml2'), 'size=64');
         $mform->setType('organizationname', PARAM_TEXT);
         $mform->addRule('organizationname', get_string('required', 'auth_saml2'),
                 'required', null, 'client');
 
-        $mform->addElement('text', 'organizationalunitname', get_string('organizationalunitname', 'auth_saml2'), 'size = 70');
+        $mform->addElement('text', 'organizationalunitname', get_string('organizationalunitname', 'auth_saml2'), 'size=64');
         $mform->setType('organizationalunitname', PARAM_TEXT);
         $mform->addRule('organizationalunitname', get_string('required', 'auth_saml2'),
                 'required', null, 'client');
 
-        $mform->addElement('text', 'commonname', get_string('commonname', 'auth_saml2'), 'size = 70');
+        $mform->addElement('text', 'commonname', get_string('commonname', 'auth_saml2'), 'size=64');
         $mform->setType('commonname', PARAM_TEXT);
         $mform->addRule('commonname', get_string('required', 'auth_saml2'),
                 'required', null, 'client');
 
-        $mform->addElement('text', 'email', get_string('email'), 'size = 70');
+        $mform->addElement('text', 'email', get_string('email'), 'size=64');
         $mform->setType('email', PARAM_NOTAGS);
         $mform->addRule('email', get_string('required', 'auth_saml2'),
                 'required', null, 'client');
 
-        $mform->addElement('text', 'expirydays', get_string('expirydays', 'auth_saml2'), 'size = 5');
+        $mform->addElement('text', 'expirydays', get_string('expirydays', 'auth_saml2'), 'size=5');
         $mform->setType('expirydays', PARAM_INT);
         $mform->addRule('expirydays', get_string('requireint', 'auth_saml2'),
                 'numeric', null, 'client');

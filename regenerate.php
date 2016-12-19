@@ -41,7 +41,7 @@ $error = '';
 
 if ($fromform = $mform->get_data()) {
     $dn = array(
-        'commonName' => $fromform->commonname,
+        'commonName' => substr($fromform->commonname, 0, 64),
         'countryName' => $fromform->countryname,
         'emailAddress' => $fromform->email,
         'localityName' => $fromform->localityname,
@@ -78,7 +78,7 @@ if ($fromform = $mform->get_data()) {
     $toform = array (
         "email" => $data['subject']['emailAddress'],
         "expirydays" => $expirydays,
-        "commonname" => $data['subject']['CN'],
+        "commonname" => substr($data['subject']['CN'], 0, 64),
         "countryname" => $data['subject']['C'],
         "localityname" => $data['subject']['L'],
         "organizationname" => $data['subject']['O'],
