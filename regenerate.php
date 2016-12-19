@@ -23,14 +23,13 @@
  */
 
 require('setup.php');
-require('regenerate_form.php');
 
 require_login();
 require_capability('moodle/site:config', context_system::instance());
 $PAGE->set_url("$CFG->wwwroot/auth/saml2/regenerate.php");
 $PAGE->set_course($SITE);
 
-$mform = new regenerate_form();
+$mform = new \auth_saml2\form\regenerate();
 
 if ($mform->is_cancelled()) {
     redirect("$CFG->wwwroot/admin/auth_config.php?auth=saml2");

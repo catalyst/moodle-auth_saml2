@@ -22,6 +22,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace auth_saml2\form;
+
+use moodleform;
+
 require_once("$CFG->libdir/formslib.php");
 
 /**
@@ -30,7 +34,7 @@ require_once("$CFG->libdir/formslib.php");
  * @copyright  Matt Porritt <mattp@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class regenerate_form extends moodleform {
+class regenerate extends moodleform {
 
     /**
      * Definition
