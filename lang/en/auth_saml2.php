@@ -83,3 +83,5 @@ $string['regenerate_submit'] = 'Regenerate';
 $string['test_passive'] = '<a href="{$a}">Test using isPassive</a>';
 $string['test_auth'] = '<a href="{$a}">Test isAuthenticated and login</a>';
 
+$string['alterlogout'] = 'Alternative Logout URL';
+$string['alterlogout_help'] = 'The URL to redirect a user after all internal logout mechanisms are run';
