@@ -130,7 +130,12 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * @return bool
      */
     public function is_configured() {
-        $file = $this->certdir . $this->spname . '.xml';
+        $file = $this->certdir . $this->spname . '.crt';
+        if (!file_exists($file)) {
+            return false;
+        }
+
+        $file = $this->certdir . $this->spname . '.pem';
         if (!file_exists($file)) {
             return false;
         }
