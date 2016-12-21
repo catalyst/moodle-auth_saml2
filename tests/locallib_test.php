@@ -251,5 +251,52 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         );
     }
 
+    /**
+     * Test test_is_configured
+     */
+    public function test_is_configured() {
+        global $CFG;
+
+        $auth = get_auth_plugin('saml2');
+
+        $files = array(
+            'crt' => $auth->certdir . $auth->spname . '.crt',
+            'pem' => $auth->certdir . $auth->spname . '.pem',
+            'xml' => $auth->certdir . 'idp.xml',
+        );
+
+        // Setup, remove the phpuunit dataroot temp files for saml2.
+        foreach ($files as $file) {
+            if (file_exists($file)) {
+                @unlink($file);
+            }
+        }
+
+        mkdir($CFG->phpunit_dataroot . '/saml2');
+
+        $this->assertFalse($auth->is_configured());
+
+        // crt: true
+        // pem: false
+        // xml: false
+        // result: failure
+        touch($files['crt']);
+        $this->assertFalse($auth->is_configured());
+
+        // crt: true
+        // pem: true
+        // xml: false
+        // result: failure
+        touch($files['pem']);
+        $this->assertFalse($auth->is_configured());
+
+        // crt: true
+        // pem: true
+        // xml: true
+        // result: success
+        touch($files['xml']);
+        $this->assertTrue($auth->is_configured());
+    }
+
 }
 
