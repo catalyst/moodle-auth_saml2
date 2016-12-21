@@ -93,6 +93,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         if (!$this->config->showidplink) {
             return array();
         }
+
         // If the plugin has not been configured then do not return an IdP link.
         if ($this->is_configured() === false) {
             return array();
@@ -132,16 +133,19 @@ class auth_plugin_saml2 extends auth_plugin_base {
     public function is_configured() {
         $file = $this->certdir . $this->spname . '.crt';
         if (!file_exists($file)) {
+            $this->log(__FUNCTION__ . ' file not found, ' . $file);
             return false;
         }
 
         $file = $this->certdir . $this->spname . '.pem';
         if (!file_exists($file)) {
+            $this->log(__FUNCTION__ . ' file not found, ' . $file);
             return false;
         }
 
         $file = $this->certdir . 'idp.xml';
         if (!file_exists($file)) {
+            $this->log(__FUNCTION__ . ' file not found, ' . $file);
             return false;
         }
 
@@ -193,6 +197,11 @@ class auth_plugin_saml2 extends auth_plugin_base {
      */
     public function loginpage_hook() {
         $this->log(__FUNCTION__ . ' enter');
+
+        // If the plugin has not been configured then do NOT try to use saml2.
+        if ($this->is_configured() === false) {
+            return;
+        }
 
         if ($this->should_login_redirect()) {
             $this->saml_login();
