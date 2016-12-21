@@ -41,6 +41,7 @@ $string['spmetadata_help'] = '<a href=\'{$a}\'>View Service Provider Metadata</a
 <p>You may need to give this to the IdP admin to whitelist you.</p>';
 $string['spmetadatasign'] = 'SP Metadata signature';
 $string['spmetadatasign_help'] = 'Sign the SP Metadata.';
+$string['sspversion'] = 'SimpleSAMLphp version';
 $string['showidplink'] = 'Display IdP link';
 $string['showidplink_help'] = 'This will display the IdP link when the site is configured.';
 $string['duallogin'] = 'Dual login';

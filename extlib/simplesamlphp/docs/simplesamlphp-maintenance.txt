@@ -10,14 +10,13 @@ SimpleSAMLphp Maintenance
 
 <!-- {{TOC}} -->
 
-simpleSAMLphp news and documentation
+SimpleSAMLphp news and documentation
 ------------------------------------
 
-This document is part of the simpleSAMLphp documentation suite.
+This document is part of the SimpleSAMLphp documentation suite.
 
- * [List of all simpleSAMLphp documentation](http://simplesamlphp.org/docs)
- * [Latest news about simpleSAMLphp](http://rnd.feide.no/taxonomy/term/4). (Also contains an RSS feed)
- * [simpleSAMLphp homepage](https://simplesamlphp.org)
+ * [List of all SimpleSAMLphp documentation](http://simplesamlphp.org/docs)
+ * [SimpleSAMLphp homepage](https://simplesamlphp.org)
 
 
 
@@ -32,6 +31,27 @@ The `store.type` configuration option in `config.php` allows you to select which
   * `sql` stores the session in an SQL database.
 
 	'store.type' => 'phpsession',
+
+### Configuring PHP sessions
+
+To use the PHP session handler, set the `store.type` configuration option in `config.php`:
+
+    'store.type' => 'phpsession',
+
+Keep in mind that **PHP does not allow two sessions to be open at the same time**. This means if you are using PHP sessions both in your
+application and in SimpleSAMLphp at the same time, **they need to have different names**. When using the PHP session handler in
+SimpleSAMLphp, it is configured with different options than for other session handlers:
+ 
+    'session.phpsession.cookiename' => null,
+    'session.phpsession.savepath' => null,
+    'session.phpsession.httponly' => true,
+    
+Make sure to set `session.phpsession.cookiename` to a name different than the one in use by any other applications. If you are using
+SimpleSAMLphp as an Identity Provider, or any other applications using it are not using the default session name, you can use the default
+settings by leaving these options unset or setting them to `null`.
+
+If you need to restore your session's application after calling SimpleSAMLphp, you can do it by calling the `cleanup()` method of the
+`SimpleSAML_Session` class, like described [here](simplesamlphp-sp#section_6).
 
 ### Configuring memcache
 
@@ -139,12 +159,21 @@ The required tables are created automatically. If you are storing data from mult
 
 ## Logging and statistics
 
-simpleSAMLphp supports standard `syslog` logging. As an
+SimpleSAMLphp supports standard `syslog` logging. As an
 alternative, you may log to flat files.
 
 ## Apache configuration
 
+Basic Apache configruation is described in [SimpleSAMLphp Installation](simplesamlphp-install#section_6).
+However, your IdP or SP is most likely a valuable website that you want to configure securely. Here are some checks.
 
+* Make sure you use HTTPS with a proper certificate. The best way is to not
+  serve anything over plain HTTP, except for a possible redirect to https.
+* Configure your TLS/SSL to be secure. Mozilla has an easy way to generate
+  [Recommended Server Configurations](https://wiki.mozilla.org/Security/Server_Side_TLS#Recommended_Server_Configurations).
+  Verify your SSL settings, e.g. with the [SSLLabs SSLtest](https://www.ssllabs.com/ssltest/).
+* In your Apache configuration, add headers that further secure your site.
+  A good check with hints on what to add is [Mozilla Observatory](https://observatory.mozilla.org/).
 
 ## PHP configuration
 
@@ -160,7 +189,7 @@ Here are some checkpoints
  2. If you during testing have been using a certificate that has been exposed (notably: the one found in the SimpleSAMLphp distribution): Obtain and install a new one.
  3. Make sure you have installed the latest security upgrades for your OS.
  4. Make sure to use HTTPS rather than HTTP.
- 5. Block access to your servers on anything except port 443. simpleSAMLphp only uses plain HTTP(S), so there is no need to open ports for SOAP or other communication.
+ 5. Block access to your servers on anything except port 443. SimpleSAMLphp only uses plain HTTP(S), so there is no need to open ports for SOAP or other communication.
 
 
 ## Error handling, error reporting and metadata reporting
@@ -183,7 +212,7 @@ Please use the standardized two-character
 
 You also can set the default language. You should ensure that the default language is complete, as it is used as a fallback when a text is not available in the language selected by the user.
 
-Translation of simpleSAMLphp is done through the SimpleSAMLphp translation portal. To translate SimpleSAMLphp to a new language, please contact the authors at the mailing list, and the new language may be added to the translation portal.
+Translation of SimpleSAMLphp is done through the SimpleSAMLphp translation portal. To translate SimpleSAMLphp to a new language, please contact the authors at the mailing list, and the new language may be added to the translation portal.
 
   * [Visit the SimpleSAMLphp translation portal](https://translation.rnd.feide.no/?aid=simplesamlphp)
 
@@ -205,8 +234,8 @@ Documentation on theming is moved [to a separate document](simplesamlphp-theming
 Support
 -------
 
-If you need help to make this work, or want to discuss simpleSAMLphp with other users of the software, you are fortunate: Around simpleSAMLphp there is a great Open source community, and you are welcome to join! The forums are open for you to ask questions, contribute answers other further questions, request improvements or contribute with code or plugins of your own.
+If you need help to make this work, or want to discuss SimpleSAMLphp with other users of the software, you are fortunate: Around SimpleSAMLphp there is a great Open source community, and you are welcome to join! The forums are open for you to ask questions, contribute answers other further questions, request improvements or contribute with code or plugins of your own.
 
 -  [SimpleSAMLphp homepage](https://simplesamlphp.org)
--  [List of all available simpleSAMLphp documentation](http://simplesamlphp.org/docs/)
--  [Join the simpleSAMLphp user's mailing list](https://simplesamlphp.org/lists)
+-  [List of all available SimpleSAMLphp documentation](http://simplesamlphp.org/docs/)
+-  [Join the SimpleSAMLphp user's mailing list](https://simplesamlphp.org/lists)

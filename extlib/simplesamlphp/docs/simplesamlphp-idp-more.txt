@@ -29,11 +29,11 @@ Support for bookmarking the login page
 
 Most SAML software crash fatally when users bookmark the login page and return later on when the cached session information is lost. This is natural as the login page happens in the middle of a SAML transaction, and the SAML software needs some references to the original request in order to be able to produce the SAML Response.
 
-SimpleSAMLphp has implemented a graceful fallback to tackle this situation. When simpleSAMLphp is not able to lookup a session during the login process, it falls back to the *IdP-first flow*, described in the next section, where the reference to the request is not needed.
+SimpleSAMLphp has implemented a graceful fallback to tackle this situation. When SimpleSAMLphp is not able to lookup a session during the login process, it falls back to the *IdP-first flow*, described in the next section, where the reference to the request is not needed.
 
 What happens in the IdP-first flow is that a *SAML unsolicited response* is sent directly to the SP. An *unsolicited response* is a SAML Response with no reference to a SAML Request (no `InReplyTo` field). 
 
-When a SimpleSAMLphp IdP falls back to IdP-first flow, the `RelayState` parameter sent by the SP in the SAML request is also lost. The RelayState information contain a reference key for the SP to lookup where to send the user after successfull authentication. The SimpleSAMLphp Service Provider supports configuring a static URL to redirect the user after a unsolicited response is received. See more information about the `RelayState` parameter in the next section: *IdP-first flow*.
+When a SimpleSAMLphp IdP falls back to IdP-first flow, the `RelayState` parameter sent by the SP in the SAML request is also lost. The RelayState information contain a reference key for the SP to lookup where to send the user after successful authentication. The SimpleSAMLphp Service Provider supports configuring a static URL to redirect the user after a unsolicited response is received. See more information about the `RelayState` parameter in the next section: *IdP-first flow*.
 
 
 IdP-first flow
@@ -72,7 +72,7 @@ The parameters are as follows:
 `target`
 :   The target parameter the SP should receive with the authentication response.
     This is often the page the user should be sent to after authentication.
-    This parameter is optional for the IdP, but must be specified if the SP you are targeting is running simpleSAMLphp.
+    This parameter is optional for the IdP, but must be specified if the SP you are targeting is running SimpleSAMLphp.
 
 :   *Note*: This parameter must be sent as `target` (with lowercase letters) when starting the authentication, while it is sent as `TARGET` (with uppercase letters) in the authentication response.
 

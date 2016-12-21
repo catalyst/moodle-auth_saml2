@@ -3,7 +3,7 @@
 /**
  * IdP implementation for SAML 2.0 protocol.
  *
- * @package simpleSAMLphp
+ * @package SimpleSAMLphp
  */
 class sspmod_saml_IdP_SAML2 {
 
@@ -16,7 +16,7 @@ class sspmod_saml_IdP_SAML2 {
 		assert('isset($state["Attributes"])');
 		assert('isset($state["SPMetadata"])');
 		assert('isset($state["saml:ConsumerURL"])');
-		assert('array_key_exists("saml:RequestId", $state)'); // Can be NULL.
+		assert('array_key_exists("saml:RequestId", $state)'); // Can be NULL
 		assert('array_key_exists("saml:RelayState", $state)'); // Can be NULL.
 
 		$spMetadata = $state["SPMetadata"];
@@ -41,7 +41,7 @@ class sspmod_saml_IdP_SAML2 {
 			$assertion->setAuthenticatingAuthority($state['saml:AuthenticatingAuthority']);
 		}
 
-		/* Create the session association (for logout). */
+		// Create the session association (for logout).
 		$association = array(
 			'id' => 'saml:' . $spEntityId,
 			'Handler' => 'sspmod_saml_IdP_SAML2',
@@ -51,7 +51,7 @@ class sspmod_saml_IdP_SAML2 {
 			'saml:SessionIndex' => $assertion->getSessionIndex(),
 		);
 
-		/* Maybe encrypt the assertion. */
+		// Maybe encrypt the assertion.
 		$assertion = self::encryptAssertion($idpMetadata, $spMetadata, $assertion);
 
 		/* Create the response. */
@@ -698,12 +698,17 @@ class sspmod_saml_IdP_SAML2 {
                     continue;
                 }
 
+				$attrval = $value;
+				if ($value instanceof DOMNodeList) {
+					$attrval = new SAML2_XML_saml_AttributeValue($value->item(0)->parentNode);
+				}
+
 				switch ($encoding) {
 				case 'string':
-					$value = (string)$value;
+					$value = (string)$attrval;
 					break;
 				case 'base64':
-					$value = base64_encode((string)$value);
+					$value = base64_encode((string)$attrval);
 					break;
 				case 'raw':
 					if (is_string($value)) {
