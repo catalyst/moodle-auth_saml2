@@ -24,6 +24,10 @@
 
 $yesno = array(get_string('no'), get_string('yes'));
 
+if(!function_exists('mcrypt_encrypt')) {
+    echo $OUTPUT->notification(get_string('mcryptnotfound', 'auth_saml2'), 'error');
+}
+
 ?>
 <table cellspacing="0" cellpadding="5" border="0" class="generaltable">
 <tr valign="top">
