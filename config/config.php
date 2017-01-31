@@ -24,8 +24,14 @@
 
 global $CFG, $saml2auth;
 
+// Check for https login
+$wwwroot = $CFG->wwwroot;
+if (!empty($CFG->loginhttps)) {
+    $wwwroot = str_replace('http:','https:',$CFG->wwwroot);
+}
+
 $config = array(
-    'baseurlpath'       => $CFG->wwwroot . '/auth/saml2/sp/',
+    'baseurlpath'       => $wwwroot . '/auth/saml2/sp/',
     'certdir'           => $saml2auth->certdir,
     'debug'             => $saml2auth->config->debug ? true : false,
     'logging.level'     => $saml2auth->config->debug ? SimpleSAML_Logger::DEBUG : SimpleSAML_Logger::ERR,
