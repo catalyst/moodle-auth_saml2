@@ -24,10 +24,10 @@
 
 global $CFG, $saml2auth;
 
-// Check for https login
+// Check for https login.
 $wwwroot = $CFG->wwwroot;
 if (!empty($CFG->loginhttps)) {
-    $wwwroot = str_replace('http:','https:',$CFG->wwwroot);
+    $wwwroot = str_replace('http:', 'https:', $CFG->wwwroot);
 }
 
 $config = array(
