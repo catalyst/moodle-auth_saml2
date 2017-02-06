@@ -24,10 +24,16 @@
 
 global $saml2auth, $CFG, $SITE;
 
+// Check for https login.
+$wwwroot = $CFG->wwwroot;
+if (!empty($CFG->loginhttps)) {
+    $wwwroot = str_replace('http:', 'https:', $CFG->wwwroot);
+}
+
 $config = array(
     $saml2auth->spname => array(
         'saml:SP',
-        'entityID' => "$CFG->wwwroot/auth/saml2/sp/metadata.php",
+        'entityID' => "$wwwroot/auth/saml2/sp/metadata.php",
         'idp' => $saml2auth->config->entityid,
         'NameIDPolicy' => null,
         'OrganizationName' => array(
@@ -47,4 +53,3 @@ $config = array(
         'signature.algorithm' => 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256',
     ),
 );
-
