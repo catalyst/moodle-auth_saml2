@@ -81,20 +81,23 @@ function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
         );
     }
 
+    certificate_openssl_error_strings(); // Ensure existing messages are dropped
     $privkeypass = get_site_identifier();
     $privkey = openssl_pkey_new($opensslargs);
     $csr     = openssl_csr_new($dn, $privkey, $opensslargs);
     $sscert  = openssl_csr_sign($csr, null, $privkey, $numberofdays, $opensslargs);
     openssl_x509_export($sscert, $publickey);
     openssl_pkey_export($privkey, $privatekey, $privkeypass, $opensslargs);
+    openssl_pkey_export($privkey, $privatekey, $privkeypass);
+    $errors = certificate_openssl_error_strings();
 
     // Write Private Key and Certificate files to disk.
     // If there was a generation error with either explode.
     if (empty($privatekey)) {
-        return get_string('nullprivatecert', 'auth_saml2');
+        return get_string('nullprivatecert', 'auth_saml2') . $errors;
     }
     if (empty($publickey)) {
-        return get_string('nullpubliccert', 'auth_saml2');
+        return get_string('nullpubliccert', 'auth_saml2') . $errors;
     }
 
     if ( !file_put_contents($saml2auth->certpem, $privatekey) ) {
@@ -104,6 +107,20 @@ function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
         return get_string('nullpubliccert', 'auth_saml2');
     }
 
+}
+
+/**
+ * Collect and render a list of OpenSSL error messages.
+ *
+ * @return string
+ */
+function certificate_openssl_error_strings() {
+    $errors = array();
+    while ($error = openssl_error_string()) {
+        $errors[] = $error;
+    }
+
+    return html_writer::alist($errors);
 }
 
 /**
