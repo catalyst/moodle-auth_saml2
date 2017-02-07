@@ -61,6 +61,11 @@ SimpleSAML_Configuration::setConfigDir("$CFG->dirroot/auth/saml2/config");
 function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
     global $CFG, $SITE;
 
+    $opensslargs = array();
+    if (array_key_exists('OPENSSL_CONF', $_SERVER)) {
+        $opensslargs['config'] = $_SERVER['OPENSSL_CONF'];
+    }
+
     if ($dn == false) {
         // These are somewhat arbitrary and aren't really seen except inside
         // the auto created certificate used to sign saml requests.
@@ -78,10 +83,11 @@ function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
 
     certificate_openssl_error_strings(); // Ensure existing messages are dropped
     $privkeypass = get_site_identifier();
-    $privkey = openssl_pkey_new();
-    $csr     = openssl_csr_new($dn, $privkey);
-    $sscert  = openssl_csr_sign($csr, null, $privkey, $numberofdays);
+    $privkey = openssl_pkey_new($opensslargs);
+    $csr     = openssl_csr_new($dn, $privkey, $opensslargs);
+    $sscert  = openssl_csr_sign($csr, null, $privkey, $numberofdays, $opensslargs);
     openssl_x509_export($sscert, $publickey);
+    openssl_pkey_export($privkey, $privatekey, $privkeypass, $opensslargs);
     openssl_pkey_export($privkey, $privatekey, $privkeypass);
     $errors = certificate_openssl_error_strings();
 
