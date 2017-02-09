@@ -165,6 +165,22 @@ $ chmod 0660 site.example.crt
 $ chmod 0660 site.example.pem
 ```
 
+**OpenSSL errors during certificate regeneration**
+
+Some environments, particularly Windows-based, may not provide an OpenSSL
+configuration file at the default location, producing errors like the
+following when regenerating certificates:
+
+```
+error:02001003:system library:fopen:No such process
+error:2006D080:BIO routines:BIO_new_file:no such file
+error:0E064002:configuration file routines:CONF_load:system lib
+```
+
+To work around this, set the `OPENSSL_CONF` environment variable to the location
+of [`openssl.cnf`](https://www.openssl.org/docs/manmaster/man5/config.html)
+within your environment.
+
 
 Other SAML plugins
 ------------------
