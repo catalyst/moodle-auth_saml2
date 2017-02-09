@@ -119,6 +119,7 @@ This plugin has been tested against:
 * testshib.org
 * An AAF instance of Shibboleth
 * OpenAM (Sun / Oracle)
+* Microsoft ADFS
 
 To configure this against testshib you will need a moodle which is publicly
 accessible over the internet. Turn on the SAML2 plugin and then configure it:
