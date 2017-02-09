@@ -79,7 +79,7 @@ Installation
 Moodle plugin directory, or you can use git to clone it into your source:
 
    ```sh
-   git clone git@github.com:CatalystIT-AU/moodle-auth_saml2.git auth/saml2
+   git clone git@github.com:catalyst/moodle-auth_saml2.git auth/saml2
    ```
 
    Or install via the Moodle plugin directory:
@@ -102,7 +102,7 @@ and to easily debug the plugin if things are not working.
 
 If you have issues please log them in github here:
 
-https://github.com/CatalystIT-AU/moodle-auth_saml2/issues
+https://github.com/catalyst/moodle-auth_saml2/issues
 
 Or if you want paid support please contact Catalyst IT Australia:
 
