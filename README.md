@@ -183,7 +183,7 @@ of [`openssl.cnf`](https://www.openssl.org/docs/manmaster/man5/config.html)
 within your environment.
 
 
-** OKTA configuration **
+**OKTA configuration**
 
 Okta has some weird names for settings which are confusing, this may help decipher them:
 
