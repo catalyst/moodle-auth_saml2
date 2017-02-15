@@ -183,6 +183,29 @@ of [`openssl.cnf`](https://www.openssl.org/docs/manmaster/man5/config.html)
 within your environment.
 
 
+** OKTA configuration **
+
+Okta has some weird names for settings which are confusing, this may help decipher them:
+
+|Okta name|Sane name|Value|
+|---|---|---|
+|Single sign on URL|ACS URL|`https://example.com/auth/saml2/sp/saml2-acs.php/example.com`|
+|Audience URI|Entity ID|`https://example.com/auth/saml2/sp/metadata.php`|
+|Enable Single Log Out|Enable Single Log Out|True|
+|Single Logout URL|Single Logout URL|`https://example.com/auth/saml2/sp/saml2-logout.php/example.com`|
+|Assertion Encryption|Assertion Encryption|Encrypted|
+
+Suggested attribute mappings:
+
+|Name|Value|
+|---|---|
+|`Login`|`user.login`|
+|`FirstName`|`user.firstName`|
+|`LastName`|`user.lastName`|
+|`Email`|`user.email`|
+
+
+
 Other SAML plugins
 ------------------
 
