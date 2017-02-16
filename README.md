@@ -79,7 +79,7 @@ Installation
 Moodle plugin directory, or you can use git to clone it into your source:
 
    ```sh
-   git clone git@github.com:CatalystIT-AU/moodle-auth_saml2.git auth/saml2
+   git clone git@github.com:catalyst/moodle-auth_saml2.git auth/saml2
    ```
 
    Or install via the Moodle plugin directory:
@@ -102,7 +102,7 @@ and to easily debug the plugin if things are not working.
 
 If you have issues please log them in github here:
 
-https://github.com/CatalystIT-AU/moodle-auth_saml2/issues
+https://github.com/catalyst/moodle-auth_saml2/issues
 
 Or if you want paid support please contact Catalyst IT Australia:
 
@@ -119,6 +119,7 @@ This plugin has been tested against:
 * testshib.org
 * An AAF instance of Shibboleth
 * OpenAM (Sun / Oracle)
+* Microsoft ADFS
 
 To configure this against testshib you will need a moodle which is publicly
 accessible over the internet. Turn on the SAML2 plugin and then configure it:
@@ -164,6 +165,45 @@ $ cd $CFG->dataroot/saml2
 $ chmod 0660 site.example.crt
 $ chmod 0660 site.example.pem
 ```
+
+**OpenSSL errors during certificate regeneration**
+
+Some environments, particularly Windows-based, may not provide an OpenSSL
+configuration file at the default location, producing errors like the
+following when regenerating certificates:
+
+```
+error:02001003:system library:fopen:No such process
+error:2006D080:BIO routines:BIO_new_file:no such file
+error:0E064002:configuration file routines:CONF_load:system lib
+```
+
+To work around this, set the `OPENSSL_CONF` environment variable to the location
+of [`openssl.cnf`](https://www.openssl.org/docs/manmaster/man5/config.html)
+within your environment.
+
+
+**OKTA configuration**
+
+Okta has some weird names for settings which are confusing, this may help decipher them:
+
+|Okta name|Sane name|Value|
+|---|---|---|
+|Single sign on URL|ACS URL|`https://example.com/auth/saml2/sp/saml2-acs.php/example.com`|
+|Audience URI|Entity ID|`https://example.com/auth/saml2/sp/metadata.php`|
+|Enable Single Log Out|Enable Single Log Out|True|
+|Single Logout URL|Single Logout URL|`https://example.com/auth/saml2/sp/saml2-logout.php/example.com`|
+|Assertion Encryption|Assertion Encryption|Encrypted|
+
+Suggested attribute mappings:
+
+|Name|Value|
+|---|---|
+|`Login`|`user.login`|
+|`FirstName`|`user.firstName`|
+|`LastName`|`user.lastName`|
+|`Email`|`user.email`|
+
 
 
 Other SAML plugins

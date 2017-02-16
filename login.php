@@ -27,5 +27,7 @@
 // returns to the wantsurl.
 
 require('setup.php');
+
+// crap for hash anchor handling
 $saml2auth->saml_login();
 

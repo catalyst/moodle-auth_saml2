@@ -51,5 +51,11 @@ $config = array(
         'sign.logout' => true,
         'redirect.sign' => true,
         'signature.algorithm' => 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256',
+
+    'redirect.sign' => true,
+    'redirect.validate' => true,
+    'sign.authnrequest' => true,
+
+    'saml20.sign.assertion' => true,
     ),
 );
