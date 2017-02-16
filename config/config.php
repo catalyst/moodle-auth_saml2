@@ -82,12 +82,6 @@ $config = array(
         ),
     ),
 
-    'redirect.sign' => true,
-    'redirect.validate' => true,
-    'sign.authnrequest' => true,
-
-    'saml20.sign.assertion' => true,
-
     // TODO setting for signature.algorithm (ADFS 3 requires http://www.w3.org/2001/04/xmldsig-more#rsa-sha256)
     // TODO setting for redirect.sign
     // TODO setting for NameIDPolicy
