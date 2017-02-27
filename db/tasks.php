@@ -15,18 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information
+ * Scheduled tasks for SAML2 auth plugin.
  *
  * @package    auth_saml2
- * @copyright  Brendan Heywood <brendan@catalyst-au.net>
+ * @author     Sam Chaffee
+ * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2017101700;    // The current plugin version (Date: YYYYMMDDXX).
-$plugin->release   = 2017101700;    // Match release exactly to version.
-$plugin->requires  = 2014050800;    // Requires this Moodle version.
-$plugin->component = 'auth_saml2';  // Full name of the plugin (used for diagnostics).
-$plugin->maturity  = MATURITY_STABLE;
-
+$tasks = [
+    [
+        'classname' => 'auth_saml2\task\metadata_refresh',
+        'blocking' => 0,
+        'minute' => 0,
+        'hour' => 0,
+        'day' => '*',
+        'dayoftheweek' => '*',
+        'month' => '*',
+    ],
+];
