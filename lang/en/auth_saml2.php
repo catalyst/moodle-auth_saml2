@@ -92,3 +92,9 @@ $string['taskmetadatarefresh'] = 'Metadata refresh task';
 
 $string['alterlogout'] = 'Alternative Logout URL';
 $string['alterlogout_help'] = 'The URL to redirect a user after all internal logout mechanisms are run';
+$string['metadatafetchfailed'] = 'Metadata fetch failed: {$a}';
+$string['metadatafetchfailedunknown'] = 'Metadata fetch failed: Unknown cURL error';
+$string['metadatafetchfailedstatus'] = 'Metadata fetch failed: Status code {$a}';
+$string['errorparsingxml'] = 'Error parsing XML: {$a}';
+$string['idpmetadatarefresh'] = 'IdP metadata refresh';
+$string['idpmetadatarefresh_help'] = 'Run a scheduled task to update IdP metadata from IdP metadata URL';

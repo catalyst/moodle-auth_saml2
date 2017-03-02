@@ -54,7 +54,7 @@ class metadata_fetcher {
     /**
      * @param $url
      * @return bool
-     * @throws \coding_exception
+     * @throws \moodle_exception
      */
     public function fetch($url, $curl = null) {
         if (!$curl instanceof \curl) {
@@ -62,6 +62,7 @@ class metadata_fetcher {
         }
         $options = [
             'CURLOPT_SSL_VERIFYPEER' => true,
+            'CURLOPT_SSL_VERIFYHOST' => true,
             'CURLOPT_CONNECTTIMEOUT' => 20,
             'CURLOPT_FOLLOWLOCATION' => 1,
             'CURLOPT_MAXREDIRS'      => 5,
@@ -76,15 +77,15 @@ class metadata_fetcher {
         // If there is a curl errorno from curl_errno().
         if (!empty($this->curlerrorno)) {
             $this->curlerror = $xml;
-            throw new \coding_exception('Metadata fetch failed: ' . $xml);
+            throw new \moodle_exception('metadatafetchfailed', 'auth_saml2', '', $xml);
         }
         // If http status code is empty something is wrong.
         if (empty($this->curlinfo['http_code'])) {
-            throw new \coding_exception('Metadata fetch failed: Unknown cURL error');
+            throw new \moodle_exception('metadatafetchfailedunknown', 'auth_saml2');
         }
         // If http status code is not 200 then throw an exception.
         if ($this->curlinfo['http_code'] != 200) {
-            throw new \coding_exception('Metadata fetch failed: Status code ' . $this->curlinfo['http_code']);
+            throw new \moodle_exception('metadatafetchfailedstatus', 'auth_saml2', '', $this->curlinfo['http_code']);
         }
         return $xml;
     }

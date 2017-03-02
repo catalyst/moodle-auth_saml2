@@ -36,8 +36,21 @@ defined('MOODLE_INTERNAL') || die();
  */
 class auth_saml2_metadata_refresh_testcase extends basic_testcase {
 
+    public function test_metadata_refresh_disabled() {
+        $config = new config(false);
+        $config->idpmetadatarefresh = 0;
+
+        $refreshtask = new metadata_refresh();
+        $refreshtask->set_config($config);
+
+        $this->expectOutputString('IdP metadata refresh is not configured. Enable it in the auth settings or disable' .
+                ' this scheduled task' . "\n");
+        $refreshtask->execute();
+    }
+
     public function test_metadata_refresh_idpmetadata_non_url() {
         $config = new config(false);
+        $config->idpmetadatarefresh = 1;
         $config->idpmetadata = <<<XML
 <?xml version="1.0" encoding="utf-8"?>
 <somexml>yada</somexml>
@@ -46,12 +59,16 @@ XML;
         $refreshtask = new metadata_refresh();
         $refreshtask->set_config($config);
 
-        $this->expectOutputString('IDP metadata config not a URL, nothing to refresh.' . "\n");
+        $this->expectOutputString('IdP metadata config not a URL, nothing to refresh.' . "\n");
         $refreshtask->execute();
     }
 
+    /**
+     * @expectedException \moodle_exception
+     */
     public function test_metadata_refresh_fetch_fails() {
         $config = new config(false);
+        $config->idpmetadatarefresh = 1;
         $config->idpmetadata = 'http://somefakeidpurl.local';
         $fetcher = $this->prophesize('auth_saml2\metadata_fetcher');
 
@@ -59,14 +76,16 @@ XML;
         $refreshtask->set_fetcher($fetcher->reveal());
         $refreshtask->set_config($config);
 
-        $fetcher->fetch($config->idpmetadata)->willThrow(new \coding_exception('Metadata fetch failed: some error'));
-
-        $this->expectOutputString('Metadata fetch failed.' . "\n");
+        $fetcher->fetch($config->idpmetadata)->willThrow(new \moodle_exception('metadatafetchfailed', 'auth_saml2'));
         $refreshtask->execute();
     }
 
+    /**
+     * @expectedException \moodle_exception
+     */
     public function test_metadata_refresh_parse_fails() {
         $config = new config(false);
+        $config->idpmetadatarefresh = 1;
         $config->idpmetadata = 'https://somefakeidpurl.local';
         $fetcher = $this->prophesize('auth_saml2\metadata_fetcher');
         $parser = $this->prophesize('auth_saml2\metadata_parser');
@@ -77,14 +96,16 @@ XML;
         $refreshtask->set_parser($parser->reveal());
 
         $fetcher->fetch($config->idpmetadata)->willReturn('doesnotmatter');
-        $parser->parse('doesnotmatter')->willThrow(new \coding_exception('Metadata parse failed: some error'));
-
-        $this->expectOutputString('Metadata parsing failed.' . "\n");
+        $parser->parse('doesnotmatter')->willThrow(new \moodle_exception('errorparsingxml', 'auth_saml2', '', 'error'));
         $refreshtask->execute();
     }
 
+    /**
+     * @expectedException \coding_exception
+     */
     public function test_metadata_refresh_write_fails() {
         $config = new config(false);
+        $config->idpmetadatarefresh = 1;
         $config->idpmetadata = 'https://somefakeidpurl.local';
         $fetcher = $this->prophesize('auth_saml2\metadata_fetcher');
         $parser = $this->prophesize('auth_saml2\metadata_parser');
@@ -99,8 +120,6 @@ XML;
         $fetcher->fetch($config->idpmetadata)->willReturn('somexml');
         $parser->parse('somexml')->willReturn(null);
         $writer->write('idp.xml', 'somexml')->willThrow(new coding_exception('Metadata write failed: some error'));
-
-        $this->expectOutputString('Metadata write failed.' . "\n");
         $refreshtask->execute();
     }
 }

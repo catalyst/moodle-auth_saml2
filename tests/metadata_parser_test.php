@@ -45,6 +45,9 @@ class auth_saml2_metadata_parser_testcase extends basic_testcase {
         $this->assertEquals('Example.com test IDP', $parser->get_idpdefaultname());
     }
 
+    /**
+     * @expectedException \moodle_exception
+     */
     public function test_parse_metadata_fail() {
         $malformedxml = <<<XML
 <EntitiesDescriptor Name="https://your-federation.org/metadata/federation-name.xml"
@@ -61,7 +64,6 @@ class auth_saml2_metadata_parser_testcase extends basic_testcase {
 XML;
 
         $parser = new metadata_parser();
-        $this->setExpectedException('coding_exception');
         $parser->parse($malformedxml);
     }
 }
