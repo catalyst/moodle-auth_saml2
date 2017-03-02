@@ -69,48 +69,34 @@ class metadata_refresh extends \core\task\scheduled_task {
         if (!$this->config instanceof config) {
             $this->config = new config();
         }
+        if (empty($this->config->idpmetadatarefresh)) {
+            $str = 'IdP metadata refresh is not configured. Enable it in the auth settings or disable this scheduled task';
+            mtrace($str);
+            return;
+        }
         if (substr($this->config->idpmetadata, 0, 8) != 'https://'
                 && substr($this->config->idpmetadata, 0, 7) != 'http://') {
             // Not a link so nothing to refresh.
-            mtrace('IDP metadata config not a URL, nothing to refresh.');
+            mtrace('IdP metadata config not a URL, nothing to refresh.');
             return;
         }
         // Fetch the metadata.
         if (!$this->fetcher instanceof metadata_fetcher) {
             $this->fetcher = new metadata_fetcher();
         }
-
-        try {
-            $rawxml = $this->fetcher->fetch($this->config->idpmetadata);
-        } catch (\coding_exception $e) {
-            // Don't want the task to be rescheduled as a failure.
-            mtrace('Metadata fetch failed.');
-            return;
-        }
+        $rawxml = $this->fetcher->fetch($this->config->idpmetadata);
 
         // Parse the metadata.
         if (!$this->parser instanceof metadata_parser) {
             $this->parser = new metadata_parser();
         }
-        try {
-            $this->parser->parse($rawxml);
-        } catch (\coding_exception $e) {
-            // Don't want the task to be rescheduled as a failure.
-            mtrace('Metadata parsing failed.');
-            return;
-        }
+        $this->parser->parse($rawxml);
 
         // Write the metadata to the correct location.
         if (!$this->writer instanceof metadata_writer) {
             $this->writer = new metadata_writer();
         }
-        try {
-            $this->writer->write('idp.xml', $rawxml);
-        } catch (\coding_exception $e) {
-            // Don't want the task to be rescheduled as a failure.
-            mtrace('Metadata write failed.');
-            return;
-        }
+        $this->writer->write('idp.xml', $rawxml);
 
         // Everything was successful. Update configs that may have changed.
         $cfgs = ['entityid' => $this->parser->get_entityid(), 'idpdefaultname' => $this->parser->get_idpdefaultname()];

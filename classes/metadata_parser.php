@@ -51,7 +51,7 @@ class metadata_parser {
 
     /**
      * @param string $rawxml
-     * @throws \coding_exception
+     * @throws \moodle_exception
      */
     public function parse($rawxml) {
         try {
@@ -70,7 +70,7 @@ class metadata_parser {
                 }
             }
         } catch (\Exception $e) {
-            throw new \coding_exception('Error parsing XML: ' .  $e->getMessage());
+            throw new \moodle_exception('errorparsingxml', 'auth_saml2', '', $e->getMessage());
         }
     }
 

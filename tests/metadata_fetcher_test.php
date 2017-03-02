@@ -43,7 +43,7 @@ class auth_saml2_metadata_fetcher_testcase extends advanced_testcase {
             $fetcher->fetch($url);
             // Fail if the exception is not thrown.
             $this->fail();
-        } catch (\coding_exception $e) {
+        } catch (\moodle_exception $e) {
             $this->assertEquals(404, (int) $fetcher->get_curlinfo()['http_code']);
         }
     }
@@ -71,7 +71,7 @@ class auth_saml2_metadata_fetcher_testcase extends advanced_testcase {
             $fetcher->fetch($url, $curl->reveal());
             // Fail if the exception is not thrown.
             $this->fail();
-        } catch (\coding_exception $e) {
+        } catch (\moodle_exception $e) {
             $this->assertEquals(CURLE_READ_ERROR, (int) $fetcher->get_curlerrorno());
             $this->assertContains('Metadata fetch failed: some bad stuff', $e->getMessage());
             $this->assertEquals('some bad stuff', $fetcher->get_curlerror());
@@ -91,7 +91,7 @@ class auth_saml2_metadata_fetcher_testcase extends advanced_testcase {
             $fetcher->fetch($url, $curl->reveal());
             // Fail if the exception is not thrown.
             $this->fail();
-        } catch (\coding_exception $e) {
+        } catch (\moodle_exception $e) {
             $this->assertContains('Metadata fetch failed: Unknown cURL error', $e->getMessage());
         }
     }

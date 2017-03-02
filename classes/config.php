@@ -45,6 +45,7 @@ class config {
     public $mdlattr = 'username';
     public $tolower = 0;
     public $autocreate = 0;
+    public $idpmetadatarefresh = 0;
 
     /**
      * config constructor.
@@ -84,6 +85,10 @@ class config {
         // Set the default here.
         $this->idpdefaultname = get_string('idpnamedefault', 'auth_saml2');
         $dbconfig = get_config('auth/saml2');
+        if (empty($dbconfig)) {
+            // Nothing to load.
+            return;
+        }
         foreach ($dbconfig as $prop => $value) {
             if (strpos($prop, 'field_') === 0) {
                 // Don't bother with the field_* settings for this class.
