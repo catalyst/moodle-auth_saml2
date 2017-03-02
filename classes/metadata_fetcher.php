@@ -70,6 +70,14 @@ class metadata_fetcher {
             'CURLOPT_RETURNTRANSFER' => true,
             'CURLOPT_NOBODY'         => false,
         ];
+        $verifypeeroverride = get_config('auth/saml2', 'CURLOPT_SSL_VERIFYPEER');
+        if ($verifypeeroverride === '0') {
+            $options['CURLOPT_SSL_VERIFYPEER'] = false;
+        }
+        $verifyhostoverride = get_config('auth/saml2', 'CURLOPT_SSL_VERIFYHOST');
+        if ($verifyhostoverride === '0') {
+            $options['CURLOPT_SSL_VERIFYHOST'] = false;
+        }
         $xml = $curl->get($url, $options);
         $this->curlinfo = $curl->get_info();
         $this->curlerrorno = $curl->get_errno();
