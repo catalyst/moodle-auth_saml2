@@ -15,6 +15,7 @@ https://moodle.org/plugins/auth_saml2
 * [Features](#features)
 * [Installation](#installation)
 * [Testing](#testing)
+* [Debugging](#debugging)
 * [Gotchas](#gotchas)
 * [Other SAML plugins](#other-saml-plugins)
 * [Warm thanks](#warm-thanks)
@@ -134,6 +135,14 @@ Home ► Site administration ► Plugins ► Authentication ► SAML2
 6. Upload that file to: https://www.testshib.org/register.html
 7. Logout and login, you should see 'TestShib Test IdP' as an alternate login method
    and be able to login via the example credentials.
+
+Debugging
+---------
+
+If you are having any issues, turn on debugging inside the SAML2 auth plugin, as well
+as turning on the moodle level debugging. This will give in depth debugging on the SAML
+xml and errors, as well as stack traces. Please include this in any github issue you
+create if you are having trouble.
 
 Gotchas
 -------
