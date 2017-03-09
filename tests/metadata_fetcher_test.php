@@ -59,6 +59,10 @@ class auth_saml2_metadata_fetcher_testcase extends advanced_testcase {
     }
 
     public function test_fetch_metadata_curlerrorno() {
+        if (!method_exists($this, 'prophesize')) {
+            $this->markTestSkipped('Skipping due to Prophecy library not available');
+        }
+
         $url = 'http://fakeurl.localhost';
         $curl = $this->prophesize('curl');
 
@@ -79,6 +83,10 @@ class auth_saml2_metadata_fetcher_testcase extends advanced_testcase {
     }
 
     public function test_fetch_metadata_nohttpstatus() {
+        if (!method_exists($this, 'prophesize')) {
+            $this->markTestSkipped('Skipping due to Prophecy library not available');
+        }
+
         $url = 'http://fakeurl.localhost';
         $curl = $this->prophesize('curl');
 
@@ -98,6 +106,10 @@ class auth_saml2_metadata_fetcher_testcase extends advanced_testcase {
 
     public function test_fetch_metadata_override_ssl_options() {
         global $CFG;
+
+        if (!method_exists($this, 'prophesize')) {
+            $this->markTestSkipped('Skipping due to Prophecy library not available');
+        }
 
         $this->resetAfterTest(true);
 

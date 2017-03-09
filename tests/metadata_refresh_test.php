@@ -67,6 +67,10 @@ XML;
      * @expectedException \moodle_exception
      */
     public function test_metadata_refresh_fetch_fails() {
+        if (!method_exists($this, 'prophesize')) {
+            $this->markTestSkipped('Skipping due to Prophecy library not available');
+        }
+
         $config = new config(false);
         $config->idpmetadatarefresh = 1;
         $config->idpmetadata = 'http://somefakeidpurl.local';
@@ -84,6 +88,10 @@ XML;
      * @expectedException \moodle_exception
      */
     public function test_metadata_refresh_parse_fails() {
+        if (!method_exists($this, 'prophesize')) {
+            $this->markTestSkipped('Skipping due to Prophecy library not available');
+        }
+
         $config = new config(false);
         $config->idpmetadatarefresh = 1;
         $config->idpmetadata = 'https://somefakeidpurl.local';
@@ -104,6 +112,10 @@ XML;
      * @expectedException \coding_exception
      */
     public function test_metadata_refresh_write_fails() {
+        if (!method_exists($this, 'prophesize')) {
+            $this->markTestSkipped('Skipping due to Prophecy library not available');
+        }
+
         $config = new config(false);
         $config->idpmetadatarefresh = 1;
         $config->idpmetadata = 'https://somefakeidpurl.local';
