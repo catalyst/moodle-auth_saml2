@@ -144,6 +144,15 @@ as turning on the moodle level debugging. This will give in depth debugging on t
 xml and errors, as well as stack traces. Please include this in any github issue you
 create if you are having trouble.
 
+There is also a standalone test page which authenticates but isn't a 'moodle' page. All
+this page does is echo the saml attributes which have been provided by the IDP. This can
+be very handy for setting up the mappings, ie for when the IDP might be providing the
+right attributes but under an unexpected key name.
+
+```
+/auth/saml2/test.php
+```
+
 Gotchas
 -------
 
