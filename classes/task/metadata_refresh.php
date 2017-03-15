@@ -101,6 +101,8 @@ class metadata_refresh extends \core\task\scheduled_task {
         // Everything was successful. Update configs that may have changed.
         $cfgs = ['entityid' => $this->parser->get_entityid(), 'idpdefaultname' => $this->parser->get_idpdefaultname()];
         $this->config->update_configs($cfgs);
+
+        mtrace('IdP metadata refresh completed successfully.');
     }
 
     /**

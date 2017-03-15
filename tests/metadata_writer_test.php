@@ -47,13 +47,14 @@ class auth_saml2_metadata_writer_testcase extends basic_testcase {
         $this->assertEquals($content, file_get_contents("$CFG->dataroot/saml2/idp.xml"));
     }
 
+    /**
+     * @expectedException coding_exception
+     */
     public function test_write_empty_filename() {
         $filename = '';
         $content = 'Test data';
 
         $writer = new metadata_writer();
-
-        $this->setExpectedException('coding_exception', 'File name must not be empty');
         $writer->write($filename, $content);
     }
 
