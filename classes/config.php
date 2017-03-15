@@ -79,7 +79,7 @@ class config {
     }
 
     /**
-     * @throws \coding_exception
+     * Loads the object properties from the plugins' settings stored in the database.
      */
     private function load_config() {
         // Set the default here.
@@ -94,9 +94,14 @@ class config {
                 // Don't bother with the field_* settings for this class.
                 continue;
             }
+            if ($prop === 'version') {
+                // Don't care about the version config.
+                continue;
+            }
             if (!property_exists($this, $prop)) {
                 // If there is a new setting that is not one of the field_* settings we need to know about it.
-                throw new \coding_exception('Setting not added to config class: ' . $prop);
+                debugging('Setting not added to config class: ' . $prop, DEBUG_DEVELOPER);
+                continue;
             }
             $this->{$prop} = $value;
         }

@@ -64,8 +64,8 @@ class auth_saml2_config_testcase extends advanced_testcase {
 
         set_config('somenonexistentproperty', 'value', 'auth/saml2');
 
-        $this->setExpectedException('coding_exception', 'Setting not added to config class: somenonexistentproperty');
         new config();
+        $this->assertDebuggingCalled('Setting not added to config class: somenonexistentproperty');
     }
 
     public function test_config_update_configs() {
