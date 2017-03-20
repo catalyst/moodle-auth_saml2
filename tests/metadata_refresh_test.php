@@ -22,7 +22,6 @@
  * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-use auth_saml2\config;
 use auth_saml2\task\metadata_refresh;
 
 defined('MOODLE_INTERNAL') || die();
@@ -34,14 +33,16 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class auth_saml2_metadata_refresh_testcase extends basic_testcase {
+class auth_saml2_metadata_refresh_testcase extends advanced_testcase {
+
+    public function setUp() {
+        $this->resetAfterTest(true);
+    }
 
     public function test_metadata_refresh_disabled() {
-        $config = new config(false);
-        $config->idpmetadatarefresh = 0;
+        set_config('idpmetadatarefresh', 0, 'auth/saml2');
 
         $refreshtask = new metadata_refresh();
-        $refreshtask->set_config($config);
 
         $this->expectOutputString('IdP metadata refresh is not configured. Enable it in the auth settings or disable' .
                 ' this scheduled task' . "\n");
@@ -49,15 +50,14 @@ class auth_saml2_metadata_refresh_testcase extends basic_testcase {
     }
 
     public function test_metadata_refresh_idpmetadata_non_url() {
-        $config = new config(false);
-        $config->idpmetadatarefresh = 1;
-        $config->idpmetadata = <<<XML
+        $randomxml = <<<XML
 <?xml version="1.0" encoding="utf-8"?>
 <somexml>yada</somexml>
 XML;
+        set_config('idpmetadatarefresh', 1, 'auth/saml2');
+        set_config('idpmetadata', $randomxml, 'auth/saml2');
 
         $refreshtask = new metadata_refresh();
-        $refreshtask->set_config($config);
 
         $this->expectOutputString('IdP metadata config not a URL, nothing to refresh.' . "\n");
         $refreshtask->execute();
@@ -71,16 +71,14 @@ XML;
             $this->markTestSkipped('Skipping due to Prophecy library not available');
         }
 
-        $config = new config(false);
-        $config->idpmetadatarefresh = 1;
-        $config->idpmetadata = 'http://somefakeidpurl.local';
+        set_config('idpmetadatarefresh', 1, 'auth/saml2');
+        set_config('idpmetadata', 'http://somefakeidpurl.local', 'auth/saml2');
         $fetcher = $this->prophesize('auth_saml2\metadata_fetcher');
 
         $refreshtask = new metadata_refresh();
         $refreshtask->set_fetcher($fetcher->reveal());
-        $refreshtask->set_config($config);
 
-        $fetcher->fetch($config->idpmetadata)->willThrow(new \moodle_exception('metadatafetchfailed', 'auth_saml2'));
+        $fetcher->fetch('http://somefakeidpurl.local')->willThrow(new \moodle_exception('metadatafetchfailed', 'auth_saml2'));
         $refreshtask->execute();
     }
 
@@ -92,18 +90,16 @@ XML;
             $this->markTestSkipped('Skipping due to Prophecy library not available');
         }
 
-        $config = new config(false);
-        $config->idpmetadatarefresh = 1;
-        $config->idpmetadata = 'https://somefakeidpurl.local';
+        set_config('idpmetadatarefresh', 1, 'auth/saml2');
+        set_config('idpmetadata', 'http://somefakeidpurl.local', 'auth/saml2');
         $fetcher = $this->prophesize('auth_saml2\metadata_fetcher');
         $parser = $this->prophesize('auth_saml2\metadata_parser');
 
         $refreshtask = new metadata_refresh();
-        $refreshtask->set_config($config);
         $refreshtask->set_fetcher($fetcher->reveal());
         $refreshtask->set_parser($parser->reveal());
 
-        $fetcher->fetch($config->idpmetadata)->willReturn('doesnotmatter');
+        $fetcher->fetch('http://somefakeidpurl.local')->willReturn('doesnotmatter');
         $parser->parse('doesnotmatter')->willThrow(new \moodle_exception('errorparsingxml', 'auth_saml2', '', 'error'));
         $refreshtask->execute();
     }
@@ -116,20 +112,19 @@ XML;
             $this->markTestSkipped('Skipping due to Prophecy library not available');
         }
 
-        $config = new config(false);
-        $config->idpmetadatarefresh = 1;
-        $config->idpmetadata = 'https://somefakeidpurl.local';
+        set_config('idpmetadatarefresh', 1, 'auth/saml2');
+        set_config('idpmetadata', 'http://somefakeidpurl.local', 'auth/saml2');
+
         $fetcher = $this->prophesize('auth_saml2\metadata_fetcher');
         $parser = $this->prophesize('auth_saml2\metadata_parser');
         $writer = $this->prophesize('auth_saml2\metadata_writer');
 
         $refreshtask = new metadata_refresh();
-        $refreshtask->set_config($config);
         $refreshtask->set_fetcher($fetcher->reveal());
         $refreshtask->set_parser($parser->reveal());
         $refreshtask->set_writer($writer->reveal());
 
-        $fetcher->fetch($config->idpmetadata)->willReturn('somexml');
+        $fetcher->fetch('http://somefakeidpurl.local')->willReturn('somexml');
         $parser->parse('somexml')->willReturn(null);
         $writer->write('idp.xml', 'somexml')->willThrow(new coding_exception('Metadata write failed: some error'));
         $refreshtask->execute();

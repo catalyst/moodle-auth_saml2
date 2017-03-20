@@ -24,7 +24,6 @@
  */
 namespace auth_saml2\task;
 
-use auth_saml2\config;
 use auth_saml2\metadata_fetcher;
 use auth_saml2\metadata_parser;
 use auth_saml2\metadata_writer;
@@ -39,11 +38,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class metadata_refresh extends \core\task\scheduled_task {
-
-    /**
-     * @var config
-     */
-    private $config;
 
     /**
      * @var metadata_fetcher
@@ -65,17 +59,14 @@ class metadata_refresh extends \core\task\scheduled_task {
     }
 
     public function execute() {
-        // Check config to see that the metadata is a URL, not XML. Return if not a URL.
-        if (!$this->config instanceof config) {
-            $this->config = new config();
-        }
-        if (empty($this->config->idpmetadatarefresh)) {
+        $config = get_config('auth/saml2');
+        if (empty($config->idpmetadatarefresh)) {
             $str = 'IdP metadata refresh is not configured. Enable it in the auth settings or disable this scheduled task';
             mtrace($str);
             return;
         }
-        if (substr($this->config->idpmetadata, 0, 8) != 'https://'
-                && substr($this->config->idpmetadata, 0, 7) != 'http://') {
+        if (substr($config->idpmetadata, 0, 8) != 'https://'
+                && substr($config->idpmetadata, 0, 7) != 'http://') {
             // Not a link so nothing to refresh.
             mtrace('IdP metadata config not a URL, nothing to refresh.');
             return;
@@ -84,7 +75,7 @@ class metadata_refresh extends \core\task\scheduled_task {
         if (!$this->fetcher instanceof metadata_fetcher) {
             $this->fetcher = new metadata_fetcher();
         }
-        $rawxml = $this->fetcher->fetch($this->config->idpmetadata);
+        $rawxml = $this->fetcher->fetch($config->idpmetadata);
 
         // Parse the metadata.
         if (!$this->parser instanceof metadata_parser) {
@@ -99,17 +90,10 @@ class metadata_refresh extends \core\task\scheduled_task {
         $this->writer->write('idp.xml', $rawxml);
 
         // Everything was successful. Update configs that may have changed.
-        $cfgs = ['entityid' => $this->parser->get_entityid(), 'idpdefaultname' => $this->parser->get_idpdefaultname()];
-        $this->config->update_configs($cfgs);
+        set_config('entityid', $this->parser->get_entityid(), 'auth/saml2');
+        set_config('idpdefaultname', $this->parser->get_idpdefaultname(), 'auth/saml2');
 
         mtrace('IdP metadata refresh completed successfully.');
-    }
-
-    /**
-     * @param config $config
-     */
-    public function set_config(config $config) {
-        $this->config = $config;
     }
 
     /**
