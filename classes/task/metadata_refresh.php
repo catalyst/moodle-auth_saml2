@@ -83,6 +83,17 @@ class metadata_refresh extends \core\task\scheduled_task {
         }
         $this->parser->parse($rawxml);
 
+        $entityid = $this->parser->get_entityid();
+        if (empty($entityid)) {
+            mtrace(get_string('idpmetadata_noentityid', 'auth_saml2'));
+            return;
+        }
+
+        $idpdefaultname = $this->parser->get_idpdefaultname();
+        if (empty($idpdefaultname)) {
+            $idpdefaultname = get_string('idpnamedefault', 'auth_saml2');
+        }
+
         // Write the metadata to the correct location.
         if (!$this->writer instanceof metadata_writer) {
             $this->writer = new metadata_writer();
@@ -90,8 +101,8 @@ class metadata_refresh extends \core\task\scheduled_task {
         $this->writer->write('idp.xml', $rawxml);
 
         // Everything was successful. Update configs that may have changed.
-        set_config('entityid', $this->parser->get_entityid(), 'auth/saml2');
-        set_config('idpdefaultname', $this->parser->get_idpdefaultname(), 'auth/saml2');
+        set_config('entityid', $entityid, 'auth/saml2');
+        set_config('idpdefaultname', $idpdefaultname, 'auth/saml2');
 
         mtrace('IdP metadata refresh completed successfully.');
     }
