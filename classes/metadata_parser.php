@@ -15,10 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This is a one-line short description of the file.
- *
- * You can have a rather longer description of the file as well,
- * if you like, and it can span multiple lines.
+ * IdP metadata parser class.
  *
  * @package    auth_saml2
  * @author     Sam Chaffee
@@ -30,9 +27,7 @@ namespace auth_saml2;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Short description for class.
- *
- * Long description for class (if any)...
+ * IdP metadata parser class.
  *
  * @package    auth_saml2
  * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)

@@ -104,6 +104,51 @@ XML;
         $refreshtask->execute();
     }
 
+    public function test_metadata_refresh_parse_no_entityid() {
+        if (!method_exists($this, 'prophesize')) {
+            $this->markTestSkipped('Skipping due to Prophecy library not available');
+        }
+
+        set_config('idpmetadatarefresh', 1, 'auth/saml2');
+        set_config('idpmetadata', 'http://somefakeidpurl.local', 'auth/saml2');
+        $fetcher = $this->prophesize('auth_saml2\metadata_fetcher');
+        $parser = $this->prophesize('auth_saml2\metadata_parser');
+
+        $refreshtask = new metadata_refresh();
+        $refreshtask->set_fetcher($fetcher->reveal());
+        $refreshtask->set_parser($parser->reveal());
+
+        $fetcher->fetch('http://somefakeidpurl.local')->willReturn('doesnotmatter');
+        $parser->parse('doesnotmatter')->willReturn(null);
+        $parser->get_entityid()->willReturn('');
+        $this->expectOutputString(get_string('idpmetadata_noentityid', 'auth_saml2') . "\n");
+        $refreshtask->execute();
+    }
+
+    public function test_metadata_refresh_parse_no_idpname() {
+        if (!method_exists($this, 'prophesize')) {
+            $this->markTestSkipped('Skipping due to Prophecy library not available');
+        }
+
+        set_config('idpmetadatarefresh', 1, 'auth/saml2');
+        set_config('idpmetadata', 'http://somefakeidpurl.local', 'auth/saml2');
+        $fetcher = $this->prophesize('auth_saml2\metadata_fetcher');
+        $parser = $this->prophesize('auth_saml2\metadata_parser');
+
+        $refreshtask = new metadata_refresh();
+        $refreshtask->set_fetcher($fetcher->reveal());
+        $refreshtask->set_parser($parser->reveal());
+
+        $fetcher->fetch('http://somefakeidpurl.local')->willReturn('doesnotmatter');
+        $parser->parse('doesnotmatter')->willReturn(null);
+        $parser->get_entityid()->willReturn('someentityid');
+        $parser->get_idpdefaultname()->willReturn('');
+        $refreshtask->execute();
+
+        $idpdefaultname = get_config('auth/saml2', 'idpdefaultname');
+        $this->assertEquals(get_string('idpnamedefault', 'auth_saml2'), $idpdefaultname);
+    }
+
     /**
      * @expectedException \coding_exception
      */
@@ -126,6 +171,8 @@ XML;
 
         $fetcher->fetch('http://somefakeidpurl.local')->willReturn('somexml');
         $parser->parse('somexml')->willReturn(null);
+        $parser->get_entityid()->willReturn('Some id');
+        $parser->get_idpdefaultname()->willReturn('Default name');
         $writer->write('idp.xml', 'somexml')->willThrow(new coding_exception('Metadata write failed: some error'));
         $refreshtask->execute();
     }
