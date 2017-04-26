@@ -279,15 +279,15 @@ class auth_plugin_saml2 extends auth_plugin_base {
                 $this->log(__FUNCTION__ . " to lowercase for $key => $uid");
                 $uid = strtolower($uid);
             }
-            if ($user = $DB->get_record('user', array( $this->config->mdlattr => $uid ))) {
+            if ($user = $DB->get_record('user', array( $this->config->mdlattr => $uid, 'deleted' => 0 ))) {
                 continue;
             }
         }
 
-        // Prevent access to users who are either suspended or deleted
-        if ($user->suspended || $user->deleted) {
-            $this->error_page(get_string('nouser', 'auth_saml2', $uid));
-        }        
+        // Prevent access to users who are suspended
+        if ($user->suspended) {
+            $this->error_page(get_string('suspendeduser', 'auth_saml2', $uid));
+        }
 
         $newuser = false;
         if (!$user) {
