@@ -284,6 +284,11 @@ class auth_plugin_saml2 extends auth_plugin_base {
             }
         }
 
+        // Prevent access to users who are either suspended or deleted
+        if ($user->suspended || $user->deleted) {
+            $this->error_page(get_string('nouser', 'auth_saml2', $uid));
+        }        
+
         $newuser = false;
         if (!$user) {
             if ($this->config->autocreate) {
