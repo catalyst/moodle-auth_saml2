@@ -281,10 +281,10 @@ class auth_plugin_saml2 extends auth_plugin_base {
         require_once("$CFG->dirroot/login/lib.php");
         $auth = new SimpleSAML_Auth_Simple($this->spname);
         $auth->requireAuth();
-        
+
         $context = context_system::instance();
         $PAGE->set_context($context);
-        
+
         $attributes = $auth->getAttributes();
 
         $attr = $this->config->idpattr;
