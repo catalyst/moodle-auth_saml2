@@ -18,6 +18,7 @@ https://moodle.org/plugins/auth_saml2
 * [Debugging](#debugging)
 * [Gotchas](#gotchas)
 * [Other SAML plugins](#other-saml-plugins)
+* [Support](#support)
 * [Warm thanks](#warm-thanks)
 
 What is this?
@@ -100,14 +101,6 @@ Moodle plugin directory, or you can use git to clone it into your source:
 For most simple setups this is enough to get authentication working, there are
 many more settings to define how to handle new accounts, dual authentication,
 and to easily debug the plugin if things are not working.
-
-If you have issues please log them in github here:
-
-https://github.com/catalyst/moodle-auth_saml2/issues
-
-Or if you want paid support please contact Catalyst IT Australia:
-
-https://www.catalyst-au.net/contact-us
 
 
 Testing
@@ -269,6 +262,19 @@ These are generally much easier to manage and configure as they are standalone.
 
 * This plugin, with an embedded and dynamically configured SimpleSamlPHP
   instance under the hood
+
+
+Support
+-------
+
+If you have issues please log them in github here
+
+https://github.com/catalyst/moodle-auth_saml2/issues
+
+Please note our time is limited, so if you need urgent support or want to
+sponsor a new feature then please contact Catalyst IT Australia:
+
+https://www.catalyst-au.net/contact-us
 
 
 Warm thanks
