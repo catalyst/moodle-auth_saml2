@@ -120,6 +120,24 @@ if ($ADMIN->fulltree) {
             0, $yesno));
 
     // IDP to Moodle mapping.
+    // IDP attribute.
+    $settings->add(new admin_setting_configtext(
+            'auth_saml2/idpattr',
+            get_string('idpattr', 'auth_saml2'),
+            get_string('idpattr_help', 'auth_saml2'),
+            '', PARAM_ALPHANUMEXT));
+ 
+    // Moodle Field
+    $fields = array(
+            'username' => get_string('username'),
+            'idnumber' => get_string('idnumber'),
+            'email'    => get_string('email'),
+    );
+    $settings->add(new admin_setting_configselect(
+            'auth_saml2/mdlattr',
+            get_string('mdlattr', 'auth_saml2'),
+            get_string('mdlattr_help', 'auth_saml2'),
+            0, $fields));
 
     // Lowercase.
     $settings->add(new admin_setting_configselect(
