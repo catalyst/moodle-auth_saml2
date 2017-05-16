@@ -25,6 +25,8 @@
 defined('MOODLE_INTERNAL') || die;
 
 if ($ADMIN->fulltree) {
+    require_once($CFG->dirroot.'/auth/saml2/classes/admin_setting_auth_saml2_button.php');
+    require_once($CFG->dirroot.'/auth/saml2/classes/admin_setting_auth_saml2_textonly.php');
 
     // Warning for missing mcrypt
     $settings->add(new admin_setting_php_extension_enabled(
@@ -68,14 +70,33 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configselect(
             'auth_saml2/debug',
             get_string('debug', 'auth_saml2'),
-            get_string('debug_help', 'auth_saml2', "$CFG->wwwroot/auth/saml2/debug.php"),
+            get_string('debug_help', 'auth_saml2', $CFG->wwwroot . '/auth/saml2/debug.php'),
             0, $yesno));
 
     // Lock certificate.
+    $settings->add(new admin_setting_auth_saml2_button(
+            'auth_saml2/certificatelock',
+            get_string('certificatelock', 'auth_saml2'),
+            get_string('certificatelock_help', 'auth_saml2'),
+            get_string('certificatelock', 'auth_saml2'),
+            $CFG->wwwroot . '/auth/saml2/certificatelock.php'
+            ));
 
     // Regenerate certificate.
+    $settings->add(new admin_setting_auth_saml2_button(
+            'auth_saml2/certificate',
+            get_string('certificate', 'auth_saml2'),
+            get_string('certificate_help', 'auth_saml2', $CFG->wwwroot . '/auth/saml2/cert.php'),
+            get_string('certificate', 'auth_saml2'),
+            $CFG->wwwroot . '/auth/saml2/regenerate.php'
+            ));
 
     // SP Metadata.
+   $settings->add(new admin_setting_auth_saml2_textonly(
+           'auth_saml2/spmetadata',
+           get_string('spmetadata', 'auth_saml2'),
+           get_string('spmetadata_help', 'auth_saml2')
+           ));
 
     // SP Metadata signature.
     $settings->add(new admin_setting_configselect(
@@ -121,12 +142,20 @@ if ($ADMIN->fulltree) {
             get_string('alterlogout_help', 'auth_saml2'),
             '',
             PARAM_URL));
-  
+
     // SAMLPHP version.
+    $authplugin = get_auth_plugin('saml2');
+    $settings->add(new admin_setting_auth_saml2_textonly(
+            'auth_saml2/sspversion',
+            get_string('sspversion', 'auth_saml2'),
+            $authplugin->get_ssp_version()
+            ));
 
 
     // Display locking / mapping of profile fields.
-    $authplugin = get_auth_plugin('email');
-    display_auth_lock_options($settings, $authplugin->authtype, $authplugin->userfields,
-            get_string('auth_fieldlocks_help', 'auth'), false, false);
+    $help = get_string('auth_updatelocal_expl', 'auth');
+    $help .= get_string('auth_fieldlock_expl', 'auth');
+    $help .= get_string('auth_updateremote_expl', 'auth');
+    display_auth_lock_options($settings, $authplugin->authtype, $authplugin->userfields, $help, true, true,
+            $authplugin->get_custom_user_profile_fields());
 }

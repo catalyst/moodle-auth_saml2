@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information
+ * Admin config settings page
  *
  * @package    auth_saml2
  * @copyright  Brendan Heywood <brendan@catalyst-au.net>
@@ -24,9 +24,21 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2017051605;    // The current plugin version (Date: YYYYMMDDXX).
-$plugin->release   = 2017051600;    // Match release exactly to version.
-$plugin->requires  = 2017051500;    // Requires this Moodle version.
-$plugin->component = 'auth_saml2';  // Full name of the plugin (used for diagnostics).
-$plugin->maturity  = MATURITY_STABLE;
+/**
+ * Settings for label type admin setting.
+ *
+ * @package    auth_saml2
+ * @copyright  Matt Porritt <mattp@catalyst-au.net>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class admin_setting_auth_saml2_textonly extends admin_setting_heading{
 
+    /**
+     * Returns an HTML string
+     *
+     * @return string Returns an HTML string
+     */
+    public function output_html($data, $query = '') {
+        return format_admin_setting ( $this, $this->visiblename, '', $this->description );
+    }
+}
