@@ -75,7 +75,7 @@ function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
             'localityName' => 'moodleville',
             'emailAddress' => $CFG->supportemail ? $CFG->supportemail : $CFG->noreplyaddress,
             // TODO \core_user::get_support_user().
-            'organizationName' => $SITE->shortname,
+            'organizationName' => $SITE->shortname ? $SITE->shortname : 'moodle',
             'stateOrProvinceName' => 'moodle',
             'organizationalUnitName' => 'moodle',
         );
