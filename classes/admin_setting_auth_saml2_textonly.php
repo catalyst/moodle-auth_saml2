@@ -36,6 +36,8 @@ class admin_setting_auth_saml2_textonly extends admin_setting_heading{
     /**
      * Returns an HTML string
      *
+     * @param string $data Unused
+     * @param string $query Unused
      * @return string Returns an HTML string
      */
     public function output_html($data, $query = '') {

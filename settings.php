@@ -28,7 +28,7 @@ if ($ADMIN->fulltree) {
     require_once($CFG->dirroot.'/auth/saml2/classes/admin_setting_auth_saml2_button.php');
     require_once($CFG->dirroot.'/auth/saml2/classes/admin_setting_auth_saml2_textonly.php');
 
-    // Warning for missing mcrypt
+    // Warning for missing mcrypt.
     $settings->add(new admin_setting_php_extension_enabled(
             'auth_saml2/mcrypt',
             get_string('mcrypt', 'auth_saml2'),
@@ -44,14 +44,14 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_heading('auth_saml2/pluginname', '',
         new lang_string('auth_saml2description', 'auth_saml2')));
 
-    // IDP Metadata. 
+    // IDP Metadata.
     $settings->add(new admin_setting_configtextarea(
             'auth_saml2/idpmetadata',
             get_string('idpmetadata', 'auth_saml2'),
             get_string('idpmetadata_help', 'auth_saml2'),
             '', PARAM_RAW, 80, 5));
 
-    // IDP  name
+    // IDP name.
     $settings->add(new admin_setting_configtext(
             'auth_saml2/idpname',
             get_string('idpname', 'auth_saml2'),
@@ -92,7 +92,7 @@ if ($ADMIN->fulltree) {
             ));
 
     // SP Metadata.
-   $settings->add(new admin_setting_auth_saml2_textonly(
+    $settings->add(new admin_setting_auth_saml2_textonly(
            'auth_saml2/spmetadata',
            get_string('spmetadata', 'auth_saml2'),
            get_string('spmetadata_help', 'auth_saml2')
@@ -112,7 +112,7 @@ if ($ADMIN->fulltree) {
             get_string('duallogin_help', 'auth_saml2'),
             0, $yesno));
 
-    // Allow any auth type
+    // Allow any auth type.
     $settings->add(new admin_setting_configselect(
             'auth_saml2/anyauth',
             get_string('anyauth', 'auth_saml2'),

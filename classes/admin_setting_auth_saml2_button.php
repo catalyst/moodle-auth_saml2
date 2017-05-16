@@ -35,8 +35,8 @@ class admin_setting_auth_saml2_button extends admin_setting_heading{
 
     /**
      * A button element
-     * @param string $name unique ascii name, either 'mysetting' for settings that in config, or 'myplugin/mysetting' for ones in config_plugins.
-     * @param string $heading heading
+     * @param string $name unique ascii name.
+     * @param string $visiblename heading
      * @param string $description description of what the button does
      * @param string $label what is written on the button
      * @param string $href the URL directed to on click
@@ -50,7 +50,9 @@ class admin_setting_auth_saml2_button extends admin_setting_heading{
 
     /**
      * Returns an HTML string
-     * 
+     *
+     * @param string $data Unused
+     * @param string $query Unused
      * @return string Returns an HTML string
      */
     public function output_html($data, $query = '') {
