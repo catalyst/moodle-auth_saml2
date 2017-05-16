@@ -60,6 +60,7 @@ $string['tolower'] = 'Lowercase';
 $string['tolower_help'] = 'Apply lowercase to IdP attribute before matching?';
 $string['mapping'] = 'IdP to Moodle mapping';
 $string['mapping_help'] = 'What attribute in the IdP should match which field in Moodle?';
+$string['mcrypt'] = 'Mcrypt library';
 $string['mcryptnotfound'] = 'ERROR: The mcrypt php library is required and isn\'t installed. Please refer to:<br><a href="https://github.com/catalyst/moodle-auth_saml2#installation">https://github.com/catalyst/moodle-auth_saml2#installation</a>';
 $string['nullpubliccert'] = 'Creation of Public Certificate failed.';
 $string['nullprivatecert'] = 'Creation of Private Certificate failed.';
