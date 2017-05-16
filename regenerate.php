@@ -32,7 +32,7 @@ $PAGE->set_course($SITE);
 $mform = new \auth_saml2\form\regenerate();
 
 if ($mform->is_cancelled()) {
-    redirect("$CFG->wwwroot/admin/auth_config.php?auth=saml2");
+    redirect("$CFG->wwwroot/admin/settings.php?section=authsettingsaml2");
 }
 
 $path = $saml2auth->certdir . $saml2auth->spname . '.crt';
@@ -58,7 +58,7 @@ if ($fromform = $mform->get_data()) {
     @unlink($file);
 
     if (empty($error)) {
-        redirect("$CFG->wwwroot/admin/auth_config.php?auth=saml2");
+        redirect("$CFG->wwwroot/admin/settings.php?section=authsettingsaml2");
     }
 
 } else {

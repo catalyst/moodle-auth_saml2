@@ -28,13 +28,15 @@ require_once($CFG->libdir . '/adminlib.php');
 
 require_login();
 require_capability('moodle/site:config', context_system::instance());
-admin_externalpage_setup('authsettingsaml2');
+$PAGE->set_url("$CFG->wwwroot/auth/saml2/certificatelock.php");
+$PAGE->set_course($SITE);
+
 
 require('setup.php');
 
 $form = new \auth_saml2\form\lockcertificate();
 
-$baseurl = new moodle_url('/admin/auth_config.php?auth=saml2');
+$settingspage = new moodle_url('/admin/settings.php?section=authsettingsaml2');
 
 if ($data = $form->get_data()) {
 
@@ -45,10 +47,10 @@ if ($data = $form->get_data()) {
             chmod($certfile, 0440);
         }
 
-        redirect($baseurl);
+        redirect($settingspage);
     }
 } else if ($form->is_cancelled()) {
-    redirect($baseurl);
+    redirect($settingspage);
 }
 
 echo $OUTPUT->header();
