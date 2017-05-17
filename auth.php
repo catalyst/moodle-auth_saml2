@@ -143,7 +143,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
             return false;
         }
 
-        $file = $this->certdir. $this->spname . '.xml';
+        $file = $this->certdir . 'idp.xml';
         if (!file_exists($file)) {
             $this->log(__FUNCTION__ . ' file not found, ' . $file);
             return false;
@@ -516,7 +516,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
                 if (!file_exists($saml2auth->certdir)) {
                     mkdir($saml2auth->certdir);
                 }
-                file_put_contents($saml2auth->certdir. $this->spname . '.xml', $rawxml);
+                file_put_contents($saml2auth->certdir . 'idp.xml' , $rawxml);
             }
         } catch (Exception $e) {
             $err['idpmetadata'] = get_string('idpmetadata_invalid', 'auth_saml2');

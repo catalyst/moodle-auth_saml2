@@ -68,7 +68,7 @@ $config = array(
     'metadata.sign.privatekey'      => $saml2auth->certpem,
     'metadata.sign.privatekey_pass' => get_site_identifier(),
     'metadata.sources' => array(
-        array('type' => 'xml', 'file' => $saml2auth->certdir . $saml2auth->spname . '.xml'),
+        array('type' => 'xml', 'file' => "$CFG->dataroot/saml2/idp.xml"),
     ),
 
     'store.type' => '\\auth_saml2\\store',
