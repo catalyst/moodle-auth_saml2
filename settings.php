@@ -57,7 +57,7 @@ if ($ADMIN->fulltree) {
             get_string('idpname', 'auth_saml2'),
             get_string('idpname_help', 'auth_saml2'),
             get_string('idpnamedefault', 'auth_saml2'),
-            PARAM_ALPHANUMEXT));
+            PARAM_TEXT));
 
     // Display IDP Link.
     $settings->add(new admin_setting_configselect(
@@ -95,7 +95,7 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_auth_saml2_textonly(
            'auth_saml2/spmetadata',
            get_string('spmetadata', 'auth_saml2'),
-           get_string('spmetadata_help', 'auth_saml2')
+           get_string('spmetadata_help', 'auth_saml2', $CFG->wwwroot . '/auth/saml2/sp/metadata.php')
            ));
 
     // SP Metadata signature.
