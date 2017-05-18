@@ -71,7 +71,7 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
 
         $this->resetAfterTest();
 
-        set_config('duallogin', $duallogin, 'auth/saml2');
+        set_config('duallogin', $duallogin, 'auth_saml2');
 
         $SESSION->saml = $session;
 
@@ -146,9 +146,9 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $this->assertTrue(in_array($key, $customprofilefields));
 
         // Function print_auth_lock_options creates variables in the config object.
-        set_config("field_map_$key", $fieldname, 'auth/saml2');
-        set_config("field_updatelocal_$key", 'onlogin', 'auth/saml2');
-        set_config("field_lock_$key", 'locked', 'auth/saml2');
+        set_config("field_map_$key", $fieldname, 'auth_saml2');
+        set_config("field_updatelocal_$key", 'onlogin', 'auth_saml2');
+        set_config("field_lock_$key", 'locked', 'auth_saml2');
 
         $update = $auth->update_user_profile_fields($user, $attributes);
         $this->assertTrue($update);
@@ -190,9 +190,9 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $this->assertFalse(in_array($key, $fields));
 
         // Function print_auth_lock_options creates variables in the config object.
-        set_config("field_map_$key", $fieldname, 'auth/saml2');
-        set_config("field_updatelocal_$key", 'onlogin', 'auth/saml2');
-        set_config("field_lock_$key", 'locked', 'auth/saml2');
+        set_config("field_map_$key", $fieldname, 'auth_saml2');
+        set_config("field_updatelocal_$key", 'onlogin', 'auth_saml2');
+        set_config("field_lock_$key", 'locked', 'auth_saml2');
 
         $update = $auth->update_user_profile_fields($user, $attributes);
         $this->assertTrue($update);
@@ -229,9 +229,9 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $map = $mapping['mapping'];
 
         // Function print_auth_lock_options creates variables in the config object.
-        set_config("field_map_$field", $map, 'auth/saml2');
-        set_config("field_updatelocal_$field", 'onlogin', 'auth/saml2');
-        set_config("field_lock_$field", 'locked', 'auth/saml2');
+        set_config("field_map_$field", $map, 'auth_saml2');
+        set_config("field_updatelocal_$field", 'onlogin', 'auth_saml2');
+        set_config("field_lock_$field", 'locked', 'auth_saml2');
 
         $updateprofile = $auth->update_user_profile_fields($user, $attributes);
         $this->assertFalse($updateprofile);

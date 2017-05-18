@@ -473,7 +473,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         foreach ($this->defaults as $key => $value) {
             if ($config->$key != $this->config->$key) {
-                set_config($key, $config->$key, 'auth/saml2');
+                set_config($key, $config->$key, 'auth_saml2');
                 $haschanged = true;
             }
         }
