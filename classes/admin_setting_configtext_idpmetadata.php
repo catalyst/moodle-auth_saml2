@@ -22,7 +22,7 @@
 
 namespace auth_saml2;
 
-use admin_setting_configtext;
+use admin_setting_configtextarea;
 use Exception;
 use SimpleXMLElement;
 
@@ -35,7 +35,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   Matt Porritt <mattp@catalyst-au.net>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class admin_setting_configtext_idpmetadata extends admin_setting_configtext {
+class admin_setting_configtext_idpmetadata extends admin_setting_configtextarea {
     /**
      * Validate data before storage
      *
