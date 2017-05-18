@@ -106,7 +106,7 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         }
 
         // Overwrite with any config that was created in the new format.
-        foreach ($currentconfig as $key=>$value) {
+        foreach ($currentconfig as $key => $value) {
             set_config($key, $value, 'auth_saml2');
         }
 
