@@ -365,7 +365,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
     public function update_user_profile_fields(&$user, $attributes, $newuser = false) {
         global $CFG;
 
-        $mapconfig = get_config('auth/saml2');
+        $mapconfig = get_config('auth_saml2');
         $allkeys = array_keys(get_object_vars($mapconfig));
         $update = false;
 
