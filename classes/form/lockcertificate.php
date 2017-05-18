@@ -25,14 +25,12 @@
 
 namespace auth_saml2\form;
 
+defined('MOODLE_INTERNAL') || die();
+
 use html_writer;
 use moodleform;
 
 require_once($CFG->libdir . '/formslib.php');
-
-if (!defined('MOODLE_INTERNAL')) {
-    die('Direct access to this script is forbidden.'); // It must be included from a Moodle page.
-}
 
 /**
  * Form for locking the certificates.

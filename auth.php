@@ -303,7 +303,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
             }
         }
 
-        // Prevent access to users who are suspended
+        // Prevent access to users who are suspended.
         if ($user->suspended) {
             $this->error_page(get_string('suspendeduser', 'auth_saml2', $uid));
         }
