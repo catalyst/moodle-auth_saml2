@@ -45,7 +45,7 @@ if ($ADMIN->fulltree) {
         new lang_string('auth_saml2description', 'auth_saml2')));
 
     // IDP Metadata.
-    $idpmetadata = new admin_setting_configtextarea(
+    $idpmetadata = new \auth_saml2\admin_setting_configtext_idpmetadata(
             'auth_saml2/idpmetadata',
             get_string('idpmetadata', 'auth_saml2'),
             get_string('idpmetadata_help', 'auth_saml2'),
