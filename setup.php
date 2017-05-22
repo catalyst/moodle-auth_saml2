@@ -73,8 +73,7 @@ function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
             'commonName' => 'moodle',
             'countryName' => 'AU',
             'localityName' => 'moodleville',
-            'emailAddress' => $CFG->supportemail ? $CFG->supportemail : $CFG->noreplyaddress,
-            // TODO \core_user::get_support_user().
+            'emailAddress' => get_dn_email(),
             'organizationName' => $SITE->shortname ? $SITE->shortname : 'moodle',
             'stateOrProvinceName' => 'moodle',
             'organizationalUnitName' => 'moodle',
@@ -152,5 +151,27 @@ function pretty_print($arr) {
     }
     $retstr .= '</table>';
     return $retstr;
+}
+
+/**
+ * Return email for create_certificates function.
+ *
+ * @return string
+ */
+function get_dn_email() {
+    global $CFG;
+
+    $supportuser = \core_user::get_support_user();
+
+    if ($supportuser && !empty($supportuser->email)) {
+        $email = $supportuser->email;
+    } else if (isset($CFG->noreplyaddress) && !empty($CFG->noreplyaddress)) {
+        $email = $CFG->noreplyaddress;
+    } else {
+        // Make sure that we get at least something to prevent failing of openssl_csr_new.
+        $email = 'moodle@example.com';
+    }
+
+    return $email;
 }
 
