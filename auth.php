@@ -332,10 +332,16 @@ class auth_plugin_saml2 extends auth_plugin_base {
         require_once('setup.php');
         require_once("$CFG->dirroot/login/lib.php");
 
+        // Set the default IdP to be the first in the list. Used when dual login is disabled.
+        $arr = array_reverse($saml2auth->idpentityids);
+        $idp = md5(array_pop($arr));
+
+        // Specify the default IdP to use.
+        $SESSION->saml2idp = $idp;
+
         // We store the IdP in the session to generate the config/config.php array with the default local SP.
         if (isset($_GET['idp'])) {
             $SESSION->saml2idp = $_GET['idp'];
-            $idp = $_GET['idp'];
         }
 
         $auth = new SimpleSAML_Auth_Simple($this->spname);
@@ -399,10 +405,6 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $USER->loggedin = true;
         $USER->site = $CFG->wwwroot;
         set_moodle_cookie($USER->username);
-
-        // Save the IdP that we have used to log in with.
-        $this->log(__FUNCTION__ . ' Setting SESSION IdP');
-        $SESSION->saml2idp = $idp;
 
         $urltogo = core_login_get_return_url();
         // If we are not on the page we want, then redirect to it.

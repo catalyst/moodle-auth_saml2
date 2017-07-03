@@ -32,7 +32,9 @@ if (!empty($CFG->loginhttps)) {
 
 $config = [];
 
-$idp = $saml2auth->spname;
+// Case for specifying no $SESSION IdP, select the first configured IdP as the default.
+$arr = array_reverse($saml2auth->idpentityids);
+$idp = array_pop($arr);
 
 if (!empty($SESSION->saml2idp)) {
     foreach ($saml2auth->idpentityids as $idpentityid) {
