@@ -270,7 +270,7 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $files = array(
             'crt' => $auth->certdir . $auth->spname . '.crt',
             'pem' => $auth->certdir . $auth->spname . '.pem',
-            'xml' => $auth->certdir . md5($url) .  '.idp.xml',
+            'xml' => $auth->certdir . md5($url) . '.idp.xml',
         );
 
         // Setup, remove the phpuunit dataroot temp files for saml2.

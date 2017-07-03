@@ -64,6 +64,3 @@ $config[$saml2auth->spname] = [
     'redirect.sign' => true,
     'signature.algorithm' => 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256',
 ];
-//}
-
-
