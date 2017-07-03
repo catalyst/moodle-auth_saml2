@@ -28,6 +28,7 @@ $string['autocreate'] = 'Auto create users';
 $string['autocreate_help'] = 'If users are in the IdP but not in moodle create a moodle account.';
 $string['idpname'] = 'IdP label override';
 $string['idpnamedefault'] = 'Login via SAML2';
+$string['idpnamedefault_varaible'] = 'Login via SAML2 ({$a})';
 $string['idpname_help'] = 'eg myUNI - this is detected from the metadata and will show on the dual login page (if enabled)';
 $string['idpmetadata'] = 'IdP metadata xml OR public xml URL';
 $string['idpmetadata_help'] = 'eg XML containing an EntityDescriptor element';

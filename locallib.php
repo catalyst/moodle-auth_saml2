@@ -37,6 +37,13 @@ function auth_saml2_get_sp_metadata() {
 
     $sourceId = $saml2auth->spname;
 
+    $sourceIdList = [];
+    $sourceIdList[] = $saml2auth->spname;
+
+    foreach ($saml2auth->idpentityids as $key => $entityid) {
+        $sourceIdList[] = md5($entityid);
+    }
+
     $file = $saml2auth->certdir . $saml2auth->spname . '.xml';
     if (file_exists($file)) {
         $xml = file_get_contents($file);
@@ -94,34 +101,37 @@ function auth_saml2_get_sp_metadata() {
 
     $index = 0;
     $eps = array();
-    foreach ($assertionsconsumerservices as $services) {
 
-        $acsArray = array('index' => $index);
-        switch ($services) {
-        case 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST':
-            $acsArray['Binding'] = SAML2_Const::BINDING_HTTP_POST;
-            $acsArray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml2-acs.php/{$sourceId}";
-            break;
-        case 'urn:oasis:names:tc:SAML:1.0:profiles:browser-post':
-            $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:1.0:profiles:browser-post';
-            $acsArray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml1-acs.php/{$sourceId}";
-            break;
-        case 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact':
-            $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact';
-            $acsArray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml2-acs.php/{$sourceId}";
-            break;
-        case 'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01':
-            $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01';
-            $acsArray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml1-acs.php/{$sourceId}";
-            break;
-        case 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser':
-            $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser';
-            $acsArray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml2-acs.php/{$sourceId}";
-            $acsArray['hoksso:ProtocolBinding'] = SAML2_Const::BINDING_HTTP_REDIRECT;
-            break;
+    foreach ($sourceIdList as $sourceId) {
+        foreach ($assertionsconsumerservices as $services) {
+
+            $acsArray = array('index' => $index);
+            switch ($services) {
+                case 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST':
+                    $acsArray['Binding'] = SAML2_Const::BINDING_HTTP_POST;
+                    $acsArray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml2-acs.php/{$sourceId}";
+                    break;
+                case 'urn:oasis:names:tc:SAML:1.0:profiles:browser-post':
+                    $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:1.0:profiles:browser-post';
+                    $acsArray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml1-acs.php/{$sourceId}";
+                    break;
+                case 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact':
+                    $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact';
+                    $acsArray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml2-acs.php/{$sourceId}";
+                    break;
+                case 'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01':
+                    $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01';
+                    $acsArray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml1-acs.php/{$sourceId}";
+                    break;
+                case 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser':
+                    $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser';
+                    $acsArray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml2-acs.php/{$sourceId}";
+                    $acsArray['hoksso:ProtocolBinding'] = SAML2_Const::BINDING_HTTP_REDIRECT;
+                    break;
+            }
+            $eps[] = $acsArray;
+            $index++;
         }
-        $eps[] = $acsArray;
-        $index++;
     }
 
     $metaArray20['AssertionConsumerService'] = $eps;

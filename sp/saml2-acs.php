@@ -24,8 +24,20 @@
 
 require_once('../setup.php');
 
+$idp = $saml2auth->spname;
+
+if (isset($_REQUEST['RelayState'])) {
+    $query = parse_url($_REQUEST['RelayState'], PHP_URL_QUERY);
+
+    parse_str($query, $params);
+
+    if (isset($params['idp'])) {
+        $idp = $params['idp'];
+    }
+}
+
 // First setup the PATH_INFO because that's how SSP rolls.
-$_SERVER['PATH_INFO'] = '/' . $saml2auth->spname;
+$_SERVER['PATH_INFO'] = '/' . $idp;
 
 // Tell SSP that we are on 443 if we are terminating SSL elsewhere.
 if (isset($CFG->sslproxy) && $CFG->sslproxy) {

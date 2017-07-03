@@ -30,11 +30,29 @@ if (!empty($CFG->loginhttps)) {
     $wwwroot = str_replace('http:', 'https:', $CFG->wwwroot);
 }
 
-$config = array(
-    $saml2auth->spname => array(
+$config = [];
+
+$idplist = $saml2auth->idplist;
+
+// Adding the $saml2auth->spname to the list sources to create the SP metadata XML.
+$idplist[] = new \auth_saml2\idpdata(null, $saml2auth->spname, null);
+
+foreach ($idplist as $id => $idp) {
+
+    // SP metadata check. We don't want to be using the md5($host).
+    if ($idp->idpurl == $saml2auth->spname) {
+        $source = $saml2auth->spname;
+        $idp = $idplist[0];
+    } else {
+        // With multiple IdPs we will use the md5 hash to use the correct XML.
+        $entitiyid = $saml2auth->idpentityids[$idp->idpurl];
+        $source = md5($entitiyid);
+    }
+
+    $config[$source] = [
         'saml:SP',
         'entityID' => "$wwwroot/auth/saml2/sp/metadata.php",
-        'idp' => $saml2auth->config->entityid,
+        'idp' => $entitiyid,
         'NameIDPolicy' => null,
         'OrganizationName' => array(
             'en' => $SITE->shortname,
@@ -51,6 +69,7 @@ $config = array(
         'sign.logout' => true,
         'redirect.sign' => true,
         'signature.algorithm' => 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256',
+    ];
+}
 
-    ),
-);
+
