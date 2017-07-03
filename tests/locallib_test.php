@@ -49,7 +49,6 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
 
         $auth = get_auth_plugin('saml2');
 
-
         $rawxml = auth_saml2_get_sp_metadata();
 
         $xml = new SimpleXMLElement($rawxml);

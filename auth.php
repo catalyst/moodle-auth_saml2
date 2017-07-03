@@ -332,12 +332,13 @@ class auth_plugin_saml2 extends auth_plugin_base {
         require_once('setup.php');
         require_once("$CFG->dirroot/login/lib.php");
 
-        $idp = $this->spname;
+        // We store the IdP in the session to generate the config/config.php array with the default local SP.
         if (isset($_GET['idp'])) {
+            $SESSION->saml2idp = $_GET['idp'];
             $idp = $_GET['idp'];
         }
 
-        $auth = new SimpleSAML_Auth_Simple($idp);
+        $auth = new SimpleSAML_Auth_Simple($this->spname);
         $auth->requireAuth();
 
         $context = context_system::instance();
@@ -475,26 +476,26 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         global $CFG, $SESSION, $saml2auth, $redirect;
 
+        // Lets capture the saml2idp hash.
         $idp = $this->spname;
-
         if (!empty($SESSION->saml2idp)) {
             $idp = $SESSION->saml2idp;
         }
 
         $this->log(__FUNCTION__ . ' Do moodle logout');
-
         // Do the normal moodle logout first as we may redirect away before it
         // gets called by the normal core process.
         require_logout();
 
         require_once('setup.php');
 
-        $auth = new SimpleSAML_Auth_Simple($idp);
+        // Woah there, we lost the session data, lets restore the IdP.
+        $SESSION->saml2idp = $idp;
+
+        $auth = new SimpleSAML_Auth_Simple($this->spname);
 
         // Only log out of the IdP if we logged in via the IdP. TODO check session timeouts.
         if ($auth->isAuthenticated()) {
-            $this->log(__FUNCTION__ . ' Unsetting SESSION IdP');
-            unset($SESSION->saml2idp);
             $this->log(__FUNCTION__ . ' Do SSP logout');
             $alterlogout = $this->config->alterlogout;
             if (!empty($alterlogout)) {
@@ -618,8 +619,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
         }
 
         // Encode arrays to be saved the config.
-        set_config('idpentityids', json_encode($entityids), 'auth/saml2');
-        set_config('idpmduinames', json_encode($mduinames), 'auth/saml2');
+        $form->idpentityids = json_encode($entityids);
+        $form->idpmduinames = json_encode($mduinames);
     }
 
     /**

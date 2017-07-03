@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-global $saml2auth, $CFG, $SITE;
+global $saml2auth, $CFG, $SITE, $SESSION;
 
 // Check for https login.
 $wwwroot = $CFG->wwwroot;
@@ -32,44 +32,38 @@ if (!empty($CFG->loginhttps)) {
 
 $config = [];
 
-$idplist = $saml2auth->idplist;
+$idp = $saml2auth->spname;
 
-// Adding the $saml2auth->spname to the list sources to create the SP metadata XML.
-$idplist[] = new \auth_saml2\idpdata(null, $saml2auth->spname, null);
-
-foreach ($idplist as $id => $idp) {
-
-    // SP metadata check. We don't want to be using the md5($host).
-    if ($idp->idpurl == $saml2auth->spname) {
-        $source = $saml2auth->spname;
-        $idp = $idplist[0];
-    } else {
-        // With multiple IdPs we will use the md5 hash to use the correct XML.
-        $entitiyid = $saml2auth->idpentityids[$idp->idpurl];
-        $source = md5($entitiyid);
+if (!empty($SESSION->saml2idp)) {
+    foreach ($saml2auth->idpentityids as $idpentityid) {
+        if ($SESSION->saml2idp === md5($idpentityid)) {
+            $idp = $idpentityid;
+            break;
+        }
     }
-
-    $config[$source] = [
-        'saml:SP',
-        'entityID' => "$wwwroot/auth/saml2/sp/metadata.php",
-        'idp' => $entitiyid,
-        'NameIDPolicy' => null,
-        'OrganizationName' => array(
-            'en' => $SITE->shortname,
-        ),
-        'OrganizationDisplayName' => array(
-            'en' => $SITE->fullname,
-        ),
-        'OrganizationURL' => array(
-            'en' => $CFG->wwwroot,
-        ),
-        'privatekey' => $saml2auth->spname . '.pem',
-        'privatekey_pass' => get_site_identifier(),
-        'certificate' => $saml2auth->spname . '.crt',
-        'sign.logout' => true,
-        'redirect.sign' => true,
-        'signature.algorithm' => 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256',
-    ];
 }
+
+$config[$saml2auth->spname] = [
+    'saml:SP',
+    'entityID' => "$wwwroot/auth/saml2/sp/metadata.php",
+    'idp' => $idp,
+    'NameIDPolicy' => null,
+    'OrganizationName' => array(
+        'en' => $SITE->shortname,
+    ),
+    'OrganizationDisplayName' => array(
+        'en' => $SITE->fullname,
+    ),
+    'OrganizationURL' => array(
+        'en' => $CFG->wwwroot,
+    ),
+    'privatekey' => $saml2auth->spname . '.pem',
+    'privatekey_pass' => get_site_identifier(),
+    'certificate' => $saml2auth->spname . '.crt',
+    'sign.logout' => true,
+    'redirect.sign' => true,
+    'signature.algorithm' => 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256',
+];
+//}
 
 
