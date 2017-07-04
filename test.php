@@ -22,16 +22,24 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require('setup.php');
+require_once(__DIR__ . '/../../config.php');
 
-$passive = optional_param('passive', '', PARAM_RAW);
-$trylogin = optional_param('login', '', PARAM_RAW);
+$testtype = optional_param('testtype', '', PARAM_RAW);
+$idp = optional_param('idp', '', PARAM_RAW);
+
+$SESSION->saml2idp = md5($idp);
+
+require('setup.php');
 
 $auth = new SimpleSAML_Auth_Simple($saml2auth->spname);
 
-if ($passive) {
+$params = [
+    'KeepPost' => false,
+];
 
-    $auth->requireAuth();
+if ($testtype === 'passive') {
+
+    $auth->requireAuth($params);
     echo "<p>Passive auth check:</p>";
     if (!$auth->isAuthenticated() ) {
         $attributes = $auth->getAttributes();
@@ -39,20 +47,25 @@ if ($passive) {
         echo "You are not logged in";
     }
 
-} else if (!$auth->isAuthenticated() && $trylogin) {
+} else if (!$auth->isAuthenticated() && $testtype === 'login') {
 
-    $auth->requireAuth();
+    $auth->requireAuth($params);
     echo "Hello, authenticated user!";
     $attributes = $as->getAttributes();
     var_dump($attributes);
+    echo 'IdP: ' . $auth->getAuthData('saml:sp:IdP');
 
 } else if (!$auth->isAuthenticated()) {
-    echo '<p>You are not logged in: <a href="?login=true">Login</a></p>';
+
+    echo '<p>You are not logged in: <a href="?testtype=login">Login</a></p>';
+
 } else {
+
     echo 'Authed!';
     $attributes = $auth->getAttributes();
     echo '<pre>';
     var_dump($attributes);
+    echo 'IdP: ' . $auth->getAuthData('saml:sp:IdP');
     echo '</pre>';
 }
 
