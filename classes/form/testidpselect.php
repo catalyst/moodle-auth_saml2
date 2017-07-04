@@ -47,7 +47,7 @@ class testidpselect extends moodleform {
 
         $idpentityids  = $this->_customdata['idpentityids'];
 
-        $mform->addElement('select', 'idp', 'IdP Entity', $idpentityids);
+        $mform->addElement('select', 'idp', get_string('test_auth_button_login', 'auth_saml2'), $idpentityids);
 
         $radioarray = [];
         $radioarray[] = $mform->createElement('radio', 'testtype', '', 'Test isAuthenticated and login', 'login');
@@ -55,8 +55,13 @@ class testidpselect extends moodleform {
 
         $mform->setDefault('testtype', 'login');
         $mform->addGroup($radioarray, 'radioar', '', ['<br/>'], false);
+        $this->add_action_buttons(true, get_string('test_auth_button_login', 'auth_saml2'));
 
-        $this->add_action_buttons(true, 'Start Test');
+        $mform->addElement('html', '<br /><br />');
+
+        $mform->addElement('select', 'idplogout', get_string('test_auth_button_logout', 'auth_saml2'), $idpentityids);
+
+        $mform->addElement('submit', 'logout', get_string('test_auth_button_logout', 'auth_saml2'));
     }
 
 }

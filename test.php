@@ -26,20 +26,38 @@ require_once(__DIR__ . '/../../config.php');
 
 $testtype = optional_param('testtype', '', PARAM_RAW);
 $idp = optional_param('idp', '', PARAM_RAW);
+$logout = optional_param('logout', '', PARAM_RAW);
+$idplogout = optional_param('idplogout', '', PARAM_RAW);
 
-$SESSION->saml2idp = md5($idp);
+if (!empty($idp)) {
+    $SESSION->saml2testidp = $idp;
+}
+
+if (!empty($logout)) {
+    $SESSION->saml2testidp = $idplogout;
+}
 
 require('setup.php');
 
 $auth = new SimpleSAML_Auth_Simple($saml2auth->spname);
 
-$params = [
+if ($logout) {
+    $urlparams = [
+        'sesskey' => sesskey(),
+        'auth' => $saml2auth->authtype,
+    ];
+    $url = new moodle_url('/auth/test_settings.php', $urlparams);
+    $auth->logout(['ReturnTo' => $url->out(false)]);
+}
+
+// Prevent it from calling the missing post redirection. /auth/saml2/sp/module.php/core/postredirect.php
+$samlparams = [
     'KeepPost' => false,
 ];
 
 if ($testtype === 'passive') {
 
-    $auth->requireAuth($params);
+    $auth->requireAuth($samlparams);
     echo "<p>Passive auth check:</p>";
     if (!$auth->isAuthenticated() ) {
         $attributes = $auth->getAttributes();
@@ -49,7 +67,7 @@ if ($testtype === 'passive') {
 
 } else if (!$auth->isAuthenticated() && $testtype === 'login') {
 
-    $auth->requireAuth($params);
+    $auth->requireAuth($samlparams);
     echo "Hello, authenticated user!";
     $attributes = $as->getAttributes();
     var_dump($attributes);
@@ -69,3 +87,4 @@ if ($testtype === 'passive') {
     echo '</pre>';
 }
 
+unset($SESSION->saml2testidp);

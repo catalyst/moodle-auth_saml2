@@ -45,6 +45,11 @@ if (!empty($SESSION->saml2idp)) {
     }
 }
 
+// The testing tool will set the IdP that it uses.
+if (!empty($SESSION->saml2testidp)) {
+    $idp = $SESSION->saml2testidp;
+}
+
 $config[$saml2auth->spname] = [
     'saml:SP',
     'entityID' => "$wwwroot/auth/saml2/sp/metadata.php",
