@@ -22,9 +22,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-global $CFG;
+$data = [
+    'idpentityids' => $this->idpentityids
+];
 
-echo '<p>' . get_string('test_passive', 'auth_saml2', $CFG->wwwroot . '/auth/saml2/test.php') . '</p>';
-echo '<p>' . get_string('test_auth', 'auth_saml2', $CFG->wwwroot . '/auth/saml2/test.php') . '</p>';
-
-
+$action = new moodle_url('/auth/saml2/test.php');
+$mform = new \auth_saml2\form\testidpselect($action, $data);
+$mform->display();
