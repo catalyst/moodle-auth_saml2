@@ -30,6 +30,14 @@ if (!empty($CFG->loginhttps)) {
     $wwwroot = str_replace('http:', 'https:', $CFG->wwwroot);
 }
 
+$metadatasources = [];
+foreach ($saml2auth->idpentityids as $source => $entity) {
+    $metadatasources[] = [
+        'type' => 'xml',
+        'file' => "$CFG->dataroot/saml2/" . md5($entity) . ".idp.xml"
+    ];
+}
+
 $config = array(
     'baseurlpath'       => $wwwroot . '/auth/saml2/sp/',
     'certdir'           => $saml2auth->certdir,
@@ -67,9 +75,7 @@ $config = array(
     'metadata.sign.certificate'     => $saml2auth->certcrt,
     'metadata.sign.privatekey'      => $saml2auth->certpem,
     'metadata.sign.privatekey_pass' => get_site_identifier(),
-    'metadata.sources' => array(
-        array('type' => 'xml', 'file' => "$CFG->dataroot/saml2/idp.xml"),
-    ),
+    'metadata.sources'              => $metadatasources,
 
     'store.type' => '\\auth_saml2\\store',
 
