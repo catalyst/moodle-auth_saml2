@@ -114,6 +114,42 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2017051800, 'auth', 'saml2');
     }
 
+    if ($oldversion < 2017070300) {
+        // Multiple IdP support.
+        // sitedata/saml2/idp.xml is now sitedata/saml2/md5($entityid).idp.xml
+
+        $xmlfile = $CFG->dataroot . "/saml2/idp.xml";
+        $entityids = [];
+        $mduinames = [];
+
+        if (file_exists($xmlfile)) {
+            $rawxml = file_get_contents($xmlfile);
+
+            $xml = new SimpleXMLElement($rawxml);
+            $xml->registerXPathNamespace('md', 'urn:oasis:names:tc:SAML:2.0:metadata');
+
+            // Find all IDPSSODescriptor elements and then work back up to the entityID.
+            $idpelements = $xml->xpath('//md:EntityDescriptor[//md:IDPSSODescriptor]');
+            if ($idpelements && isset($idpelements[0])) {
+                $entityid = (string)$idpelements[0]->attributes('', true)->entityID[0];
+                $entityids['xml'] = $entityid;
+                copy($xmlfile, $CFG->dataroot . "/saml2/" . md5($entityid) . ".idp.xml");
+
+                // Locate a displayname element provided by the IdP XML metadata.
+                $names = @$idpelements[0]->xpath('//mdui:DisplayName');
+                if ($names && isset($names[0])) {
+                    $mduinames['xml'] = (string)$names[0];
+                }
+            }
+        }
+
+        set_config('idpentityids', json_encode($entityids), 'auth_saml2');
+        set_config('idpmduinames', json_encode($mduinames), 'auth_saml2');
+
+        // Saml2 savepoint reached.
+        upgrade_plugin_savepoint(true, 2017070300, 'auth', 'saml2');
+    }
+
     return true;
 }
 

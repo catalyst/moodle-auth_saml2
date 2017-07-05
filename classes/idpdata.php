@@ -14,19 +14,45 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace auth_saml2;
+
 /**
- * Version information
+ * IdP data class.
  *
  * @package    auth_saml2
- * @copyright  Brendan Heywood <brendan@catalyst-au.net>
+ * @author     Nicholas Hoobin <nicholashoobin@catalyst-au.net>
+ * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+class idpdata {
+    public $idpname;
 
-$plugin->version   = 2017070300;    // The current plugin version (Date: YYYYMMDDXX).
-$plugin->release   = 2017070300;    // Match release exactly to version.
-$plugin->requires  = 2017051500;    // Requires this Moodle version.
-$plugin->component = 'auth_saml2';  // Full name of the plugin (used for diagnostics).
-$plugin->maturity  = MATURITY_STABLE;
+    public $idpurl;
 
+    public $idpicon;
+
+    public $rawxml;
+
+    /**
+     * idpdata constructor.
+     *
+     * @param $idpname
+     * @param $idpicon
+     * @param $idpurl
+     */
+    public function __construct($idpname, $idpurl, $idpicon) {
+        $this->idpname = $idpname;
+        $this->idpurl = $idpurl;
+        $this->idpicon = $idpicon;
+        $this->rawxml = null;
+    }
+
+    public function get_rawxml() {
+        return $this->rawxml;
+    }
+
+    public function set_rawxml($rawxml) {
+        $this->rawxml = $rawxml;
+    }
+}

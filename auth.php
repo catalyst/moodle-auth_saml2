@@ -37,9 +37,10 @@ class auth_plugin_saml2 extends auth_plugin_base {
      */
     public $defaults = array(
         'idpname'         => '',
-        'entityid'        => '',
         'idpdefaultname'  => '', // Set in constructor.
         'idpmetadata'     => '',
+        'idpmduinames'    => '',
+        'idpentityids'    => '',
         'debug'           => 0,
         'duallogin'       => 1,
         'anyauth'         => 1,
@@ -65,6 +66,15 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $this->certpem = $this->certdir . $this->spname . '.pem';
         $this->certcrt = $this->certdir . $this->spname . '.crt';
         $this->config = (object) array_merge($this->defaults, (array) get_config('auth_saml2') );
+
+        // Parsed IdP metadata, either a list of IdP metadata urls or a single XML blob.
+        $this->idplist = $this->parse_idpmetadata($this->config->idpmetadata);
+
+        // MDUINames provided by the metadata.
+        $this->idpmduinames = (array) json_decode($this->config->idpmduinames);
+
+        // EntitiyIDs provded by the metadata.
+        $this->idpentityids = (array) json_decode($this->config->idpentityids);
     }
 
     /**
@@ -89,8 +99,10 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * @return array of IdP's
      */
     public function loginpage_idp_list($wantsurl) {
+        $conf = $this->config;
+
         // If we have disabled the visibility of the idp link, return with an empty array right away.
-        if (!$this->config->showidplink) {
+        if (!$conf->showidplink) {
             return array();
         }
 
@@ -99,21 +111,58 @@ class auth_plugin_saml2 extends auth_plugin_base {
             return array();
         }
 
-        // The wants url may already be routed via login.php so don't re-re-route it.
-        if (strpos($wantsurl, '/auth/saml2/login.php')) {
-            $wantsurl = new moodle_url($wantsurl);
-        } else {
-            $wantsurl = new moodle_url('/auth/saml2/login.php', array('wants' => $wantsurl));
+        // The array of IdPs to return.
+        $idplist = [];
+
+        foreach ($this->idplist as $idp) {
+            $params = [
+                'wants' => $wantsurl,
+                'idp' => md5($this->idpentityids[$idp->idpurl]),
+            ];
+
+            // The wants url may already be routed via login.php so don't re-re-route it.
+            if (strpos($wantsurl, '/auth/saml2/login.php')) {
+                $idpurl = new moodle_url($wantsurl);
+            } else {
+                $idpurl = new moodle_url('/auth/saml2/login.php', $params);
+            }
+
+            // A default icon.
+            $idpicon = new pix_icon('i/user', 'Login');
+
+            // Initially use the default name. This is suitable for a single IdP.
+            $idpname = $conf->idpdefaultname;
+
+            // When multiple IdPs are configured, use a different default based on the IdP.
+            if (count($this->idplist) > 1) {
+                $host = parse_url($idp->idpurl, PHP_URL_HOST);
+                $idpname = get_string('idpnamedefault_varaible', 'auth_saml2', $host);
+            }
+
+            // Use a forced override set in the idpmetadata field.
+            if (!empty($idp->idpname)) {
+                $idpname = $idp->idpname;
+            } else {
+                // There is no forced override, try to use the <mdui:DisplayName> if it exists.
+                if (!empty($this->idpmduinames[$idp->idpurl])) {
+                    $idpname = $this->idpmduinames[$idp->idpurl];
+                }
+            }
+
+            // Has the IdP label override been set in the admin configuration?
+            // This is best used with a single IdP. Multiple IdP overrides are different.
+            if (!empty($conf->idpname)) {
+                $idpname = $conf->idpname;
+            }
+
+            $idplist[] = [
+                'url'  => $idpurl,
+                'icon' => $idpicon,
+                'name' => $idpname,
+            ];
         }
 
-        $conf = $this->config;
-        return array(
-            array(
-                'url'  => $wantsurl,
-                'icon' => new pix_icon('i/user', 'Login'),
-                'name' => (!empty($conf->idpname) ? $conf->idpname : $conf->idpdefaultname),
-            ),
-        );
+        return $idplist;
     }
 
     /**
@@ -143,10 +192,13 @@ class auth_plugin_saml2 extends auth_plugin_base {
             return false;
         }
 
-        $file = $this->certdir . 'idp.xml';
-        if (!file_exists($file)) {
-            $this->log(__FUNCTION__ . ' file not found, ' . $file);
-            return false;
+        $eids = $this->idpentityids;
+        foreach ($eids as $entityid) {
+            $file = $this->certdir . md5($entityid) . '.idp.xml';
+            if (!file_exists($file)) {
+                $this->log(__FUNCTION__ . ' file not found, ' . $file);
+                return false;
+            }
         }
 
         return true;
@@ -279,6 +331,19 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         require_once('setup.php');
         require_once("$CFG->dirroot/login/lib.php");
+
+        // Set the default IdP to be the first in the list. Used when dual login is disabled.
+        $arr = array_reverse($saml2auth->idpentityids);
+        $idp = md5(array_pop($arr));
+
+        // Specify the default IdP to use.
+        $SESSION->saml2idp = $idp;
+
+        // We store the IdP in the session to generate the config/config.php array with the default local SP.
+        if (isset($_GET['idp'])) {
+            $SESSION->saml2idp = $_GET['idp'];
+        }
+
         $auth = new SimpleSAML_Auth_Simple($this->spname);
         $auth->requireAuth();
 
@@ -405,22 +470,30 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * Make sure we also cleanup the SAML session AND log out of the IdP
      */
     public function logoutpage_hook() {
-
         // This is a little tricky, there are 3 sessions we need to logout:
         //
         // 1) The moodle session.
         // 2) The SimpleSAML SP session.
         // 3) The IdP session, if the IdP supports SingleSignout.
 
-        global $CFG, $saml2auth, $redirect;
+        global $CFG, $SESSION, $saml2auth, $redirect;
+
+        // Lets capture the saml2idp hash.
+        $idp = $this->spname;
+        if (!empty($SESSION->saml2idp)) {
+            $idp = $SESSION->saml2idp;
+        }
 
         $this->log(__FUNCTION__ . ' Do moodle logout');
-
         // Do the normal moodle logout first as we may redirect away before it
         // gets called by the normal core process.
         require_logout();
 
         require_once('setup.php');
+
+        // Woah there, we lost the session data, lets restore the IdP.
+        $SESSION->saml2idp = $idp;
+
         $auth = new SimpleSAML_Auth_Simple($this->spname);
 
         // Only log out of the IdP if we logged in via the IdP. TODO check session timeouts.
@@ -467,6 +540,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * Processes and stores configuration data for this authentication plugin.
      *
      * @param object $config
+     * @return boolean
      */
     public function process_config($config) {
         $haschanged = false;
@@ -492,6 +566,11 @@ class auth_plugin_saml2 extends auth_plugin_base {
         include('tester.php');
     }
 
+    /**
+     * Returns the version of SSP that this plugin is using.
+     *
+     * @return string
+     */
     public function get_ssp_version() {
         global $CFG, $saml2auth;
         require_once('setup.php');
@@ -499,5 +578,75 @@ class auth_plugin_saml2 extends auth_plugin_base {
         return $config->getVersion();
     }
 
+    /**
+     * Parse the idpmetadata field if names / URLs are detected.
+     *
+     * Example lines may be:
+     * "IdP Name https://idpurl https://idpicon"
+     * "IdP Name https://idpurl"
+     * "https://idpurl https://idpicon"
+     * "https://idpurl"
+     *
+     * NOTE: Icon is WIP out of scope.
+     *
+     * @param $data
+     * @return \auth_saml2\idpdata[]
+     */
+    public function parse_idpmetadata($data) {
+        $idps = [];
+
+        // Check if the form data is a possible XML chunk.
+        if (strpos($data, '<?xml') === 0) {
+            // The URL for a single XML blob is used as an index to obtain the EntityID.
+            $singleidp = new \auth_saml2\idpdata(null, 'xml', null);
+            $singleidp->set_rawxml(trim($data));
+            $idps[] = $singleidp;
+        } else {
+            // First split the contents based on newlines.
+            $lines = preg_split('#\R#', $data);
+
+            foreach ($lines as $line) {
+                $idpdata = null;
+                $scheme = 'http';
+
+                // Separate the line base on the scheme http. The scheme added back to the urls.
+                $parts = array_map('rtrim', explode($scheme, $line));
+
+                if (count($parts) === 3) {
+                    // With three elements I will assume that it was entered in the correct format.
+                    $idpname = $parts[0];
+                    $idpurl = $scheme .$parts[1];
+                    $idpicon = $scheme. $parts[2];
+
+                    $idpdata = new \auth_saml2\idpdata($idpname, $idpurl, $idpicon);
+                } else if (count($parts) === 2) {
+                    // Two elements could either be a IdPName + IdPURL, or IdPURL + IdPIcon.
+
+                    // Detect if $parts[0] starts with a URL.
+                    if (substr($parts[0], 0, 8) === 'https://' ||
+                        substr($parts[0], 0, 7) === 'http://') {
+                        $idpurl = $scheme .$parts[1];
+                        $idpicon = $scheme. $parts[2];
+
+                        $idpdata = new \auth_saml2\idpdata(null, $idpurl, $idpicon);
+                    } else {
+                        // We would then know that is a IdPName + IdPURL combo.
+                        $idpname = $parts[0];
+                        $idpurl = $scheme .$parts[1];
+
+                        $idpdata = new \auth_saml2\idpdata($idpname, $idpurl, null);
+                    }
+                } else if (count($parts) === 1) {
+                    // One element is the previous default.
+                    $idpurl = $scheme . $parts[0];
+                    $idpdata = new \auth_saml2\idpdata(null, $idpurl, null);
+                }
+
+                $idps[] = $idpdata;
+            }
+        }
+
+        return $idps;
+    }
 }
 
