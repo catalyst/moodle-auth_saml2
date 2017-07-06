@@ -41,8 +41,8 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $email = 'test@test.com';
         $url = 'http://www.example.com';
         set_config('supportemail', $email);
-        set_config('idpmetadata', $url, 'auth/saml2');
-        set_config('idpentityids', json_encode([$url => $url]), 'auth/saml2');
+        set_config('idpmetadata', $url, 'auth_saml2');
+        set_config('idpentityids', json_encode([$url => $url]), 'auth_saml2');
 
         require_once($CFG->dirroot . '/auth/saml2/setup.php');
         require_once($CFG->dirroot . '/auth/saml2/locallib.php');
@@ -263,7 +263,7 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $this->resetAfterTest();
 
         $url = 'http://www.example.com';
-        set_config('idpentityids', json_encode([$url => $url]), 'auth/saml2');
+        set_config('idpentityids', json_encode([$url => $url]), 'auth_saml2');
 
         $auth = get_auth_plugin('saml2');
 
