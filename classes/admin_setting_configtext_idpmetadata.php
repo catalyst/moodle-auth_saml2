@@ -49,6 +49,11 @@ class admin_setting_configtext_idpmetadata extends admin_setting_configtextarea 
             return $error;
         }
 
+        // If empty then that's ok
+        if (trim($value) == '') {
+            return true;
+        }
+
         // If value looks like a url, then go scrape it first.
         if (substr($value, 0, 8) == 'https://' ||
             substr($value, 0, 7) == 'http://'
