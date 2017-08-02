@@ -26,6 +26,11 @@ require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/_autoload.php');
 require_once("$CFG->dirroot/auth/saml2/auth.php");
 
+// Tell SSP that we are on 443 if we are terminating SSL elsewhere.
+if (isset($CFG->sslproxy) && $CFG->sslproxy) {
+      $_SERVER['SERVER_PORT'] = '443';
+}
+
 $saml2auth = new auth_plugin_saml2();
 
 // Auto create unique certificates for this moodle SP.

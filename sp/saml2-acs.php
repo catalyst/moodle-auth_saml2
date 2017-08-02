@@ -27,10 +27,5 @@ require_once('../setup.php');
 // First setup the PATH_INFO because that's how SSP rolls.
 $_SERVER['PATH_INFO'] = '/' . $saml2auth->spname;
 
-// Tell SSP that we are on 443 if we are terminating SSL elsewhere.
-if (isset($CFG->sslproxy) && $CFG->sslproxy) {
-    $_SERVER['SERVER_PORT'] = '443';
-}
-
 require($CFG->dirroot.'/auth/saml2/extlib/simplesamlphp/modules/saml/www/sp/saml2-acs.php');
 
