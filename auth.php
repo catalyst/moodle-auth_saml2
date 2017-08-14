@@ -303,11 +303,6 @@ class auth_plugin_saml2 extends auth_plugin_base {
             }
         }
 
-        // Prevent access to users who are suspended.
-        if ($user->suspended) {
-            $this->error_page(get_string('suspendeduser', 'auth_saml2', $uid));
-        }
-
         $newuser = false;
         if (!$user) {
             if ($this->config->autocreate) {
@@ -319,6 +314,10 @@ class auth_plugin_saml2 extends auth_plugin_base {
                 $this->error_page(get_string('nouser', 'auth_saml2', $uid));
             }
         } else {
+            // Prevent access to users who are suspended.
+            if ($user->suspended) {
+                $this->error_page(get_string('suspendeduser', 'auth_saml2', $uid));
+            }
             // Make sure all user data is fetched.
             $user = get_complete_user_data('username', $user->username);
             $this->log(__FUNCTION__ . ' found user '.$user->username);
