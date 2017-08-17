@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2017071300;    // The current plugin version (Date: YYYYMMDDXX).
-$plugin->release   = 2017071300;    // Match release exactly to version.
+$plugin->version   = 2017081700;    // The current plugin version (Date: YYYYMMDDXX).
+$plugin->release   = 2017081700;    // Match release exactly to version.
 $plugin->requires  = 2017051500;    // Requires this Moodle version.
 $plugin->component = 'auth_saml2';  // Full name of the plugin (used for diagnostics).
 $plugin->maturity  = MATURITY_STABLE;
