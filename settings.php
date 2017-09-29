@@ -68,6 +68,13 @@ if ($ADMIN->fulltree) {
             get_string('showidplink_help', 'auth_saml2'),
             0, $yesno));
 
+    // IDP Metadata refresh.
+    $settings->add(new admin_setting_configselect(
+            'auth_saml2/idpmetadatarefresh',
+            get_string('idpmetadatarefresh', 'auth_saml2'),
+            get_string('idpmetadatarefresh_help', 'auth_saml2'),
+            0, $yesno));
+
     // Debugging.
     $settings->add(new admin_setting_configselect(
             'auth_saml2/debug',
