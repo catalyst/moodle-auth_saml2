@@ -554,5 +554,13 @@ class auth_plugin_saml2 extends auth_plugin_base {
         return $config->getVersion();
     }
 
+    /**
+     * Allow saml2 auth method to be manually set for users e.g. bulk uploading users.
+     */
+
+    public function can_be_manually_set() {
+        return true;
+    }
+
 }
 
