@@ -146,6 +146,30 @@ right attributes but under an unexpected key name.
 /auth/saml2/test.php
 ```
 
+If you can succesfully do a saml login using this page then is narrows down where the
+issues lies. Some common issues are:
+
+1) You received a valid set of saml attributes, but the attribute(s) needed are not
+   present. ie often with say ADFS you may have to specify to 'release' the username.
+    
+2) You have got a valid set of attributes, but the key for the username isn't what
+   you expected. Cut and paste the correct key name into the Moodle auth_saml2 config
+   page to correctly map the 'idpattr' value.
+   
+3) The attribute key name might be a really crazy long looking string. This is common
+   with ADFS. If that long string contains certain characters then moodle will not
+   accept it, and this is an issue in Moodle itself and applies to all auth plugins.
+   You can add a custom claim in ADFS to rename this attribute to something nicer.
+   See this for more: https://github.com/catalyst/moodle-auth_saml2/issues/124
+   
+4) If it is bringing across all the attributes properly, but you are getting:
+   "You have logged in succesfully as 'xyz' but do not have an account in Moodle"
+   then you either need to change your user provisioning process to ensure users are
+   created ahead of time, or you need to enable the 'autocreate' setting. If you do
+   auto create then you need to be very careful that autocreated users, and users
+   provisioned via other means, and consistently setup.
+
+
 Gotchas
 -------
 
