@@ -73,7 +73,7 @@ $config = array(
         array('type' => 'xml', 'file' => "$CFG->dataroot/saml2/idp.xml"),
     ),
 
-    'store.type' => '\\auth_saml2\\store',
+    'store.type' => !empty($CFG->auth_saml2_store) ? $CFG->auth_saml2_store : '\\auth_saml2\\store',
 
     'proxy' => null, // TODO inherit from moodle conf see http://moodle.local/admin/settings.php?section=http for more.
 
