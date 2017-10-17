@@ -59,7 +59,7 @@ class metadata_refresh extends \core\task\scheduled_task {
     }
 
     public function execute() {
-        $config = get_config('auth/saml2');
+        $config = get_config('auth_saml2');
         if (empty($config->idpmetadatarefresh)) {
             $str = 'IdP metadata refresh is not configured. Enable it in the auth settings or disable this scheduled task';
             mtrace($str);
@@ -101,8 +101,8 @@ class metadata_refresh extends \core\task\scheduled_task {
         $this->writer->write('idp.xml', $rawxml);
 
         // Everything was successful. Update configs that may have changed.
-        set_config('entityid', $entityid, 'auth/saml2');
-        set_config('idpdefaultname', $idpdefaultname, 'auth/saml2');
+        set_config('entityid', $entityid, 'auth_saml2');
+        set_config('idpdefaultname', $idpdefaultname, 'auth_saml2');
 
         mtrace('IdP metadata refresh completed successfully.');
     }

@@ -40,7 +40,7 @@ class auth_saml2_metadata_refresh_testcase extends advanced_testcase {
     }
 
     public function test_metadata_refresh_disabled() {
-        set_config('idpmetadatarefresh', 0, 'auth/saml2');
+        set_config('idpmetadatarefresh', 0, 'auth_saml2');
 
         $refreshtask = new metadata_refresh();
 
@@ -54,8 +54,8 @@ class auth_saml2_metadata_refresh_testcase extends advanced_testcase {
 <?xml version="1.0" encoding="utf-8"?>
 <somexml>yada</somexml>
 XML;
-        set_config('idpmetadatarefresh', 1, 'auth/saml2');
-        set_config('idpmetadata', $randomxml, 'auth/saml2');
+        set_config('idpmetadatarefresh', 1, 'auth_saml2');
+        set_config('idpmetadata', $randomxml, 'auth_saml2');
 
         $refreshtask = new metadata_refresh();
 
@@ -71,8 +71,8 @@ XML;
             $this->markTestSkipped('Skipping due to Prophecy library not available');
         }
 
-        set_config('idpmetadatarefresh', 1, 'auth/saml2');
-        set_config('idpmetadata', 'http://somefakeidpurl.local', 'auth/saml2');
+        set_config('idpmetadatarefresh', 1, 'auth_saml2');
+        set_config('idpmetadata', 'http://somefakeidpurl.local', 'auth_saml2');
         $fetcher = $this->prophesize('auth_saml2\metadata_fetcher');
 
         $refreshtask = new metadata_refresh();
@@ -90,8 +90,8 @@ XML;
             $this->markTestSkipped('Skipping due to Prophecy library not available');
         }
 
-        set_config('idpmetadatarefresh', 1, 'auth/saml2');
-        set_config('idpmetadata', 'http://somefakeidpurl.local', 'auth/saml2');
+        set_config('idpmetadatarefresh', 1, 'auth_saml2');
+        set_config('idpmetadata', 'http://somefakeidpurl.local', 'auth_saml2');
         $fetcher = $this->prophesize('auth_saml2\metadata_fetcher');
         $parser = $this->prophesize('auth_saml2\metadata_parser');
 
@@ -109,8 +109,8 @@ XML;
             $this->markTestSkipped('Skipping due to Prophecy library not available');
         }
 
-        set_config('idpmetadatarefresh', 1, 'auth/saml2');
-        set_config('idpmetadata', 'http://somefakeidpurl.local', 'auth/saml2');
+        set_config('idpmetadatarefresh', 1, 'auth_saml2');
+        set_config('idpmetadata', 'http://somefakeidpurl.local', 'auth_saml2');
         $fetcher = $this->prophesize('auth_saml2\metadata_fetcher');
         $parser = $this->prophesize('auth_saml2\metadata_parser');
 
@@ -130,8 +130,8 @@ XML;
             $this->markTestSkipped('Skipping due to Prophecy library not available');
         }
 
-        set_config('idpmetadatarefresh', 1, 'auth/saml2');
-        set_config('idpmetadata', 'http://somefakeidpurl.local', 'auth/saml2');
+        set_config('idpmetadatarefresh', 1, 'auth_saml2');
+        set_config('idpmetadata', 'http://somefakeidpurl.local', 'auth_saml2');
         $fetcher = $this->prophesize('auth_saml2\metadata_fetcher');
         $parser = $this->prophesize('auth_saml2\metadata_parser');
 
@@ -145,7 +145,7 @@ XML;
         $parser->get_idpdefaultname()->willReturn('');
         $refreshtask->execute();
 
-        $idpdefaultname = get_config('auth/saml2', 'idpdefaultname');
+        $idpdefaultname = get_config('auth_saml2', 'idpdefaultname');
         $this->assertEquals(get_string('idpnamedefault', 'auth_saml2'), $idpdefaultname);
     }
 
@@ -157,8 +157,8 @@ XML;
             $this->markTestSkipped('Skipping due to Prophecy library not available');
         }
 
-        set_config('idpmetadatarefresh', 1, 'auth/saml2');
-        set_config('idpmetadata', 'http://somefakeidpurl.local', 'auth/saml2');
+        set_config('idpmetadatarefresh', 1, 'auth_saml2');
+        set_config('idpmetadata', 'http://somefakeidpurl.local', 'auth_saml2');
 
         $fetcher = $this->prophesize('auth_saml2\metadata_fetcher');
         $parser = $this->prophesize('auth_saml2\metadata_parser');

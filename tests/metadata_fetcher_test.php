@@ -127,11 +127,11 @@ class auth_saml2_metadata_fetcher_testcase extends advanced_testcase {
         if (!is_array($CFG->forced_plugin_settings)) {
             $CFG->forced_plugin_settings = [];
         }
-        if (!array_key_exists('auth/saml2', $CFG->forced_plugin_settings)) {
-            $CFG->forced_plugin_settings['auth/saml2'] = [];
+        if (!array_key_exists('auth_saml2', $CFG->forced_plugin_settings)) {
+            $CFG->forced_plugin_settings['auth_saml2'] = [];
         }
-        $CFG->forced_plugin_settings['auth/saml2']['CURLOPT_SSL_VERIFYPEER'] = 0;
-        $CFG->forced_plugin_settings['auth/saml2']['CURLOPT_SSL_VERIFYHOST'] = 0;
+        $CFG->forced_plugin_settings['auth_saml2']['CURLOPT_SSL_VERIFYPEER'] = 0;
+        $CFG->forced_plugin_settings['auth_saml2']['CURLOPT_SSL_VERIFYHOST'] = 0;
 
         $curl = $this->prophesize('curl');
 
