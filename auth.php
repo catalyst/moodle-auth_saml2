@@ -50,6 +50,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
         'spmetadatasign'  => true,
         'showidplink'     => true,
         'alterlogout'     => '',
+        'logtofile'       => 0,
+        'logdir'          => '/tmp/',
     );
 
     /**

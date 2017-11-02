@@ -60,6 +60,20 @@ if(!function_exists('mcrypt_encrypt')) {
         <?php print_string($field.'_help', 'auth_saml2', "$CFG->wwwroot/auth/saml2/debug.php") ?></td>
 </tr>
 <tr valign="top">
+    <?php $field = 'logtofile' ?>
+    <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
+    <td><?php echo html_writer::select($yesno, $field, $config->$field, false) ?>
+        <?php if (isset($err[$field])) { echo $OUTPUT->notification($err[$field], 'notifyfailure'); } ?>
+        <?php print_string($field.'_help', 'auth_saml2') ?></td>
+</tr>
+<tr valign="top">
+    <?php $field = 'logdir' ?>
+    <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
+    <td><input type="text" size="100" name="<?php echo $field ?>" value="<?php print $config->$field ?>" placeholder="<?php print $config->idpdefaultname ?>"><br>
+        <?php if (isset($err[$field])) { echo $OUTPUT->notification($err[$field], 'notifyfailure'); } ?>
+        <?php print_string($field.'_help', 'auth_saml2') ?></td>
+</tr>
+<tr valign="top">
     <?php $field = 'certificatelock' ?>
     <td align="right"><label for="<?php echo $field ?>"><?php print_string($field, 'auth_saml2') ?></label></td>
     <td>
