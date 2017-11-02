@@ -73,6 +73,10 @@ $string['certificatedetails'] = 'Certificate details';
 $string['certificatedetailshelp'] = '<h1>SAML2 auto generated public certificate contents</h1>
 <p>The path for the cert is here:</p>
 ';
+$string['logtofile'] = 'Enable logging to file';
+$string['logtofile_help'] = 'Turning this on will redirect SSPHP log output to a file in the logdir';
+$string['logdir'] = 'Log Directory';
+$string['logdir_help'] = 'The log directory SSPHP will write to, the file will be named simplesamlphp.log';
 $string['countryname'] = 'Country';
 $string['stateorprovincename'] = 'State or Province';
 $string['localityname'] = 'Locality';
