@@ -51,6 +51,18 @@ $config = array(
         'sign.logout' => true,
         'redirect.sign' => true,
         'signature.algorithm' => 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256',
-
     ),
 );
+/*
+ * If we're configured to expose the nameid as an attribute, set this authproc filter up
+ * the nameid value appears under the attribute "nameid"
+ */
+if($saml2auth->config->nameidasattrib) {
+    $config[$saml2auth->spname]['authproc'] =
+    array(
+        20 => array(
+            'class' => 'saml:NameIDAttribute',
+            'format' => '%V',
+        ),
+    );
+}
