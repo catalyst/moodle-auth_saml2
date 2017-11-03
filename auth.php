@@ -52,6 +52,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         'alterlogout'     => '',
         'logtofile'       => 0,
         'logdir'          => '/tmp/',
+        'nameidasattrib'  => 0,
     );
 
     /**
