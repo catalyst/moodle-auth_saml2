@@ -88,6 +88,12 @@ if ($ADMIN->fulltree) {
             get_string('logdirdefault', 'auth_saml2'),
             PARAM_TEXT));
 
+    // Add NameID as attribute.
+    $settings->add(new admin_setting_configselect(
+            'auth_saml2/nameidasattrib',
+            get_string('nameidasattrib', 'auth_saml2'),
+            get_string('nameidasattrib_help', 'auth_saml2'),
+            0, $yesno));
 
     // Lock certificate.
     $settings->add(new admin_setting_auth_saml2_button(
