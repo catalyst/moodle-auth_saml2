@@ -75,6 +75,20 @@ if ($ADMIN->fulltree) {
             get_string('debug_help', 'auth_saml2', $CFG->wwwroot . '/auth/saml2/debug.php'),
             0, $yesno));
 
+    // Logging
+    $settings->add(new admin_setting_configselect(
+            'auth_saml2/logtofile',
+            get_string('logtofile', 'auth_saml2'),
+            get_string('logtofile_help', 'auth_saml2'),
+            0, $yesno));
+    $settings->add(new admin_setting_configtext(
+            'auth_saml2/logdir',
+            get_string('logdir', 'auth_saml2'),
+            get_string('logdir_help', 'auth_saml2'),
+            get_string('logdirdefault', 'auth_saml2'),
+            PARAM_TEXT));
+
+
     // Lock certificate.
     $settings->add(new admin_setting_auth_saml2_button(
             'auth_saml2/certificatelock',
