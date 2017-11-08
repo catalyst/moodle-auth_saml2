@@ -51,6 +51,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
         'showidplink'     => true,
         'alterlogout'     => '',
         'nameidasattrib'  => 0,
+        'logtofile'       => 0,
+        'logdir'          => '/tmp/',
     );
 
     /**
