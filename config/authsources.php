@@ -34,7 +34,8 @@ $config = array(
     $saml2auth->spname => array(
         'saml:SP',
         'entityID' => "$wwwroot/auth/saml2/sp/metadata.php",
-        'idp' => $saml2auth->config->entityid,
+        'discoURL' => !empty($CFG->auth_saml2_disco_url) ? $CFG->auth_saml2_disco_url : null,
+        'idp' => empty($CFG->auth_saml2_disco_url) ? $saml2auth->config->entityid : null,
         'NameIDPolicy' => null,
         'OrganizationName' => array(
             'en' => $SITE->shortname,
