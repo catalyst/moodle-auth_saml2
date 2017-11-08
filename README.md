@@ -112,7 +112,7 @@ explanatory for someone familiar with SAML generally. There are a few extra
 configuration items which are currently don't have a GUI and should be added
 to your moodle config.php file:
 
-```
+```php
 $CFG->auth_saml2_disco_url = '';
 
 $CFG->auth_saml2_store = '\\auth_saml2\\redis_store'; # Use an alternate store
