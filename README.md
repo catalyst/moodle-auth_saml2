@@ -14,6 +14,7 @@ https://moodle.org/plugins/auth_saml2
 * [How does it work?](#how-does-it-work)
 * [Features](#features)
 * [Installation](#installation)
+* [Configuration](#configuration)
 * [Testing](#testing)
 * [Debugging](#debugging)
 * [Gotchas](#gotchas)
@@ -101,6 +102,24 @@ Moodle plugin directory, or you can use git to clone it into your source:
 For most simple setups this is enough to get authentication working, there are
 many more settings to define how to handle new accounts, dual authentication,
 and to easily debug the plugin if things are not working.
+
+
+Configuration
+-------------
+
+Most of the configuration is done in the Moodle admin GUI and should be self
+explanatory for someone familiar with SAML generally. There are a few extra
+configuration items which are currently don't have a GUI and should be added
+to your moodle config.php file:
+
+```php
+$CFG->auth_saml2_disco_url = '';
+
+$CFG->auth_saml2_store = '\\auth_saml2\\redis_store'; # Use an alternate store
+
+$CFG->auth_saml2_redis_server = ''; # Required for the redis_store above
+
+```
 
 
 Testing

@@ -15,18 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information
+ * Module landing page.
  *
  * @package    auth_saml2
- * @copyright  Brendan Heywood <brendan@catalyst-au.net>
+ * @author     Sam Chaffee
+ * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+require_once('../setup.php');
 
-$plugin->version   = 2017112300;    // The current plugin version (Date: YYYYMMDDXX).
-$plugin->release   = 2017112300;    // Match release exactly to version.
-$plugin->requires  = 2017051500;    // Requires this Moodle version.
-$plugin->component = 'auth_saml2';  // Full name of the plugin (used for diagnostics).
-$plugin->maturity  = MATURITY_STABLE;
+// Tell SSP that we are on 443 if we are terminating SSL elsewhere.
+if (!empty($CFG->sslproxy)) {
+    $_SERVER['SERVER_PORT'] = '443';
+}
 
+require($CFG->dirroot.'/auth/saml2/extlib/simplesamlphp/www/module.php');

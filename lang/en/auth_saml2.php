@@ -76,6 +76,11 @@ $string['certificatedetails'] = 'Certificate details';
 $string['certificatedetailshelp'] = '<h1>SAML2 auto generated public certificate contents</h1>
 <p>The path for the cert is here:</p>
 ';
+$string['logtofile'] = 'Enable logging to file';
+$string['logtofile_help'] = 'Turning this on will redirect SSPHP log output to a file in the logdir';
+$string['logdir'] = 'Log Directory';
+$string['logdir_help'] = 'The log directory SSPHP will write to, the file will be named simplesamlphp.log';
+$string['logdirdefault'] = '/tmp/';
 $string['countryname'] = 'Country';
 $string['stateorprovincename'] = 'State or Province';
 $string['localityname'] = 'Locality';
@@ -89,7 +94,8 @@ $string['regenerate_submit'] = 'Regenerate';
 $string['test_passive'] = '<a href="{$a}">Test using isPassive</a>';
 $string['test_auth'] = '<a href="{$a}">Test isAuthenticated and login</a>';
 $string['taskmetadatarefresh'] = 'Metadata refresh task';
-
+$string['nameidasattrib'] = 'Expose NameID as attribute';
+$string['nameidasattrib_help'] = 'The NameID claim will be exposed to SSPHP as an attribute named nameid';
 $string['alterlogout'] = 'Alternative Logout URL';
 $string['alterlogout_help'] = 'The URL to redirect a user after all internal logout mechanisms are run';
 $string['metadatafetchfailed'] = 'Metadata fetch failed: {$a}';
