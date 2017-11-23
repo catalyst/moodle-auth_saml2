@@ -25,13 +25,17 @@
 require('setup.php');
 
 $passive = optional_param('passive', '', PARAM_RAW);
+$passivefail = optional_param('passivefail', '', PARAM_RAW);
 $trylogin = optional_param('login', '', PARAM_RAW);
 
 $auth = new SimpleSAML_Auth_Simple($saml2auth->spname);
 
 if ($passive) {
 
-    $auth->requireAuth();
+    $auth->requireAuth(array(
+        'isPassive' => true,
+        'ErrorURL' => $CFG->wwwroot . '/auth/saml2/test.php?passivefail=1',
+    ));
     echo "<p>Passive auth check:</p>";
     if (!$auth->isAuthenticated() ) {
         $attributes = $auth->getAttributes();
@@ -47,7 +51,10 @@ if ($passive) {
     var_dump($attributes);
 
 } else if (!$auth->isAuthenticated()) {
-    echo '<p>You are not logged in: <a href="?login=true">Login</a></p>';
+    echo '<p>You are not logged in: <a href="?login=true">Login</a> | <a href="?passive=true">isPassive test</a></p>';
+    if ($passivefail) {
+        echo "Passive test worked, but not logged in";
+    }
 } else {
     echo 'Authed!';
     $attributes = $auth->getAttributes();
