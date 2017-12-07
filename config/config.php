@@ -51,8 +51,9 @@ $config = array(
     'session.datastore.timeout' => 60 * 60 * 4,
     'session.state.timeout'     => 60 * 60,
 
-    'session.cookie.name'     => 'SimpleSAMLSessionID',
-    'session.cookie.path'     => '/', // TODO restrict to moodle path.
+    'session.authtoken.cookiename'  => 'MDL_SSP_AuthToken',
+    'session.cookie.name'     => 'MDL_SSP_SessID',
+    'session.cookie.path'     => $CFG->sessioncookiepath,
     'session.cookie.domain'   => null,
     'session.cookie.secure'   => !empty($CFG->cookiesecure),
     'session.cookie.lifetime' => 0,
@@ -60,8 +61,6 @@ $config = array(
     'session.phpsession.cookiename' => null,
     'session.phpsession.savepath'   => null,
     'session.phpsession.httponly'   => true,
-
-    'session.authtoken.cookiename'  => 'SimpleSAMLAuthToken',
 
     'enable.http_post' => false,
 
