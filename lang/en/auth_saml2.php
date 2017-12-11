@@ -104,3 +104,5 @@ $string['metadatafetchfailedstatus'] = 'Metadata fetch failed: Status code {$a}'
 $string['errorparsingxml'] = 'Error parsing XML: {$a}';
 $string['idpmetadatarefresh'] = 'IdP metadata refresh';
 $string['idpmetadatarefresh_help'] = 'Run a scheduled task to update IdP metadata from IdP metadata URL';
+$string['exception'] = 'SAML2 exception: {$a}';
+

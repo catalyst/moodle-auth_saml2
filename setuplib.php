@@ -153,3 +153,19 @@ function get_dn_email() {
     return $email;
 }
 
+/**
+ * General saml exception
+ */
+class saml2_exception extends moodle_exception {
+
+    /**
+     * Constructor
+     *
+     * @param object $a extra words and phrases that might be required in the error string
+     * @param string $debuginfo optional debugging information
+     */
+    public function __construct($a = null, $debuginfo = null) {
+        parent::__construct('exception', 'auth_saml2', '', htmlspecialchars($a), $debuginfo);
+    }
+}
+
