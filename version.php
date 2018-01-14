@@ -24,9 +24,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-// When updating the version, only increment the version number by one. 
+// When updating the version, only increment the version number by one.
 // Do NOT set to the current date. Otherwise it will conflict with the
-// MOODLE_33PLUS branch and make it hard to upgrade between 3.2 and 3.3+. 
+// MOODLE_33PLUS branch and make it hard to upgrade between 3.2 and 3.3+.
 $plugin->version   = 2018011500;    // The current plugin version (Date: YYYYMMDDXX).
 
 $plugin->release   = 2018011500;    // Match release exactly to version.
