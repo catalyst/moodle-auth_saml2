@@ -24,11 +24,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-/**
- * The current plugin version (Date: YYYYMMDDXX).
- * New versions should be date code was changed. This is to keep the code ahead
- * of the branch: MOODLE_UPTO32.
- */
+// The current plugin version (Date: YYYYMMDDXX).
+// New versions should be date code was changed. This is to keep the code ahead
+// of the branch: MOODLE_UPTO32.
 $plugin->version   = 2018011500;
 
 $plugin->release   = 2018011500;    // Match release exactly to version.
