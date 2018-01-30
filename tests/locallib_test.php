@@ -23,6 +23,7 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/../locallib.php');
 
 /**
  * Tests for SAML
@@ -31,6 +32,20 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class auth_saml2_locallib_testcase extends advanced_testcase {
+    /**
+     * Regression test for Issue 132.
+     */
+    public function test_it_can_initialise_more_than_once() {
+        global $CFG, $saml2auth;
+        $this->resetAfterTest(true);
+
+        for ($i = 0; $i < 3; $i++) {
+            require($CFG->dirroot . '/auth/saml2/setup.php');
+            $xml = auth_saml2_get_sp_metadata();
+            self::assertNotNull($xml);
+            self::resetAllData(false);
+        }
+    }
 
     public function test_auth_saml2_sp_metadata() {
         global $CFG, $DB, $saml2auth;
@@ -44,8 +59,7 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         set_config('idpmetadata', $url, 'auth/saml2');
         set_config('idpentityids', json_encode([$url => $url]), 'auth/saml2');
 
-        require_once($CFG->dirroot . '/auth/saml2/setup.php');
-        require_once($CFG->dirroot . '/auth/saml2/locallib.php');
+        require($CFG->dirroot . '/auth/saml2/setup.php');
 
         $auth = get_auth_plugin('saml2');
 
