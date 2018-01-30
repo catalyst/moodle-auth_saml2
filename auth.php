@@ -280,7 +280,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         global $CFG, $DB, $USER, $SESSION, $saml2auth;
         // @codingStandardsIgnoreEnd
 
-        require_once('setup.php');
+        require('setup.php');
         require_once("$CFG->dirroot/login/lib.php");
         $auth = new SimpleSAML_Auth_Simple($this->spname);
         $auth->requireAuth();
@@ -418,7 +418,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         // gets called by the normal core process.
         require_logout();
 
-        require_once('setup.php');
+        require('setup.php');
         $auth = new SimpleSAML_Auth_Simple($this->spname);
 
         // Only log out of the IdP if we logged in via the IdP. TODO check session timeouts.
@@ -552,7 +552,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
     public function get_ssp_version() {
         global $CFG, $saml2auth;
-        require_once('setup.php');
+        require('setup.php');
         $config = new SimpleSAML_Configuration(array(), '');
         return $config->getVersion();
     }
