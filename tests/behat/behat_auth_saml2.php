@@ -52,4 +52,11 @@ class behat_auth_saml2 extends behat_base {
     public function iGoToTheLoginPageAuth_saml() {
         $this->getSession()->visit($this->locate_path('login/index.php'));
     }
+
+    /**
+     * @Given /^I am an administrator +\# auth_saml2$/
+     */
+    public function iAmAnAdministratorAuth_saml() {
+            $this->execute('behat_auth::i_log_in_as', ['admin']);
+    }
 }
