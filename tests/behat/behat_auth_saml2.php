@@ -54,6 +54,13 @@ class behat_auth_saml2 extends behat_base {
     }
 
     /**
+     * @When /^I go to the login page with "([^"]*)" +\# auth_saml2$/
+     */
+    public function iGoToTheLoginPageWithAuth_saml($parameters) {
+        $this->getSession()->visit($this->locate_path("login/index.php?{$parameters}"));
+    }
+
+    /**
      * @Given /^I am an administrator +\# auth_saml2$/
      */
     public function iAmAnAdministratorAuth_saml() {
