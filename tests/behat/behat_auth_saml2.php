@@ -66,6 +66,11 @@ class behat_auth_saml2 extends behat_base {
         } else {
             set_config('auth', 'saml2');
             $this->set_saml2_defaults();
+            /** @var auth_plugin_saml2 $auth */
+            $auth = get_auth_plugin('saml2');
+            if (!$auth->is_configured()) {
+                throw new moodle_exception('Saml2 not configured.');
+            }
         }
 
         \core\session\manager::gc(); // Remove stale sessions.

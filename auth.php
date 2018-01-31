@@ -473,7 +473,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
     public function validate_form($form, &$err) {
 
         global $CFG, $saml2auth;
-        require_once('setup.php');
+        require('setup.php');
 
         // The IdP entityID needs to be parsed out of the XML.
         // It will use the first IdP entityID it finds.
