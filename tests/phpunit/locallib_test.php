@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use auth_saml2\admin\saml2_settings;
+
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../../locallib.php');
 
@@ -75,7 +77,7 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
      * Test test_should_login_redirect
      *
      * @dataProvider should_login_redirect_testcases
-     * @param bool $duallogin
+     * @param mixed $duallogin
      * @param bool $param
      * @param bool $session
      * @param bool $expected The expected return value
@@ -85,15 +87,28 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
 
         $this->resetAfterTest();
 
+        if ($duallogin === 'passive') {
+            $duallogin = saml2_settings::OPTION_DUAL_LOGIN_PASSIVE;
+        } else {
+            $duallogin = $duallogin ? saml2_settings::OPTION_DUAL_LOGIN_YES : saml2_settings::OPTION_DUAL_LOGIN_NO;
+        }
+
         set_config('duallogin', $duallogin, 'auth_saml2');
 
         $SESSION->saml = $session;
 
         // HTML get param optional_param('saml', 0, PARAM_BOOL).
         if ($param !== null) {
-            $_GET['saml'] = $param;
+            if ($param == 'error') {
+                $_GET['SimpleSAML_Auth_State_exceptionId'] = '...';
+            } else if ($param == 'post') {
+                $_SERVER['REQUEST_METHOD'] = 'POST';
+            } else {
+                $_GET['saml'] = $param;
+            }
         }
 
+        /** @var auth_plugin_saml2 $auth */
         $auth = get_auth_plugin('saml2');
         $result = $auth->should_login_redirect();
 
@@ -121,6 +136,18 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
             "7. DUALcfg: false, SAMLparam: null, SAMLsession: true" => [false, null, true, true], // SAML redirect, $SESSION->saml=1.
             "8. DUALcfg: false, SAMLparam: off, SAMLsession: true"  => [false, 'off', true, false], // Login normal, ?saml=off.
             "9. DUALcfg: false, SAMLparam: on, SAMLsession: true"   => [false, 'on', true, true], // SAML redirect, ?saml=on.
+
+            // For passive mode always redirect, SAML2 will redirect back if not logged in.
+            "10. DUALcfg: passive, SAMLparam: null, SAMLsession: true"  => ['passive', null, true, true],
+            "11. DUALcfg: passive, SAMLparam: off, SAMLsession: true"   => ['passive', 'off', true, false], // Except if ?saml=off.
+            "12. DUALcfg: passive, SAMLparam: on, SAMLsession: true"    => ['passive', 'on', true, true],
+
+            "13. DUALcfg: passive, SAMLparam: null, SAMLsession: false" => ['passive', null, false, true],
+            "14. DUALcfg: passive, SAMLparam: off, SAMLsession: false"  => ['passive', 'off', false, false], // Except if ?saml=off.
+            "15. DUALcfg: passive, SAMLparam: on, SAMLsession: false"   => ['passive', 'on', false, true],
+
+            "16. DUALcfg: passive, with SAMLerror"                      => ['passive', 'error', false, false], // Passive redirect back
+            "17. DUALcfg: passive using POST"                           => ['passive', 'post', false, false], // POSTing
         ];
     }
 
