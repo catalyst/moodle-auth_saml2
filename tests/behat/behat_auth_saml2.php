@@ -128,14 +128,10 @@ class behat_auth_saml2 extends behat_base {
     }
 
     private function set_saml2_defaults() {
-        global $CFG;
-
-        require_once($CFG->dirroot . '/auth/saml2/auth.php');
-
         $form = (object)[
             'idpmetadata' => 'http://simplesamlphp.test:8001/saml2/idp/metadata.php',
         ];
-        $auth = new auth_plugin_saml2();
+        $auth = get_auth_plugin('saml2');
 
         $errors = [];
 
