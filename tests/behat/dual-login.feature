@@ -23,3 +23,15 @@ Feature: SAML2 Dual Login
     When I go to the login page                             # auth_saml2
     And I follow "Login via SAML2"
     Then I should see "A service has requested you to authenticate yourself"
+
+  Scenario: If dual login is "passive" and I am not logged in SAML2, use Moodle Login
+    Given the authentication plugin saml2 is enabled        # auth_saml2
+    And the saml2 setting "Dual Login" is set to "passive"  # auth_saml2
+    When I go to the login page                             # auth_saml2
+    Then I should see "Log in"
+    And I should see "Login via SAML2"
+    And I should not see "A service has requested you to authenticate yourself"
+    When I set the field "Username" to "admin"
+    And I set the field "Password" to "admin"
+    And I press "Log in"
+    Then I should see "Admin User"

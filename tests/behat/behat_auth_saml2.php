@@ -165,4 +165,15 @@ class behat_auth_saml2 extends behat_base {
         $value = in_array($lowervalue, $map) ? $map[$lowervalue] : $value;
         set_config($setting, $value, 'auth/saml2');
     }
+
+    /**
+     * @Given /^I am already logged in as "([^"]*)" in SAML2 +\# auth_saml2$/
+     */
+    public function iAmAlreadyLoggedInAsInSAMLAuth_saml($username) {
+        $this->visitPath('http://simplesamlphp.test:8001/module.php/core/authenticate.php');
+        $this->execute('behat_general::click_link', ['example-userpass']);
+        $this->execute('behat_forms::i_set_the_field_to', ['Username', $username]);
+        $this->execute('behat_forms::i_set_the_field_to', ['Password', "{$username}pass"]);
+        $this->execute('behat_forms::press_button', ['Login']);
+    }
 }
