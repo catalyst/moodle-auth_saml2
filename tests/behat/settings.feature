@@ -5,9 +5,7 @@ Feature: SAML2 settings
   I need to change the settings in Moodle
 
   Background:
-    Given the authentication plugin "saml2" is enabled                                  # auth_saml2
-    And the following config values are set as admin:
-      | idpmetadata | http://localhost:8001/saml2/idp/metadata.php | auth_saml2 |
+    Given the authentication plugin saml2 is enabled                                  # auth_saml2
 
 
   Scenario: I can navigate to the settings page
