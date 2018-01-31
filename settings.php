@@ -135,11 +135,14 @@ if ($ADMIN->fulltree) {
             0, $yesno));
 
     // Dual Login.
+    $dualloginoptions = $yesno;
+    $dualloginoptions[] = get_string('passivemode', 'auth_saml2');
     $settings->add(new admin_setting_configselect(
             'auth_saml2/duallogin',
             get_string('duallogin', 'auth_saml2'),
             get_string('duallogin_help', 'auth_saml2'),
-            0, $yesno));
+            0,
+            $dualloginoptions));
 
     // Allow any auth type.
     $settings->add(new admin_setting_configselect(
