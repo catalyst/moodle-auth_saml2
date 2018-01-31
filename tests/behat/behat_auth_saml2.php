@@ -37,8 +37,8 @@ class behat_auth_saml2 extends behat_base {
     /**
      * @Given /^the authentication plugin "([^"]*)" is (disabled|enabled) +\# auth_saml2$/
      */
-    public function theAuthenticationPluginIsEnabledAuth_saml($plugin, $enabled) {
-        if ($enabled == 'disabled') {
+    public function theAuthenticationPluginIsEnabledAuth_saml($plugin = 'saml2', $enabled = true) {
+        if (($enabled == 'disabled') || ($enabled === false)) {
             $plugin = ''; // Disable all.
         }
         set_config('auth', $plugin);
@@ -58,5 +58,33 @@ class behat_auth_saml2 extends behat_base {
      */
     public function iAmAnAdministratorAuth_saml() {
             $this->execute('behat_auth::i_log_in_as', ['admin']);
+    }
+
+    /**
+     * @Given /^I am on the saml2 settings page +\# auth_saml2$/
+     * @Then /^I go to the saml2 settings page (?:again) +\# auth_saml2$/
+     */
+    public function iGoToTheSamlsettingsPageAuth_saml() {
+        $this->visitPath('/admin/auth_config.php?auth=saml2');
+    }
+
+    /**
+     * @When /^I change the setting "([^"]*)" to "([^"]*)" +\# auth_saml2$/
+     */
+    public function iChangeTheSettingToAuth_saml($field, $value) {
+        if ($field === 'Dual login') {
+            $field = "duallogin";
+        }
+        $this->execute('behat_forms::i_set_the_field_to', [$field, $value]);
+    }
+
+    /**
+     * @Given /^the setting "([^"]*)" should be "([^"]*)" +\# auth_saml2$/
+     */
+    public function theSettingShouldBeAuth_saml($field, $expectedvalue) {
+        if ($field === 'Dual login') {
+            $field = "duallogin";
+        }
+        $this->execute('behat_forms::the_field_matches_value', [$field, $expectedvalue]);
     }
 }

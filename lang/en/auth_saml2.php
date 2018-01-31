@@ -44,6 +44,7 @@ $string['debug_help'] = '<p>This adds extra debugging to the normal moodle log |
 $string['duallogin'] = 'Dual login';
 $string['duallogin_help'] = '
 <p>If on, then users will see both manual and a SAML login button. If off they will always be taken directly to the IdP login page.</p>
+<p>If passive, then the users that are already authenticated into the IDP will be automatically logged in, otherwise they will be sent to Moodle login page.</p>
 <p>If off, then admins can still see the manual login page via /login/index.php?saml=off</p>
 <p>If on, then external pages can deep link into moodle using saml eg /course/view.php?id=45&saml=on</p>
 ';
@@ -72,6 +73,7 @@ $string['nullprivatecert'] = 'Creation of Private Certificate failed.';
 $string['nullpubliccert'] = 'Creation of Public Certificate failed.';
 $string['organizationalunitname'] = 'Organisational Unit';
 $string['organizationname'] = 'Organisation';
+$string['passivemode'] = 'Passive mode';
 $string['pluginname'] = 'SAML2';
 $string['regenerate_submit'] = 'Regenerate';
 $string['required'] = 'This field is required';
