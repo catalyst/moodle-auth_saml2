@@ -21,6 +21,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use auth_saml2\admin\saml2_settings;
+
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir.'/authlib.php');
 
@@ -41,7 +43,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         'idpdefaultname'  => '', // Set in constructor.
         'idpmetadata'     => '',
         'debug'           => 0,
-        'duallogin'       => 1,
+        'duallogin'       => saml2_settings::OPTION_DUAL_LOGIN_YES,
         'anyauth'         => 1,
         'idpattr'         => 'uid',
         'mdlattr'         => 'username',
@@ -228,7 +230,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $saml = optional_param('saml', 0, PARAM_BOOL);
 
         // If dual auth then stop and show login page.
-        if ($this->config->duallogin == 1 && $saml == 0) {
+        if ($this->config->duallogin == saml2_settings::OPTION_DUAL_LOGIN_YES && $saml == 0) {
             $this->log(__FUNCTION__ . ' skipping due to dual auth');
             return false;
         }
