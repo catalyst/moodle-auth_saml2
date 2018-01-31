@@ -24,6 +24,7 @@
 
 // NOTE: no MOODLE_INTERNAL test here, this file may be required by behat before including /config.php.
 
+use auth_saml2\admin\saml2_settings;
 use auth_saml2\task\metadata_refresh;
 use Behat\Behat\Hook\Scope\AfterStepScope;
 
@@ -153,7 +154,11 @@ class behat_auth_saml2 extends behat_base {
 
         if ($setting == 'Dual Login') {
             $setting = 'duallogin';
-            $map = ['no' => 0, 'yes' => 1, 'passive' => 3];
+            $map = [
+                'no'      => saml2_settings::OPTION_DUAL_LOGIN_NO,
+                'yes'     => saml2_settings::OPTION_DUAL_LOGIN_YES,
+                'passive' => saml2_settings::OPTION_DUAL_LOGIN_PASSIVE,
+            ];
         }
 
         $lowervalue = strtolower($value);
