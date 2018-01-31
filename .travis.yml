@@ -3,6 +3,8 @@ language: php
 sudo: required
 
 addons:
+  hosts:
+    - simplesamlphp.test
   firefox: "47.0.1"
   postgresql: "9.3"
   apt:
@@ -37,12 +39,14 @@ before_install:
   - phpenv config-rm xdebug.ini
   - nvm install 8.9
   - nvm use 8.9
+  - tests/idp/simplesamlphp.sh
   - cd ../..
   - composer create-project -n --no-dev --prefer-dist moodlerooms/moodle-plugin-ci ci ^2
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
 
 install:
   - moodle-plugin-ci install -vvv
+  - echo '$CFG->cookiesecure = false;' >> moodle/config.php
 
 script:
   - moodle-plugin-ci phplint

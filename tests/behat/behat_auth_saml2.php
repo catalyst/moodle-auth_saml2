@@ -24,6 +24,9 @@
 
 // NOTE: no MOODLE_INTERNAL test here, this file may be required by behat before including /config.php.
 
+use auth_saml2\task\metadata_refresh;
+use Behat\Behat\Hook\Scope\AfterStepScope;
+
 require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 
 /**
@@ -35,13 +38,37 @@ require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
  */
 class behat_auth_saml2 extends behat_base {
     /**
-     * @Given /^the authentication plugin "([^"]*)" is (disabled|enabled) +\# auth_saml2$/
+     * Hopefully it will help when dealing with the IDP...
+     *
+     * @AfterStep
      */
-    public function theAuthenticationPluginIsEnabledAuth_saml($plugin = 'saml2', $enabled = true) {
-        if (($enabled == 'disabled') || ($enabled === false)) {
-            $plugin = ''; // Disable all.
+    public function take_screenshot_after_failure(AfterStepScope $scope) {
+        $resultcode = $scope->getTestResult()->getResultCode();
+        if ($resultcode === 99) {
+            $screenshot = $this->getSession()->getDriver()->getScreenshot();
+            $screenshot = base64_encode($screenshot);
+
+            $filename = '/tmp/behat_screenshots.base64';
+            if (!file_exists($filename)) {
+                file_put_contents($filename, "Just paste it into your browser :-). You're welcome!\n\n");
+            }
+
+            $url = "data:image/png;base64,{$screenshot}\n"; //
+            file_put_contents($filename, $url, FILE_APPEND);
         }
-        set_config('auth', $plugin);
+    }
+
+    /**
+     * @Given /^the authentication plugin saml2 is (disabled|enabled) +\# auth_saml2$/
+     */
+    public function theAuthenticationPluginIsEnabledAuth_saml($enabled = true) {
+        if (($enabled == 'disabled') || ($enabled === false)) {
+            set_config('auth', '');
+        } else {
+            set_config('auth', 'saml2');
+            $this->set_saml2_defaults();
+        }
+
         \core\session\manager::gc(); // Remove stale sessions.
         core_plugin_manager::reset_caches();
     }
@@ -51,6 +78,13 @@ class behat_auth_saml2 extends behat_base {
      */
     public function iGoToTheLoginPageAuth_saml() {
         $this->getSession()->visit($this->locate_path('login/index.php'));
+    }
+
+    /**
+     * @When /^I go to the login page with "([^"]*)" +\# auth_saml2$/
+     */
+    public function iGoToTheLoginPageWithAuth_saml($parameters) {
+        $this->getSession()->visit($this->locate_path("login/index.php?{$parameters}"));
     }
 
     /**
@@ -80,5 +114,45 @@ class behat_auth_saml2 extends behat_base {
      */
     public function theSettingShouldBeAuth_saml($field, $expectedvalue) {
         $this->execute('behat_forms::the_field_matches_value', [$field, $expectedvalue]);
+    }
+
+    private function set_saml2_defaults() {
+        global $CFG;
+
+        require_once($CFG->dirroot . '/auth/saml2/auth.php');
+
+        /** @var auth_plugin_saml2 $auth */
+        $auth = get_auth_plugin('saml2');
+        foreach ($auth->defaults as $key => $value) {
+            set_config($key, $value, 'auth_saml2');
+        }
+
+        set_config('idpmetadata', 'http://simplesamlphp.test:8001/saml2/idp/metadata.php', 'auth_saml2');
+        set_config('idpmetadatarefresh', '1', 'auth_saml2');
+        $refreshtask = new metadata_refresh();
+        ob_start();
+        $refreshtask->execute();
+        $result = trim(ob_get_clean());
+        if ($result != 'IdP metadata refresh completed successfully.') {
+            throw new moodle_exception('Cannot save plugin defaults.');
+        }
+
+        require(__DIR__ . '/../../setup.php');
+    }
+
+    /**
+     * @Given /^the saml2 setting "([^"]*)" is set to "([^"]*)" +\# auth_saml2$/
+     */
+    public function theSamlsettingIsSetToAuth_saml($setting, $value) {
+        $map = [];
+
+        if ($setting == 'Dual Login') {
+            $setting = 'duallogin';
+            $map = ['no' => 0, 'yes' => 1, 'passive' => 3];
+        }
+
+        $lowervalue = strtolower($value);
+        $value = in_array($lowervalue, $map) ? $map[$lowervalue] : $value;
+        set_config($setting, $value, 'auth_saml2');
     }
 }

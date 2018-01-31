@@ -5,7 +5,7 @@ Feature: Login
   I need to be able to login into Moodle
 
   Scenario: Use Moodle Login if SAML2 is disabled
-    Given the authentication plugin "saml2" is disabled       # auth_saml2
+    Given the authentication plugin saml2 is disabled         # auth_saml2
     When I go to the login page                               # auth_saml2
     Then I should see "Acceptance test site"
     And I should see "Log in"
