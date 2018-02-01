@@ -21,6 +21,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use auth_saml2\admin\saml2_settings;
+
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir.'/authlib.php');
 
@@ -32,16 +34,13 @@ require_once($CFG->libdir.'/authlib.php');
  */
 class auth_plugin_saml2 extends auth_plugin_base {
 
-    /**
-     * @var $defaults The config defaults
-     */
     public $defaults = array(
         'idpname'         => '',
         'entityid'        => '',
         'idpdefaultname'  => '', // Set in constructor.
         'idpmetadata'     => '',
         'debug'           => 0,
-        'duallogin'       => 1,
+        'duallogin'       => saml2_settings::OPTION_DUAL_LOGIN_YES,
         'anyauth'         => 1,
         'idpattr'         => 'uid',
         'mdlattr'         => 'username',
@@ -225,10 +224,29 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         $this->log(__FUNCTION__ . ' enter');
 
-        $saml = optional_param('saml', 0, PARAM_BOOL);
+        $saml = optional_param('saml', null, PARAM_BOOL);
+
+        // Never redirect on POST
+        if (isset($_SERVER['REQUEST_METHOD']) && ($_SERVER['REQUEST_METHOD'] == 'POST')) {
+            $this->log(__FUNCTION__ . ' skipping due to method=post');
+            return false;
+        }
+
+        // Never redirect if requested so.
+        if ($saml === 0) {
+            $SESSION->saml = $saml;
+            $this->log(__FUNCTION__ . ' skipping due to saml=off parameter');
+            return false;
+        }
+
+        // Never redirect if has error.
+        if (!empty($_GET['SimpleSAML_Auth_State_exceptionId'])) {
+            $this->log(__FUNCTION__ . ' skipping due to SimpleSAML_Auth_State_exceptionId');
+            return false;
+        }
 
         // If dual auth then stop and show login page.
-        if ($this->config->duallogin == 1 && $saml == 0) {
+        if ($this->config->duallogin == saml2_settings::OPTION_DUAL_LOGIN_YES && $saml == 0) {
             $this->log(__FUNCTION__ . ' skipping due to dual auth');
             return false;
         }
@@ -236,6 +254,12 @@ class auth_plugin_saml2 extends auth_plugin_base {
         // If ?saml=on even when duallogin is on, go directly to IdP.
         if ($saml == 1) {
             $this->log(__FUNCTION__ . ' redirecting due to query param ?saml=on');
+            return true;
+        }
+
+        // If passive mode always redirect, except if saml=off. It will redirect back to login page.
+        if ($this->config->duallogin == saml2_settings::OPTION_DUAL_LOGIN_PASSIVE) {
+            $this->log(__FUNCTION__ . ' redirecting due to passive mode.');
             return true;
         }
 
@@ -283,7 +307,13 @@ class auth_plugin_saml2 extends auth_plugin_base {
         require('setup.php');
         require_once("$CFG->dirroot/login/lib.php");
         $auth = new SimpleSAML_Auth_Simple($this->spname);
-        $auth->requireAuth();
+
+        $params = [];
+        if ($this->config->duallogin == saml2_settings::OPTION_DUAL_LOGIN_PASSIVE) {
+            $params = ['isPassive' => true, 'ErrorURL' => "{$CFG->wwwroot}/login/index.php"];
+        }
+
+        $auth->requireAuth($params);
         $attributes = $auth->getAttributes();
 
         $attr = $this->config->idpattr;
@@ -473,7 +503,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
     public function validate_form($form, &$err) {
 
         global $CFG, $saml2auth;
-        require_once('setup.php');
+        require('setup.php');
 
         // The IdP entityID needs to be parsed out of the XML.
         // It will use the first IdP entityID it finds.
