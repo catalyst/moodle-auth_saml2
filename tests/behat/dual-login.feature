@@ -35,3 +35,10 @@ Feature: SAML2 Dual Login
     And I set the field "Password" to "admin"
     And I press "Log in"
     Then I should see "Admin User"
+
+  Scenario: If dual login is "passive" and I am logged in SAML2, auto-login
+    Given the authentication plugin saml2 is enabled        # auth_saml2
+    And the saml2 setting "Dual Login" is set to "passive"  # auth_saml2
+    And I am already logged in as "student" in SAML2        # auth_saml2
+    When I go to the login page                             # auth_saml2
+    Then I should see "Student Alpha"

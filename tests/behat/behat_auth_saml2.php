@@ -129,8 +129,18 @@ class behat_auth_saml2 extends behat_base {
 
     private function set_saml2_defaults() {
         $form = (object)[
-            'idpmetadata' => 'http://simplesamlphp.test:8001/saml2/idp/metadata.php',
+            'idpmetadata'         => 'http://simplesamlphp.test:8001/saml2/idp/metadata.php',
+            'autocreate'          => 1,
+            'field_map_idnumber'  => 'uid',
+            'field_map_email'     => 'email',
+            'field_map_firstname' => 'firstname',
+            'field_map_lastname'  => 'surname',
+            'field_map_lang'      => 'lang',
         ];
+        foreach (['email','firstname','lastname','lang']as $field) {
+            $form->{"field_lock_{$field}"} = 'unlocked';
+            $form->{"field_updatelocal_{$field}"} = 'oncreate';
+        }
         $auth = get_auth_plugin('saml2');
 
         $errors = [];
