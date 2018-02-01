@@ -34,9 +34,6 @@ require_once($CFG->libdir.'/authlib.php');
  */
 class auth_plugin_saml2 extends auth_plugin_base {
 
-    /**
-     * @var $defaults The config defaults
-     */
     public $defaults = array(
         'idpname'         => '',
         'entityid'        => '',

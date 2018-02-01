@@ -67,7 +67,7 @@ class behat_auth_saml2 extends behat_base {
             set_config('auth', '');
         } else {
             set_config('auth', 'saml2');
-            $this->set_saml2_defaults();
+            $this->initialise_saml2();
             /** @var auth_plugin_saml2 $auth */
             $auth = get_auth_plugin('saml2');
             if (!$auth->is_configured()) {
@@ -122,19 +122,38 @@ class behat_auth_saml2 extends behat_base {
         $this->execute('behat_forms::the_field_matches_value', [$field, $expectedvalue]);
     }
 
-    private function set_saml2_defaults() {
+    private function apply_defaults() {
         global $CFG;
 
         require_once($CFG->dirroot . '/auth/saml2/auth.php');
 
         /** @var auth_plugin_saml2 $auth */
         $auth = get_auth_plugin('saml2');
-        foreach ($auth->defaults as $key => $value) {
-            set_config($key, $value, 'auth_saml2');
+
+        $defaults = array_merge($auth->defaults, [
+            'idpmetadata'         => 'http://simplesamlphp.test:8001/saml2/idp/metadata.php',
+            'idpmetadatarefresh'  => 1,
+            'autocreate'          => 1,
+            'field_map_idnumber'  => 'uid',
+            'field_map_email'     => 'email',
+            'field_map_firstname' => 'firstname',
+            'field_map_lastname'  => 'surname',
+            'field_map_lang'      => 'lang',
+        ]);
+
+        foreach (['email', 'firstname', 'lastname', 'lang'] as $field) {
+            $defaults["field_lock_{$field}"] = 'unlocked';
+            $defaults["field_updatelocal_{$field}"] = 'oncreate';
         }
 
-        set_config('idpmetadata', 'http://simplesamlphp.test:8001/saml2/idp/metadata.php', 'auth_saml2');
-        set_config('idpmetadatarefresh', '1', 'auth_saml2');
+        foreach ($defaults as $key => $value) {
+            set_config($key, $value, 'auth_saml2');
+        }
+    }
+
+    private function initialise_saml2() {
+        $this->apply_defaults();
+
         $refreshtask = new metadata_refresh();
         ob_start();
         $refreshtask->execute();
@@ -143,6 +162,7 @@ class behat_auth_saml2 extends behat_base {
             throw new moodle_exception('Cannot save plugin defaults.');
         }
 
+        global $CFG;
         require(__DIR__ . '/../../setup.php');
     }
 
