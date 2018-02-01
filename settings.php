@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use auth_saml2\admin\saml2_settings;
+
 defined('MOODLE_INTERNAL') || die;
 
 if ($ADMIN->fulltree) {
@@ -135,11 +137,19 @@ if ($ADMIN->fulltree) {
             0, $yesno));
 
     // Dual Login.
+    $dualloginoptions = [
+        saml2_settings::OPTION_DUAL_LOGIN_NO      => get_string('no'),
+        saml2_settings::OPTION_DUAL_LOGIN_YES     => get_string('yes'),
+        saml2_settings::OPTION_DUAL_LOGIN_PASSIVE => get_string('passivemode', 'auth_saml2'),
+    ];
+    $dualloginoptions = $yesno;
+    $dualloginoptions[] = get_string('passivemode', 'auth_saml2');
     $settings->add(new admin_setting_configselect(
             'auth_saml2/duallogin',
             get_string('duallogin', 'auth_saml2'),
             get_string('duallogin_help', 'auth_saml2'),
-            0, $yesno));
+            0,
+            $dualloginoptions));
 
     // Allow any auth type.
     $settings->add(new admin_setting_configselect(
