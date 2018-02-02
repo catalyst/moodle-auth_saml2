@@ -62,6 +62,10 @@ class behat_auth_saml2 extends behat_base {
      * @Given /^the authentication plugin saml2 is (disabled|enabled) +\# auth_saml2$/
      */
     public function theAuthenticationPluginIsEnabledAuth_saml($enabled = true) {
+        // If using SAML2 functionality, ensure all sessions are reset.
+        $this->reset_saml2_session();
+        $this->reset_moodle_session();
+
         if (($enabled == 'disabled') || ($enabled === false)) {
             set_config('auth', '');
         } else {
@@ -180,10 +184,24 @@ class behat_auth_saml2 extends behat_base {
      * @Given /^I am already logged in as "([^"]*)" in SAML2 +\# auth_saml2$/
      */
     public function iAmAlreadyLoggedInAsInSAMLAuth_saml($username) {
-        $this->visitPath('http://simplesamlphp.test:8001/module.php/core/authenticate.php');
+        $this->visit_saml2_login_page();
         $this->execute('behat_general::click_link', ['example-userpass']);
         $this->execute('behat_forms::i_set_the_field_to', ['Username', $username]);
         $this->execute('behat_forms::i_set_the_field_to', ['Password', "{$username}pass"]);
         $this->execute('behat_forms::press_button', ['Login']);
+    }
+
+    private function visit_saml2_login_page() {
+        $this->visitPath('http://simplesamlphp.test:8001/module.php/core/authenticate.php');
+    }
+
+    private function reset_saml2_session() {
+        $this->visit_saml2_login_page();
+        $this->getSession()->reset();
+    }
+
+    private function reset_moodle_session() {
+        $this->iGoToTheLoginPageWithAuth_saml('saml=off');
+        $this->getSession()->reset();
     }
 }

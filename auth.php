@@ -107,6 +107,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         } else {
             $wantsurl = new moodle_url('/auth/saml2/login.php', array('wants' => $wantsurl));
         }
+        $wantsurl->param('passive', 'off');
 
         $conf = $this->config;
         return array(
@@ -308,9 +309,11 @@ class auth_plugin_saml2 extends auth_plugin_base {
         require_once("$CFG->dirroot/login/lib.php");
         $auth = new SimpleSAML_Auth_Simple($this->spname);
 
-        $params = [];
-        if ($this->config->duallogin == saml2_settings::OPTION_DUAL_LOGIN_PASSIVE) {
-            $params = ['isPassive' => true, 'ErrorURL' => "{$CFG->wwwroot}/login/index.php"];
+        $passive = $this->config->duallogin == saml2_settings::OPTION_DUAL_LOGIN_PASSIVE;
+        $passive = (bool)optional_param('passive', $passive, PARAM_BOOL);
+        $params = ['isPassive' => $passive];
+        if ($passive) {
+            $params['ErrorURL'] = "{$CFG->wwwroot}/login/index.php";
         }
 
         $auth->requireAuth($params);
