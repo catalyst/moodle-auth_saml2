@@ -36,6 +36,19 @@ Feature: SAML2 Dual Login
     And I press "Log in"
     Then I should see "Admin User"
 
+  Scenario: If dual login is "passive" and I am not logged in SAML2, I can still use SAML2
+    Given the authentication plugin saml2 is enabled        # auth_saml2
+    And the saml2 setting "Dual Login" is set to "passive"  # auth_saml2
+    When I go to the login page                             # auth_saml2
+    Then I should see "Log in"
+    And I should see "Login via SAML2"
+    And I follow "Login via SAML2"
+    Then I should see "A service has requested you to authenticate yourself"
+    And I set the field "Username" to "student"
+    And I set the field "Password" to "studentpass"
+    And I press "Login"
+    And I should see "Student Alpha"
+
   Scenario: If dual login is "passive" and I am logged in SAML2, auto-login
     Given the authentication plugin saml2 is enabled        # auth_saml2
     And the saml2 setting "Dual Login" is set to "passive"  # auth_saml2
