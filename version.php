@@ -27,9 +27,9 @@ defined('MOODLE_INTERNAL') || die();
 // When updating the version, only increment the version number by one.
 // Do NOT set to the current date. Otherwise it will conflict with the
 // MOODLE_33PLUS branch and make it hard to upgrade between 3.2 and 3.3+.
-$plugin->version   = 2018011501;    // The current plugin version (Date: YYYYMMDDXX).
+$plugin->version   = 2018011502;    // The current plugin version (Date: YYYYMMDDXX).
 
-$plugin->release   = 2018011501;    // Match release exactly to version.
+$plugin->release   = 2018011502;    // Match release exactly to version.
 $plugin->requires  = 2014050800;    // Requires this Moodle version.
 $plugin->component = 'auth_saml2';  // Full name of the plugin (used for diagnostics).
 $plugin->maturity  = MATURITY_STABLE;
