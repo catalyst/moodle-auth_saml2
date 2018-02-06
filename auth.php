@@ -74,7 +74,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $this->config = (object) array_merge($this->defaults, (array) get_config('auth_saml2') );
 
         // Parsed IdP metadata, either a list of IdP metadata urls or a single XML blob.
-        $this->idplist = $this->parse_idpmetadata($this->config->idpmetadata);
+        $parser = new \auth_saml2\idp_parser();
+        $this->idplist = $parser->parse($this->config->idpmetadata);
 
         // MDUINames provided by the metadata.
         $this->idpmduinames = (array) json_decode($this->config->idpmduinames);
@@ -619,77 +620,6 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
     public function can_be_manually_set() {
         return true;
-    }
-
-    /**
-     * Parse the idpmetadata field if names / URLs are detected.
-     *
-     * Example lines may be:
-     * "IdP Name https://idpurl https://idpicon"
-     * "IdP Name https://idpurl"
-     * "https://idpurl https://idpicon"
-     * "https://idpurl"
-     *
-     * NOTE: Icon is WIP out of scope.
-     *
-     * @param $data
-     * @return \auth_saml2\idpdata[]
-     */
-    public function parse_idpmetadata($data) {
-        $idps = [];
-
-        // Check if the form data is a possible XML chunk.
-        if (strpos($data, '<?xml') === 0) {
-            // The URL for a single XML blob is used as an index to obtain the EntityID.
-            $singleidp = new \auth_saml2\idpdata(null, 'xml', null);
-            $singleidp->set_rawxml(trim($data));
-            $idps[] = $singleidp;
-        } else {
-            // First split the contents based on newlines.
-            $lines = preg_split('#\R#', $data);
-
-            foreach ($lines as $line) {
-                $idpdata = null;
-                $scheme = 'http';
-
-                // Separate the line base on the scheme http. The scheme added back to the urls.
-                $parts = array_map('rtrim', explode($scheme, $line));
-
-                if (count($parts) === 3) {
-                    // With three elements I will assume that it was entered in the correct format.
-                    $idpname = $parts[0];
-                    $idpurl = $scheme .$parts[1];
-                    $idpicon = $scheme. $parts[2];
-
-                    $idpdata = new \auth_saml2\idpdata($idpname, $idpurl, $idpicon);
-                } else if (count($parts) === 2) {
-                    // Two elements could either be a IdPName + IdPURL, or IdPURL + IdPIcon.
-
-                    // Detect if $parts[0] starts with a URL.
-                    if (substr($parts[0], 0, 8) === 'https://' ||
-                        substr($parts[0], 0, 7) === 'http://') {
-                        $idpurl = $scheme .$parts[1];
-                        $idpicon = $scheme. $parts[2];
-
-                        $idpdata = new \auth_saml2\idpdata(null, $idpurl, $idpicon);
-                    } else {
-                        // We would then know that is a IdPName + IdPURL combo.
-                        $idpname = $parts[0];
-                        $idpurl = $scheme .$parts[1];
-
-                        $idpdata = new \auth_saml2\idpdata($idpname, $idpurl, null);
-                    }
-                } else if (count($parts) === 1) {
-                    // One element is the previous default.
-                    $idpurl = $scheme . $parts[0];
-                    $idpdata = new \auth_saml2\idpdata(null, $idpurl, null);
-                }
-
-                $idps[] = $idpdata;
-            }
-        }
-
-        return $idps;
     }
 }
 

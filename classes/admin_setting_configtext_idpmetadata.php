@@ -58,7 +58,8 @@ class admin_setting_configtext_idpmetadata extends admin_setting_configtextarea 
         // 2. A list of URLs.
         $idpmetadata = trim($value);
 
-        $idps = $saml2auth->parse_idpmetadata($idpmetadata);
+        $parser = new \auth_saml2\idp_parser();
+        $idps = $parser->parse($idpmetadata);
 
         foreach ($idps as $idp) {
             // Download the XML if it was not parsed from the ipdmetadata field.
