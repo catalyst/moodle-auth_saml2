@@ -41,6 +41,7 @@ class admin_setting_configtext_idpmetadata extends admin_setting_configtextarea 
      *
      * @param string $value
      * @return true|string Error message in case of error, true otherwise.
+     * @throws \coding_exception
      */
     public function validate($value) {
         // Validate parent.
@@ -118,41 +119,6 @@ class admin_setting_configtext_idpmetadata extends admin_setting_configtextarea 
         set_config('idpentityids', json_encode($entityids), 'auth_saml2');
         set_config('idpmduinames', json_encode($mduinames), 'auth_saml2');
 
-        return true;
-    }
-
-    private function validate_xml($rawxml) {
-        global $saml2auth;
-
-        $xml = new SimpleXMLElement($rawxml);
-        $xml->registerXPathNamespace('md', 'urn:oasis:names:tc:SAML:2.0:metadata');
-        $xml->registerXPathNamespace('mdui', 'urn:oasis:names:tc:SAML:metadata:ui');
-
-        $entityid = '';
-        $idpdefaultname = $saml2auth->defaults['idpdefaultname'];
-
-        // Find all IDPSSODescriptor elements and then work back up to the entityID.
-        $idps = $xml->xpath('//md:EntityDescriptor[//md:IDPSSODescriptor]');
-        if ($idps && isset($idps[0])) {
-            $entityid = (string)$idps[0]->attributes('', true)->entityID[0];
-
-            $names = @$idps[0]->xpath('//mdui:DisplayName');
-            if ($names && isset($names[0])) {
-                $idpdefaultname = (string)$names[0];
-            }
-        }
-
-        if (empty($entityid)) {
-            return get_string('idpmetadata_noentityid', 'auth_saml2');
-        }
-        set_config('entityid', $entityid, 'auth_saml2');
-        set_config('idpdefaultname', $idpdefaultname, 'auth_saml2');
-
-        // Validated, create certificate.
-        if (!file_exists($saml2auth->certdir)) {
-            mkdir($saml2auth->certdir);
-        }
-        file_put_contents($saml2auth->certdir . 'idp.xml', $rawxml);
         return true;
     }
 }
