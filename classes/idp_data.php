@@ -16,6 +16,8 @@
 
 namespace auth_saml2;
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * IdP data class.
  *
@@ -25,7 +27,7 @@ namespace auth_saml2;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class idpdata {
+class idp_data {
     public $idpname;
 
     public $idpurl;
@@ -35,7 +37,7 @@ class idpdata {
     public $rawxml;
 
     /**
-     * idpdata constructor.
+     * idp_data constructor.
      *
      * @param $idpname
      * @param $idpicon
