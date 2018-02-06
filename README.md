@@ -60,6 +60,7 @@ Features
 * SAML attributes to Moodle user field mapping
 * Automatic certificate creation
 * Optionally auto create users
+* Support for multiple identity providers
 
 Features not yet implemented:
 
@@ -191,6 +192,23 @@ issues lies. Some common issues are:
 
 Gotchas
 -------
+
+**Multiple IdPs**
+When using multiple IdPs the system will force enable the dual login setting. This is so
+that a list of possible identity providers will be presented to the user when logging in.
+
+To enable multiple IdPs you can use the 'IdP metadata xml OR public xml URL' configuration
+field.  An example might look like this,
+
+```
+Identity Provider Name http://ssp1.local/simplesaml/saml2/idp/metadata.php
+http://ssp2.local/simplesaml/saml2/idp/metadata.php
+```
+
+If there is any text before the http scheme then it will be used as the override name.
+
+It is not be recommended to use the 'IdP label override' configuration option with
+multiple IdPs.
 
 **OpenAM**
 

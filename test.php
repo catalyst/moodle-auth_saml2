@@ -24,17 +24,39 @@
 
 require('setup.php');
 
+$idp = optional_param('idp', '', PARAM_RAW);
+$logout = optional_param('logout', '', PARAM_RAW);
+$idplogout = optional_param('idplogout', '', PARAM_RAW);
+
+if (!empty($idp)) {
+    $SESSION->saml2testidp = $idp;
+}
+
+if (!empty($logout)) {
+    $SESSION->saml2testidp = $idplogout;
+}
+
 $passive = optional_param('passive', '', PARAM_RAW);
 $passivefail = optional_param('passivefail', '', PARAM_RAW);
 $trylogin = optional_param('login', '', PARAM_RAW);
 
+if ($logout) {
+    $urlparams = [
+        'sesskey' => sesskey(),
+        'auth' => $saml2auth->authtype,
+    ];
+    $url = new moodle_url('/auth/test_settings.php', $urlparams);
+    $auth->logout(['ReturnTo' => $url->out(false)]);
+}
+
 $auth = new SimpleSAML_Auth_Simple($saml2auth->spname);
 
 if ($passive) {
-
+    // Prevent it from calling the missing post redirection. /auth/saml2/sp/module.php/core/postredirect.php
     $auth->requireAuth(array(
+        'KeepPost' => false,
         'isPassive' => true,
-        'ErrorURL' => $CFG->wwwroot . '/auth/saml2/test.php?passivefail=1',
+        'ErrorURL' => $CFG->wwwroot . '/auth/saml2/test.php?passivefail=1'
     ));
     echo "<p>Passive auth check:</p>";
     if (!$auth->isAuthenticated() ) {
@@ -45,10 +67,13 @@ if ($passive) {
 
 } else if (!$auth->isAuthenticated() && $trylogin) {
 
-    $auth->requireAuth();
+    $auth->requireAuth(array(
+        'KeepPost' => false
+    ));
     echo "Hello, authenticated user!";
     $attributes = $as->getAttributes();
     var_dump($attributes);
+    echo 'IdP: ' . $auth->getAuthData('saml:sp:IdP');
 
 } else if (!$auth->isAuthenticated()) {
     echo '<p>You are not logged in: <a href="?login=true">Login</a> | <a href="?passive=true">isPassive test</a></p>';
@@ -60,6 +85,8 @@ if ($passive) {
     $attributes = $auth->getAttributes();
     echo '<pre>';
     var_dump($attributes);
+    echo 'IdP: ' . $auth->getAuthData('saml:sp:IdP');
     echo '</pre>';
 }
 
+unset($SESSION->saml2testidp);
