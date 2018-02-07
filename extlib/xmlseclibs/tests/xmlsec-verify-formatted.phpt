@@ -1,5 +1,5 @@
 --TEST--
-Basic Verify
+Verify with formatted X509Certificate
 --FILE--
 <?php
 require(dirname(__FILE__) . '/../xmlseclibs.php');
@@ -7,7 +7,7 @@ use RobRichards\XMLSecLibs\XMLSecurityDSig;
 use RobRichards\XMLSecLibs\XMLSecEnc;
 
 $doc = new DOMDocument();
-$arTests = array('SIGN_TEST'=>'sign-basic-test.xml');
+$arTests = array('SIGN_TEST_FORMATTED'=>'sign-formatted-test.xml');
 
 foreach ($arTests AS $testName=>$testFile) {
 	$doc->load(dirname(__FILE__) . "/$testFile");
@@ -34,11 +34,11 @@ foreach ($arTests AS $testName=>$testFile) {
 	$key = NULL;
 	
 	$objKeyInfo = XMLSecEnc::staticLocateKeyInfo($objKey, $objDSig);
-
+	
 	if (! $objKeyInfo->key && empty($key)) {
 		$objKey->loadKey(dirname(__FILE__) . '/mycert.pem', TRUE);
 	}
-
+	
 	print $testName.": ";
 	if ($objXMLSecDSig->verify($objKey) === 1) {
 		print "Signature validated!";
@@ -49,4 +49,4 @@ foreach ($arTests AS $testName=>$testFile) {
 }
 ?>
 --EXPECTF--
-SIGN_TEST: Signature validated!
+SIGN_TEST_FORMATTED: Signature validated!
