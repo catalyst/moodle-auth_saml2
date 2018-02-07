@@ -43,7 +43,7 @@ function auth_saml2_get_sp_metadata() {
         return $xml;
     }
 
-    $auth = new SimpleSAML_Auth_Simple($sourceId);
+    $auth = new SimpleSAML\Auth\Simple($sourceId);
     $config = SimpleSAML_Configuration::getInstance();
     $source = SimpleSAML_Auth_Source::getById($sourceId);
     if ($source === NULL) {
@@ -56,20 +56,20 @@ function auth_saml2_get_sp_metadata() {
 
     $entityId = $source->getEntityId();
     $spconfig = $source->getMetadata();
-    $store = SimpleSAML_Store::getInstance();
+    $store = SimpleSAML\Store::getInstance();
 
     $metaArray20 = array();
 
     $slosvcdefault = array(
-        SAML2_Const::BINDING_HTTP_REDIRECT,
-        SAML2_Const::BINDING_SOAP,
+        SAML2\Constants::BINDING_HTTP_REDIRECT,
+        SAML2\Constants::BINDING_SOAP,
     );
 
     $slob = $spconfig->getArray('SingleLogoutServiceBinding', $slosvcdefault);
     $slol = "$CFG->wwwroot/auth/saml2/sp/saml2-logout.php/{$sourceId}";
 
     foreach ($slob as $binding) {
-        if ($binding == SAML2_Const::BINDING_SOAP && !($store instanceof SimpleSAML_Store_SQL)) {
+        if ($binding == SAML2\Constants::BINDING_SOAP && !($store instanceof SimpleSAML_Store_SQL)) {
             /* We cannot properly support SOAP logout. */
             continue;
         }
@@ -99,7 +99,7 @@ function auth_saml2_get_sp_metadata() {
         $acsArray = array('index' => $index);
         switch ($services) {
         case 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST':
-            $acsArray['Binding'] = SAML2_Const::BINDING_HTTP_POST;
+            $acsArray['Binding'] = SAML2\Constants::BINDING_HTTP_POST;
             $acsArray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml2-acs.php/{$sourceId}";
             break;
         case 'urn:oasis:names:tc:SAML:1.0:profiles:browser-post':
@@ -117,7 +117,7 @@ function auth_saml2_get_sp_metadata() {
         case 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser':
             $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser';
             $acsArray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml2-acs.php/{$sourceId}";
-            $acsArray['hoksso:ProtocolBinding'] = SAML2_Const::BINDING_HTTP_REDIRECT;
+            $acsArray['hoksso:ProtocolBinding'] = SAML2\Constants::BINDING_HTTP_REDIRECT;
             break;
         }
         $eps[] = $acsArray;
@@ -249,7 +249,7 @@ function auth_saml2_get_sp_metadata() {
         $metaArray20['validate.authnrequest'] = $spconfig->getBoolean('sign.authnrequest');
     }
 
-    $supported_protocols = array('urn:oasis:names:tc:SAML:1.1:protocol', SAML2_Const::NS_SAMLP);
+    $supported_protocols = array('urn:oasis:names:tc:SAML:1.1:protocol', SAML2\Constants::NS_SAMLP);
 
     $metaArray20['metadata-set'] = 'saml20-sp-remote';
     $metaArray20['entityid'] = $entityId;

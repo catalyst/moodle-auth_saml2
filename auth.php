@@ -378,7 +378,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
             $SESSION->saml2idp = $_GET['idp'];
         }
 
-        $auth = new SimpleSAML_Auth_Simple($this->spname);
+        $auth = new \SimpleSAML\Auth\Simple($this->spname);
 
         $passive = $this->config->duallogin == saml2_settings::OPTION_DUAL_LOGIN_PASSIVE;
         $passive = (bool)optional_param('passive', $passive, PARAM_BOOL);
@@ -530,7 +530,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         // Woah there, we lost the session data, lets restore the IdP.
         $SESSION->saml2idp = $idp;
-        $auth = new SimpleSAML_Auth_Simple($this->spname);
+        $auth = new \SimpleSAML\Auth\Simple($this->spname);
 
         // Only log out of the IdP if we logged in via the IdP. TODO check session timeouts.
         if ($auth->isAuthenticated()) {
