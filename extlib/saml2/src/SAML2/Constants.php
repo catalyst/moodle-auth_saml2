@@ -1,11 +1,13 @@
 <?php
 
+namespace SAML2;
+
 /**
  * Various SAML 2 constants.
  *
  * @package SimpleSAMLphp
  */
-class SAML2_Const
+class Constants
 {
     /**
      * Password authentication context.
@@ -38,6 +40,11 @@ class SAML2_Const
     const BINDING_SOAP = 'urn:oasis:names:tc:SAML:2.0:bindings:SOAP';
 
     /**
+     * The URN for the PAOS binding.
+     */
+    const BINDING_PAOS = 'urn:oasis:names:tc:SAML:2.0:bindings:PAOS';
+
+    /**
      * The URN for the Holder-of-Key Web Browser SSO Profile binding
      */
     const BINDING_HOK_SSO = 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser';
@@ -51,7 +58,7 @@ class SAML2_Const
     * Holder-of-Key subject confirmation method.
     */
     const CM_HOK = 'urn:oasis:names:tc:SAML:2.0:cm:holder-of-key';
-    
+
     /**
      * Vouches subject confirmation method.
      */
@@ -124,6 +131,10 @@ class SAML2_Const
      */
     const CONSENT_INAPPLICABLE = 'urn:oasis:names:tc:SAML:2.0:consent:inapplicable';
 
+    const EPTI_URN_MACE = 'urn:mace:dir:attribute-def:eduPersonTargetedID';
+
+    const EPTI_URN_OID = 'urn:oid:1.3.6.1.4.1.5923.1.1.1.10';
+
     /**
      * The interpretation of the attribute name is left to individual implementations.
      */
@@ -149,6 +160,31 @@ class SAML2_Const
     const NAMEID_UNSPECIFIED = 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified';
 
     /**
+     * Email address NameID format.
+     */
+    const NAMEID_EMAIL_ADDRESS = 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress';
+
+    /**
+     * X509 Subject Name NameID format.
+     */
+    const NAMEID_X509_SUBJECT_NAME = 'urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName';
+
+    /**
+     * Windows Domain Qualifier Name NameID format.
+     */
+    const NAMEID_WINDOWS_DOMAIN_QUALIFIED_NAME = 'urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName';
+
+    /**
+     * Kerberos Principal Name NameID format.
+     */
+    const NAMEID_KERBEROS = 'urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos';
+
+    /**
+     * Entity NameID format.
+     */
+    const NAMEID_ENTITY = 'urn:oasis:names:tc:SAML:2.0:nameid-format:entity';
+
+    /**
      * Persistent NameID format.
      */
     const NAMEID_PERSISTENT = 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent';
@@ -162,6 +198,11 @@ class SAML2_Const
      * Encrypted NameID format.
      */
     const NAMEID_ENCRYPTED = 'urn:oasis:names:tc:SAML:2.0:nameid-format:encrypted';
+
+    /**
+     * The namespace for the ECP protocol.
+     */
+    const NS_ECP = 'urn:oasis:names:tc:SAML:2.0:profiles:SSO:ecp';
 
     /**
      * The namespace for the SOAP protocol.

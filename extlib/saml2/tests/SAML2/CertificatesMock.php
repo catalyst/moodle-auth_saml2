@@ -1,9 +1,13 @@
 <?php
 
+namespace SAML2;
+
+use RobRichards\XMLSecLibs\XMLSecurityKey;
+
 /**
- * Class SAML2_CertificatesMock
+ * Class \SAML2\CertificatesMock
  */
-class SAML2_CertificatesMock
+class CertificatesMock
 {
     const PUBLIC_KEY_PEM = '-----BEGIN CERTIFICATE-----
 MIICgTCCAeoCCQCbOlrWDdX7FTANBgkqhkiG9w0BAQUFADCBhDELMAkGA1UEBhMC
@@ -22,6 +26,8 @@ bK+onygwBspVEbnHuUihZq3ZUdmumQqCw4Uvs/1Uvq3orOo/WJVhTyvLgFVK2Qar
 Q4/67OZfHd7R+POBXhophSMv1ZOo
 -----END CERTIFICATE-----';
 
+    const PUBLIC_KEY_PEM_CONTENTS = 'MIICgTCCAeoCCQCbOlrWDdX7FTANBgkqhkiG9w0BAQUFADCBhDELMAkGA1UEBhMCTk8xGDAWBgNVBAgTD0FuZHJlYXMgU29sYmVyZzEMMAoGA1UEBxMDRm9vMRAwDgYDVQQKEwdVTklORVRUMRgwFgYDVQQDEw9mZWlkZS5lcmxhbmcubm8xITAfBgkqhkiG9w0BCQEWEmFuZHJlYXNAdW5pbmV0dC5ubzAeFw0wNzA2MTUxMjAxMzVaFw0wNzA4MTQxMjAxMzVaMIGEMQswCQYDVQQGEwJOTzEYMBYGA1UECBMPQW5kcmVhcyBTb2xiZXJnMQwwCgYDVQQHEwNGb28xEDAOBgNVBAoTB1VOSU5FVFQxGDAWBgNVBAMTD2ZlaWRlLmVybGFuZy5ubzEhMB8GCSqGSIb3DQEJARYSYW5kcmVhc0B1bmluZXR0Lm5vMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDivbhR7P516x/S3BqKxupQe0LONoliupiBOesCO3SHbDrl3+q9IbfnfmE04rNuMcPsIxB161TdDpIesLCn7c8aPHISKOtPlAeTZSnb8QAu7aRjZq3+PbrP5uW3TcfCGPtKTytHOge/OlJbo078dVhXQ14d1EDwXJW1rRXuUt4C8QIDAQABMA0GCSqGSIb3DQEBBQUAA4GBACDVfp86HObqY+e8BUoWQ9+VMQx1ASDohBjwOsg2WykUqRXF+dLfcUH9dWR63CtZIKFDbStNomPnQz7nbK+onygwBspVEbnHuUihZq3ZUdmumQqCw4Uvs/1Uvq3orOo/WJVhTyvLgFVK2QarQ4/67OZfHd7R+POBXhophSMv1ZOo';
+
     const PRIVATE_KEY_PEM = '-----BEGIN RSA PRIVATE KEY-----
 MIICXgIBAAKBgQDivbhR7P516x/S3BqKxupQe0LONoliupiBOesCO3SHbDrl3+q9
 IbfnfmE04rNuMcPsIxB161TdDpIesLCn7c8aPHISKOtPlAeTZSnb8QAu7aRjZq3+
@@ -37,6 +43,55 @@ rCHbrPfU264+UZXz9v2BT/VUznLF81WMvStD9xAPHpFS6R0OLghSZhdzhI0CQQDL
 XSWMfEcJ/0Zt+LdG1CqjAkEAqwLSglJ9Dy3HpgMz4vAAyZWzAxvyA1zW0no9GOLc
 PQnYaNUN/Fy2SYtETXTb0CQ9X1rt8ffkFP7ya+5TC83aMg==
 -----END RSA PRIVATE KEY-----';
+
+    const PUBLIC_KEY_2_PEM = '-----BEGIN CERTIFICATE-----
+MIIEdjCCA16gAwIBAgIRALcDQnHscLnQAL4GULGaHsIwDQYJKoZIhvcNAQEFBQAw
+NjELMAkGA1UEBhMCTkwxDzANBgNVBAoTBlRFUkVOQTEWMBQGA1UEAxMNVEVSRU5B
+IFNTTCBDQTAeFw0wOTEwMjYwMDAwMDBaFw0xMjEwMjUyMzU5NTlaMFExCzAJBgNV
+BAYTAk5MMRUwEwYDVQQKEwxTVVJGbmV0IEIuVi4xETAPBgNVBAsTCFNlcnZpY2Vz
+MRgwFgYDVQQDEw9iZXRhLnN1cmZuZXQubmwwggEiMA0GCSqGSIb3DQEBAQUAA4IB
+DwAwggEKAoIBAQC7D6V4dl41AF70veMMQqL7kpk+p06qU9EW2YUuJAnwhRO1Sfbi
+qPweitLE7ReXfK/vSPvdFG194gZjJ4JS7M7pP00eolfEK6ljLhMoUrzbBuEc5LoQ
+B6HsOogod7YrJiVRXLzM4bV2LzbyjAwBgForoM4l576CjbN/NDAPO3YvbktodR5D
+H/nPiw/5L7w2KS3x55xUd8clY7Nji9W7XbviMUAugSkkC2ethl0AMpdmk6BI5pjy
+r6KCUrGz9bKl101yUGhrkHy1NpHagOoxakkgVDgi2Erf8aDnkCe8A419m2mBD1WA
+9uQWF5eMpiY8fDMwjwSFDFoSUlJPhiKN8vpnAgMBAAGjggFiMIIBXjAfBgNVHSME
+GDAWgBQMvZNoDPPeq6NJays3V0fqkOO57TAdBgNVHQ4EFgQUrCpeMIzTW5M13G4i
+b1B+yq7Fm60wDgYDVR0PAQH/BAQDAgWgMAwGA1UdEwEB/wQCMAAwHQYDVR0lBBYw
+FAYIKwYBBQUHAwEGCCsGAQUFBwMCMBgGA1UdIAQRMA8wDQYLKwYBBAGyMQECAh0w
+OgYDVR0fBDMwMTAvoC2gK4YpaHR0cDovL2NybC50Y3MudGVyZW5hLm9yZy9URVJF
+TkFTU0xDQS5jcmwwbQYIKwYBBQUHAQEEYTBfMDUGCCsGAQUFBzAChilodHRwOi8v
+Y3J0LnRjcy50ZXJlbmEub3JnL1RFUkVOQVNTTENBLmNydDAmBggrBgEFBQcwAYYa
+aHR0cDovL29jc3AudGNzLnRlcmVuYS5vcmcwGgYDVR0RBBMwEYIPYmV0YS5zdXJm
+bmV0Lm5sMA0GCSqGSIb3DQEBBQUAA4IBAQC8iCICDbP4/8JTDeLPfo/n6roOvpMs
+teQt7X5oN2Ka1xgKflpBGqJO5o3PcnfP437kcLRTnp6XDyTfS4eyZdxCqCECR2Pb
+8nbULVFv9hyF6asIWUfbJ67CFcRIpcuaD5habSrg8+rT86DjKdtYQKwbKL+rNbOs
+g6/ROR7vJgbSqrBLraXvl8HDUq5+lSF/II4LHVzNM8TpQlMY4ynRP6GEjcNUTH3I
+FKPQk+NwBYQqJ83Uil/36kbXsHQ81o/Vp6it7tlvLBOP1EN9jNGUXZuAqvFphNkw
+EJpABx1x4ukY8bZVl6QzQ79P48oGxOaIy27/g1FVkGqRtA4UPABcn0sJ
+-----END CERTIFICATE-----';
+
+    const PUBLIC_KEY_DSA_PEM = '-----BEGIN CERTIFICATE-----
+MIIDXTCCAxqgAwIBAgIJAO/P24rWSVJKMAsGCWCGSAFlAwQDAjBmMQswCQYDVQQG
+EwJOTDEQMA4GA1UECAwHVXRyZWNodDEQMA4GA1UEBwwHVXRyZWNodDEQMA4GA1UE
+CgwHU1VSRm5ldDEhMB8GA1UEAwwYQ2VydGlmaWNhdGUgd2l0aCBEU0Ega2V5MB4X
+DTE2MTEyOTE1MzU0MloXDTE2MTIyOTE1MzU0MlowZjELMAkGA1UEBhMCTkwxEDAO
+BgNVBAgMB1V0cmVjaHQxEDAOBgNVBAcMB1V0cmVjaHQxEDAOBgNVBAoMB1NVUkZu
+ZXQxITAfBgNVBAMMGENlcnRpZmljYXRlIHdpdGggRFNBIGtleTCCAbcwggEsBgcq
+hkjOOAQBMIIBHwKBgQDymea94rRzJ9Xtj7EoaXuYH8X9a2E0Ei8wfx+9lZK5C8Fm
+5wgTYeTGXV45Tf4VZ+eqz6sU4XQC6ehVIlxdO9PvodYgQdB3aGlDW9mhcVM/kL9v
+AIRgLMHMwyph6FDWD/uKyw6hH4A7XKer09SIfmqwhUqg27Xm5pKVH3kYOUGsBwIV
+ANooxK2eY8ojkNRjxebok0tbKD/tAoGBAMQawu3dHEDtKzYuGrSD9NxGLRB5NI0k
+h4qvliwD6ur2IDrrnxmN/VY0QqwOT6AWChiIur5glBP7zlG2GBR03FrMaJRF727r
+ExSzWETQKKgXx9vQpw6jcwIiHoQhullzjLr8qFQsOsNRnXeKmSvZxEJKRKhAUSAu
+0yEnLkJc4F44A4GEAAKBgF6rEBWslH8aV/iM07JjC+kcLPcG5Yp619KLcSfWt030
+CU2A8azmtNeQZ1FB/sg2PjciQ8qgcxFXBRHkUS/173WXb+6dDTuFBxwTYBVJM+ZD
+Zmm5GEXjGbZN2tV0s1ULp+plbOwROLC8F5oyZE2fvTAvqZ9XHeWIZkgyoVwSuvXO
+o1AwTjAdBgNVHQ4EFgQUC12Td80rgZbLXfvMefDul5w/S/YwHwYDVR0jBBgwFoAU
+C12Td80rgZbLXfvMefDul5w/S/YwDAYDVR0TBAUwAwEB/zALBglghkgBZQMEAwID
+MAAwLQIUKvKKf7u2pLv5JAsc5E5QOpZ9JWoCFQCVymKmF6aYAOJxuSlUj+vF1n6p
+UQ==
+-----END CERTIFICATE-----';
 
     /**
      * @return XMLSecurityKey
@@ -56,5 +111,84 @@ PQnYaNUN/Fy2SYtETXTb0CQ9X1rt8ffkFP7ya+5TC83aMg==
         $privateKey = new XMLSecurityKey(XMLSecurityKey::RSA_1_5, array('type'=>'private'));
         $privateKey->loadKey(self::PRIVATE_KEY_PEM);
         return $privateKey;
+    }
+
+    /**
+     * @return XMLSecurityKey
+     */
+    public static function getPublicKey2()
+    {
+        $publicKey = new XMLSecurityKey(XMLSecurityKey::RSA_1_5, array('type'=>'public'));
+        $publicKey->loadKey(self::PUBLIC_KEY_2_PEM);
+        return $publicKey;
+    }
+
+
+    /**
+     * @return XMLSecurityKey
+     */
+    public static function getPublicKey3()
+    {
+        $publicKey = new XMLSecurityKey(XMLSecurityKey::RSA_SHA1, array('type'=>'public'));
+        $publicKey->loadKey(self::PUBLIC_KEY_3_PEM);
+        return $publicKey;
+    }
+
+
+    /**
+     * @return XMLSecurityKey
+     */
+    public static function getPublicKeySha1()
+    {
+        $publicKey = new XMLSecurityKey(XMLSecurityKey::RSA_SHA1, array('type'=>'public'));
+        $publicKey->loadKey(self::PUBLIC_KEY_PEM);
+        return $publicKey;
+    }
+
+    /**
+     * @return XMLSecurityKey
+     */
+    public static function getPublicKey2Sha1()
+    {
+        $publicKey = new XMLSecurityKey(XMLSecurityKey::RSA_SHA1, array('type'=>'public'));
+        $publicKey->loadKey(self::PUBLIC_KEY_2_PEM);
+        return $publicKey;
+    }
+
+    /**
+     * Load a X.509 certificate with a DSA public key as RSA key
+     * @return XMLSecurityKey
+     */
+    public static function getPublicKeyDSAasRSA()
+    {
+        $publicKey = new XMLSecurityKey(XMLSecurityKey::RSA_SHA1, array('type'=>'public'));
+        $publicKey->loadKey(self::PUBLIC_KEY_DSA_PEM);
+        return $publicKey;
+    }
+
+    public static function getPlainPublicKey()
+    {
+        return self::PUBLIC_KEY_PEM;
+    }
+
+    public static function getPlainPrivateKey()
+    {
+        return self::PRIVATE_KEY_PEM;
+    }
+
+    /**
+     * Returns just the certificate contents without the begin and end markings
+     */
+    public static function getPlainPublicKeyContents()
+    {
+        return self::PUBLIC_KEY_PEM_CONTENTS;
+    }
+
+    /**
+     * Returns malformed public key by truncating it.
+     */
+    public static function getPlainInvalidPublicKey()
+    {
+        return substr(self::PUBLIC_KEY_PEM,200);
     }
 }
