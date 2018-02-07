@@ -557,22 +557,6 @@ class auth_plugin_saml2 extends auth_plugin_base {
     }
 
     /**
-     * Prints a form for configuring this authentication plugin.
-     *
-     * This function is called from admin/auth.php, and outputs a full page with
-     * a form for configuring this plugin.
-     *
-     * @param object $config
-     * @param object $err
-     * @param array $userfields
-     */
-    public function config_form($config, $err, $userfields) {
-        $config = (object) array_merge($this->defaults, (array) $config );
-        global $CFG, $OUTPUT;
-        include($CFG->dirroot.'/auth/saml2/settings.html');
-    }
-
-    /**
      * Processes and stores configuration data for this authentication plugin.
      *
      * @param object $config

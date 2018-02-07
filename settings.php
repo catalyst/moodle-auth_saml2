@@ -29,6 +29,7 @@ defined('MOODLE_INTERNAL') || die;
 if ($ADMIN->fulltree) {
     require_once($CFG->dirroot.'/auth/saml2/classes/admin_setting_auth_saml2_button.php');
     require_once($CFG->dirroot.'/auth/saml2/classes/admin_setting_auth_saml2_textonly.php');
+    require_once($CFG->dirroot.'/auth/saml2/locallib.php');
 
     // Warning for missing mcrypt.
     $settings->add(new admin_setting_php_extension_enabled(
@@ -213,6 +214,12 @@ if ($ADMIN->fulltree) {
     $help = get_string('auth_updatelocal_expl', 'auth');
     $help .= get_string('auth_fieldlock_expl', 'auth');
     $help .= get_string('auth_updateremote_expl', 'auth');
-    display_auth_lock_options($settings, $authplugin->authtype, $authplugin->userfields, $help, true, true,
+
+    if (moodle_major_version() < '3.3') {
+        auth_saml2_display_auth_lock_options($settings, $authplugin->authtype, $authplugin->userfields, $help, true, true,
             $authplugin->get_custom_user_profile_fields());
+    } else {
+        display_auth_lock_options($settings, $authplugin->authtype, $authplugin->userfields, $help, true, true,
+            $authplugin->get_custom_user_profile_fields());
+    }
 }
