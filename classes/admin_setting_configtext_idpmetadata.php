@@ -50,6 +50,11 @@ class admin_setting_configtext_idpmetadata extends admin_setting_configtextarea 
             return $error;
         }
 
+        // Allow empty field to be processed.
+        if (empty($value)) {
+            return true;
+        }
+
         global $saml2auth;
         require_once(__DIR__ . '/../setup.php');
 
