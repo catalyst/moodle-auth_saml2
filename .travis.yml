@@ -5,7 +5,7 @@ sudo: required
 addons:
   hosts:
     - simplesamlphp.test
-  firefox: "47.0.1"
+  firefox: "35.0.1"
   postgresql: "9.3"
   apt:
     packages:
