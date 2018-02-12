@@ -83,4 +83,4 @@ script:
   - if [ "$CI" -eq 2 ]; then moodle-plugin-ci grunt      ; fi
 
   - moodle-plugin-ci phpunit
-  - moodle-plugin-ci behat
+  - if [ "$CI" -eq 2 ]; then moodle-plugin-ci behat      ; fi
