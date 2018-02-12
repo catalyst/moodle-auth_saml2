@@ -157,6 +157,8 @@ XML;
             $this->markTestSkipped('Skipping due to Prophecy library not available');
         }
 
+        $this->setExpectedExceptionFromAnnotation();
+
         set_config('idpmetadatarefresh', 1, 'auth_saml2');
         set_config('idpmetadata', 'http://somefakeidpurl.local', 'auth_saml2');
 
@@ -173,8 +175,8 @@ XML;
         $parser->parse('somexml')->willReturn(null);
         $parser->get_entityid()->willReturn('Some id');
         $parser->get_idpdefaultname()->willReturn('Default name');
-        $md5 = md5('http://somefakeidpurl.local');
-        $writer->write( $md5 . '.idp.xml', 'somexml')->willThrow(new coding_exception('Metadata write failed: some error'));
+        $md5 = md5('Some id');
+        $writer->write($md5 . '.idp.xml', 'somexml')->willThrow(new coding_exception('Metadata write failed: some error'));
         $refreshtask->execute();
     }
 }
