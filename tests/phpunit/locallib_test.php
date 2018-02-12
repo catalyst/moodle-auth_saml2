@@ -180,7 +180,11 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
             'datatype'   => 'text'));
 
         // Check both are returned using normal options.
-        $fields = profile_get_custom_fields();
+        if (moodle_major_version() < '2.7.1') {
+            $fields = auth_saml2_profile_get_custom_fields();
+        } else {
+            $fields = profile_get_custom_fields();
+        }
         $this->assertArrayHasKey($pid, $fields);
         $this->assertEquals($fieldname, $fields[$pid]->shortname);
 
@@ -228,7 +232,11 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
 
         $fieldname = key($attributes);
 
-        $fields = profile_get_custom_fields();
+        if (moodle_major_version() < '2.7.1') {
+            $fields = auth_saml2_profile_get_custom_fields();
+        } else {
+            $fields = profile_get_custom_fields();
+        }
 
         $key = 'profile_field_' . $fieldname;
         $this->assertFalse(in_array($key, $fields));

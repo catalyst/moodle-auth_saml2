@@ -287,6 +287,7 @@ function auth_saml2_get_sp_metadata() {
  * @param boolean $mapremotefields Map fields or lock only.
  * @param boolean $updateremotefields Allow remote updates
  * @param array $customfields list of custom profile fields
+ * @since Moodle 3.3
  */
 function auth_saml2_display_auth_lock_options($settings, $auth, $userfields, $helptext, $mapremotefields, $updateremotefields, $customfields = array()) {
     global $DB;
@@ -372,6 +373,43 @@ function auth_saml2_display_auth_lock_options($settings, $auth, $userfields, $he
         }
     }
 }
+
+/**
+ * Obtains a list of all available custom profile fields, indexed by id.
+ *
+ * Some profile fields are not included in the user object data (see
+ * profile_user_record function above). Optionally, you can obtain only those
+ * fields that are included in the user object.
+ *
+ * To be clear, this function returns the available fields, and does not
+ * return the field values for a particular user.
+ *
+ * @param bool $onlyinuserobject True if you only want the ones in $USER
+ * @return array Array of field objects from database (indexed by id)
+ * @since Moodle 2.7.1
+ */
+function auth_saml2_profile_get_custom_fields($onlyinuserobject = false) {
+    global $DB, $CFG;
+
+    // Get all the fields.
+    $fields = $DB->get_records('user_info_field', null, 'id ASC');
+
+    // If only doing the user object ones, unset the rest.
+    if ($onlyinuserobject) {
+        foreach ($fields as $id => $field) {
+            require_once($CFG->dirroot . '/user/profile/field/' .
+                $field->datatype . '/field.class.php');
+            $newfield = 'profile_field_' . $field->datatype;
+            $formfield = new $newfield();
+            if (!$formfield->is_user_object_data()) {
+                unset($fields[$id]);
+            }
+        }
+    }
+
+    return $fields;
+}
+
 
 // @codingStandardsIgnoreEnd
 

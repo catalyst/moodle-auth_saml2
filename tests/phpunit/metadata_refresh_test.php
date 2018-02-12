@@ -145,8 +145,8 @@ XML;
         $parser->get_idpdefaultname()->willReturn('');
         $refreshtask->execute();
 
-        $idpdefaultname = get_config('auth_saml2', 'idpdefaultname');
-        $this->assertEquals(get_string('idpnamedefault', 'auth_saml2'), $idpdefaultname);
+        $idpmduinames = (array) json_decode(get_config('auth_saml2', 'idpmduinames'));
+        $this->assertEquals(get_string('idpnamedefault', 'auth_saml2'), $idpmduinames['http://somefakeidpurl.local']);
     }
 
     /**
@@ -173,7 +173,8 @@ XML;
         $parser->parse('somexml')->willReturn(null);
         $parser->get_entityid()->willReturn('Some id');
         $parser->get_idpdefaultname()->willReturn('Default name');
-        $writer->write('idp.xml', 'somexml')->willThrow(new coding_exception('Metadata write failed: some error'));
+        $md5 = md5('http://somefakeidpurl.local');
+        $writer->write( $md5 . '.idp.xml', 'somexml')->willThrow(new coding_exception('Metadata write failed: some error'));
         $refreshtask->execute();
     }
 }
