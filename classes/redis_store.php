@@ -36,7 +36,7 @@ require_once(__DIR__ . '/../extlib/simplesamlphp/lib/SimpleSAML/Store.php');
  * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class redis_store extends \SimpleSAML_Store {
+class redis_store extends \SimpleSAML\Store {
 
     /**
      * @var \Redis
