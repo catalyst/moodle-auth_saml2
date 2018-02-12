@@ -135,7 +135,6 @@ class auth_plugin_saml2 extends auth_plugin_base {
             }
             $idpurl->param('passive', 'off');
 
-
             // A default icon.
             $idpicon = new pix_icon('i/user', 'Login');
 
@@ -285,7 +284,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         $saml = optional_param('saml', null, PARAM_BOOL);
 
-        // Never redirect on POST
+        // Never redirect on POST.
         if (isset($_SERVER['REQUEST_METHOD']) && ($_SERVER['REQUEST_METHOD'] == 'POST')) {
             $this->log(__FUNCTION__ . ' skipping due to method=post');
             return false;

@@ -76,7 +76,7 @@ class metadata_refresh extends \core\task\scheduled_task {
             $this->idpparser = new idp_parser();
         }
 
-        if($this->idpparser->check_xml($config->idpmetadata) == true) {
+        if ($this->idpparser->check_xml($config->idpmetadata) == true) {
             mtrace('IdP metadata config not a URL, nothing to refresh.');
             return;
         }

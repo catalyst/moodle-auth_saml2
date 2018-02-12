@@ -58,7 +58,7 @@ class admin_setting_auth_saml2_button extends admin_setting_heading {
      * @return string Returns an HTML string
      */
     public function output_html($data, $query = '') {
-        if(moodle_major_version() < '3.3') {
+        if (moodle_major_version() < '3.3') {
             $params = [
                 'type' => 'button',
                 'value' => $this->label,

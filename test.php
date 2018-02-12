@@ -52,7 +52,7 @@ if ($logout) {
 $auth = new SimpleSAML\Auth\Simple($saml2auth->spname);
 
 if ($passive) {
-    // Prevent it from calling the missing post redirection. /auth/saml2/sp/module.php/core/postredirect.php
+    /* Prevent it from calling the missing post redirection. /auth/saml2/sp/module.php/core/postredirect.php */
     $auth->requireAuth(array(
         'KeepPost' => false,
         'isPassive' => true,

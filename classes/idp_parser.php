@@ -46,9 +46,8 @@ class idp_parser {
      */
     public function parse($data) {
 
-        if($this->check_xml($data)) {
+        if ($this->check_xml($data)) {
             $this->parse_xml($data);
-
         } else {
             $this->parse_urls($data);
 
@@ -59,7 +58,7 @@ class idp_parser {
 
     public function check_xml($xml) {
         libxml_use_internal_errors(true);
-        if (simplexml_load_string($xml))  {
+        if (simplexml_load_string($xml)) {
             return true;
         }
 
@@ -67,7 +66,6 @@ class idp_parser {
     }
 
     public function parse_xml($xml) {
-
         $singleidp = new \auth_saml2\idp_data(null, 'xml', null);
         $singleidp->set_rawxml(trim($xml));
         $this->idps[] = $singleidp;

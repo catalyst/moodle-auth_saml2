@@ -115,8 +115,9 @@ function xmldb_auth_saml2_upgrade($oldversion) {
     }
 
     if ($oldversion < 2017070300) {
-        // Multiple IdP support.
-        // sitedata/saml2/idp.xml is now sitedata/saml2/md5($entityid).idp.xml
+        /* Multiple IdP support
+         * sitedata/saml2/idp.xml is now sitedata/saml2/md5($entityid).idp.xml
+         */
 
         $xmlfile = $CFG->dataroot . "/saml2/idp.xml";
         $entityids = [];

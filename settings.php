@@ -85,7 +85,7 @@ if ($ADMIN->fulltree) {
             get_string('debug_help', 'auth_saml2', $CFG->wwwroot . '/auth/saml2/debug.php'),
             0, $yesno));
 
-    // Logging
+    // Logging.
     $settings->add(new admin_setting_configselect(
             'auth_saml2/logtofile',
             get_string('logtofile', 'auth_saml2'),
