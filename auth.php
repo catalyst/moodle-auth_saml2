@@ -494,6 +494,11 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         if ($update) {
             require_once($CFG->dirroot . '/user/lib.php');
+            if ($user->description === true) {
+                // get_complete_user_data() sets description = true to avoid keeping in memory.
+                // If set to true - don't update based on data from this call.
+                unset($user->description);
+            }
             user_update_user($user, false, false);
             // Save custom profile fields.
             profile_save_data($user);
