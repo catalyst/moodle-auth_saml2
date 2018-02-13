@@ -114,7 +114,7 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2017051800, 'auth', 'saml2');
     }
 
-    if ($oldversion < 2017070300) {
+    if ($oldversion < 2018020600) {
         /* Multiple IdP support
          * sitedata/saml2/idp.xml is now sitedata/saml2/md5($entityid).idp.xml
          */
@@ -122,6 +122,17 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         $xmlfile = $CFG->dataroot . "/saml2/idp.xml";
         $entityids = [];
         $mduinames = [];
+
+        $parser = new \auth_saml2\idp_parser();
+        $idpmetadata = get_config('auth_saml2', 'idpmetadata');
+        $idps = $parser->parse($idpmetadata);
+
+        // If the content is not xml, provide the idp name for the built array.
+        if (isset($idps[0]) && empty($idps[0]->rawxml)) {
+            $type = $idps[0]->idpurl;
+        } else {
+            $type = 'xml';
+        }
 
         if (file_exists($xmlfile)) {
             $rawxml = file_get_contents($xmlfile);
@@ -133,13 +144,13 @@ function xmldb_auth_saml2_upgrade($oldversion) {
             $idpelements = $xml->xpath('//md:EntityDescriptor[//md:IDPSSODescriptor]');
             if ($idpelements && isset($idpelements[0])) {
                 $entityid = (string)$idpelements[0]->attributes('', true)->entityID[0];
-                $entityids['xml'] = $entityid;
+                $entityids[$type] = $entityid;
                 copy($xmlfile, $CFG->dataroot . "/saml2/" . md5($entityid) . ".idp.xml");
 
                 // Locate a displayname element provided by the IdP XML metadata.
                 $names = @$idpelements[0]->xpath('//mdui:DisplayName');
                 if ($names && isset($names[0])) {
-                    $mduinames['xml'] = (string)$names[0];
+                    $mduinames[$type] = (string)$names[0];
                 }
             }
         }
@@ -148,7 +159,7 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         set_config('idpmduinames', json_encode($mduinames), 'auth_saml2');
 
         // Saml2 savepoint reached.
-        upgrade_plugin_savepoint(true, 2017070300, 'auth', 'saml2');
+        upgrade_plugin_savepoint(true, 2018020600, 'auth', 'saml2');
     }
 
     return true;
