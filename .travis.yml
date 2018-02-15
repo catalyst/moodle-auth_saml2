@@ -40,7 +40,7 @@ matrix:
       env: DB=mysqli MOODLE_BRANCH=MOODLE_34_STABLE
     # PHP 7.1
     - php: 7.1
-      env: DB=mysqli MOODLE_BRANCH=master
+      env: DB=pgsql  MOODLE_BRANCH=master
 
 before_install:
   - export MOODLE_VERSION=$(echo "$MOODLE_BRANCH" | cut -d'_' -f 2)
@@ -78,4 +78,4 @@ script:
   - if [ "$CI" -eq 2 ]; then moodle-plugin-ci grunt      ; fi
 
   - moodle-plugin-ci phpunit
-  - if [ "$CI" -eq 2 ]; then moodle-plugin-ci behat      ; fi
+  - moodle-plugin-ci behat
