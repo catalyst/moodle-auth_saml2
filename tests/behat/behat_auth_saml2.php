@@ -113,7 +113,7 @@ class behat_auth_saml2 extends behat_base {
      * @Then /^I go to the saml2 settings page (?:again) +\# auth_saml2$/
      */
     public function iGoToTheSamlsettingsPageAuth_saml() {
-        $this->visitPath('/admin/settings.php?section=authsettingsaml2');
+        $this->getSession()->visit($this->locate_path('/admin/settings.php?section=authsettingsaml2'));
     }
 
     /**
@@ -206,7 +206,7 @@ class behat_auth_saml2 extends behat_base {
     }
 
     private function visit_saml2_login_page() {
-        $this->visitPath('http://simplesamlphp.test:8001/module.php/core/authenticate.php');
+        $this->getSession()->visit($this->locate_path('http://simplesamlphp.test:8001/module.php/core/authenticate.php'));
     }
 
     private function reset_saml2_session() {
