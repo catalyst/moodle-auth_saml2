@@ -43,7 +43,11 @@ class behat_auth_saml2 extends behat_base {
      *
      * @AfterStep
      */
-    public function take_screenshot_after_failure(AfterStepScope $scope) {
+    public function take_screenshot_after_failure($scope) {
+        if (!($scope instanceof AfterStepScope)) {
+            // Older version of behat.
+            return;
+        }
         $resultcode = $scope->getTestResult()->getResultCode();
         if ($resultcode === 99) {
             $screenshot = $this->getSession()->getDriver()->getScreenshot();
