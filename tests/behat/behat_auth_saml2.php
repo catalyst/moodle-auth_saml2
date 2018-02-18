@@ -164,9 +164,9 @@ class behat_auth_saml2 extends behat_base {
 
         $refreshtask = new metadata_refresh();
         ob_start();
-        $refreshtask->execute();
-        $result = trim(ob_get_clean());
-        if ($result != 'IdP metadata refresh completed successfully.') {
+        $refreshed = $refreshtask->execute();
+        ob_end_clean();
+        if (!$refreshed) {
             throw new moodle_exception('Cannot save plugin defaults.');
         }
 

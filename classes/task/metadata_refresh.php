@@ -69,7 +69,7 @@ class metadata_refresh extends \core\task\scheduled_task {
         if (empty($config->idpmetadatarefresh)) {
             $str = 'IdP metadata refresh is not configured. Enable it in the auth settings or disable this scheduled task';
             mtrace($str);
-            return;
+            return false;
         }
 
         if (!$this->idpparser instanceof idp_parser) {
@@ -78,7 +78,7 @@ class metadata_refresh extends \core\task\scheduled_task {
 
         if ($this->idpparser->check_xml($config->idpmetadata) == true) {
             mtrace('IdP metadata config not a URL, nothing to refresh.');
-            return;
+            return false;
         }
 
         // Parse the URLs that are in the IdP metadata config.
@@ -103,7 +103,7 @@ class metadata_refresh extends \core\task\scheduled_task {
             $entityid = $this->parser->get_entityid();
             if (empty($entityid)) {
                 mtrace(get_string('idpmetadata_noentityid', 'auth_saml2'));
-                return;
+                return false;
             }
 
             $idpdefaultname = $this->parser->get_idpdefaultname();
@@ -128,6 +128,7 @@ class metadata_refresh extends \core\task\scheduled_task {
         set_config('idpmduinames', json_encode($mduinames), 'auth_saml2');
 
         mtrace('IdP metadata refresh completed successfully.');
+        return true;
     }
 
     /**
