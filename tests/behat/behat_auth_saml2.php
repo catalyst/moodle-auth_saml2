@@ -43,7 +43,11 @@ class behat_auth_saml2 extends behat_base {
      *
      * @AfterStep
      */
-    public function take_screenshot_after_failure(AfterStepScope $scope) {
+    public function take_screenshot_after_failure($scope) {
+        if (!($scope instanceof AfterStepScope)) {
+            // Older version of behat.
+            return;
+        }
         $resultcode = $scope->getTestResult()->getResultCode();
         if ($resultcode === 99) {
             $screenshot = $this->getSession()->getDriver()->getScreenshot();
@@ -101,7 +105,7 @@ class behat_auth_saml2 extends behat_base {
      * @Given /^I am an administrator +\# auth_saml2$/
      */
     public function iAmAnAdministratorAuth_saml() {
-            $this->execute('behat_auth::i_log_in_as', ['admin']);
+        return $this->execute('behat_auth::i_log_in_as', ['admin']);
     }
 
     /**
@@ -109,7 +113,7 @@ class behat_auth_saml2 extends behat_base {
      * @Then /^I go to the saml2 settings page (?:again) +\# auth_saml2$/
      */
     public function iGoToTheSamlsettingsPageAuth_saml() {
-        $this->visitPath('/admin/settings.php?section=authsettingsaml2');
+        $this->getSession()->visit($this->locate_path('/admin/settings.php?section=authsettingsaml2'));
     }
 
     /**
@@ -160,9 +164,9 @@ class behat_auth_saml2 extends behat_base {
 
         $refreshtask = new metadata_refresh();
         ob_start();
-        $refreshtask->execute();
-        $result = trim(ob_get_clean());
-        if ($result != 'IdP metadata refresh completed successfully.') {
+        $refreshed = $refreshtask->execute();
+        ob_end_clean();
+        if (!$refreshed) {
             throw new moodle_exception('Cannot save plugin defaults.');
         }
 
@@ -202,7 +206,7 @@ class behat_auth_saml2 extends behat_base {
     }
 
     private function visit_saml2_login_page() {
-        $this->visitPath('http://simplesamlphp.test:8001/module.php/core/authenticate.php');
+        $this->getSession()->visit($this->locate_path('http://simplesamlphp.test:8001/module.php/core/authenticate.php'));
     }
 
     private function reset_saml2_session() {
@@ -213,5 +217,20 @@ class behat_auth_saml2 extends behat_base {
     private function reset_moodle_session() {
         $this->iGoToTheLoginPageWithAuth_saml('saml=off');
         $this->getSession()->reset();
+    }
+
+    protected function execute($contextapi, $params = []) {
+        global $CFG;
+
+        // If newer Moodle, use the correct version.
+        if ($CFG->branch >= 29) {
+            return parent::execute($contextapi, $params);
+        }
+
+        // Backported for Moodle 27 and 28.
+        list($class, $method) = explode("::", $contextapi);
+        $object = behat_context_helper::get($class);
+        $object->setMinkParameter('base_url', $CFG->wwwroot);
+        return $object->$method(...$params);
     }
 }

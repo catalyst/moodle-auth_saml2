@@ -19,4 +19,4 @@ cp -v tests/idp/sp-remote.idp ~/simplesamlphp-1.15.1/metadata/saml20-sp-remote.p
 
 # Run
 cd ~/simplesamlphp-1.15.1/www
-php -S localhost:8001 &
+php -S localhost:8001 2> /dev/null &
