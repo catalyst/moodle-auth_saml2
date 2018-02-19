@@ -105,7 +105,7 @@ class behat_auth_saml2 extends behat_base {
      * @Given /^I am an administrator +\# auth_saml2$/
      */
     public function iAmAnAdministratorAuth_saml() {
-            $this->execute('behat_auth::i_log_in_as', ['admin']);
+        return $this->execute('behat_auth::i_log_in_as', ['admin']);
     }
 
     /**
@@ -217,5 +217,20 @@ class behat_auth_saml2 extends behat_base {
     private function reset_moodle_session() {
         $this->iGoToTheLoginPageWithAuth_saml('saml=off');
         $this->getSession()->reset();
+    }
+
+    protected function execute($contextapi, $params = []) {
+        global $CFG;
+
+        // If newer Moodle, use the correct version.
+        if ($CFG->branch >= 29) {
+            parent::execute($contextapi, $params);
+        }
+
+        // Backported for Moodle 27 and 28.
+        list($class, $method) = explode("::", $contextapi);
+        $object = behat_context_helper::get($class);
+        $object->setMinkParameter('base_url', $CFG->wwwroot);
+        return $object->$method(...$params);
     }
 }
