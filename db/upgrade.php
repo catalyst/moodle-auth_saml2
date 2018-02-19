@@ -114,7 +114,28 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2017051800, 'auth', 'saml2');
     }
 
-    if ($oldversion < 2018020600) {
+    // Depending on the path from the previous version branch, we may need to run this again.
+    if ($oldversion < 2018021900) {
+        // Update plugin configuration settings from auth/saml2 to auth_saml2.
+        $currentconfig = (array)get_config('auth_saml2');
+        $oldconfig = $DB->get_records('config_plugins', ['plugin' => 'auth/saml2']);
+
+        // Convert old config items to new.
+        foreach ($oldconfig as $item) {
+            $DB->delete_records('config_plugins', array('id' => $item->id));
+            set_config($item->name, $item->value, 'auth_saml2');
+        }
+
+        // Overwrite with any config that was created in the new format.
+        foreach ($currentconfig as $key => $value) {
+            set_config($key, $value, 'auth_saml2');
+        }
+
+        // Saml2 savepoint reached.
+        upgrade_plugin_savepoint(true, 2018021900, 'auth', 'saml2');
+    }
+
+    if ($oldversion < 2018021901) {
         /* Multiple IdP support
          * sitedata/saml2/idp.xml is now sitedata/saml2/md5($entityid).idp.xml
          */
@@ -145,7 +166,7 @@ function xmldb_auth_saml2_upgrade($oldversion) {
             if ($idpelements && isset($idpelements[0])) {
                 $entityid = (string)$idpelements[0]->attributes('', true)->entityID[0];
                 $entityids[$type] = $entityid;
-                copy($xmlfile, $CFG->dataroot . "/saml2/" . md5($entityid) . ".idp.xml");
+                rename($xmlfile, $CFG->dataroot . "/saml2/" . md5($entityid) . ".idp.xml");
 
                 // Locate a displayname element provided by the IdP XML metadata.
                 $names = @$idpelements[0]->xpath('//mdui:DisplayName');
@@ -159,9 +180,17 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         set_config('idpmduinames', json_encode($mduinames), 'auth_saml2');
 
         // Saml2 savepoint reached.
-        upgrade_plugin_savepoint(true, 2018020600, 'auth', 'saml2');
+        upgrade_plugin_savepoint(true, 2018021901, 'auth', 'saml2');
+    }
+
+    if ($oldversion < 2018021902) {
+        // Invalidate old certificate to force generating new one.
+        foreach (glob("{$CFG->dataroot}/saml2/*.crt") as $file) {
+            rename($file, "{$file}.2018021902");
+        }
+
+        upgrade_plugin_savepoint(true, 2018021902, 'auth', 'saml2');
     }
 
     return true;
 }
-

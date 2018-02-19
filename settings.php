@@ -69,7 +69,7 @@ if ($ADMIN->fulltree) {
             'auth_saml2/showidplink',
             get_string('showidplink', 'auth_saml2'),
             get_string('showidplink_help', 'auth_saml2'),
-            0, $yesno));
+            1, $yesno));
 
     // IDP Metadata refresh.
     $settings->add(new admin_setting_configselect(
@@ -149,7 +149,7 @@ if ($ADMIN->fulltree) {
             'auth_saml2/duallogin',
             get_string('duallogin', 'auth_saml2'),
             get_string('duallogin_help', 'auth_saml2'),
-            0,
+            saml2_settings::OPTION_DUAL_LOGIN_YES,
             $dualloginoptions));
 
     // Allow any auth type.
@@ -165,7 +165,7 @@ if ($ADMIN->fulltree) {
             'auth_saml2/idpattr',
             get_string('idpattr', 'auth_saml2'),
             get_string('idpattr_help', 'auth_saml2'),
-            '', PARAM_ALPHANUMEXT));
+            'uid', PARAM_ALPHANUMEXT));
 
     // Moodle Field.
     $fields = array(
