@@ -224,7 +224,7 @@ class behat_auth_saml2 extends behat_base {
 
         // If newer Moodle, use the correct version.
         if ($CFG->branch >= 29) {
-            parent::execute($contextapi, $params);
+            return parent::execute($contextapi, $params);
         }
 
         // Backported for Moodle 27 and 28.
