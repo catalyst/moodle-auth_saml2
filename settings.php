@@ -29,6 +29,7 @@ defined('MOODLE_INTERNAL') || die;
 if ($ADMIN->fulltree) {
     require_once($CFG->dirroot.'/auth/saml2/classes/admin_setting_auth_saml2_button.php');
     require_once($CFG->dirroot.'/auth/saml2/classes/admin_setting_auth_saml2_textonly.php');
+    require_once($CFG->dirroot.'/auth/saml2/locallib.php');
 
     // Warning for missing mcrypt.
     $settings->add(new admin_setting_php_extension_enabled(
@@ -68,7 +69,7 @@ if ($ADMIN->fulltree) {
             'auth_saml2/showidplink',
             get_string('showidplink', 'auth_saml2'),
             get_string('showidplink_help', 'auth_saml2'),
-            0, $yesno));
+            1, $yesno));
 
     // IDP Metadata refresh.
     $settings->add(new admin_setting_configselect(
@@ -84,7 +85,7 @@ if ($ADMIN->fulltree) {
             get_string('debug_help', 'auth_saml2', $CFG->wwwroot . '/auth/saml2/debug.php'),
             0, $yesno));
 
-    // Logging
+    // Logging.
     $settings->add(new admin_setting_configselect(
             'auth_saml2/logtofile',
             get_string('logtofile', 'auth_saml2'),
@@ -148,7 +149,7 @@ if ($ADMIN->fulltree) {
             'auth_saml2/duallogin',
             get_string('duallogin', 'auth_saml2'),
             get_string('duallogin_help', 'auth_saml2'),
-            0,
+            saml2_settings::OPTION_DUAL_LOGIN_YES,
             $dualloginoptions));
 
     // Allow any auth type.
@@ -164,7 +165,7 @@ if ($ADMIN->fulltree) {
             'auth_saml2/idpattr',
             get_string('idpattr', 'auth_saml2'),
             get_string('idpattr_help', 'auth_saml2'),
-            '', PARAM_ALPHANUMEXT));
+            'uid', PARAM_ALPHANUMEXT));
 
     // Moodle Field.
     $fields = array(
@@ -213,6 +214,12 @@ if ($ADMIN->fulltree) {
     $help = get_string('auth_updatelocal_expl', 'auth');
     $help .= get_string('auth_fieldlock_expl', 'auth');
     $help .= get_string('auth_updateremote_expl', 'auth');
-    display_auth_lock_options($settings, $authplugin->authtype, $authplugin->userfields, $help, true, true,
+
+    if (moodle_major_version() < '3.3') {
+        auth_saml2_display_auth_lock_options($settings, $authplugin->authtype, $authplugin->userfields, $help, true, true,
             $authplugin->get_custom_user_profile_fields());
+    } else {
+        display_auth_lock_options($settings, $authplugin->authtype, $authplugin->userfields, $help, true, true,
+            $authplugin->get_custom_user_profile_fields());
+    }
 }

@@ -32,11 +32,19 @@ if (!empty($CFG->loginhttps)) {
     $wwwroot = str_replace('http:', 'https:', $CFG->wwwroot);
 }
 
+$metadatasources = [];
+foreach ($saml2auth->idpentityids as $source => $entity) {
+    $metadatasources[] = [
+        'type' => 'xml',
+        'file' => "$CFG->dataroot/saml2/" . md5($entity) . ".idp.xml"
+    ];
+}
+
 $config = array(
     'baseurlpath'       => $wwwroot . '/auth/saml2/sp/',
     'certdir'           => $saml2auth->certdir,
     'debug'             => $saml2auth->config->debug ? true : false,
-    'logging.level'     => $saml2auth->config->debug ? SimpleSAML_Logger::DEBUG : SimpleSAML_Logger::ERR,
+    'logging.level'     => $saml2auth->config->debug ? SimpleSAML\Logger::DEBUG : SimpleSAML\Logger::ERR,
     'logging.handler'   => $saml2auth->config->logtofile ? 'file' : 'errorlog',
     'loggingdir'        => $saml2auth->config->logdir,
     'logging.logfile'   => 'simplesamlphp.log',
@@ -70,9 +78,7 @@ $config = array(
     'metadata.sign.certificate'     => $saml2auth->certcrt,
     'metadata.sign.privatekey'      => $saml2auth->certpem,
     'metadata.sign.privatekey_pass' => get_site_identifier(),
-    'metadata.sources' => array(
-        array('type' => 'xml', 'file' => "$CFG->dataroot/saml2/idp.xml"),
-    ),
+    'metadata.sources'              => $metadatasources,
 
     'store.type' => !empty($CFG->auth_saml2_store) ? $CFG->auth_saml2_store : '\\auth_saml2\\store',
 

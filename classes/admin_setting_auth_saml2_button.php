@@ -24,6 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->libdir.'/moodlelib.php');
+
 /**
  * Settings for label type admin setting.
  *
@@ -31,7 +33,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  Matt Porritt <mattp@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class admin_setting_auth_saml2_button extends admin_setting_heading{
+class admin_setting_auth_saml2_button extends admin_setting_heading {
 
     /**
      * A button element
@@ -56,14 +58,27 @@ class admin_setting_auth_saml2_button extends admin_setting_heading{
      * @return string Returns an HTML string
      */
     public function output_html($data, $query = '') {
-        global $OUTPUT;
-        $context = (object) [
+        if (moodle_major_version() < '3.3') {
+            $params = [
+                'type' => 'button',
+                'value' => $this->label,
+                'onclick' => 'location.href="' . $this->href . '"',
+            ];
+
+            $content = html_writer::empty_tag('input', $params);
+            $element = html_writer::div($content, 'form-text defaultsnext');
+
+        } else {
+            global $OUTPUT;
+            $context = (object)[
                 'label' => $this->label,
                 'href' => $this->href,
                 'forceltr' => $this->get_force_ltr(),
-        ];
-        $element = $OUTPUT->render_from_template('auth_saml2/setting_configbutton', $context);
+            ];
 
-        return format_admin_setting ( $this, $this->visiblename, $element, $this->description );
+            $element = $OUTPUT->render_from_template('auth_saml2/setting_configbutton', $context);
+        }
+
+        return format_admin_setting($this, $this->visiblename, $element, $this->description);
     }
 }

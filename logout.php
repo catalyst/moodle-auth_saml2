@@ -30,6 +30,6 @@ require('setup.php');
 // order to properly re-log into Moodle. It's a rare edge case
 // probably only used when configuring or testing but nice to have.
 
-$auth = new SimpleSAML_Auth_Simple($saml2auth->spname);
+$auth = new SimpleSAML\Auth\Simple($saml2auth->spname);
 $auth->logout('/');
 

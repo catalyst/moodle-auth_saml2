@@ -34,11 +34,15 @@ require_once($CFG->libdir.'/authlib.php');
  */
 class auth_plugin_saml2 extends auth_plugin_base {
 
+    /**
+     * @var $defaults The config defaults
+     */
     public $defaults = array(
         'idpname'         => '',
-        'entityid'        => '',
         'idpdefaultname'  => '', // Set in constructor.
         'idpmetadata'     => '',
+        'idpmduinames'    => '',
+        'idpentityids'    => '',
         'debug'           => 0,
         'duallogin'       => saml2_settings::OPTION_DUAL_LOGIN_YES,
         'anyauth'         => 1,
@@ -68,6 +72,16 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $this->certpem = $this->certdir . $this->spname . '.pem';
         $this->certcrt = $this->certdir . $this->spname . '.crt';
         $this->config = (object) array_merge($this->defaults, (array) get_config('auth_saml2') );
+
+        // Parsed IdP metadata, either a list of IdP metadata urls or a single XML blob.
+        $parser = new \auth_saml2\idp_parser();
+        $this->idplist = $parser->parse($this->config->idpmetadata);
+
+        // MDUINames provided by the metadata.
+        $this->idpmduinames = (array) json_decode($this->config->idpmduinames);
+
+        // EntitiyIDs provded by the metadata.
+        $this->idpentityids = (array) json_decode($this->config->idpentityids);
     }
 
     /**
@@ -92,8 +106,10 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * @return array of IdP's
      */
     public function loginpage_idp_list($wantsurl) {
+        $conf = $this->config;
+
         // If we have disabled the visibility of the idp link, return with an empty array right away.
-        if (!$this->config->showidplink) {
+        if (!$conf->showidplink) {
             return array();
         }
 
@@ -102,22 +118,59 @@ class auth_plugin_saml2 extends auth_plugin_base {
             return array();
         }
 
-        // The wants url may already be routed via login.php so don't re-re-route it.
-        if (strpos($wantsurl, '/auth/saml2/login.php')) {
-            $wantsurl = new moodle_url($wantsurl);
-        } else {
-            $wantsurl = new moodle_url('/auth/saml2/login.php', array('wants' => $wantsurl));
-        }
-        $wantsurl->param('passive', 'off');
+        // The array of IdPs to return.
+        $idplist = [];
 
-        $conf = $this->config;
-        return array(
-            array(
-                'url'  => $wantsurl,
-                'icon' => new pix_icon('i/user', 'Login'),
-                'name' => (!empty($conf->idpname) ? $conf->idpname : $conf->idpdefaultname),
-            ),
-        );
+        foreach ($this->idplist as $idp) {
+            $params = [
+                'wants' => $wantsurl,
+                'idp' => md5($this->idpentityids[$idp->idpurl]),
+            ];
+
+            // The wants url may already be routed via login.php so don't re-re-route it.
+            if (strpos($wantsurl, '/auth/saml2/login.php')) {
+                $idpurl = new moodle_url($wantsurl);
+            } else {
+                $idpurl = new moodle_url('/auth/saml2/login.php', $params);
+            }
+            $idpurl->param('passive', 'off');
+
+            // A default icon.
+            $idpicon = new pix_icon('i/user', 'Login');
+
+            // Initially use the default name. This is suitable for a single IdP.
+            $idpname = $conf->idpdefaultname;
+
+            // When multiple IdPs are configured, use a different default based on the IdP.
+            if (count($this->idplist) > 1) {
+                $host = parse_url($idp->idpurl, PHP_URL_HOST);
+                $idpname = get_string('idpnamedefault_varaible', 'auth_saml2', $host);
+            }
+
+            // Use a forced override set in the idpmetadata field.
+            if (!empty($idp->idpname)) {
+                $idpname = $idp->idpname;
+            } else {
+                // There is no forced override, try to use the <mdui:DisplayName> if it exists.
+                if (!empty($this->idpmduinames[$idp->idpurl])) {
+                    $idpname = $this->idpmduinames[$idp->idpurl];
+                }
+            }
+
+            // Has the IdP label override been set in the admin configuration?
+            // This is best used with a single IdP. Multiple IdP overrides are different.
+            if (!empty($conf->idpname)) {
+                $idpname = $conf->idpname;
+            }
+
+            $idplist[] = [
+                'url'  => $idpurl,
+                'icon' => $idpicon,
+                'name' => $idpname,
+            ];
+        }
+
+        return $idplist;
     }
 
     /**
@@ -147,10 +200,13 @@ class auth_plugin_saml2 extends auth_plugin_base {
             return false;
         }
 
-        $file = $this->certdir . 'idp.xml';
-        if (!file_exists($file)) {
-            $this->log(__FUNCTION__ . ' file not found, ' . $file);
-            return false;
+        $eids = $this->idpentityids;
+        foreach ($eids as $entityid) {
+            $file = $this->certdir . md5($entityid) . '.idp.xml';
+            if (!file_exists($file)) {
+                $this->log(__FUNCTION__ . ' file not found, ' . $file);
+                return false;
+            }
         }
 
         return true;
@@ -228,7 +284,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         $saml = optional_param('saml', null, PARAM_BOOL);
 
-        // Never redirect on POST
+        // Never redirect on POST.
         if (isset($_SERVER['REQUEST_METHOD']) && ($_SERVER['REQUEST_METHOD'] == 'POST')) {
             $this->log(__FUNCTION__ . ' skipping due to method=post');
             return false;
@@ -308,7 +364,20 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         require('setup.php');
         require_once("$CFG->dirroot/login/lib.php");
-        $auth = new SimpleSAML_Auth_Simple($this->spname);
+
+        // Set the default IdP to be the first in the list. Used when dual login is disabled.
+        $arr = array_reverse($saml2auth->idpentityids);
+        $idp = md5(array_pop($arr));
+
+        // Specify the default IdP to use.
+        $SESSION->saml2idp = $idp;
+
+        // We store the IdP in the session to generate the config/config.php array with the default local SP.
+        if (isset($_GET['idp'])) {
+            $SESSION->saml2idp = $_GET['idp'];
+        }
+
+        $auth = new \SimpleSAML\Auth\Simple($this->spname);
 
         $passive = $this->config->duallogin == saml2_settings::OPTION_DUAL_LOGIN_PASSIVE;
         $passive = (bool)optional_param('passive', $passive, PARAM_BOOL);
@@ -442,23 +511,30 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * Make sure we also cleanup the SAML session AND log out of the IdP
      */
     public function logoutpage_hook() {
-
         // This is a little tricky, there are 3 sessions we need to logout:
         //
         // 1) The moodle session.
         // 2) The SimpleSAML SP session.
         // 3) The IdP session, if the IdP supports SingleSignout.
 
-        global $CFG, $saml2auth, $redirect;
+        global $CFG, $SESSION, $saml2auth, $redirect;
+
+        // Lets capture the saml2idp hash.
+        $idp = $this->spname;
+        if (!empty($SESSION->saml2idp)) {
+            $idp = $SESSION->saml2idp;
+        }
 
         $this->log(__FUNCTION__ . ' Do moodle logout');
-
         // Do the normal moodle logout first as we may redirect away before it
         // gets called by the normal core process.
         require_logout();
 
         require('setup.php');
-        $auth = new SimpleSAML_Auth_Simple($this->spname);
+
+        // Woah there, we lost the session data, lets restore the IdP.
+        $SESSION->saml2idp = $idp;
+        $auth = new \SimpleSAML\Auth\Simple($this->spname);
 
         // Only log out of the IdP if we logged in via the IdP. TODO check session timeouts.
         if ($auth->isAuthenticated()) {
@@ -485,25 +561,10 @@ class auth_plugin_saml2 extends auth_plugin_base {
     }
 
     /**
-     * Prints a form for configuring this authentication plugin.
-     *
-     * This function is called from admin/auth.php, and outputs a full page with
-     * a form for configuring this plugin.
-     *
-     * @param object $config
-     * @param object $err
-     * @param array $userfields
-     */
-    public function config_form($config, $err, $userfields) {
-        $config = (object) array_merge($this->defaults, (array) $config );
-        global $CFG, $OUTPUT;
-        include($CFG->dirroot.'/auth/saml2/settings.html');
-    }
-
-    /**
      * Processes and stores configuration data for this authentication plugin.
      *
      * @param object $config
+     * @return boolean
      */
     public function process_config($config) {
         $haschanged = false;
@@ -529,6 +590,11 @@ class auth_plugin_saml2 extends auth_plugin_base {
         include('tester.php');
     }
 
+    /**
+     * Returns the version of SSP that this plugin is using.
+     *
+     * @return string
+     */
     public function get_ssp_version() {
         global $CFG, $saml2auth;
         require('setup.php');
@@ -543,6 +609,5 @@ class auth_plugin_saml2 extends auth_plugin_base {
     public function can_be_manually_set() {
         return true;
     }
-
 }
 

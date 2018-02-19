@@ -31,7 +31,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  Matt Porritt <mattp@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class admin_setting_auth_saml2_textonly extends admin_setting_heading{
+class admin_setting_auth_saml2_textonly extends admin_setting_heading {
 
     /**
      * Returns an HTML string
@@ -41,6 +41,6 @@ class admin_setting_auth_saml2_textonly extends admin_setting_heading{
      * @return string Returns an HTML string
      */
     public function output_html($data, $query = '') {
-        return format_admin_setting ( $this, $this->visiblename, '', $this->description );
+        return format_admin_setting($this, $this->visiblename, '', $this->description);
     }
 }

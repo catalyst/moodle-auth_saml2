@@ -5,6 +5,8 @@ Verify RSA SHA256
 --FILE--
 <?php
 require(dirname(__FILE__) . '/../xmlseclibs.php');
+use RobRichards\XMLSecLibs\XMLSecurityDSig;
+use RobRichards\XMLSecLibs\XMLSecEnc;
 
 $doc = new DOMDocument();
 $arTests = array('SIGN_TEST_RSA_SHA256'=>'sign-sha256-rsa-sha256-test.xml');
@@ -40,7 +42,7 @@ foreach ($arTests AS $testName=>$testFile) {
 	}
 
 	print $testName.": ";
-	if ($objXMLSecDSig->verify($objKey)) {
+	if ($objXMLSecDSig->verify($objKey) === 1) {
 		print "Signature validated!";
 	} else {
 		print "Failure!!!!!!!!";

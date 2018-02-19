@@ -41,6 +41,7 @@ class admin_setting_configtext_idpmetadata extends admin_setting_configtextarea 
      *
      * @param string $value
      * @return true|string Error message in case of error, true otherwise.
+     * @throws \coding_exception
      */
     public function validate($value) {
         // Validate parent.
@@ -49,60 +50,80 @@ class admin_setting_configtext_idpmetadata extends admin_setting_configtextarea 
             return $error;
         }
 
-        // If empty then that's ok
-        if (trim($value) == '') {
+        // Allow empty field to be processed.
+        if (empty($value)) {
             return true;
         }
 
-        // If value looks like a url, then go scrape it first.
-        if (substr($value, 0, 8) == 'https://' ||
-            substr($value, 0, 7) == 'http://'
-        ) {
-            $value = @file_get_contents($value);
-            if (!$value) {
-                return get_string('idpmetadata_badurl', 'auth_saml2');
-            }
-        }
-
-        try {
-            return $this->validate_xml($value);
-        } catch (Exception $e) {
-            return get_string('idpmetadata_invalid', 'auth_saml2');
-        }
-    }
-
-    private function validate_xml($rawxml) {
         global $saml2auth;
+        require_once(__DIR__ . '/../setup.php');
 
-        $xml = new SimpleXMLElement($rawxml);
-        $xml->registerXPathNamespace('md', 'urn:oasis:names:tc:SAML:2.0:metadata');
-        $xml->registerXPathNamespace('mdui', 'urn:oasis:names:tc:SAML:metadata:ui');
+        // Cleaning up potential newlines during a copy/paste.
+        // The contents of the $form->idpmetadata textarea should be either,
+        // 1. XML.
+        // 2. A list of URLs.
+        $idpmetadata = trim($value);
 
-        $entityid = '';
-        $idpdefaultname = $saml2auth->defaults['idpdefaultname'];
+        $parser = new \auth_saml2\idp_parser();
+        $idps = $parser->parse($idpmetadata);
 
-        // Find all IDPSSODescriptor elements and then work back up to the entityID.
-        $idps = $xml->xpath('//md:EntityDescriptor[//md:IDPSSODescriptor]');
-        if ($idps && isset($idps[0])) {
-            $entityid = (string)$idps[0]->attributes('', true)->entityID[0];
+        foreach ($idps as $idp) {
+            // Download the XML if it was not parsed from the ipdmetadata field.
+            if (empty($idp->get_rawxml())) {
+                $rawxml = @file_get_contents($idp->idpurl);
 
-            $names = @$idps[0]->xpath('//mdui:DisplayName');
-            if ($names && isset($names[0])) {
-                $idpdefaultname = (string)$names[0];
+                if (!$rawxml) {
+                    return get_string('idpmetadata_badurl', 'auth_saml2');
+                }
+                $idp->set_rawxml($rawxml);
             }
         }
 
-        if (empty($entityid)) {
-            return get_string('idpmetadata_noentityid', 'auth_saml2');
-        }
-        set_config('entityid', $entityid, 'auth_saml2');
-        set_config('idpdefaultname', $idpdefaultname, 'auth_saml2');
+        $entityids = [];
+        $mduinames = [];
 
-        // Validated, create certificate.
-        if (!file_exists($saml2auth->certdir)) {
-            mkdir($saml2auth->certdir);
+        // Process the rawxml and populate arrays of entityids and mduinames.
+        foreach ($idps as $idp) {
+            try {
+                $xml = new SimpleXMLElement($idp->rawxml);
+                $xml->registerXPathNamespace('md',   'urn:oasis:names:tc:SAML:2.0:metadata');
+                $xml->registerXPathNamespace('mdui', 'urn:oasis:names:tc:SAML:metadata:ui');
+
+                // Find all IDPSSODescriptor elements and then work back up to the entityID.
+                $idpelements = $xml->xpath('//md:EntityDescriptor[//md:IDPSSODescriptor]');
+                if ($idpelements && isset($idpelements[0])) {
+                    $entityids[$idp->idpurl] = (string)$idpelements[0]->attributes('', true)->entityID[0];
+
+                    // Locate a displayname element provided by the IdP XML metadata.
+                    $names = @$idpelements[0]->xpath('//mdui:DisplayName');
+                    if ($names && isset($names[0])) {
+                        $mduinames[$idp->idpurl] = (string)$names[0];
+                    }
+                }
+
+                if (empty($entityids)) {
+                    return get_string('idpmetadata_noentityid', 'auth_saml2');
+                } else {
+                    if (!file_exists($saml2auth->certdir)) {
+                        mkdir($saml2auth->certdir);
+                    }
+
+                    file_put_contents($saml2auth->certdir . md5($entityids[$idp->idpurl]) . '.idp.xml' , $idp->get_rawxml());
+                }
+            } catch (Exception $e) {
+                return get_string('idpmetadata_invalid', 'auth_saml2');
+            }
         }
-        file_put_contents($saml2auth->certdir . 'idp.xml', $rawxml);
+
+        // If multiple IdPs are configured, force 'duallogin' to display the IdP links.
+        if (count($idps) > 1) {
+            set_config('duallogin', '1', 'auth_saml2');
+        }
+
+        // Encode arrays to be saved the config.
+        set_config('idpentityids', json_encode($entityids), 'auth_saml2');
+        set_config('idpmduinames', json_encode($mduinames), 'auth_saml2');
+
         return true;
     }
 }

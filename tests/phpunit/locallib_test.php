@@ -56,7 +56,10 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
 
         // Set just enough config to generate SP metadata.
         $email = 'test@test.com';
+        $url = 'http://www.example.com';
         set_config('supportemail', $email);
+        set_config('idpmetadata', $url, 'auth_saml2');
+        set_config('idpentityids', json_encode([$url => $url]), 'auth_saml2');
 
         require($CFG->dirroot . '/auth/saml2/setup.php');
 
@@ -177,7 +180,11 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
             'datatype'   => 'text'));
 
         // Check both are returned using normal options.
-        $fields = profile_get_custom_fields();
+        if (moodle_major_version() < '2.7.1') {
+            $fields = auth_saml2_profile_get_custom_fields();
+        } else {
+            $fields = profile_get_custom_fields();
+        }
         $this->assertArrayHasKey($pid, $fields);
         $this->assertEquals($fieldname, $fields[$pid]->shortname);
 
@@ -225,7 +232,11 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
 
         $fieldname = key($attributes);
 
-        $fields = profile_get_custom_fields();
+        if (moodle_major_version() < '2.7.1') {
+            $fields = auth_saml2_profile_get_custom_fields();
+        } else {
+            $fields = profile_get_custom_fields();
+        }
 
         $key = 'profile_field_' . $fieldname;
         $this->assertFalse(in_array($key, $fields));
@@ -298,12 +309,17 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
     public function test_is_configured() {
         global $CFG;
 
+        $this->resetAfterTest();
+
+        $url = 'http://www.example.com';
+        set_config('idpentityids', json_encode([$url => $url]), 'auth_saml2');
+
         $auth = get_auth_plugin('saml2');
 
         $files = array(
             'crt' => $auth->certdir . $auth->spname . '.crt',
             'pem' => $auth->certdir . $auth->spname . '.pem',
-            'xml' => $auth->certdir . 'idp.xml',
+            'xml' => $auth->certdir . md5($url) . '.idp.xml',
         );
 
         // Setup, remove the phpuunit dataroot temp files for saml2.

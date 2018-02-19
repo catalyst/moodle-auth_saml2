@@ -3,6 +3,7 @@ Basic Decryption: Content
 --FILE--
 <?php
 require(dirname(__FILE__) . '/../xmlseclibs.php');
+use RobRichards\XMLSecLibs\XMLSecEnc;
 
 /* When we need to locate our own key based on something like a key name */
 function locateLocalKey($objKey) {
@@ -16,7 +17,11 @@ function locateLocalKey($objKey) {
 }
 
 $arTests = array('AOESP_SHA1'=>'oaep_sha1-res.xml',
-   'AOESP_SHA1_CONTENT'=>'oaep_sha1-content-res.xml');
+   'AOESP_SHA1_CONTENT'=>'oaep_sha1-content-res.xml',
+   'AES-128-CBC'=>'basic-doc-encrypted-aes128-cbc.xml',
+   'AES-192-CBC'=>'basic-doc-encrypted-aes192-cbc.xml',
+   'AES-256-CBC'=>'basic-doc-encrypted-aes256-cbc.xml',
+   '3DES-CBC'=>'basic-doc-encrypted-tripledes-cbc.xml');
 
 $doc = new DOMDocument();
 
@@ -90,3 +95,7 @@ foreach ($arTests AS $testName=>$testFile) {
 --EXPECTF--
 AOESP_SHA1: Passed
 AOESP_SHA1_CONTENT: Passed
+AES-128-CBC: Passed
+AES-192-CBC: Passed
+AES-256-CBC: Passed
+3DES-CBC: Passed
