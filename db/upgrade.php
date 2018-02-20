@@ -183,14 +183,5 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2018021901, 'auth', 'saml2');
     }
 
-    if ($oldversion < 2018021902) {
-        // Invalidate old certificate to force generating new one.
-        foreach (glob("{$CFG->dataroot}/saml2/*.crt") as $file) {
-            rename($file, "{$file}.2018021902");
-        }
-
-        upgrade_plugin_savepoint(true, 2018021902, 'auth', 'saml2');
-    }
-
     return true;
 }
