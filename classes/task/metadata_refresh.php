@@ -64,9 +64,9 @@ class metadata_refresh extends \core\task\scheduled_task {
         return get_string('taskmetadatarefresh', 'auth_saml2');
     }
 
-    public function execute() {
+    public function execute($force = false) {
         $config = get_config('auth_saml2');
-        if (empty($config->idpmetadatarefresh)) {
+        if (!$force && empty($config->idpmetadatarefresh)) {
             $str = 'IdP metadata refresh is not configured. Enable it in the auth settings or disable this scheduled task';
             mtrace($str);
             return false;
