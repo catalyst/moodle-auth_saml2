@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use auth_saml2\task\metadata_refresh;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -181,6 +183,12 @@ function xmldb_auth_saml2_upgrade($oldversion) {
 
         // Saml2 savepoint reached.
         upgrade_plugin_savepoint(true, 2018021901, 'auth', 'saml2');
+    }
+
+    if ($oldversion < 2018022203) {
+        $refreshtask = new metadata_refresh();
+        $refreshtask->execute(true);
+        upgrade_plugin_savepoint(true, 2018022203, 'auth', 'saml2');
     }
 
     return true;
