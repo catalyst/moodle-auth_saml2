@@ -26,67 +26,32 @@ require_once('extlib/xmlseclibs/xmlseclibs.php');
 
 spl_autoload_register(
     function($classname) {
-        $classpath = explode('_', $classname);
-        if ($classpath[0] != 'SimpleSAML') {
-            $classpath = explode('\\', $classname);
-            if ($classpath[0] != 'SimpleSAML') {
-                return;
+        $map = [
+            'SAML2'      => 'saml2/src/',
+            'Psr'        => 'php-fig-log/',
+            'SimpleSAML' => 'simplesamlphp/lib/',
+            'sspmod'     => 'simplesamlphp/modules/',
+        ];
+        foreach ($map as $namespace => $subpath) {
+            $classpath = explode('_', $classname);
+            if ($classpath[0] != $namespace) {
+                $classpath = explode('\\', $classname);
+                if ($classpath[0] != $namespace) {
+                    continue;
+                }
             }
-        }
-        $filepath = dirname(__FILE__) . '/extlib/simplesamlphp/lib/' . implode('/', $classpath) . '.php';
-        if (file_exists($filepath)) {
-            require_once($filepath);
+            
+            $subpath = __DIR__.'/extlib/'.$subpath;
+            if ($namespace == 'sspmod') {
+                array_shift($classpath);
+                $module = array_shift($classpath);
+                $filepath = $subpath . "$module/lib/" . implode('/', $classpath) . '.php';
+            } else {
+                $filepath = $subpath . implode('/', $classpath) . '.php';
+            }
+            if (file_exists($filepath)) {
+                require_once($filepath);
+            }
         }
     }
 );
-
-spl_autoload_register(
-    function($classname) {
-        $classpath = explode('_', $classname);
-        if ($classpath[0] != 'sspmod') {
-            $classpath = explode('\\', $classname);
-            if ($classpath[0] != 'sspmod') {
-                return;
-            }
-        }
-        array_shift($classpath);
-        $module = array_shift($classpath);
-        $filepath = dirname(__FILE__) . "/extlib/simplesamlphp/modules/$module/lib/" . implode('/', $classpath) . '.php';
-        if (file_exists($filepath)) {
-            require_once($filepath);
-        }
-    }
-);
-
-spl_autoload_register(
-    function($classname) {
-        $classpath = explode('_', $classname);
-        if ($classpath[0] != 'SAML2') {
-            $classpath = explode('\\', $classname);
-            if ($classpath[0] != 'SAML2') {
-                return;
-            }
-        }
-        $filepath = dirname(__FILE__) . "/extlib/saml2/src/" . implode('/', $classpath) . '.php';
-        if (file_exists($filepath)) {
-            require_once($filepath);
-        }
-    }
-);
-
-spl_autoload_register(
-    function($classname) {
-        $classpath = explode('_', $classname);
-        if ($classpath[0] != 'Psr') {
-            $classpath = explode('\\', $classname);
-            if ($classpath[0] != 'Psr') {
-                return;
-            }
-        }
-        $filepath = dirname(__FILE__) . "/extlib/php-fig-log/" . implode('/', $classpath) . '.php';
-        if (file_exists($filepath)) {
-            require_once($filepath);
-        }
-    }
-);
-

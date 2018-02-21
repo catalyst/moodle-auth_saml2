@@ -184,7 +184,7 @@ if ($ADMIN->fulltree) {
             'auth_saml2/tolower',
             get_string('tolower', 'auth_saml2'),
             get_string('tolower_help', 'auth_saml2'),
-            0, $yesno));
+            'username', $yesno));
 
     // Autocreate Users.
     $settings->add(new admin_setting_configselect(
