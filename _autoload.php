@@ -28,6 +28,7 @@ spl_autoload_register(
     function($classname) {
         $map = [
             'SAML2'      => 'saml2/src/',
+            'Twig'       => 'twig/twig/lib/',
             'Psr'        => 'php-fig-log/',
             'SimpleSAML' => 'simplesamlphp/lib/',
             'sspmod'     => 'simplesamlphp/modules/',
@@ -40,8 +41,8 @@ spl_autoload_register(
                     continue;
                 }
             }
-            
-            $subpath = __DIR__.'/extlib/'.$subpath;
+
+            $subpath = __DIR__ . '/extlib/' . $subpath;
             if ($namespace == 'sspmod') {
                 array_shift($classpath);
                 $module = array_shift($classpath);
