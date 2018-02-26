@@ -29,6 +29,13 @@
     <licenseversion></licenseversion>
   </library>
   <library>
+    <location>extlib/twig</location>
+    <name>Twig</name>
+    <version>1.0</version>
+    <license>Custom</license>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
     <location>sp/metadata.php</location>
     <name>SP metadata</name>
     <version></version>
