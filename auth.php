@@ -122,6 +122,15 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $idplist = [];
 
         foreach ($this->idplist as $idp) {
+            if (!array_key_exists($idp->idpurl, $this->idpentityids)) {
+                $message = "Missing identity configuration for '{$idp->idpurl}': " .
+                           'Please check/save SAML2 configuration or if able to inspect the database, check: ' .
+                           "SELECT value FROM {config_plugins} WHERE plugin='auth_saml2' AND name='idpentityids' " .
+                           '-- Remember to purge caches if you make changes in the database.';
+                debugging($message);
+                continue;
+            }
+
             $params = [
                 'wants' => $wantsurl,
                 'idp' => md5($this->idpentityids[$idp->idpurl]),
