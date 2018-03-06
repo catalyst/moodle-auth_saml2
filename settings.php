@@ -165,7 +165,7 @@ if ($ADMIN->fulltree) {
             'auth_saml2/idpattr',
             get_string('idpattr', 'auth_saml2'),
             get_string('idpattr_help', 'auth_saml2'),
-            'uid', PARAM_ALPHANUMEXT));
+            'uid', PARAM_TEXT));
 
     // Moodle Field.
     $fields = array(
