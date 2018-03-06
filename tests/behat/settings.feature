@@ -24,3 +24,12 @@ Feature: SAML2 settings
       | No           |
       | Yes          |
       | Passive mode |
+
+  Scenario: I can use special characters for the IdP mapping
+    Given the authentication plugin saml2 is enabled        # auth_saml2
+    And I am an administrator                               # auth_saml2
+    And I am on the saml2 settings page                     # auth_saml2
+    When I change the setting "Mapping IdP" to "my:idpid"   # auth_saml2
+    And I press "Save changes"
+    Then I go to the saml2 settings page again              # auth_saml2
+    And the setting "Mapping IdP" should be "my:idpid"      # auth_saml2
