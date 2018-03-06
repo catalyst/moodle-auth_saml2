@@ -26,6 +26,8 @@ use auth_saml2\admin\saml2_settings;
 
 defined('MOODLE_INTERNAL') || die;
 
+global $CFG;
+
 if ($ADMIN->fulltree) {
     require_once($CFG->dirroot.'/auth/saml2/classes/admin_setting_auth_saml2_button.php');
     require_once($CFG->dirroot.'/auth/saml2/classes/admin_setting_auth_saml2_textonly.php');
@@ -168,11 +170,12 @@ if ($ADMIN->fulltree) {
             'uid', PARAM_TEXT));
 
     // Moodle Field.
-    $fields = array(
-            'username' => get_string('username'),
-            'idnumber' => get_string('idnumber'),
-            'email'    => get_string('email'),
-    );
+    $fields = [
+        'username'      => get_string('username'),
+        'idnumber'      => get_string('idnumber'),
+        'email'         => get_string('email'),
+        'alternatename' => get_string('alternatename'),
+    ];
     $settings->add(new admin_setting_configselect(
             'auth_saml2/mdlattr',
             get_string('mdlattr', 'auth_saml2'),
