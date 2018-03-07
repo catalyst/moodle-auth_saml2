@@ -37,6 +37,12 @@ if ($download) {
     header('Content-Disposition: attachment; filename=' . $saml2auth->spname . '.xml');
 }
 
+$regenerate = optional_param('regenerate', '', PARAM_RAW);
+if ($regenerate) {
+    $file = $saml2auth->certdir . $saml2auth->spname . '.xml';
+    @unlink($file);
+}
+
 $xml = auth_saml2_get_sp_metadata();
 
 if (array_key_exists('output', $_REQUEST) && $_REQUEST['output'] == 'xhtml') {
