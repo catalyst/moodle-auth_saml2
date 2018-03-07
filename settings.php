@@ -93,6 +93,13 @@ if ($ADMIN->fulltree) {
             get_string('logdirdefault', 'auth_saml2'),
             PARAM_TEXT));
 
+    $settings->add(new admin_setting_configtext(
+        'auth_saml2/nameidpolicy',
+        get_string('nameidpolicy', 'auth_saml2'),
+        get_string('nameidpolicy_help', 'auth_saml2'),
+        get_string('nameidpolicydefault', 'auth_saml2'),
+        PARAM_TEXT));
+
     // Add NameID as attribute.
     $settings->add(new admin_setting_configselect(
             'auth_saml2/nameidasattrib',

@@ -125,3 +125,6 @@ $string['update_onlogin'] = 'On every login';
 $string['update_onupdate'] = 'On update';
 $string['phone1'] = 'Phone';
 $string['phone2'] = 'Mobile phone';
+$string['nameidpolicy'] = 'NameID Policy';
+$string['nameidpolicy_help'] = '';
+$string['nameidpolicydefault'] = 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified';
