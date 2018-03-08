@@ -20,13 +20,14 @@ cache:
 # Alternate tests with MySQL and PostgreSQL
 matrix:
   include:
-    # PHP 5.6
-    - php: 5.6
+    # PHP 5.5
+    - php: 5.5
       env: DB=pgsql  MOODLE_BRANCH=MOODLE_27_STABLE
-    - php: 5.6
+    - php: 5.5
       env: DB=mysqli MOODLE_BRANCH=MOODLE_28_STABLE
-    - php: 5.6
+    - php: 5.5
       env: DB=pgsql  MOODLE_BRANCH=MOODLE_29_STABLE
+    # PHP 5.6
     - php: 5.6
       env: DB=mysqli MOODLE_BRANCH=MOODLE_30_STABLE
     - php: 5.6
