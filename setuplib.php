@@ -22,10 +22,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-global $CFG;
-
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/_autoload.php');
+
+global $CFG;
 require_once("{$CFG->dirroot}/auth/saml2/auth.php");
 
 /**

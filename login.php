@@ -28,6 +28,7 @@ the user is redirected to here which forces SAML auth and then
 returns to the wantsurl.
 */
 
+require_once(__DIR__ . '/../../config.php');
 require('setup.php');
 
 // Crap for hash anchor handling.

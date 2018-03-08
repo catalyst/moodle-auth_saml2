@@ -24,10 +24,6 @@
 
 namespace auth_saml2;
 
-require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
-
-use core\base;
-
 defined('MOODLE_INTERNAL') || die();
 
 /**
