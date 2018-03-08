@@ -126,29 +126,29 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
      */
     public function should_login_redirect_testcases() {
         return [
-            "1. DUALcfg: true, SAMLparam: null, SAMLsession: false" => [true, null, false, false],  // Login normal, dual login on.
-            "2. DUALcfg: true, SAMLparam: off, SAMLsession: false"  => [true, 'off', false, false], // Login normal, dual login on.
-            "3. DUALcfg: true, SAMLparam: on, SAMLsession: false"   => [true, 'on', false, true], // SAML redirect, ?saml=on.
+            "1. dual: y, param: null, session: false" => [true, null, false, false],  // Login normal, dual login on.
+            "2. dual: y, param: off, session: false"  => [true, 'off', false, false], // Login normal, dual login on.
+            "3. dual: y, param: on, session: false"   => [true, 'on', false, true], // SAML redirect, ?saml=on.
 
-            "4. DUALcfg: false, SAMLparam: null, SAMLsession: false" => [false, null, false, false],  // Login normal, $SESSION->saml=0.
-            "5. DUALcfg: false, SAMLparam: off, SAMLsession: false"  => [false, 'off', false, false], // Login normal, ?saml=off.
-            "6. DUALcfg: false, SAMLparam: on, SAMLsession: false"   => [false, 'on', false, true], // SAML redirect, ?saml=on.
+            "4. dual: n, param: null, session: false" => [false, null, false, false],  // Login normal, $SESSION->saml=0.
+            "5. dual: n, param: off, session: false"  => [false, 'off', false, false], // Login normal, ?saml=off.
+            "6. dual: n, param: on, session: false"   => [false, 'on', false, true], // SAML redirect, ?saml=on.
 
-            "7. DUALcfg: false, SAMLparam: null, SAMLsession: true" => [false, null, true, true], // SAML redirect, $SESSION->saml=1.
-            "8. DUALcfg: false, SAMLparam: off, SAMLsession: true"  => [false, 'off', true, false], // Login normal, ?saml=off.
-            "9. DUALcfg: false, SAMLparam: on, SAMLsession: true"   => [false, 'on', true, true], // SAML redirect, ?saml=on.
+            "7. dual: n, param: null, session: true"    => [false, null, true, true], // SAML redirect, $SESSION->saml=1.
+            "8. dual: n, param: off, session: true"     => [false, 'off', true, false], // Login normal, ?saml=off.
+            "9. dual: n, param: on, session: true"      => [false, 'on', true, true], // SAML redirect, ?saml=on.
 
             // For passive mode always redirect, SAML2 will redirect back if not logged in.
-            "10. DUALcfg: passive, SAMLparam: null, SAMLsession: true"  => ['passive', null, true, true],
-            "11. DUALcfg: passive, SAMLparam: off, SAMLsession: true"   => ['passive', 'off', true, false], // Except if ?saml=off.
-            "12. DUALcfg: passive, SAMLparam: on, SAMLsession: true"    => ['passive', 'on', true, true],
+            "10. dual: p, param: null, session: true" => ['passive', null, true, true],
+            "11. dual: p, param: off, session: true"  => ['passive', 'off', true, false], // Except if ?saml=off.
+            "12. dual: p, param: on, session: true"   => ['passive', 'on', true, true],
 
-            "13. DUALcfg: passive, SAMLparam: null, SAMLsession: false" => ['passive', null, false, true],
-            "14. DUALcfg: passive, SAMLparam: off, SAMLsession: false"  => ['passive', 'off', false, false], // Except if ?saml=off.
-            "15. DUALcfg: passive, SAMLparam: on, SAMLsession: false"   => ['passive', 'on', false, true],
+            "13. dual: p, param: null, session: false" => ['passive', null, false, true],
+            "14. dual: p, param: off, session: false"  => ['passive', 'off', false, false], // Except if ?saml=off.
+            "15. dual: p, param: on, session: false"   => ['passive', 'on', false, true],
 
-            "16. DUALcfg: passive, with SAMLerror"                      => ['passive', 'error', false, false], // Passive redirect back
-            "17. DUALcfg: passive using POST"                           => ['passive', 'post', false, false], // POSTing
+            "16. dual: p, with SAMLerror" => ['passive', 'error', false, false], // Passive redirect back.
+            "17. dual: p using POST"      => ['passive', 'post', false, false], // POSTing.
         ];
     }
 
@@ -330,24 +330,24 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
 
         $this->assertFalse($auth->is_configured());
 
-        // crt: true
-        // pem: false
-        // xml: false
-        // result: failure
+        // File crt: true.
+        // File pem: false.
+        // File xml: false.
+        // File result: failure.
         touch($files['crt']);
         $this->assertFalse($auth->is_configured());
 
-        // crt: true
-        // pem: true
-        // xml: false
-        // result: failure
+        // File crt: true.
+        // File pem: true.
+        // File xml: false.
+        // File result: failure.
         touch($files['pem']);
         $this->assertFalse($auth->is_configured());
 
-        // crt: true
-        // pem: true
-        // xml: true
-        // result: success
+        // File crt: true.
+        // File pem: true.
+        // File xml: true.
+        // File result: success.
         touch($files['xml']);
         $this->assertTrue($auth->is_configured());
     }
