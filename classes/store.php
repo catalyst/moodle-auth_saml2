@@ -40,7 +40,7 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class store extends \SimpleSAML\Store {
-    const TABLE = 'auth_saml2_kvstore';
+    const TABLE_KVSTORE = 'auth_saml2_kvstore';
 
     /**
      * Retrieve a value from the datastore.
@@ -61,7 +61,7 @@ class store extends \SimpleSAML\Store {
 
         $query = '
             SELECT id, value
-              FROM {' . self::TABLE . '}
+              FROM {' . self::TABLE_KVSTORE . '}
              WHERE type = :type
                AND k = :k
                AND (expire IS NULL
@@ -126,12 +126,12 @@ class store extends \SimpleSAML\Store {
             'k' => $key,
         );
 
-        $record = $DB->get_record(self::TABLE, $find);
+        $record = $DB->get_record(self::TABLE_KVSTORE, $find);
         if ($record) {
             $data['id'] = $record->id;
-            $DB->update_record(self::TABLE, $data);
+            $DB->update_record(self::TABLE_KVSTORE, $data);
         } else {
-            $DB->insert_record(self::TABLE, $data);
+            $DB->insert_record(self::TABLE_KVSTORE, $data);
         }
     }
 
@@ -156,7 +156,7 @@ class store extends \SimpleSAML\Store {
             'k' => $key,
         );
 
-        $DB->delete_records(self::TABLE, $data);
+        $DB->delete_records(self::TABLE_KVSTORE, $data);
     }
 
     /**
@@ -164,7 +164,7 @@ class store extends \SimpleSAML\Store {
      */
     public function delete_expired() {
         global $DB;
-        $sql = 'DELETE FROM {' . self::TABLE . '}
+        $sql = 'DELETE FROM {' . self::TABLE_KVSTORE . '}
                  WHERE expire < :now';
         $params = array('now' => time());
 
