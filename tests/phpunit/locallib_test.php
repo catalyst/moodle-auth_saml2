@@ -38,7 +38,7 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
      * Regression test for Issue 132.
      */
     public function test_it_can_initialise_more_than_once() {
-        global $CFG, $saml2auth;
+        global $CFG;
         $this->resetAfterTest(true);
 
         for ($i = 0; $i < 3; $i++) {
@@ -50,7 +50,7 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
     }
 
     public function test_auth_saml2_sp_metadata() {
-        global $CFG, $DB, $saml2auth;
+        global $CFG;
 
         $this->resetAfterTest();
 
@@ -62,8 +62,6 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         set_config('idpentityids', json_encode([$url => $url]), 'auth_saml2');
 
         require($CFG->dirroot . '/auth/saml2/setup.php');
-
-        $auth = get_auth_plugin('saml2');
 
         $rawxml = auth_saml2_get_sp_metadata();
 
@@ -170,7 +168,6 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
 
         $fieldname = key($attributes);
-        $fielddata = $attributes[$fieldname][0];
 
         // Add a custom profile field named $fieldname.
         $pid = $DB->insert_record('user_info_field', array(

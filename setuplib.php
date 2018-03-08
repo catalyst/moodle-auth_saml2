@@ -37,7 +37,7 @@ require_once("$CFG->dirroot/auth/saml2/auth.php");
  * @param integer $numberofdays Certificate expirey period
  */
 function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
-    global $CFG, $SITE;
+    global $SITE;
 
     $opensslargs = array();
     if (array_key_exists('OPENSSL_CONF', $_SERVER)) {

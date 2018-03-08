@@ -526,7 +526,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         // 2) The SimpleSAML SP session.
         // 3) The IdP session, if the IdP supports SingleSignout.
 
-        global $CFG, $SESSION, $saml2auth, $redirect;
+        global $SESSION, $redirect;
 
         // Lets capture the saml2idp hash.
         $idp = $this->spname;
@@ -558,14 +558,9 @@ class auth_plugin_saml2 extends auth_plugin_base {
     }
 
     /**
-     * Returns false regardless of the username and password as we never get
-     * to the web form. If we do, some other auth plugin will handle it
-     *
-     * @param string $username The username
-     * @param string $password The password
-     * @return bool Authentication success or failure.
+     * {@inheritdoc}
      */
-    public function user_login ($username, $password) {
+    public function user_login($username, $password) {
         return false;
     }
 
@@ -578,7 +573,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
     public function process_config($config) {
         $haschanged = false;
 
-        foreach ($this->defaults as $key => $value) {
+        foreach (array_keys($this->defaults) as $key) {
             if ($config->$key != $this->config->$key) {
                 set_config($key, $config->$key, 'auth_saml2');
                 $haschanged = true;
@@ -605,7 +600,6 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * @return string
      */
     public function get_ssp_version() {
-        global $CFG, $saml2auth;
         require('setup.php');
         $config = new SimpleSAML_Configuration(array(), '');
         return $config->getVersion();

@@ -97,8 +97,7 @@ class store extends \SimpleSAML\Store {
      * @param int|null $expire The expiration time (unix timestamp), or NULL if it never expires.
      */
     public function set($type, $key, $value, $expire = null) {
-
-        global $DB, $CFG;
+        global $DB;
 
         assert('is_string($type)');
         assert('is_string($key)');

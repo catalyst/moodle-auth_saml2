@@ -43,7 +43,6 @@ function auth_saml2_get_sp_metadata() {
         return $xml;
     }
 
-    $auth = new SimpleSAML\Auth\Simple($sourceId);
     $config = SimpleSAML_Configuration::getInstance();
     $source = SimpleSAML_Auth_Source::getById($sourceId);
     if ($source === NULL) {

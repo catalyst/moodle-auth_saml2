@@ -24,6 +24,8 @@
 
 require_once(__DIR__ . '/setuplib.php');
 
+global $CFG, $saml2auth;
+
 // Tell SSP that we are on 443 if we are terminating SSL elsewhere.
 if (isset($CFG->sslproxy) && $CFG->sslproxy) {
       $_SERVER['SERVER_PORT'] = '443';
