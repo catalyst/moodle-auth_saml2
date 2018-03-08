@@ -231,6 +231,6 @@ class behat_auth_saml2 extends behat_base {
         list($class, $method) = explode("::", $contextapi);
         $object = behat_context_helper::get($class);
         $object->setMinkParameter('base_url', $CFG->wwwroot);
-        return $object->$method(...$params);
+        return call_user_func_array([$object, $method], $params);
     }
 }
