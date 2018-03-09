@@ -11,6 +11,10 @@ addons:
     packages:
       - oracle-java9-installer
       - oracle-java9-set-default
+      - redis-server
+
+services:
+  - redis-server
 
 cache:
   directories:
@@ -48,6 +52,7 @@ before_install:
   - if [ "$MOODLE_VERSION" = "master" ] || [ "$MOODLE_VERSION" -ge 32 ]; then export CI=2; else export CI=1; fi
   - echo $CI
   - phpenv config-rm xdebug.ini
+  - echo "extension = redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - tests/idp/simplesamlphp.sh
   - cd ../..
   - if [ "$CI" = 2 ]; then
@@ -62,6 +67,7 @@ before_install:
 install:
   - moodle-plugin-ci install -vvv
   - echo '$CFG->cookiesecure = false;' >> moodle/config.php
+  - moodle-plugin-ci add-config 'define("AUTH_SAML2_REDIS_STORE_TEST_SERVER", "127.0.0.1");'
 
 script:
   - moodle-plugin-ci validate
