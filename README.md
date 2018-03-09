@@ -71,15 +71,7 @@ Features not yet implemented:
 Installation
 ------------
 
-1. Install and enable php-mcrypt. On debian / ubuntu this may look like
-
-   ```sh
-   sudo apt-get install php5-mcrypt
-   sudo php5enmod mcrypt 
-   sudo service apache2 restart
-   ```
-   
-2. Install the plugin the same as any standard moodle plugin either via the
+1. Install the plugin the same as any standard moodle plugin either via the
 Moodle plugin directory, or you can use git to clone it into your source:
 
    ```sh
@@ -90,13 +82,13 @@ Moodle plugin directory, or you can use git to clone it into your source:
     
    https://moodle.org/plugins/auth_saml2
 
-3. Then run the Moodle upgrade
+2. Then run the Moodle upgrade
 
-4. If your IdP has a publicly available XML descriptor, copy it's url into
+3. If your IdP has a publicly available XML descriptor, copy it's url into
    the SAML2 auth config settings page. Otherwise copy the XML verbatum into
    the settings textarea instead.
    
-5. If your IdP requires whitelisting each SP then in the settings page is
+4. If your IdP requires whitelisting each SP then in the settings page is
    links to download the XML, or you can provide that url to your IdP
    administrator.
 
