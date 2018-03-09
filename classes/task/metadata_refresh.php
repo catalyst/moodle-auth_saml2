@@ -24,10 +24,11 @@
  */
 namespace auth_saml2\task;
 
+use auth_saml2\idp_parser;
 use auth_saml2\metadata_fetcher;
 use auth_saml2\metadata_parser;
 use auth_saml2\metadata_writer;
-use auth_saml2\idp_parser;
+use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -39,7 +40,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class metadata_refresh extends \core\task\scheduled_task {
-
     /**
      * @var metadata_fetcher
      */
@@ -66,6 +66,12 @@ class metadata_refresh extends \core\task\scheduled_task {
 
     public function execute($force = false) {
         $config = get_config('auth_saml2');
+
+        if (empty($config->idpmetadata)) {
+            mtrace('IdP metadata not configured.');
+            return false;
+        }
+
         if (!$force && empty($config->idpmetadatarefresh)) {
             $str = 'IdP metadata refresh is not configured. Enable it in the auth settings or disable this scheduled task';
             mtrace($str);

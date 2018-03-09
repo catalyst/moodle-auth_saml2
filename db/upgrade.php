@@ -186,8 +186,12 @@ function xmldb_auth_saml2_upgrade($oldversion) {
     }
 
     if ($oldversion < 2018022203) {
-        $refreshtask = new metadata_refresh();
-        $refreshtask->execute(true);
+        try {
+            $refreshtask = new metadata_refresh();
+            $refreshtask->execute(true);
+        } catch (moodle_exception $exception) {
+            mtrace($exception->getMessage());
+        }
         upgrade_plugin_savepoint(true, 2018022203, 'auth', 'saml2');
     }
 
