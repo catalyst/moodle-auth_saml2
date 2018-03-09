@@ -119,6 +119,16 @@ class Utils
             return $key;
         }
 
+        if (!in_array($algorithm, array(
+            XMLSecurityKey::RSA_1_5,
+            XMLSecurityKey::RSA_SHA1,
+            XMLSecurityKey::RSA_SHA256,
+            XMLSecurityKey::RSA_SHA384,
+            XMLSecurityKey::RSA_SHA512
+        ))) {
+            throw new \Exception('Unsupported signing algorithm.');
+        }
+
         $keyInfo = openssl_pkey_get_details($key->key);
         if ($keyInfo === false) {
             throw new \Exception('Unable to get key details from XMLSecurityKey.');
@@ -418,9 +428,9 @@ class Utils
             throw new \Exception('Could not locate <dsig:KeyInfo> for the encrypted key.');
         }
 
-        $inputKeyAlgo = $inputKey->getAlgorith();
+        $inputKeyAlgo = $inputKey->getAlgorithm();
         if ($symmetricKeyInfo->isEncrypted) {
-            $symKeyInfoAlgo = $symmetricKeyInfo->getAlgorith();
+            $symKeyInfoAlgo = $symmetricKeyInfo->getAlgorithm();
 
             if (in_array($symKeyInfoAlgo, $blacklist, true)) {
                 throw new \Exception('Algorithm disabled: ' . var_export($symKeyInfoAlgo, true));
@@ -488,7 +498,7 @@ class Utils
             }
             $symmetricKey->loadkey($key);
         } else {
-            $symKeyAlgo = $symmetricKey->getAlgorith();
+            $symKeyAlgo = $symmetricKey->getAlgorithm();
             /* Make sure that the input key has the correct format. */
             if ($inputKeyAlgo !== $symKeyAlgo) {
                 throw new \Exception(
@@ -500,7 +510,7 @@ class Utils
             $symmetricKey = $inputKey;
         }
 
-        $algorithm = $symmetricKey->getAlgorith();
+        $algorithm = $symmetricKey->getAlgorithm();
         if (in_array($algorithm, $blacklist, true)) {
             throw new \Exception('Algorithm disabled: ' . var_export($algorithm, true));
         }
@@ -713,7 +723,7 @@ class Utils
         $matches = array();
 
         // We use a very strict regex to parse the timestamp.
-        $regex = '/^(\\d\\d\\d\\d)-(\\d\\d)-(\\d\\d)T(\\d\\d):(\\d\\d):(\\d\\d)(?:\\.\\d+)?Z$/D';
+        $regex = '/^(\\d\\d\\d\\d)-(\\d\\d)-(\\d\\d)T(\\d\\d):(\\d\\d):(\\d\\d)(?:\\.\\d{1,9})?Z$/D';
         if (preg_match($regex, $time, $matches) == 0) {
             throw new \Exception(
                 'Invalid SAML2 timestamp passed to xsDateTimeToTimestamp: ' . $time

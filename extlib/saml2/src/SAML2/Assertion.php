@@ -265,6 +265,7 @@ class Assertion implements SignedElement
         $this->certificates = array();
         $this->AuthenticatingAuthority = array();
         $this->SubjectConfirmation = array();
+        $this->requiredEncAttributes = false;
 
         if ($xml === null) {
             return;
@@ -1219,7 +1220,7 @@ class Assertion implements SignedElement
     /**
      * Replace all attributes value types..
      *
-     * @param array $attributes All new attribute value types, as an associative array.
+     * @param array $attributesValueTypes All new attribute value types, as an associative array.
      */
     public function setAttributesValueTypes(array $attributesValueTypes)
     {
@@ -1391,7 +1392,7 @@ class Assertion implements SignedElement
         $this->addSubject($root);
         $this->addConditions($root);
         $this->addAuthnStatement($root);
-        if ($this->requiredEncAttributes == false) {
+        if ($this->requiredEncAttributes === false) {
             $this->addAttributeStatement($root);
         } else {
             $this->addEncryptedAttributeStatement($root);
@@ -1636,7 +1637,7 @@ class Assertion implements SignedElement
      */
     private function addEncryptedAttributeStatement(\DOMElement $root)
     {
-        if ($this->requiredEncAttributes == false) {
+        if ($this->requiredEncAttributes === false) {
             return;
         }
 

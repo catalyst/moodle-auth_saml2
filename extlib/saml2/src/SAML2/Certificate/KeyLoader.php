@@ -31,19 +31,17 @@ class KeyLoader
      * @param \SAML2\Configuration\CertificateProvider $config
      * @param null                                    $usage
      * @param bool                                    $required
-     * @param string                                  $prefix
      *
      * @return \SAML2\Certificate\KeyCollection
      */
     public static function extractPublicKeys(
         CertificateProvider $config,
         $usage = null,
-        $required = false,
-        $prefix = ''
+        $required = false
     ) {
         $keyLoader = new self();
 
-        return $keyLoader->loadKeysFromConfiguration($config, $usage, $required, $prefix, $keyLoader);
+        return $keyLoader->loadKeysFromConfiguration($config, $usage, $required);
     }
 
     /**
@@ -62,11 +60,11 @@ class KeyLoader
         $certificateData = $config->getCertificateData();
         $certificateFile = $config->getCertificateFile();
 
-        if ($keys) {
+        if ($keys !== null) {
             $this->loadKeys($keys, $usage);
-        } elseif ($certificateData) {
+        } elseif ($certificateData !== null) {
             $this->loadCertificateData($certificateData);
-        } elseif ($certificateFile) {
+        } elseif ($certificateFile !== null) {
             $this->loadCertificateFile($certificateFile);
         }
 

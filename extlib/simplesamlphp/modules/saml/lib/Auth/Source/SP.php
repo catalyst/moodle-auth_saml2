@@ -58,7 +58,7 @@ class sspmod_saml_Auth_Source_SP extends SimpleSAML_Auth_Source {
 		$this->entityId = $this->metadata->getString('entityID');
 		$this->idp = $this->metadata->getString('idp', NULL);
 		$this->discoURL = $this->metadata->getString('discoURL', NULL);
-
+		
 		if (empty($this->discoURL) && SimpleSAML\Module::isModuleEnabled('discojuice')) {
 			$this->discoURL = SimpleSAML\Module::getModuleURL('discojuice/central.php');
 		}
@@ -360,12 +360,13 @@ class sspmod_saml_Auth_Source_SP extends SimpleSAML_Auth_Source {
 		}
 
 		$returnTo = SimpleSAML\Module::getModuleURL('saml/sp/discoresp.php', array('AuthID' => $id));
+		
 		$params = array(
 			'entityID' => $this->entityId,
 			'return' => $returnTo,
 			'returnIDParam' => 'idpentityid'
 		);
-
+		
 		if(isset($state['saml:IDPList'])) {
 			$params['IDPList'] = $state['saml:IDPList'];
 		}
