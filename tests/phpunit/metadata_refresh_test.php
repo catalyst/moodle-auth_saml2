@@ -22,6 +22,7 @@
  * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 use auth_saml2\task\metadata_refresh;
 
 defined('MOODLE_INTERNAL') || die();
@@ -44,9 +45,7 @@ class auth_saml2_metadata_refresh_testcase extends advanced_testcase {
 
         $refreshtask = new metadata_refresh();
 
-        $this->expectOutputString('IdP metadata refresh is not configured. Enable it in the auth settings or disable' .
-                ' this scheduled task' . "\n");
-        $refreshtask->execute();
+        self::assertFalse($refreshtask->execute());
     }
 
     public function test_metadata_refresh_idpmetadata_non_url() {
@@ -61,6 +60,15 @@ XML;
 
         $this->expectOutputString('IdP metadata config not a URL, nothing to refresh.' . "\n");
         $refreshtask->execute();
+    }
+
+    public function test_metadata_refresh_idpmetadata_notconfigured() {
+        set_config('idpmetadatarefresh', 1, 'auth_saml2');
+        set_config('idpmetadata', null, 'auth_saml2');
+
+        $refreshtask = new metadata_refresh();
+
+        self::assertFalse($refreshtask->execute());
     }
 
     /**
