@@ -1,7 +1,5 @@
 <?php
 
-use RobRichards\XMLSecLibs\XMLSecurityDSig;
-use RobRichards\XMLSecLibs\XMLSecurityKey;
 
 /**
  * This class implements a helper function for signing of metadata.

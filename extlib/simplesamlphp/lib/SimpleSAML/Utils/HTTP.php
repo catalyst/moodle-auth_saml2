@@ -421,7 +421,7 @@ class HTTP
             }
             $proxy_auth = $config->getString('proxy.auth', false);
             if ($proxy_auth !== false) {
-                $context['http']['header'] = "Proxy-Authorization: Basic".base64_encode($proxy_auth);
+                $context['http']['header'] = "Proxy-Authorization: Basic ".base64_encode($proxy_auth);
             }
             if (!isset($context['http']['request_fulluri'])) {
                 $context['http']['request_fulluri'] = true;
@@ -966,13 +966,6 @@ class HTTP
         }
 
         $url = self::normalizeURL($url);
-
-        // This is a Moodle hack. Both moodle and SSPHP rely on automatic
-        // destructors to cleanup the $DB var and the SSPHP session but
-        // this order is not guaranteed, so we force session saving here.
-        $session = \SimpleSAML_Session::getSessionFromRequest();
-        $session->save();
-
         self::redirect($url, $parameters);
     }
 
