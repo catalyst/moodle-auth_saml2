@@ -22,9 +22,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
-require_once(dirname(__FILE__).'/_autoload.php');
-require_once("$CFG->dirroot/auth/saml2/auth.php");
+require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/_autoload.php');
+
+global $CFG;
+require_once("{$CFG->dirroot}/auth/saml2/auth.php");
 
 /**
  * Ensure that valid certificates exist.
@@ -37,7 +39,7 @@ require_once("$CFG->dirroot/auth/saml2/auth.php");
  * @param integer $numberofdays Certificate expirey period
  */
 function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
-    global $CFG, $SITE;
+    global $SITE;
 
     $opensslargs = array();
     if (array_key_exists('OPENSSL_CONF', $_SERVER)) {

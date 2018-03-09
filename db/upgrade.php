@@ -191,5 +191,11 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2018022203, 'auth', 'saml2');
     }
 
+    if ($oldversion < 2018030800) {
+        $table = new xmldb_table('auth_samltwo_kvstore');
+        $dbman->rename_table($table, 'auth_saml2_kvstore');
+        upgrade_plugin_savepoint(true, 2018030800, 'auth', 'saml2');
+    }
+
     return true;
 }

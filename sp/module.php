@@ -23,6 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+require_once(__DIR__ . '/../../../config.php');
 require_once('../setup.php');
 
 // Tell SSP that we are on 443 if we are terminating SSL elsewhere.

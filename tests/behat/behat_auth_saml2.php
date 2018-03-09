@@ -170,7 +170,6 @@ class behat_auth_saml2 extends behat_base {
             throw new moodle_exception('Cannot save plugin defaults.');
         }
 
-        global $CFG;
         require(__DIR__ . '/../../setup.php');
     }
 

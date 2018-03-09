@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="auth/saml2/db" VERSION="20160317" COMMENT="XMLDB file for Moodle auth/saml2"
+<XMLDB PATH="auth/saml2/db" VERSION="20180308" COMMENT="XMLDB file for Moodle auth/saml2"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="auth_samltwo_kvstore" COMMENT="A key value store for SAML2">
+    <TABLE NAME="auth_saml2_kvstore" COMMENT="A key value store for SAML2">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="type" TYPE="char" LENGTH="30" NOTNULL="true" SEQUENCE="false"/>

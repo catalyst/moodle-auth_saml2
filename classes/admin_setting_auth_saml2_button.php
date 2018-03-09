@@ -51,11 +51,7 @@ class admin_setting_auth_saml2_button extends admin_setting_heading {
     }
 
     /**
-     * Returns an HTML string
-     *
-     * @param string $data Unused
-     * @param string $query Unused
-     * @return string Returns an HTML string
+     * {@inheritdoc}
      */
     public function output_html($data, $query = '') {
         if (moodle_major_version() < '3.3') {

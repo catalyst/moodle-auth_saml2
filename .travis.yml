@@ -64,11 +64,11 @@ install:
   - echo '$CFG->cookiesecure = false;' >> moodle/config.php
 
 script:
-# - moodle-plugin-ci validate
+  - moodle-plugin-ci validate
   - moodle-plugin-ci phplint
   - moodle-plugin-ci phpcpd
-# - moodle-plugin-ci phpmd
-# - moodle-plugin-ci codechecker
+  - moodle-plugin-ci phpmd
+  - moodle-plugin-ci codechecker
 
   - if [ "$CI" -eq 1 ]; then moodle-plugin-ci csslint    ; fi
   - if [ "$CI" -eq 1 ]; then moodle-plugin-ci jshint     ; fi
