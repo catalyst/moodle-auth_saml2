@@ -33,13 +33,6 @@ if ($ADMIN->fulltree) {
     require_once($CFG->dirroot.'/auth/saml2/classes/admin_setting_auth_saml2_textonly.php');
     require_once($CFG->dirroot.'/auth/saml2/locallib.php');
 
-    // Warning for missing mcrypt.
-    $settings->add(new admin_setting_php_extension_enabled(
-            'auth_saml2/mcrypt',
-            get_string('mcrypt', 'auth_saml2'),
-            get_string('mcryptnotfound', 'auth_saml2'),
-            'mcrypt'));
-
     $yesno = array(
             new lang_string('no'),
             new lang_string('yes'),

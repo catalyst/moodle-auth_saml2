@@ -7,7 +7,6 @@
       <PHP_EXTENSION name="dom" level="required" />
       <PHP_EXTENSION name="hash" level="required" />
       <PHP_EXTENSION name="libxml" level="required" />
-      <PHP_EXTENSION name="mcrypt" level="required" />
       <PHP_EXTENSION name="openssl" level="required" />
       <PHP_EXTENSION name="pcre" level="required" />
       <PHP_EXTENSION name="spl" level="required" />
