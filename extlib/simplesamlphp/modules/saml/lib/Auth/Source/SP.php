@@ -143,6 +143,7 @@ class sspmod_saml_Auth_Source_SP extends SimpleSAML_Auth_Source {
 	 * @param array $state  The state array for the current authentication.
 	 */
 	private function startSSO1(SimpleSAML_Configuration $idpMetadata, array $state) {
+		global $CFG;
 
 		$idpEntityId = $idpMetadata->getString('entityid');
 
@@ -154,16 +155,7 @@ class sspmod_saml_Auth_Source_SP extends SimpleSAML_Auth_Source {
 		$id = SimpleSAML_Auth_State::saveState($state, 'saml:sp:sso');
 		$ar->setRelayState($id);
 
-		$useArtifact = $idpMetadata->getBoolean('saml1.useartifact', NULL);
-		if ($useArtifact === NULL) {
-			$useArtifact = $this->metadata->getBoolean('saml1.useartifact', FALSE);
-		}
-
-		if ($useArtifact) {
-			$shire = SimpleSAML\Module::getModuleURL('saml/sp/saml1-acs.php/' . $this->authId . '/artifact');
-		} else {
-			$shire = SimpleSAML\Module::getModuleURL('saml/sp/saml1-acs.php/' . $this->authId);
-		}
+		$shire = $CFG->wwwroot . '/auth/saml2/sp/saml1-acs.php/' . $this->authId;
 
 		$url = $ar->createRedirect($idpEntityId, $shire);
 
@@ -190,7 +182,10 @@ class sspmod_saml_Auth_Source_SP extends SimpleSAML_Auth_Source {
 
 		$ar = sspmod_saml_Message::buildAuthnRequest($this->metadata, $idpMetadata);
 
-		$ar->setAssertionConsumerServiceURL(SimpleSAML\Module::getModuleURL('saml/sp/saml2-acs.php/' . $this->authId));
+		// auth_saml2 modification
+		$baseurl = SimpleSAML\Module::getModuleURL('saml/sp/saml2-acs.php/' . $this->authId);
+		$baseurl = str_replace('module.php/saml/sp/', '', $baseurl);
+		$ar->setAssertionConsumerServiceURL($baseurl);
 
 		if (isset($state['SimpleSAML_Auth_Source.ReturnURL'])) {
 			$ar->setRelayState($state['SimpleSAML_Auth_Source.ReturnURL']);
@@ -295,6 +290,11 @@ class sspmod_saml_Auth_Source_SP extends SimpleSAML_Auth_Source {
 
 		$b = \SAML2\Binding::getBinding($dst['Binding']);
 
+		// This is a Moodle hack. Both moodle and SSPHP rely on automatic
+		// destructors to cleanup the $DB var and the SSPHP session but
+		// this order is not guaranteed, so we force session saving here.
+		$session = SimpleSAML_Session::getSessionFromRequest();
+		$session->save();
 		$this->sendSAML2AuthnRequest($state, $b, $ar);
 
 		assert('FALSE');
