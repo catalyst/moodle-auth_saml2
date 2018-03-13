@@ -27,7 +27,7 @@ use admin_setting;
 
 defined('MOODLE_INTERNAL') || die();
 
-require(__DIR__ . '/../../../../lib/adminlib.php');
+require_once(__DIR__ . '/../../../../lib/adminlib.php');
 
 /**
  * @package     auth_saml2
