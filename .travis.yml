@@ -70,6 +70,9 @@ install:
   - moodle-plugin-ci add-config 'define("AUTH_SAML2_REDIS_STORE_TEST_SERVER", "127.0.0.1");'
 
 script:
+  # Run lint on extlib as composer may fetch newer PHP version of libs during update.
+  - find moodle/auth/saml2/extlib -type f -name '*.php' -exec php -l {} \; | (! grep -v "No syntax errors detected" )
+
   - moodle-plugin-ci validate
   - moodle-plugin-ci phplint
   - moodle-plugin-ci phpcpd
