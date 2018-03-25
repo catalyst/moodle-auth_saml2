@@ -37,7 +37,7 @@ if ($download) {
     header('Content-Disposition: attachment; filename=' . $saml2auth->spname . '.xml');
 }
 
-$regenerate = optional_param('regenerate', '', PARAM_RAW);
+$regenerate = is_siteadmin() && optional_param('regenerate', false, PARAM_BOOL);
 if ($regenerate) {
     $file = $saml2auth->certdir . $saml2auth->spname . '.xml';
     @unlink($file);
