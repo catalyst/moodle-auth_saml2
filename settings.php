@@ -191,14 +191,14 @@ if ($ADMIN->fulltree) {
             'auth_saml2/mdlattr',
             get_string('mdlattr', 'auth_saml2'),
             get_string('mdlattr_help', 'auth_saml2'),
-            0, $fields));
+            'username', $fields));
 
     // Lowercase.
     $settings->add(new admin_setting_configselect(
             'auth_saml2/tolower',
             get_string('tolower', 'auth_saml2'),
             get_string('tolower_help', 'auth_saml2'),
-            'username', $yesno));
+            0, $yesno));
 
     // Autocreate Users.
     $settings->add(new admin_setting_configselect(
