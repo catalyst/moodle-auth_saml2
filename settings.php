@@ -93,6 +93,24 @@ if ($ADMIN->fulltree) {
             get_string('logdirdefault', 'auth_saml2'),
             PARAM_TEXT));
 
+    // Section 8.3 from http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf
+    $nameidlist = [
+        'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
+        'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
+        'urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName',
+        'urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName',
+        'urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos',
+        'urn:oasis:names:tc:SAML:2.0:nameid-format:entity',
+        'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
+        'urn:oasis:names:tc:SAML:2.0:nameid-format:transient',
+    ];
+    $settings->add(new admin_setting_configselect(
+        'auth_saml2/nameidpolicy',
+        get_string('nameidpolicy', 'auth_saml2'),
+        get_string('nameidpolicy_help', 'auth_saml2'),
+        'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
+        array_combine($nameidlist, $nameidlist)));
+
     // Add NameID as attribute.
     $settings->add(new admin_setting_configselect(
             'auth_saml2/nameidasattrib',
