@@ -142,6 +142,14 @@ class SimpleSAML_Session implements Serializable
      */
     private function __construct($transient = false)
     {
+        // Moodle custom: Try saving session BEFORE $DB gets destroyed. The __destructor() call to save will be clean.
+        \core_shutdown_manager::register_function(
+            function($session) {
+                $session->save();
+            },
+            [$this]
+        );
+
         if (php_sapi_name() === 'cli' || defined('STDIN')) {
             $this->trackid = 'CL'.bin2hex(openssl_random_pseudo_bytes(4));
             SimpleSAML\Logger::setTrackId($this->trackid);
