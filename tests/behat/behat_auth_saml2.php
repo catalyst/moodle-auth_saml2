@@ -88,10 +88,20 @@ class behat_auth_saml2 extends behat_base {
     }
 
     /**
-     * @Given /^I go to the login page +\# auth_saml2$/
+     * @Given /^I go to the (login|self-test) page +\# auth_saml2$/
      */
-    public function iGoToTheLoginPageAuth_saml() {
-        $this->getSession()->visit($this->locate_path('login/index.php'));
+    public function iGoToTheLoginPageAuth_saml($page) {
+        switch ($page){
+            case 'login':
+                $page = '/login/index.php';
+                break;
+            case 'self-test':
+                $page='/auth/saml2/test.php';
+                break;
+        }
+
+
+        $this->getSession()->visit($this->locate_path($page));
     }
 
     /**
