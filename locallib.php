@@ -349,7 +349,7 @@ function auth_saml2_display_auth_lock_options($settings, $auth, $userfields, $he
             // We are mapping to a remote field here.
             // Mapping.
             $settings->add(new admin_setting_configtext("auth_{$auth}/field_map_{$field}",
-                get_string('auth_fieldmapping', 'auth_saml2', $fieldname), '', '', PARAM_ALPHANUMEXT, 30));
+                get_string('auth_fieldmapping', 'auth_saml2', $fieldname), '', '', PARAM_RAW, 30));
 
             // Update local.
             $settings->add(new admin_setting_configselect("auth_{$auth}/field_updatelocal_{$field}",
