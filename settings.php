@@ -110,12 +110,14 @@ if ($ADMIN->fulltree) {
         'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
         'urn:oasis:names:tc:SAML:2.0:nameid-format:transient',
     ];
-    $settings->add(new admin_setting_configselect(
+    $nameidpolicy = new admin_setting_configselect(
         'auth_saml2/nameidpolicy',
         get_string('nameidpolicy', 'auth_saml2'),
         get_string('nameidpolicy_help', 'auth_saml2'),
         'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
-        array_combine($nameidlist, $nameidlist)));
+        array_combine($nameidlist, $nameidlist));
+    $nameidpolicy->set_updatedcallback('auth_saml2_update_sp_metadata');
+    $settings->add($nameidpolicy);
 
     // Add NameID as attribute.
     $settings->add(new admin_setting_configselect(
