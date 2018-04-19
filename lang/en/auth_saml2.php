@@ -29,6 +29,8 @@ $string['anyauth_help'] = 'Yes: Allow SAML login for all users? No: Only users w
 $string['auth_saml2description'] = 'Authenticate with a SAML2 IdP';
 $string['autocreate'] = 'Auto create users';
 $string['autocreate_help'] = 'If users are in the IdP but not in moodle create a moodle account.';
+$string['attemptsignout'] = 'Attempt IdP Signout';
+$string['attemptsignout_help'] = 'This will attempt to communicate with the IdP to send a signout request';
 $string['certificatedetails'] = 'Certificate details';
 $string['certificatedetailshelp'] = '<h1>SAML2 auto generated public certificate contents</h1><p>The path for the cert is here:</p>';
 $string['certificate_help'] = 'Regenerate the Private Key and Certificate used by this SP. | <a href=\'{$a}\'>View SP certificate</a>';
