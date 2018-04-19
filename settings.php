@@ -190,6 +190,14 @@ if ($ADMIN->fulltree) {
             '',
             PARAM_URL));
 
+    // Attempt Single Sign out
+    $settings->add(new admin_setting_configselect(
+        'auth_saml2/attemptsignout',
+        get_string('attemptsignout', 'auth_saml2'),
+        get_string('attemptsignout_help', 'auth_saml2'),
+        1,
+        $yesno));
+
     // SAMLPHP version.
     $authplugin = get_auth_plugin('saml2');
     $settings->add(new admin_setting_auth_saml2_textonly(

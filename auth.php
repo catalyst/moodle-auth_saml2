@@ -419,6 +419,11 @@ class auth_plugin_saml2 extends auth_plugin_base {
         // gets called by the normal core process.
         require_logout();
 
+        // Do not attempt to log out of the IdP.
+        if (!$this->config->attemptsignout) {
+            return;
+        }
+
         require('setup.php');
         $auth = new SimpleSAML_Auth_Simple($this->spname);
 
