@@ -292,6 +292,11 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $this->log(__FUNCTION__ . ' enter');
 
         $saml = optional_param('saml', null, PARAM_BOOL);
+        // Also support noredirect param - used by other auth plugins.
+        $noredirect = optional_param('noredirect', 0, PARAM_BOOL);
+        if (!empty($noredirect)) {
+            $saml = 0;
+        }
 
         // Never redirect on POST.
         if (isset($_SERVER['REQUEST_METHOD']) && ($_SERVER['REQUEST_METHOD'] == 'POST')) {
@@ -347,6 +352,11 @@ class auth_plugin_saml2 extends auth_plugin_base {
         // the login page again, and don't get booted to the IdP on the second
         // attempt to login manually.
         $saml = optional_param('saml', 1, PARAM_BOOL);
+        $noredirect = optional_param('noredirect', 0, PARAM_BOOL);
+        if (!empty($noredirect)) {
+            $saml = 0;
+        }
+
         if ($saml == 0) {
             $SESSION->saml = $saml;
             $this->log(__FUNCTION__ . ' skipping due to ?saml=off');
