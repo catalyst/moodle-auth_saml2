@@ -79,25 +79,48 @@ class admin_setting_configtext_idpmetadata extends admin_setting_configtextarea 
             }
         }
 
+        $oldentityids = json_decode(get_config('auth_saml2', 'idpentityids'), true);
+
         $entityids = [];
         $mduinames = [];
 
         // Process the rawxml and populate arrays of entityids and mduinames.
         foreach ($idps as $idp) {
             try {
-                $xml = new SimpleXMLElement($idp->rawxml);
-                $xml->registerXPathNamespace('md',   'urn:oasis:names:tc:SAML:2.0:metadata');
-                $xml->registerXPathNamespace('mdui', 'urn:oasis:names:tc:SAML:metadata:ui');
+                $xml = new \DOMDocument();
+                $xml->loadXML($idp->rawxml);
+                $xpath = new \DOMXPath($xml);
+                $xpath->registerNamespace('md',   'urn:oasis:names:tc:SAML:2.0:metadata');
+                $xpath->registerNamespace('mdui', 'urn:oasis:names:tc:SAML:metadata:ui');
 
                 // Find all IDPSSODescriptor elements and then work back up to the entityID.
-                $idpelements = $xml->xpath('//md:EntityDescriptor[//md:IDPSSODescriptor]');
-                if ($idpelements && isset($idpelements[0])) {
-                    $entityids[$idp->idpurl] = (string)$idpelements[0]->attributes('', true)->entityID[0];
+                $idpelements = $xpath->query('//md:EntityDescriptor[//md:IDPSSODescriptor]');
+
+                if ($idpelements && $idpelements->length == 1 && isset($idpelements[0])) {
+                    $entityids[$idp->idpurl] = $idpelements[0]->getAttribute('entityID');
 
                     // Locate a displayname element provided by the IdP XML metadata.
-                    $names = @$idpelements[0]->xpath('//mdui:DisplayName');
+                    $names = $xpath->query('.//mdui:DisplayName', $idpelements[0]);
                     if ($names && isset($names[0])) {
-                        $mduinames[$idp->idpurl] = (string)$names[0];
+                        $mduinames[$idp->idpurl] = $names[0]->textContent;
+                    }
+                } else if ($idpelements && $idpelements->length > 1) {
+                    $entityids[$idp->idpurl] = [];
+                    $mduinames[$idp->idpurl] = [];
+
+                    foreach ($idpelements as $idpelement) {
+                        $entityid = $idpelement->getAttribute('entityID');
+                        $active = 0;
+                        if (isset($oldentityids[$idp->idpurl][$entityid])) {
+                            $active = $oldentityids[$idp->idpurl][$entityid];
+                        }
+                        $entityids[$idp->idpurl][$entityid] = $active;
+
+                        // Locate a displayname element provided by the IdP XML metadata.
+                        $names = $xpath->query('.//mdui:DisplayName', $idpelement);
+                        if ($names && isset($names[0])) {
+                            $mduinames[$idp->idpurl][$entityid] = $names[0]->textContent;
+                        }
                     }
                 }
 

@@ -131,18 +131,27 @@ class auth_plugin_saml2 extends auth_plugin_base {
                 continue;
             }
 
-            $params = [
-                'wants' => $wantsurl,
-                'idp' => md5($this->idpentityids[$idp->idpurl]),
-            ];
+            if (is_array($this->idpentityids[$idp->idpurl]) || is_object($this->idpentityids[$idp->idpurl])) {
+                $params = [
+                    'wants' => $wantsurl,
+                    'parentidp' => md5($idp->idpurl),
+                ];
 
-            // The wants url may already be routed via login.php so don't re-re-route it.
-            if (strpos($wantsurl, '/auth/saml2/login.php')) {
-                $idpurl = new moodle_url($wantsurl);
+                $idpurl = new moodle_url('/auth/saml2/selectidp.php', $params);
             } else {
-                $idpurl = new moodle_url('/auth/saml2/login.php', $params);
+                $params = [
+                    'wants' => $wantsurl,
+                    'idp' => md5($this->idpentityids[$idp->idpurl]),
+                ];
+
+                // The wants url may already be routed via login.php so don't re-re-route it.
+                if (strpos($wantsurl, '/auth/saml2/login.php')) {
+                    $idpurl = new moodle_url($wantsurl);
+                } else {
+                    $idpurl = new moodle_url('/auth/saml2/login.php', $params);
+                }
+                $idpurl->param('passive', 'off');
             }
-            $idpurl->param('passive', 'off');
 
             // A default icon.
             $idpicon = new pix_icon('i/user', 'Login');
@@ -394,6 +403,23 @@ class auth_plugin_saml2 extends auth_plugin_base {
         // We store the IdP in the session to generate the config/config.php array with the default local SP.
         if (isset($_GET['idp'])) {
             $SESSION->saml2idp = $_GET['idp'];
+        } else if (is_null($SESSION->saml2idp)) {
+            // First IdP (default) is a multiple set IdP so we need to redirect the user to the selection page.
+            $arr = array_reverse($saml2auth->idpentityids);
+            $parentidp = md5(key($arr));
+            $wants = core_login_get_return_url();
+
+            $params = [
+                'wants' => $wants,
+                'parentidp' => $parentidp,
+            ];
+
+            $idpurl = new moodle_url('/auth/saml2/selectidp.php', $params);
+            redirect($idpurl);
+        }
+
+        if (isset($_GET['rememberidp']) && $_GET['rememberidp'] == 1) {
+            $this->set_idp_cookie($SESSION->saml2idp);
         }
 
         $auth = new \SimpleSAML\Auth\Simple($this->spname);
@@ -402,7 +428,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $passive = (bool)optional_param('passive', $passive, PARAM_BOOL);
         $params = ['isPassive' => $passive];
         if ($passive) {
-            $params['ErrorURL'] = "{$CFG->wwwroot}/login/index.php";
+            $errorurl = optional_param('errorurl', "{$CFG->wwwroot}/login/index.php", PARAM_RAW);
+            $params['ErrorURL'] = $errorurl;
         }
 
         $auth->requireAuth($params);
@@ -621,6 +648,52 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
     public function can_be_manually_set() {
         return true;
+    }
+
+    /**
+     * Sets a preferred IdP in a cookie for faster subsequent logging in.
+     *
+     * @param string $idp a md5 encoded IdP entityid
+     */
+    public function set_idp_cookie($idp) {
+        global $CFG;
+
+        if (NO_MOODLE_COOKIES) {
+            return;
+        }
+
+        $cookiename = 'MOODLEIDP1_'.$CFG->sessioncookie;
+
+        $cookiesecure = is_moodle_cookie_secure();
+
+        // Delete old cookie.
+        setcookie($cookiename, '', time() - HOURSECS, $CFG->sessioncookiepath, $CFG->sessioncookiedomain, $cookiesecure, $CFG->cookiehttponly);
+
+        if ($idp !== '') {
+            // Set username cookie for 60 days.
+            setcookie($cookiename, $idp, time() + (DAYSECS * 60), $CFG->sessioncookiepath, $CFG->sessioncookiedomain, $cookiesecure, $CFG->cookiehttponly);
+        }
+    }
+
+    /**
+     * Gets a preferred IdP from a cookie for faster subsequent logging in.
+     *
+     * @return string $idp a md5 encoded IdP entityid
+     */
+    public function get_idp_cookie() {
+        global $CFG;
+
+        if (NO_MOODLE_COOKIES) {
+            return '';
+        }
+
+        $cookiename = 'MOODLEIDP1_'.$CFG->sessioncookie;
+
+        if (empty($_COOKIE[$cookiename])) {
+            return '';
+        } else {
+            return $_COOKIE[$cookiename];
+        }
     }
 }
 

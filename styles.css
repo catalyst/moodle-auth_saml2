@@ -1,0 +1,7 @@
+.mform .fitem div.fitemtitle {
+    width: 0;
+}
+
+.mform .fitem .felement {
+    margin-left: 0;
+}

@@ -215,6 +215,15 @@ if ($ADMIN->fulltree) {
             '',
             PARAM_URL));
 
+    // Select available IdPs.
+    $settings->add(new admin_setting_auth_saml2_button(
+        'auth_saml2/availableidps',
+        get_string('availableidps', 'auth_saml2'),
+        get_string('availableidps_help', 'auth_saml2'),
+        get_string('availableidps', 'auth_saml2'),
+        $CFG->wwwroot . '/auth/saml2/availableidps.php'
+        ));
+
     // SAMLPHP version.
     $authplugin = get_auth_plugin('saml2');
     $settings->add(new admin_setting_auth_saml2_textonly(

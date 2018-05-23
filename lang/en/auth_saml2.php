@@ -29,6 +29,9 @@ $string['anyauth_help'] = 'Yes: Allow SAML login for all users? No: Only users w
 $string['auth_saml2description'] = 'Authenticate with a SAML2 IdP';
 $string['autocreate'] = 'Auto create users';
 $string['autocreate_help'] = 'If users are in the IdP but not in moodle create a moodle account.';
+$string['availableidps'] = 'Select available IdPs';
+$string['availableidps_help'] = 'If an IdP metadata xml contains multiple IdP entities, you will need to select which entities are availiable
+for users to login with.';
 $string['certificatedetails'] = 'Certificate details';
 $string['certificatedetailshelp'] = '<h1>SAML2 auto generated public certificate contents</h1><p>The path for the cert is here:</p>';
 $string['certificate_help'] = 'Regenerate the Private Key and Certificate used by this SP. | <a href=\'{$a}\'>View SP certificate</a>';
@@ -85,6 +88,7 @@ $string['organizationname'] = 'Organisation';
 $string['passivemode'] = 'Passive mode';
 $string['pluginname'] = 'SAML2';
 $string['regenerate_submit'] = 'Regenerate';
+$string['rememberidp'] = 'Remember login service';
 $string['required'] = 'This field is required';
 $string['requireint'] = 'This field is required and needs to be a positive integer';
 $string['showidplink'] = 'Display IdP link';
