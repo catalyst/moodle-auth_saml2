@@ -412,6 +412,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         if (empty($attributes[$attr]) ) {
             $this->error_page(get_string('noattribute', 'auth_saml2', $attr));
         }
+        $PAGE->set_context(context_system::instance());
 
         $user = null;
         foreach ($attributes[$attr] as $key => $uid) {
@@ -465,6 +466,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         // If we are not on the page we want, then redirect to it.
         if ( qualified_me() !== $urltogo ) {
             $this->log(__FUNCTION__ . " redirecting to $urltogo");
+            $PAGE->set_url($urltogo);
             redirect($urltogo);
             exit;
         } else {
