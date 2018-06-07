@@ -46,8 +46,8 @@ if ($ADMIN->fulltree) {
     $idpmetadata = new \auth_saml2\admin_setting_configtext_idpmetadata(
             'auth_saml2/idpmetadata',
             get_string('idpmetadata', 'auth_saml2'),
-            get_string('idpmetadata_help', 'auth_saml2'),
-            '', PARAM_RAW, 80, 5);
+            get_string('idpmetadata_help', 'auth_saml2')
+    );
     $idpmetadata->set_updatedcallback('auth_saml2_update_idp_metadata');
     $settings->add($idpmetadata);
 

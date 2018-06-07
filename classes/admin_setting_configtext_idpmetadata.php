@@ -35,6 +35,10 @@ defined('MOODLE_INTERNAL') || die();
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class admin_setting_configtext_idpmetadata extends admin_setting_configtextarea {
+    public function __construct($name, $visiblename, $description, $defaultsetting = '') {
+        parent::__construct($name, $visiblename, $description, $defaultsetting, PARAM_RAW, 80, 5);
+    }
+
     /**
      * Validate data before storage
      *
@@ -43,12 +47,6 @@ class admin_setting_configtext_idpmetadata extends admin_setting_configtextarea 
      * @throws \coding_exception
      */
     public function validate($value) {
-        // Validate parent.
-        $error = parent::validate($value);
-        if ($error !== true) {
-            return $error;
-        }
-
         // Allow empty field to be processed.
         if (empty($value)) {
             return true;
