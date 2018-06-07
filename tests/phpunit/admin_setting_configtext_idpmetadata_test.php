@@ -28,9 +28,10 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../../_autoload.php');
 
 class admin_setting_configtext_idpmetadata_test extends advanced_testcase {
-    public function test_it_allows_empty_settings() {
+    public function test_it_allows_empty_values() {
         $config = new admin_setting_configtext_idpmetadata('name', 'visible', 'description');
-        $validated = $config->validate('');
-        self::assertTrue($validated);
+        self::assertTrue($config->validate(''), 'Validate empty string.');
+        self::assertTrue($config->validate('  '), ' Should trim spaces.');
+        self::assertTrue($config->validate("\n \n"), 'Should trim newlines.');
     }
 }

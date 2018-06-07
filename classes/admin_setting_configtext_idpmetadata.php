@@ -50,19 +50,16 @@ class admin_setting_configtext_idpmetadata extends admin_setting_configtextarea 
      * @throws \coding_exception
      */
     public function validate($value) {
-        // Allow empty field to be processed.
+        $value = trim($value);
         if (empty($value)) {
             return true;
         }
 
-        // Cleaning up potential newlines during a copy/paste.
         // The contents of the $form->idpmetadata textarea should be either,
         // 1. XML.
         // 2. A list of URLs.
-        $idpmetadata = trim($value);
-
         $parser = new idp_parser();
-        $idps = $parser->parse($idpmetadata);
+        $idps = $parser->parse($value);
 
         foreach ($idps as $idp) {
             // Download the XML if it was not parsed from the ipdmetadata field.
