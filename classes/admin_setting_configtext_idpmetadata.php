@@ -54,9 +54,6 @@ class admin_setting_configtext_idpmetadata extends admin_setting_configtextarea 
             return true;
         }
 
-        global $saml2auth;
-        require_once(__DIR__ . '/../setup.php');
-
         // Cleaning up potential newlines during a copy/paste.
         // The contents of the $form->idpmetadata textarea should be either,
         // 1. XML.
@@ -126,6 +123,9 @@ class admin_setting_configtext_idpmetadata extends admin_setting_configtextarea 
                 if (empty($entityids)) {
                     return get_string('idpmetadata_noentityid', 'auth_saml2');
                 } else {
+                    global $saml2auth;
+                    require_once(__DIR__ . '/../setup.php');
+
                     if (!file_exists($saml2auth->certdir)) {
                         mkdir($saml2auth->certdir);
                     }
