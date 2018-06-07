@@ -96,13 +96,13 @@ class admin_setting_configtext_idpmetadata extends admin_setting_configtextarea 
                 // Find all IDPSSODescriptor elements and then work back up to the entityID.
                 $idpelements = $xpath->query('//md:EntityDescriptor[//md:IDPSSODescriptor]');
 
-                if ($idpelements && $idpelements->length == 1 && isset($idpelements[0])) {
-                    $entityids[$idp->idpurl] = $idpelements[0]->getAttribute('entityID');
+                if ($idpelements && $idpelements->length == 1) {
+                    $entityids[$idp->idpurl] = $idpelements->item(0)->getAttribute('entityID');
 
                     // Locate a displayname element provided by the IdP XML metadata.
-                    $names = $xpath->query('.//mdui:DisplayName', $idpelements[0]);
-                    if ($names && isset($names[0])) {
-                        $mduinames[$idp->idpurl] = $names[0]->textContent;
+                    $names = $xpath->query('.//mdui:DisplayName', $idpelements->item(0));
+                    if ($names && $names->length == 1) {
+                        $mduinames[$idp->idpurl] = $names->item(0)->textContent;
                     }
                 } else if ($idpelements && $idpelements->length > 1) {
                     $entityids[$idp->idpurl] = [];
@@ -118,8 +118,8 @@ class admin_setting_configtext_idpmetadata extends admin_setting_configtextarea 
 
                         // Locate a displayname element provided by the IdP XML metadata.
                         $names = $xpath->query('.//mdui:DisplayName', $idpelement);
-                        if ($names && isset($names[0])) {
-                            $mduinames[$idp->idpurl][$entityid] = $names[0]->textContent;
+                        if ($names && $names->length == 1) {
+                            $mduinames[$idp->idpurl][$entityid] = $names->item(0)->textContent;
                         }
                     }
                 }
