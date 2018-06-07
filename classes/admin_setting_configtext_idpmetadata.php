@@ -101,7 +101,7 @@ class admin_setting_configtext_idpmetadata extends admin_setting_configtextarea 
 
                     // Locate a displayname element provided by the IdP XML metadata.
                     $names = $xpath->query('.//mdui:DisplayName', $idpelements->item(0));
-                    if ($names && $names->length == 1) {
+                    if ($names && $names->length > 0) {
                         $mduinames[$idp->idpurl] = $names->item(0)->textContent;
                     }
                 } else if ($idpelements && $idpelements->length > 1) {
@@ -118,7 +118,7 @@ class admin_setting_configtext_idpmetadata extends admin_setting_configtextarea 
 
                         // Locate a displayname element provided by the IdP XML metadata.
                         $names = $xpath->query('.//mdui:DisplayName', $idpelement);
-                        if ($names && $names->length == 1) {
+                        if ($names && $names->length > 0) {
                             $mduinames[$idp->idpurl][$entityid] = $names->item(0)->textContent;
                         }
                     }
