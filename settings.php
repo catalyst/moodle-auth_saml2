@@ -93,7 +93,7 @@ if ($ADMIN->fulltree) {
             get_string('logdirdefault', 'auth_saml2'),
             PARAM_TEXT));
 
-    // Section 8.3 from http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf
+    // See section 8.3 from http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf for more information.
     $nameidlist = [
         'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
         'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',

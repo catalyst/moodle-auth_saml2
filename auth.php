@@ -667,11 +667,13 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $cookiesecure = is_moodle_cookie_secure();
 
         // Delete old cookie.
-        setcookie($cookiename, '', time() - HOURSECS, $CFG->sessioncookiepath, $CFG->sessioncookiedomain, $cookiesecure, $CFG->cookiehttponly);
+        setcookie($cookiename, '', time() - HOURSECS, $CFG->sessioncookiepath, $CFG->sessioncookiedomain,
+                  $cookiesecure, $CFG->cookiehttponly);
 
         if ($idp !== '') {
             // Set username cookie for 60 days.
-            setcookie($cookiename, $idp, time() + (DAYSECS * 60), $CFG->sessioncookiepath, $CFG->sessioncookiedomain, $cookiesecure, $CFG->cookiehttponly);
+            setcookie($cookiename, $idp, time() + (DAYSECS * 60), $CFG->sessioncookiepath, $CFG->sessioncookiedomain,
+                      $cookiesecure, $CFG->cookiehttponly);
         }
     }
 
