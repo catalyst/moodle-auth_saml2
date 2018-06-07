@@ -27,6 +27,9 @@ use Exception;
 
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
+require_once("{$CFG->libdir}/adminlib.php");
+
 /**
  * Class admin_setting_configtext_idpmetadata
  *
