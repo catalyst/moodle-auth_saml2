@@ -24,7 +24,6 @@ namespace auth_saml2;
 
 use admin_setting_configtextarea;
 use Exception;
-use SimpleXMLElement;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -64,7 +63,7 @@ class admin_setting_configtext_idpmetadata extends admin_setting_configtextarea 
         // 2. A list of URLs.
         $idpmetadata = trim($value);
 
-        $parser = new \auth_saml2\idp_parser();
+        $parser = new idp_parser();
         $idps = $parser->parse($idpmetadata);
 
         foreach ($idps as $idp) {
@@ -90,7 +89,7 @@ class admin_setting_configtext_idpmetadata extends admin_setting_configtextarea 
                 $xml = new \DOMDocument();
                 $xml->loadXML($idp->rawxml);
                 $xpath = new \DOMXPath($xml);
-                $xpath->registerNamespace('md',   'urn:oasis:names:tc:SAML:2.0:metadata');
+                $xpath->registerNamespace('md', 'urn:oasis:names:tc:SAML:2.0:metadata');
                 $xpath->registerNamespace('mdui', 'urn:oasis:names:tc:SAML:metadata:ui');
 
                 // Find all IDPSSODescriptor elements and then work back up to the entityID.
@@ -131,7 +130,7 @@ class admin_setting_configtext_idpmetadata extends admin_setting_configtextarea 
                         mkdir($saml2auth->certdir);
                     }
 
-                    file_put_contents($saml2auth->certdir . md5($entityids[$idp->idpurl]) . '.idp.xml' , $idp->get_rawxml());
+                    file_put_contents($saml2auth->certdir . md5($entityids[$idp->idpurl]) . '.idp.xml', $idp->get_rawxml());
                 }
             } catch (Exception $e) {
                 return get_string('idpmetadata_invalid', 'auth_saml2');
