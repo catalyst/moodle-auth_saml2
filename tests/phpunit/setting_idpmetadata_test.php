@@ -44,6 +44,13 @@ class setting_idpmetadata_test extends advanced_testcase {
         return AUTH_SAML2_TEST_IDP_METADATA;
     }
 
+    public function test_it_validates_the_xml() {
+        $this->resetAfterTest();
+        $xml = file_get_contents(__DIR__ . '/../fixtures/metadata.xml');
+        $data = $this->config->validate($xml);
+        self::assertTrue($data);
+    }
+
     public function test_it_allows_empty_values() {
         self::assertTrue($this->config->validate(''), 'Validate empty string.');
         self::assertTrue($this->config->validate('  '), ' Should trim spaces.');

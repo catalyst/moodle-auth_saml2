@@ -95,11 +95,9 @@ class setting_idpmetadata extends admin_setting_configtextarea {
         $idpelements = $this->find_all_idp_sso_descriptors($xpath);
 
         if ($idpelements->length == 1) {
-            list($entityids, $mduinames) = $this->process_idp_xml_with_multiple_idps(
-                $idp, $idpelements, $xpath, $entityids, $mduinames);
+            $this->process_idp_xml_with_multiple_idps($idp, $idpelements, $xpath, $entityids, $mduinames);
         } else if ($idpelements->length > 1) {
-            list($entityids, $mduinames) = $this->process_idp_xml_with_single_idp(
-                $idp, $idpelements, $xpath, $entityids, $mduinames);
+            $this->process_idp_xml_with_single_idp($idp, $idpelements, $xpath, $entityids, $mduinames);
         }
 
         if (empty($entityids)) {
