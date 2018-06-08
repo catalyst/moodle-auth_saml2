@@ -25,7 +25,9 @@ namespace auth_saml2\admin;
 use admin_setting_configtextarea;
 use auth_saml2\idp_data;
 use auth_saml2\idp_parser;
-use Exception;
+use DOMDocument;
+use DOMNodeList;
+use DOMXPath;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -76,61 +78,21 @@ class setting_idpmetadata extends admin_setting_configtextarea {
         $entityids = [];
         $mduinames = [];
 
-        // Process the rawxml and populate arrays of entityids and mduinames.
         foreach ($idps as $idp) {
-            try {
-                $xml = new \DOMDocument();
-                $xml->loadXML($idp->rawxml);
-                $xpath = new \DOMXPath($xml);
-                $xpath->registerNamespace('md', 'urn:oasis:names:tc:SAML:2.0:metadata');
-                $xpath->registerNamespace('mdui', 'urn:oasis:names:tc:SAML:metadata:ui');
+            $xpath = $this->get_idp_xml_path($idp);
+            $idpelements = $this->find_all_idp_sso_descriptors($xpath);
 
-                // Find all IDPSSODescriptor elements and then work back up to the entityID.
-                $idpelements = $xpath->query('//md:EntityDescriptor[//md:IDPSSODescriptor]');
-
-                if ($idpelements && $idpelements->length == 1) {
-                    $entityids[$idp->idpurl] = $idpelements->item(0)->getAttribute('entityID');
-
-                    // Locate a displayname element provided by the IdP XML metadata.
-                    $names = $xpath->query('.//mdui:DisplayName', $idpelements->item(0));
-                    if ($names && $names->length > 0) {
-                        $mduinames[$idp->idpurl] = $names->item(0)->textContent;
-                    }
-                } else if ($idpelements && $idpelements->length > 1) {
-                    $entityids[$idp->idpurl] = [];
-                    $mduinames[$idp->idpurl] = [];
-
-                    foreach ($idpelements as $idpelement) {
-                        $entityid = $idpelement->getAttribute('entityID');
-                        $active = 0;
-                        if (isset($oldentityids[$idp->idpurl][$entityid])) {
-                            $active = $oldentityids[$idp->idpurl][$entityid];
-                        }
-                        $entityids[$idp->idpurl][$entityid] = $active;
-
-                        // Locate a displayname element provided by the IdP XML metadata.
-                        $names = $xpath->query('.//mdui:DisplayName', $idpelement);
-                        if ($names && $names->length > 0) {
-                            $mduinames[$idp->idpurl][$entityid] = $names->item(0)->textContent;
-                        }
-                    }
-                }
-
-                if (empty($entityids)) {
-                    throw new setting_idpmetadata_exception(get_string('idpmetadata_noentityid', 'auth_saml2'));
-                } else {
-                    global $CFG, $saml2auth;
-                    require_once("{$CFG->dirroot}/auth/saml2/setup.php");
-
-                    if (!file_exists($saml2auth->certdir)) {
-                        mkdir($saml2auth->certdir);
-                    }
-
-                    file_put_contents($saml2auth->certdir . md5($entityids[$idp->idpurl]) . '.idp.xml', $idp->get_rawxml());
-                }
-            } catch (Exception $e) {
-                throw new setting_idpmetadata_exception(get_string('idpmetadata_invalid', 'auth_saml2'));
+            if ($idpelements->length == 1) {
+                list($entityids, $mduinames) = $this->process_idp_xml_with_multiple_idps($idpelements, $entityids, $idp, $xpath, $mduinames);
+            } else if ($idpelements && $idpelements->length > 1) {
+                list($entityids, $mduinames) = $this->process_idp_xml_with_single_idp($entityids, $idp, $mduinames, $idpelements, $oldentityids, $xpath);
             }
+
+            if (empty($entityids)) {
+                throw new setting_idpmetadata_exception(get_string('idpmetadata_noentityid', 'auth_saml2'));
+            }
+
+            $this->save_idp_metadata_xml($entityids, $idp);
         }
 
         // If multiple IdPs are configured, force 'duallogin' to display the IdP links.
@@ -167,5 +129,74 @@ class setting_idpmetadata extends admin_setting_configtextarea {
         }
 
         return $idps;
+    }
+
+    /**
+     * @param idp_data $idp
+     * @return DOMXPath
+     */
+    private function get_idp_xml_path(idp_data $idp) {
+        $xml = new DOMDocument();
+        if (!$xml->loadXML($idp->rawxml)) {
+            throw new setting_idpmetadata_exception(get_string('idpmetadata_invalid', 'auth_saml2'));
+        }
+
+        $xpath = new DOMXPath($xml);
+        $xpath->registerNamespace('md', 'urn:oasis:names:tc:SAML:2.0:metadata');
+        $xpath->registerNamespace('mdui', 'urn:oasis:names:tc:SAML:metadata:ui');
+
+        return $xpath;
+    }
+
+    /**
+     * @param DOMXPath $xpath
+     * @return DOMNodeList
+     */
+    private function find_all_idp_sso_descriptors(DOMXPath $xpath) {
+        $idpelements = $xpath->query('//md:EntityDescriptor[//md:IDPSSODescriptor]');
+        return $idpelements;
+    }
+
+    private function process_idp_xml_with_multiple_idps($idpelements, $entityids, $idp, $xpath, $mduinames) {
+        $entityids[$idp->idpurl] = $idpelements->item(0)->getAttribute('entityID');
+
+        // Locate a displayname element provided by the IdP XML metadata.
+        $names = $xpath->query('.//mdui:DisplayName', $idpelements->item(0));
+        if ($names && $names->length > 0) {
+            $mduinames[$idp->idpurl] = $names->item(0)->textContent;
+        }
+        return [$entityids, $mduinames];
+    }
+
+    private function process_idp_xml_with_single_idp($entityids, $idp, $mduinames, $idpelements, $oldentityids, $xpath) {
+        $entityids[$idp->idpurl] = [];
+        $mduinames[$idp->idpurl] = [];
+
+        foreach ($idpelements as $idpelement) {
+            $entityid = $idpelement->getAttribute('entityID');
+            $active = 0;
+            if (isset($oldentityids[$idp->idpurl][$entityid])) {
+                $active = $oldentityids[$idp->idpurl][$entityid];
+            }
+            $entityids[$idp->idpurl][$entityid] = $active;
+
+            // Locate a displayname element provided by the IdP XML metadata.
+            $names = $xpath->query('.//mdui:DisplayName', $idpelement);
+            if ($names && $names->length > 0) {
+                $mduinames[$idp->idpurl][$entityid] = $names->item(0)->textContent;
+            }
+        }
+        return [$entityids, $mduinames];
+    }
+
+    private function save_idp_metadata_xml($entityids, $idp)  {
+        global $CFG, $saml2auth;
+        require_once("{$CFG->dirroot}/auth/saml2/setup.php");
+
+        if (!file_exists($saml2auth->certdir)) {
+            mkdir($saml2auth->certdir);
+        }
+
+        file_put_contents($saml2auth->certdir . md5($entityids[$idp->idpurl]) . '.idp.xml', $idp->get_rawxml());
     }
 }
