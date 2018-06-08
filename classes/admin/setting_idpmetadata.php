@@ -57,18 +57,10 @@ class setting_idpmetadata extends admin_setting_configtextarea {
             return true;
         }
 
-        $idps = $this->get_idps_data($value);
-
-        foreach ($idps as $idp) {
-            // Download the XML if it was not parsed from the ipdmetadata field.
-            if (empty($idp->get_rawxml())) {
-                $rawxml = @file_get_contents($idp->idpurl);
-
-                if (!$rawxml) {
-                    return get_string('idpmetadata_badurl', 'auth_saml2');
-                }
-                $idp->set_rawxml($rawxml);
-            }
+        try {
+            $idps = $this->get_idps_data($value);
+        } catch (setting_idpmetadata_exception $exception) {
+            return $exception->getMessage();
         }
 
         $oldentityids = json_decode(get_config('auth_saml2', 'idpentityids'), true);
@@ -152,6 +144,22 @@ class setting_idpmetadata extends admin_setting_configtextarea {
     public function get_idps_data($value) {
         $parser = new idp_parser();
         $idps = $parser->parse($value);
+
+        // Download the XML if it was not parsed from the ipdmetadata field.
+        foreach ($idps as $idp) {
+            if (!is_null($idp->get_rawxml())) {
+                continue;
+            }
+
+            $rawxml = @file_get_contents($idp->idpurl);
+            if ($rawxml === false) {
+                throw new setting_idpmetadata_exception(
+                    get_string('idpmetadata_badurl', 'auth_saml2', $idp->idpurl)
+                );
+            }
+            $idp->set_rawxml($rawxml);
+        }
+
         return $idps;
     }
 }

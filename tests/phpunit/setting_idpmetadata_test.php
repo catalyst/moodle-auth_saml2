@@ -37,6 +37,13 @@ class setting_idpmetadata_test extends advanced_testcase {
         $this->config = new setting_idpmetadata('name', 'visible', 'description');
     }
 
+    private function get_test_metadata_url() {
+        if (!defined('AUTH_SAML2_TEST_IDP_METADATA')) {
+            $this->markTestSkipped();
+        }
+        return AUTH_SAML2_TEST_IDP_METADATA;
+    }
+
     public function test_it_allows_empty_values() {
         self::assertTrue($this->config->validate(''), 'Validate empty string.');
         self::assertTrue($this->config->validate('  '), ' Should trim spaces.');
@@ -45,13 +52,33 @@ class setting_idpmetadata_test extends advanced_testcase {
 
     public function test_it_gets_idp_data_for_xml() {
         $xml = file_get_contents(__DIR__ . '/../fixtures/metadata.xml');
-
-        /** @var idp_data $data */
         $data = $this->config->get_idps_data($xml);
-
         self::assertCount(1, $data);
-        $data = $data[0];
-        self::assertInstanceOf(idp_data::class, $data);
-        self::assertNotNull($data->rawxml);
+        $this->validate_idp_data_array($data);
+    }
+
+    public function test_it_gets_idp_data_for_two_urls() {
+        $url = $this->get_test_metadata_url();
+        $url = "{$url}\n{$url}?second";
+        $data = $this->config->get_idps_data($url);
+        self::assertCount(2, $data);
+        $this->validate_idp_data_array($data);
+    }
+
+    public function test_it_returns_error_if_metadata_url_is_not_valid() {
+        $error = $this->config->validate('http://invalid.url.metadata.test');
+        self::assertNotTrue($error);
+        self::assertContains('Invalid metadata', $error);
+        self::assertContains('http://invalid.url.metadata.test', $error);
+    }
+
+    /**
+     * @param idp_data[] $idps
+     */
+    private function validate_idp_data_array($idps) {
+        foreach ($idps as $idp) {
+            self::assertInstanceOf(idp_data::class, $idp);
+            self::assertNotNull($idp->get_rawxml());
+        }
     }
 }
