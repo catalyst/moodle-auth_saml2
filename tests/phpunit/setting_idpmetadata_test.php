@@ -22,16 +22,36 @@
  */
 
 use auth_saml2\admin\setting_idpmetadata;
+use auth_saml2\idp_data;
 
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/../../_autoload.php');
 
 class setting_idpmetadata_test extends advanced_testcase {
+    /** @var setting_idpmetadata */
+    private $config;
+
+    protected function setUp() {
+        parent::setUp();
+        $this->config = new setting_idpmetadata('name', 'visible', 'description');
+    }
+
     public function test_it_allows_empty_values() {
-        $config = new setting_idpmetadata('name', 'visible', 'description');
-        self::assertTrue($config->validate(''), 'Validate empty string.');
-        self::assertTrue($config->validate('  '), ' Should trim spaces.');
-        self::assertTrue($config->validate("\n \n"), 'Should trim newlines.');
+        self::assertTrue($this->config->validate(''), 'Validate empty string.');
+        self::assertTrue($this->config->validate('  '), ' Should trim spaces.');
+        self::assertTrue($this->config->validate("\n \n"), 'Should trim newlines.');
+    }
+
+    public function test_it_gets_idp_data_for_xml() {
+        $xml = file_get_contents(__DIR__ . '/../fixtures/metadata.xml');
+
+        /** @var idp_data $data */
+        $data = $this->config->get_idps_data($xml);
+
+        self::assertCount(1, $data);
+        $data = $data[0];
+        self::assertInstanceOf(idp_data::class, $data);
+        self::assertNotNull($data->rawxml);
     }
 }

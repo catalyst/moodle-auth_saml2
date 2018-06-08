@@ -23,6 +23,7 @@
 namespace auth_saml2\admin;
 
 use admin_setting_configtextarea;
+use auth_saml2\idp_data;
 use auth_saml2\idp_parser;
 use Exception;
 
@@ -56,11 +57,7 @@ class setting_idpmetadata extends admin_setting_configtextarea {
             return true;
         }
 
-        // The contents of the $form->idpmetadata textarea should be either,
-        // 1. XML.
-        // 2. A list of URLs.
-        $parser = new idp_parser();
-        $idps = $parser->parse($value);
+        $idps = $this->get_idps_data($value);
 
         foreach ($idps as $idp) {
             // Download the XML if it was not parsed from the ipdmetadata field.
@@ -146,5 +143,15 @@ class setting_idpmetadata extends admin_setting_configtextarea {
         set_config('idpmduinames', json_encode($mduinames), 'auth_saml2');
 
         return true;
+    }
+
+    /**
+     * @param $value
+     * @return idp_data[]
+     */
+    public function get_idps_data($value) {
+        $parser = new idp_parser();
+        $idps = $parser->parse($value);
+        return $idps;
     }
 }
