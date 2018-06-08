@@ -67,7 +67,6 @@ class setting_idpmetadata_test extends advanced_testcase {
 
     public function test_it_returns_error_if_metadata_url_is_not_valid() {
         $error = $this->config->validate('http://invalid.url.metadata.test');
-        self::assertNotTrue($error);
         self::assertContains('Invalid metadata', $error);
         self::assertContains('http://invalid.url.metadata.test', $error);
     }

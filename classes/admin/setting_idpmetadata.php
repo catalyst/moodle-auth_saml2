@@ -59,10 +59,18 @@ class setting_idpmetadata extends admin_setting_configtextarea {
 
         try {
             $idps = $this->get_idps_data($value);
+            $this->process_idps($idps);
         } catch (setting_idpmetadata_exception $exception) {
             return $exception->getMessage();
         }
 
+        return true;
+    }
+
+    /**
+     * @param idp_data[] $idps
+     */
+    private function process_idps($idps) {
         $oldentityids = json_decode(get_config('auth_saml2', 'idpentityids'), true);
 
         $entityids = [];
@@ -109,7 +117,7 @@ class setting_idpmetadata extends admin_setting_configtextarea {
                 }
 
                 if (empty($entityids)) {
-                    return get_string('idpmetadata_noentityid', 'auth_saml2');
+                    throw new setting_idpmetadata_exception(get_string('idpmetadata_noentityid', 'auth_saml2'));
                 } else {
                     global $CFG, $saml2auth;
                     require_once("{$CFG->dirroot}/auth/saml2/setup.php");
@@ -121,7 +129,7 @@ class setting_idpmetadata extends admin_setting_configtextarea {
                     file_put_contents($saml2auth->certdir . md5($entityids[$idp->idpurl]) . '.idp.xml', $idp->get_rawxml());
                 }
             } catch (Exception $e) {
-                return get_string('idpmetadata_invalid', 'auth_saml2');
+                throw new setting_idpmetadata_exception(get_string('idpmetadata_invalid', 'auth_saml2'));
             }
         }
 
@@ -133,8 +141,6 @@ class setting_idpmetadata extends admin_setting_configtextarea {
         // Encode arrays to be saved the config.
         set_config('idpentityids', json_encode($entityids), 'auth_saml2');
         set_config('idpmduinames', json_encode($mduinames), 'auth_saml2');
-
-        return true;
     }
 
     /**
