@@ -61,7 +61,7 @@ class setting_idpmetadata extends admin_setting_configtextarea {
 
         try {
             $idps = $this->get_idps_data($value);
-            $this->process_idps($idps);
+            $this->process_all_idps_metadata($idps);
         } catch (setting_idpmetadata_exception $exception) {
             return $exception->getMessage();
         }
@@ -72,27 +72,12 @@ class setting_idpmetadata extends admin_setting_configtextarea {
     /**
      * @param idp_data[] $idps
      */
-    private function process_idps($idps) {
-        $oldentityids = json_decode(get_config('auth_saml2', 'idpentityids'), true);
-
+    private function process_all_idps_metadata($idps) {
         $entityids = [];
         $mduinames = [];
 
         foreach ($idps as $idp) {
-            $xpath = $this->get_idp_xml_path($idp);
-            $idpelements = $this->find_all_idp_sso_descriptors($xpath);
-
-            if ($idpelements->length == 1) {
-                list($entityids, $mduinames) = $this->process_idp_xml_with_multiple_idps($idpelements, $entityids, $idp, $xpath, $mduinames);
-            } else if ($idpelements && $idpelements->length > 1) {
-                list($entityids, $mduinames) = $this->process_idp_xml_with_single_idp($entityids, $idp, $mduinames, $idpelements, $oldentityids, $xpath);
-            }
-
-            if (empty($entityids)) {
-                throw new setting_idpmetadata_exception(get_string('idpmetadata_noentityid', 'auth_saml2'));
-            }
-
-            $this->save_idp_metadata_xml($entityids, $idp);
+            $this->process_idp_metadata($idp, $entityids, $mduinames);
         }
 
         // If multiple IdPs are configured, force 'duallogin' to display the IdP links.
@@ -103,6 +88,57 @@ class setting_idpmetadata extends admin_setting_configtextarea {
         // Encode arrays to be saved the config.
         set_config('idpentityids', json_encode($entityids), 'auth_saml2');
         set_config('idpmduinames', json_encode($mduinames), 'auth_saml2');
+    }
+
+    private function process_idp_metadata(idp_data $idp, &$entityids, &$mduinames) {
+        $xpath = $this->get_idp_xml_path($idp);
+        $idpelements = $this->find_all_idp_sso_descriptors($xpath);
+
+        if ($idpelements->length == 1) {
+            list($entityids, $mduinames) = $this->process_idp_xml_with_multiple_idps(
+                $idp, $idpelements, $xpath, $entityids, $mduinames);
+        } else if ($idpelements->length > 1) {
+            list($entityids, $mduinames) = $this->process_idp_xml_with_single_idp(
+                $idp, $idpelements, $xpath, $entityids, $mduinames);
+        }
+
+        if (empty($entityids)) {
+            throw new setting_idpmetadata_exception(get_string('idpmetadata_noentityid', 'auth_saml2'));
+        }
+
+        $this->save_idp_metadata_xml($entityids, $idp);
+    }
+
+    private function process_idp_xml_with_multiple_idps(idp_data $idp, DOMNodeList $idpelements, DOMXPath $xpath, &$entityids, &$mduinames) {
+        $entityids[$idp->idpurl] = $idpelements->item(0)->getAttribute('entityID');
+
+        // Locate a displayname element provided by the IdP XML metadata.
+        $names = $xpath->query('.//mdui:DisplayName', $idpelements->item(0));
+        if ($names && $names->length > 0) {
+            $mduinames[$idp->idpurl] = $names->item(0)->textContent;
+        }
+    }
+
+    private function process_idp_xml_with_single_idp(idp_data $idp, DOMNodeList $idpelements, DOMXPath $xpath, &$entityids, &$mduinames) {
+        $oldentityids = json_decode(get_config('auth_saml2', 'idpentityids'), true);
+
+        $entityids[$idp->idpurl] = [];
+        $mduinames[$idp->idpurl] = [];
+
+        foreach ($idpelements as $idpelement) {
+            $entityid = $idpelement->getAttribute('entityID');
+            $active = 0;
+            if (isset($oldentityids[$idp->idpurl][$entityid])) {
+                $active = $oldentityids[$idp->idpurl][$entityid];
+            }
+            $entityids[$idp->idpurl][$entityid] = $active;
+
+            // Locate a displayname element provided by the IdP XML metadata.
+            $names = $xpath->query('.//mdui:DisplayName', $idpelement);
+            if ($names && $names->length > 0) {
+                $mduinames[$idp->idpurl][$entityid] = $names->item(0)->textContent;
+            }
+        }
     }
 
     /**
@@ -133,7 +169,7 @@ class setting_idpmetadata extends admin_setting_configtextarea {
 
     /**
      * @param idp_data $idp
-     * @return DOMXPath
+     * @return
      */
     private function get_idp_xml_path(idp_data $idp) {
         $xml = new DOMDocument();
@@ -157,39 +193,7 @@ class setting_idpmetadata extends admin_setting_configtextarea {
         return $idpelements;
     }
 
-    private function process_idp_xml_with_multiple_idps($idpelements, $entityids, $idp, $xpath, $mduinames) {
-        $entityids[$idp->idpurl] = $idpelements->item(0)->getAttribute('entityID');
-
-        // Locate a displayname element provided by the IdP XML metadata.
-        $names = $xpath->query('.//mdui:DisplayName', $idpelements->item(0));
-        if ($names && $names->length > 0) {
-            $mduinames[$idp->idpurl] = $names->item(0)->textContent;
-        }
-        return [$entityids, $mduinames];
-    }
-
-    private function process_idp_xml_with_single_idp($entityids, $idp, $mduinames, $idpelements, $oldentityids, $xpath) {
-        $entityids[$idp->idpurl] = [];
-        $mduinames[$idp->idpurl] = [];
-
-        foreach ($idpelements as $idpelement) {
-            $entityid = $idpelement->getAttribute('entityID');
-            $active = 0;
-            if (isset($oldentityids[$idp->idpurl][$entityid])) {
-                $active = $oldentityids[$idp->idpurl][$entityid];
-            }
-            $entityids[$idp->idpurl][$entityid] = $active;
-
-            // Locate a displayname element provided by the IdP XML metadata.
-            $names = $xpath->query('.//mdui:DisplayName', $idpelement);
-            if ($names && $names->length > 0) {
-                $mduinames[$idp->idpurl][$entityid] = $names->item(0)->textContent;
-            }
-        }
-        return [$entityids, $mduinames];
-    }
-
-    private function save_idp_metadata_xml($entityids, $idp)  {
+    private function save_idp_metadata_xml($entityids, $idp) {
         global $CFG, $saml2auth;
         require_once("{$CFG->dirroot}/auth/saml2/setup.php");
 
