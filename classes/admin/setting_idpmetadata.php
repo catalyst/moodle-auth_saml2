@@ -106,7 +106,7 @@ class setting_idpmetadata extends admin_setting_configtextarea {
             throw new setting_idpmetadata_exception(get_string('idpmetadata_noentityid', 'auth_saml2'));
         }
 
-        $this->save_idp_metadata_xml($entityids, $idp);
+        $this->save_idp_metadata_xml($entityids[$idp->idpurl], $idp->get_rawxml());
     }
 
     private function process_idp_xml_with_multiple_idps(idp_data $idp, DOMNodeList $idpelements, DOMXPath $xpath, &$entityids, &$mduinames) {
@@ -193,7 +193,7 @@ class setting_idpmetadata extends admin_setting_configtextarea {
         return $idpelements;
     }
 
-    private function save_idp_metadata_xml($entityids, $idp) {
+    private function save_idp_metadata_xml($url, $xml) {
         global $CFG, $saml2auth;
         require_once("{$CFG->dirroot}/auth/saml2/setup.php");
 
@@ -201,6 +201,6 @@ class setting_idpmetadata extends admin_setting_configtextarea {
             mkdir($saml2auth->certdir);
         }
 
-        file_put_contents($saml2auth->certdir . md5($entityids[$idp->idpurl]) . '.idp.xml', $idp->get_rawxml());
+        file_put_contents($saml2auth->certdir . md5($url) . '.idp.xml', $xml);
     }
 }
