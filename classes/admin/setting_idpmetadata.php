@@ -42,8 +42,17 @@ require_once("{$CFG->libdir}/adminlib.php");
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class setting_idpmetadata extends admin_setting_configtextarea {
-    public function __construct($name, $visiblename, $description, $defaultsetting = '') {
-        parent::__construct($name, $visiblename, $description, $defaultsetting, PARAM_RAW, 80, 5);
+    public function __construct() {
+        // All parameters are hardcoded because there can be only one instance:
+        // When it validates, it saves extra configs, preventing this component from being reused as is.
+        parent::__construct(
+            'auth_saml2/idpmetadata',
+            get_string('idpmetadata', 'auth_saml2'),
+            get_string('idpmetadata_help', 'auth_saml2'),
+            '',
+            PARAM_RAW,
+            80,
+            5);
     }
 
     /**

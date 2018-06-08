@@ -34,7 +34,7 @@ class setting_idpmetadata_test extends advanced_testcase {
 
     protected function setUp() {
         parent::setUp();
-        $this->config = new setting_idpmetadata('name', 'visible', 'description');
+        $this->config = new setting_idpmetadata();
     }
 
     private function get_test_metadata_url() {
@@ -49,6 +49,18 @@ class setting_idpmetadata_test extends advanced_testcase {
         $xml = file_get_contents(__DIR__ . '/../fixtures/metadata.xml');
         $data = $this->config->validate($xml);
         self::assertTrue($data);
+    }
+
+    public function test_it_saves_all_idp_information() {
+        $this->resetAfterTest();
+
+        $xml = file_get_contents(__DIR__ . '/../fixtures/metadata.xml');
+        $this->config->write_setting($xml);
+        $actual = get_config('auth_saml2');
+
+        self::assertSame($xml, $actual->idpmetadata);
+        self::assertSame('{"xml":"https:\/\/idp.example.org\/idp\/shibboleth"}', $actual->idpentityids);
+        self::assertSame('{"xml":"Example.com test IDP"}', $actual->idpmduinames);
     }
 
     public function test_it_allows_empty_values() {

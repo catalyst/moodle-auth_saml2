@@ -22,9 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use auth_saml2\admin\saml2_settings;
 use auth_saml2\admin\setting_button;
 use auth_saml2\admin\setting_textonly;
-use auth_saml2\admin\saml2_settings;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -43,11 +43,7 @@ if ($ADMIN->fulltree) {
         new lang_string('auth_saml2description', 'auth_saml2')));
 
     // IDP Metadata.
-    $idpmetadata = new \auth_saml2\admin\setting_idpmetadata(
-            'auth_saml2/idpmetadata',
-            get_string('idpmetadata', 'auth_saml2'),
-            get_string('idpmetadata_help', 'auth_saml2')
-    );
+    $idpmetadata = new \auth_saml2\admin\setting_idpmetadata();
     $idpmetadata->set_updatedcallback('auth_saml2_update_idp_metadata');
     $settings->add($idpmetadata);
 
