@@ -20,9 +20,10 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace auth_saml2;
+namespace auth_saml2\admin;
 
 use admin_setting_configtextarea;
+use auth_saml2\idp_parser;
 use Exception;
 
 defined('MOODLE_INTERNAL') || die();
@@ -37,7 +38,7 @@ require_once("{$CFG->libdir}/adminlib.php");
  * @copyright   Matt Porritt <mattp@catalyst-au.net>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class admin_setting_configtext_idpmetadata extends admin_setting_configtextarea {
+class setting_idpmetadata extends admin_setting_configtextarea {
     public function __construct($name, $visiblename, $description, $defaultsetting = '') {
         parent::__construct($name, $visiblename, $description, $defaultsetting, PARAM_RAW, 80, 5);
     }
@@ -121,8 +122,8 @@ class admin_setting_configtext_idpmetadata extends admin_setting_configtextarea 
                 if (empty($entityids)) {
                     return get_string('idpmetadata_noentityid', 'auth_saml2');
                 } else {
-                    global $saml2auth;
-                    require_once(__DIR__ . '/../setup.php');
+                    global $CFG, $saml2auth;
+                    require_once("{$CFG->dirroot}/auth/saml2/setup.php");
 
                     if (!file_exists($saml2auth->certdir)) {
                         mkdir($saml2auth->certdir);

@@ -22,9 +22,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace auth_saml2\admin;
+use admin_setting_heading;
+use html_writer;
+
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir.'/moodlelib.php');
+require_once($CFG->libdir . '/moodlelib.php');
 
 /**
  * Settings for label type admin setting.
@@ -33,15 +37,15 @@ require_once($CFG->libdir.'/moodlelib.php');
  * @copyright  Matt Porritt <mattp@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class admin_setting_auth_saml2_button extends admin_setting_heading {
-
+class setting_button extends admin_setting_heading {
     /**
      * A button element
-     * @param string $name unique ascii name.
+     *
+     * @param string $name        unique ascii name.
      * @param string $visiblename heading
      * @param string $description description of what the button does
-     * @param string $label what is written on the button
-     * @param string $href the URL directed to on click
+     * @param string $label       what is written on the button
+     * @param string $href        the URL directed to on click
      */
     public function __construct($name, $visiblename, $description, $label, $href) {
         $this->nosave = true;
@@ -56,19 +60,18 @@ class admin_setting_auth_saml2_button extends admin_setting_heading {
     public function output_html($data, $query = '') {
         if (moodle_major_version() < '3.3') {
             $params = [
-                'type' => 'button',
-                'value' => $this->label,
+                'type'    => 'button',
+                'value'   => $this->label,
                 'onclick' => 'location.href="' . $this->href . '"',
             ];
 
             $content = html_writer::empty_tag('input', $params);
             $element = html_writer::div($content, 'form-text defaultsnext');
-
         } else {
             global $OUTPUT;
             $context = (object)[
-                'label' => $this->label,
-                'href' => $this->href,
+                'label'    => $this->label,
+                'href'     => $this->href,
                 'forceltr' => $this->get_force_ltr(),
             ];
 

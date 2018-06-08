@@ -21,15 +21,15 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use auth_saml2\admin_setting_configtext_idpmetadata;
+use auth_saml2\admin\setting_idpmetadata;
 
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/../../_autoload.php');
 
-class admin_setting_configtext_idpmetadata_test extends advanced_testcase {
+class setting_idpmetadata_test extends advanced_testcase {
     public function test_it_allows_empty_values() {
-        $config = new admin_setting_configtext_idpmetadata('name', 'visible', 'description');
+        $config = new setting_idpmetadata('name', 'visible', 'description');
         self::assertTrue($config->validate(''), 'Validate empty string.');
         self::assertTrue($config->validate('  '), ' Should trim spaces.');
         self::assertTrue($config->validate("\n \n"), 'Should trim newlines.');

@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use auth_saml2\admin\setting_button;
+use auth_saml2\admin\setting_textonly;
 use auth_saml2\admin\saml2_settings;
 
 defined('MOODLE_INTERNAL') || die;
@@ -29,8 +31,6 @@ defined('MOODLE_INTERNAL') || die;
 global $CFG;
 
 if ($ADMIN->fulltree) {
-    require_once($CFG->dirroot.'/auth/saml2/classes/admin_setting_auth_saml2_button.php');
-    require_once($CFG->dirroot.'/auth/saml2/classes/admin_setting_auth_saml2_textonly.php');
     require_once($CFG->dirroot.'/auth/saml2/locallib.php');
 
     $yesno = array(
@@ -43,7 +43,7 @@ if ($ADMIN->fulltree) {
         new lang_string('auth_saml2description', 'auth_saml2')));
 
     // IDP Metadata.
-    $idpmetadata = new \auth_saml2\admin_setting_configtext_idpmetadata(
+    $idpmetadata = new \auth_saml2\admin\setting_idpmetadata(
             'auth_saml2/idpmetadata',
             get_string('idpmetadata', 'auth_saml2'),
             get_string('idpmetadata_help', 'auth_saml2')
@@ -119,7 +119,7 @@ if ($ADMIN->fulltree) {
             0, $yesno));
 
     // Lock certificate.
-    $settings->add(new admin_setting_auth_saml2_button(
+    $settings->add(new setting_button(
             'auth_saml2/certificatelock',
             get_string('certificatelock', 'auth_saml2'),
             get_string('certificatelock_help', 'auth_saml2'),
@@ -128,7 +128,7 @@ if ($ADMIN->fulltree) {
             ));
 
     // Regenerate certificate.
-    $settings->add(new admin_setting_auth_saml2_button(
+    $settings->add(new setting_button(
             'auth_saml2/certificate',
             get_string('certificate', 'auth_saml2'),
             get_string('certificate_help', 'auth_saml2', $CFG->wwwroot . '/auth/saml2/cert.php'),
@@ -137,7 +137,7 @@ if ($ADMIN->fulltree) {
             ));
 
     // SP Metadata.
-    $settings->add(new admin_setting_auth_saml2_textonly(
+    $settings->add(new setting_textonly(
            'auth_saml2/spmetadata',
            get_string('spmetadata', 'auth_saml2'),
            get_string('spmetadata_help', 'auth_saml2', $CFG->wwwroot . '/auth/saml2/sp/metadata.php')
@@ -216,7 +216,7 @@ if ($ADMIN->fulltree) {
             PARAM_URL));
 
     // Select available IdPs.
-    $settings->add(new admin_setting_auth_saml2_button(
+    $settings->add(new setting_button(
         'auth_saml2/availableidps',
         get_string('availableidps', 'auth_saml2'),
         get_string('availableidps_help', 'auth_saml2'),
@@ -226,7 +226,7 @@ if ($ADMIN->fulltree) {
 
     // SAMLPHP version.
     $authplugin = get_auth_plugin('saml2');
-    $settings->add(new admin_setting_auth_saml2_textonly(
+    $settings->add(new setting_textonly(
             'auth_saml2/sspversion',
             get_string('sspversion', 'auth_saml2'),
             $authplugin->get_ssp_version()

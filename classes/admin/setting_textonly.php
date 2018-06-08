@@ -22,6 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace auth_saml2\admin;
+use admin_setting_heading;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -31,7 +34,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  Matt Porritt <mattp@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class admin_setting_auth_saml2_textonly extends admin_setting_heading {
+class setting_textonly extends admin_setting_heading {
     /**
      * {@inheritdoc}
      */
