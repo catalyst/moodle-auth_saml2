@@ -33,31 +33,30 @@ require_once($CFG->libdir.'/authlib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class auth_plugin_saml2 extends auth_plugin_base {
-
     /**
-     * @var $defaults The config defaults
+     * @var array $defaults The config defaults
      */
-    public $defaults = array(
-        'idpname'         => '',
-        'idpdefaultname'  => '', // Set in constructor.
-        'idpmetadata'     => '',
-        'idpmduinames'    => '',
-        'idpentityids'    => '',
-        'debug'           => 0,
-        'duallogin'       => saml2_settings::OPTION_DUAL_LOGIN_YES,
-        'anyauth'         => 1,
-        'idpattr'         => 'uid',
-        'mdlattr'         => 'username',
-        'tolower'         => 0,
-        'autocreate'      => 0,
-        'spmetadatasign'  => true,
-        'showidplink'     => true,
-        'alterlogout'     => '',
+    public $defaults = [
+        'idpname'            => '',
+        'idpdefaultname'     => '', // Set in constructor.
+        'idpmetadata'        => '',
+        'idpmduinames'       => '',
+        'idpentityids'       => '',
+        'debug'              => 0,
+        'duallogin'          => saml2_settings::OPTION_DUAL_LOGIN_YES,
+        'anyauth'            => 1,
+        'idpattr'            => 'uid',
+        'mdlattr'            => 'username',
+        'tolower'            => 0,
+        'autocreate'         => 0,
+        'spmetadatasign'     => true,
+        'showidplink'        => true,
+        'alterlogout'        => '',
         'idpmetadatarefresh' => 0,
-        'logtofile'       => 0,
-        'logdir'          => '/tmp/',
-        'nameidasattrib'  => 0,
-    );
+        'logtofile'          => 0,
+        'logdir'             => '/tmp/',
+        'nameidasattrib'     => 0,
+    ];
 
     /**
      * Constructor.
