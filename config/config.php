@@ -42,7 +42,7 @@ foreach ($saml2auth->idpentityids as $source => $entity) {
 
 $config = array(
     'baseurlpath'       => $wwwroot . '/auth/saml2/sp/',
-    'certdir'           => $saml2auth->certdir,
+    'certdir'           => $saml2auth->get_file(''),
     'debug'             => $saml2auth->config->debug ? true : false,
     'logging.level'     => $saml2auth->config->debug ? SimpleSAML\Logger::DEBUG : SimpleSAML\Logger::ERR,
     'logging.handler'   => $saml2auth->config->logtofile ? 'file' : 'errorlog',

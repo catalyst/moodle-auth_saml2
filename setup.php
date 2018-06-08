@@ -40,8 +40,8 @@ $saml2auth = new auth_plugin_saml2();
 // default certificates which is very insecure. Here we create a customized
 // cert/key pair just-in-time. If for some reason you do want to use existing
 // files then just copy them over the files in /sitedata/saml2/.
-if (!file_exists($saml2auth->certdir)) {
-    mkdir($saml2auth->certdir);
+if (!file_exists($saml2auth->get_file(''))) {
+    mkdir($saml2auth->get_file(''));
 }
 if (!file_exists($saml2auth->certpem) || !file_exists($saml2auth->certcrt)) {
     $error = create_certificates($saml2auth);

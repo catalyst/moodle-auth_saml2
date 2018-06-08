@@ -67,9 +67,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $this->authtype = 'saml2';
         $mdl = new moodle_url($CFG->wwwroot);
         $this->spname = $mdl->get_host();
-        $this->certdir = "$CFG->dataroot/saml2/";
-        $this->certpem = $this->certdir . $this->spname . '.pem';
-        $this->certcrt = $this->certdir . $this->spname . '.crt';
+        $this->certpem = $this->get_file("{$this->spname}.pem");
+        $this->certcrt = $this->get_file("{$this->spname}.crt");
         $this->config = (object) array_merge($this->defaults, (array) get_config('auth_saml2') );
 
         // Parsed IdP metadata, either a list of IdP metadata urls or a single XML blob.
@@ -81,6 +80,11 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         // EntitiyIDs provded by the metadata.
         $this->idpentityids = (array) json_decode($this->config->idpentityids);
+    }
+
+    public function get_file($file) {
+        global $CFG;
+        return "{$CFG->dataroot}/saml2/{$file}";
     }
 
     /**
@@ -205,13 +209,13 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * @return bool
      */
     public function is_configured() {
-        $file = $this->certdir . $this->spname . '.crt';
+        $file = $this->certcrt;
         if (!file_exists($file)) {
             $this->log(__FUNCTION__ . ' file not found, ' . $file);
             return false;
         }
 
-        $file = $this->certdir . $this->spname . '.pem';
+        $file = $this->certpem;
         if (!file_exists($file)) {
             $this->log(__FUNCTION__ . ' file not found, ' . $file);
             return false;
@@ -219,7 +223,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         $eids = $this->idpentityids;
         foreach ($eids as $entityid) {
-            $file = $this->certdir . md5($entityid) . '.idp.xml';
+            $file = $this->get_file(md5($entityid) . '.idp.xml');
             if (!file_exists($file)) {
                 $this->log(__FUNCTION__ . ' file not found, ' . $file);
                 return false;
@@ -617,7 +621,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         }
 
         if ($haschanged) {
-            $file = $this->certdir . $this->spname . '.xml';
+            $file = $this->get_file($this->spname . '.xml');
             @unlink($file);
         }
         return true;
