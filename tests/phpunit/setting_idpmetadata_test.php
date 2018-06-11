@@ -52,15 +52,23 @@ class setting_idpmetadata_test extends advanced_testcase {
     }
 
     public function test_it_saves_all_idp_information() {
+        global $CFG;
+
         $this->resetAfterTest();
 
         $xml = file_get_contents(__DIR__ . '/../fixtures/metadata.xml');
         $this->config->write_setting($xml);
         $actual = get_config('auth_saml2');
 
-        self::assertSame($xml, $actual->idpmetadata);
+        self::assertSame($xml, $actual->idpmetadata, 'Invalid config metadata.');
         self::assertSame('{"xml":"https:\/\/idp.example.org\/idp\/shibboleth"}', $actual->idpentityids);
         self::assertSame('{"xml":"Example.com test IDP"}', $actual->idpmduinames);
+
+        $file = md5('https://idp.example.org/idp/shibboleth') . '.idp.xml';
+        $file = "{$CFG->dataroot}/saml2/{$file}";
+        self::assertFileExists($file);
+        $actual = file_get_contents($file);
+        self::assertSame($xml, $actual, "Invalid saved XML contents for: {$file}");
     }
 
     public function test_it_allows_empty_values() {
