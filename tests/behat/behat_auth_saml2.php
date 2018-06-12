@@ -27,6 +27,7 @@
 use auth_saml2\admin\saml2_settings;
 use auth_saml2\task\metadata_refresh;
 use Behat\Behat\Hook\Scope\AfterStepScope;
+use Behat\Mink\Exception\UnsupportedDriverActionException;
 
 require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 
@@ -50,16 +51,20 @@ class behat_auth_saml2 extends behat_base {
         }
         $resultcode = $scope->getTestResult()->getResultCode();
         if ($resultcode === 99) {
-            $screenshot = $this->getSession()->getDriver()->getScreenshot();
-            $screenshot = base64_encode($screenshot);
-
             $filename = '/tmp/behat_screenshots.base64';
             if (!file_exists($filename)) {
                 file_put_contents($filename, "Just paste it into your browser :-). You're welcome!\n\n");
             }
 
-            $url = "data:image/png;base64,{$screenshot}\n"; //
-            file_put_contents($filename, $url, FILE_APPEND);
+            try {
+                $screenshot = $this->getSession()->getDriver()->getScreenshot();
+                $screenshot = base64_encode($screenshot);
+
+                $url = "data:image/png;base64,{$screenshot}\n"; //
+                file_put_contents($filename, $url, FILE_APPEND);
+            } catch (UnsupportedDriverActionException $e) {
+                file_put_contents($filename, $e->getMessage(), FILE_APPEND);
+            }
         }
     }
 
