@@ -116,7 +116,8 @@ class setting_idpmetadata extends admin_setting_configtextarea {
         $this->save_idp_metadata_xml($entityids[$idp->idpurl], $idp->get_rawxml());
     }
 
-    private function process_idp_xml_with_multiple_idps(idp_data $idp, DOMNodeList $idpelements, DOMXPath $xpath, &$entityids, &$mduinames) {
+    private function process_idp_xml_with_multiple_idps(idp_data $idp, DOMNodeList $idpelements,
+                                                        DOMXPath $xpath, &$entityids, &$mduinames) {
         $entityids[$idp->idpurl] = $idpelements->item(0)->getAttribute('entityID');
 
         // Locate a displayname element provided by the IdP XML metadata.
@@ -126,7 +127,8 @@ class setting_idpmetadata extends admin_setting_configtextarea {
         }
     }
 
-    private function process_idp_xml_with_single_idp(idp_data $idp, DOMNodeList $idpelements, DOMXPath $xpath, &$entityids, &$mduinames) {
+    private function process_idp_xml_with_single_idp(idp_data $idp, DOMNodeList $idpelements,
+                                                     DOMXPath $xpath, &$entityids, &$mduinames) {
         $oldentityids = json_decode(get_config('auth_saml2', 'idpentityids'), true);
 
         $entityids[$idp->idpurl] = [];
