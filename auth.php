@@ -87,6 +87,10 @@ class auth_plugin_saml2 extends auth_plugin_base {
         return "{$CFG->dataroot}/saml2/{$file}";
     }
 
+    public function get_file_sp_metadata_file() {
+        return $this->get_file($this->spname . '.xml');
+    }
+
     /**
      * A debug function, dumps to the php log
      *
@@ -621,7 +625,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         }
 
         if ($haschanged) {
-            $file = $this->get_file($this->spname . '.xml');
+            $file = $this->get_file_sp_metadata_file();
             @unlink($file);
         }
         return true;
