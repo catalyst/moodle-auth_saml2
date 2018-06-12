@@ -349,5 +349,29 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $this->assertTrue($auth->is_configured());
     }
 
+    public function test_is_configured_works_with_multi_idp_in_one_xml() {
+        $this->resetAfterTest();
+
+        $idpentityids = json_encode([
+                                        'xml' => [
+                                            'https://idp1.example.org/idp/shibboleth' => 0,
+                                            'https://idp2.example.org/idp/shibboleth' => 0,
+                                        ],
+                                    ]);
+        set_config('idpentityids', $idpentityids, 'auth_saml2');
+
+        /** @var auth_plugin_saml2 $auth */
+        $auth = get_auth_plugin('saml2');
+
+        touch($auth->certcrt);
+        touch($auth->certpem);
+
+        $this->assertFalse($auth->is_configured());
+
+        $xmlfile = md5("https://idp1.example.org/idp/shibboleth\nhttps://idp2.example.org/idp/shibboleth");
+        touch($auth->get_file("{$xmlfile}.idp.xml"));
+
+        $this->assertTrue($auth->is_configured());
+    }
 }
 

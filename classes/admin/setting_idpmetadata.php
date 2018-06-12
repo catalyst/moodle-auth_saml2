@@ -204,11 +204,7 @@ class setting_idpmetadata extends admin_setting_configtextarea {
         global $CFG, $saml2auth;
         require_once("{$CFG->dirroot}/auth/saml2/setup.php");
 
-        if (is_array($url)) {
-            $url = array_keys($url);
-            $url = implode("\n", $url);
-        }
-
-        file_put_contents($saml2auth->get_file(md5($url) . '.idp.xml'), $xml);
+        $file = $saml2auth->get_file_idp_metadata_file($url);
+        file_put_contents($file, $xml);
     }
 }

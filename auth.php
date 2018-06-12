@@ -102,6 +102,24 @@ class auth_plugin_saml2 extends auth_plugin_base {
     }
 
     /**
+     * @param string|array $url The string with the URL or an array with all URLs as keys.
+     * @return string Metadata file path.
+     */
+    public function get_file_idp_metadata_file($url) {
+        if (is_object($url)) {
+            $url = (array)$url;
+        }
+
+        if (is_array($url)) {
+            $url = array_keys($url);
+            $url = implode("\n", $url);
+        }
+
+        $filename = md5($url) . '.idp.xml';
+        return $this->get_file($filename);
+    }
+
+    /**
      * A debug function, dumps to the php log
      *
      * @param string $msg Log message
@@ -237,7 +255,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         $eids = $this->idpentityids;
         foreach ($eids as $entityid) {
-            $file = $this->get_file(md5($entityid) . '.idp.xml');
+            $file = $this->get_file_idp_metadata_file($entityid);
             if (!file_exists($file)) {
                 $this->log(__FUNCTION__ . ' file not found, ' . $file);
                 return false;
