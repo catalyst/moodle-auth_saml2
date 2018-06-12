@@ -68,7 +68,39 @@ class setting_idpmetadata_test extends advanced_testcase {
         $file = "{$CFG->dataroot}/saml2/{$file}";
         self::assertFileExists($file);
         $actual = file_get_contents($file);
-        self::assertSame($xml, $actual, "Invalid saved XML contents for: {$file}");
+        self::assertSame(trim($xml), $actual, "Invalid saved XML contents for: {$file}");
+    }
+
+    public function test_it_saves_all_idps_information_from_single_xml() {
+        global $CFG;
+
+        $this->resetAfterTest();
+
+        $xml = file_get_contents(__DIR__ . '/../fixtures/dualmetadata.xml');
+        $this->config->write_setting($xml);
+        $actual = get_config('auth_saml2');
+
+        self::assertSame($xml, $actual->idpmetadata, 'Invalid config metadata.');
+        $expected = json_encode([
+                                    'xml' => [
+                                        'https://idp1.example.org/idp/shibboleth' => 0,
+                                        'https://idp2.example.org/idp/shibboleth' => 0,
+                                    ],
+                                ]);
+        self::assertSame($expected, $actual->idpentityids);
+        $expected = json_encode([
+                                    'xml' => [
+                                        'https://idp1.example.org/idp/shibboleth' => 'First Test IDP',
+                                        'https://idp2.example.org/idp/shibboleth' => 'Second Test IDP',
+                                    ],
+                                ]);
+        self::assertSame($expected, $actual->idpmduinames);
+
+        $file = md5("https://idp1.example.org/idp/shibboleth\nhttps://idp2.example.org/idp/shibboleth") . '.idp.xml';
+        $file = "{$CFG->dataroot}/saml2/{$file}";
+        self::assertFileExists($file);
+        $actual = file_get_contents($file);
+        self::assertSame(trim($xml), $actual, "Invalid saved XML contents for: {$file}");
     }
 
     public function test_it_allows_empty_values() {

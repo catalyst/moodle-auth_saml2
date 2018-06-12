@@ -208,6 +208,11 @@ class setting_idpmetadata extends admin_setting_configtextarea {
             mkdir($saml2auth->get_file(''));
         }
 
+        if (is_array($url)) {
+            $url = array_keys($url);
+            $url = implode("\n", $url);
+        }
+
         file_put_contents($saml2auth->get_file(md5($url) . '.idp.xml'), $xml);
     }
 }

@@ -311,12 +311,13 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $url = 'http://www.example.com';
         set_config('idpentityids', json_encode([$url => $url]), 'auth_saml2');
 
+        /** @var auth_saml2\ $auth */
         $auth = get_auth_plugin('saml2');
 
         $files = array(
-            'crt' => $auth->certdir . $auth->spname . '.crt',
-            'pem' => $auth->certdir . $auth->spname . '.pem',
-            'xml' => $auth->certdir . md5($url) . '.idp.xml',
+            'crt' => $auth->certcrt,
+            'pem' => $auth->certpem,
+            'xml' => $auth->get_file(md5($url) . '.idp.xml'),
         );
 
         // Setup, remove the phpuunit dataroot temp files for saml2.
