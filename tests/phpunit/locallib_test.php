@@ -309,7 +309,7 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $url = 'http://www.example.com';
         set_config('idpentityids', json_encode([$url => $url]), 'auth_saml2');
 
-        /** @var auth_saml2\ $auth */
+        /** @var auth_plugin_saml2 $auth */
         $auth = get_auth_plugin('saml2');
 
         $files = array(

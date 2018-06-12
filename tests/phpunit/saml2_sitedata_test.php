@@ -24,7 +24,6 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/../../_autoload.php');
-require_once(__DIR__ . '/../../auth.php');
 
 class auth_saml2_sitedata_test extends advanced_testcase {
     public function test_it_creates_the_directory_if_it_does_not_exist() {
@@ -33,7 +32,8 @@ class auth_saml2_sitedata_test extends advanced_testcase {
         $expected = "{$CFG->dataroot}/saml2";
         self::assertFalse(file_exists($expected));
 
-        $saml2 = new auth_plugin_saml2();
+        /** @var auth_plugin_saml2 $auth */
+        $saml2 = get_auth_plugin('saml2');
         self::assertTrue(file_exists($expected));
 
         rmdir($expected);
