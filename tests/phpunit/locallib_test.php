@@ -304,8 +304,6 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
      * Test test_is_configured
      */
     public function test_is_configured() {
-        global $CFG;
-
         $this->resetAfterTest();
 
         $url = 'http://www.example.com';
@@ -326,8 +324,6 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
                 @unlink($file);
             }
         }
-
-        mkdir($CFG->phpunit_dataroot . '/saml2');
 
         $this->assertFalse($auth->is_configured());
 

@@ -24,6 +24,8 @@
 use auth_saml2\admin\saml2_settings;
 
 defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
 require_once($CFG->libdir.'/authlib.php');
 
 /**
@@ -82,9 +84,17 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $this->idpentityids = (array) json_decode($this->config->idpentityids);
     }
 
-    public function get_file($file) {
+    public function get_saml2_directory() {
         global $CFG;
-        return "{$CFG->dataroot}/saml2/{$file}";
+        $directory = "{$CFG->dataroot}/saml2";
+        if (!file_exists($directory)) {
+            mkdir($directory);
+        }
+        return $directory;
+    }
+
+    public function get_file($file) {
+        return $this->get_saml2_directory() . '/' . $file;
     }
 
     public function get_file_sp_metadata_file() {
