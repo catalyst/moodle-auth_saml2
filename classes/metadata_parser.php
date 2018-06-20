@@ -50,6 +50,7 @@ class metadata_parser {
      */
     public function parse($rawxml) {
         try {
+
             $xml = new \SimpleXMLElement($rawxml);
             $xml->registerXPathNamespace('md',   'urn:oasis:names:tc:SAML:2.0:metadata');
             $xml->registerXPathNamespace('mdui', 'urn:oasis:names:tc:SAML:metadata:ui');

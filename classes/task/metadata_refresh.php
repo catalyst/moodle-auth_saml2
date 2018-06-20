@@ -24,6 +24,7 @@
  */
 namespace auth_saml2\task;
 
+use auth_saml2\admin\setting_idpmetadata;
 use auth_saml2\idp_parser;
 use auth_saml2\metadata_fetcher;
 use auth_saml2\metadata_parser;
@@ -60,6 +61,11 @@ class metadata_refresh extends \core\task\scheduled_task {
      */
     private $idpparser;
 
+    /**
+     * @var setting_idpmetadata
+     */
+    private $idpmetadata;
+
     public function get_name() {
         return get_string('taskmetadatarefresh', 'auth_saml2');
     }
@@ -87,51 +93,11 @@ class metadata_refresh extends \core\task\scheduled_task {
             return false;
         }
 
-        // Parse the URLs that are in the IdP metadata config.
-        $idps = $this->idpparser->parse($config->idpmetadata);
-
-        $entityids = [];
-        $mduinames = [];
-
-        foreach ($idps as $idp) {
-            // Fetch the metadata.
-            if (!$this->fetcher instanceof metadata_fetcher) {
-                $this->fetcher = new metadata_fetcher();
-            }
-            $rawxml = $this->fetcher->fetch($idp->idpurl);
-
-            // Parse the metadata.
-            if (!$this->parser instanceof metadata_parser) {
-                $this->parser = new metadata_parser();
-            }
-            $this->parser->parse($rawxml);
-
-            $entityid = $this->parser->get_entityid();
-            if (empty($entityid)) {
-                mtrace(get_string('idpmetadata_noentityid', 'auth_saml2'));
-                return false;
-            }
-
-            $idpdefaultname = $this->parser->get_idpdefaultname();
-            if (empty($idpdefaultname)) {
-                $idpdefaultname = get_string('idpnamedefault', 'auth_saml2');
-            }
-
-            // Write the metadata to the correct location.
-            if (!$this->writer instanceof metadata_writer) {
-                $this->writer = new metadata_writer();
-            }
-
-            $entityids[$idp->idpurl] = $entityid;
-            $mduinames[$idp->idpurl] = $idpdefaultname;
-
-            $filename = md5($entityids[$idp->idpurl]) . '.idp.xml';
-            $this->writer->write($filename, $rawxml);
+        if (!$this->idpmetadata instanceof setting_idpmetadata) {
+            $this->idpmetadata = new setting_idpmetadata();
         }
 
-        // Everything was successful. Update configs that may have changed.
-        set_config('idpentityids', json_encode($entityids), 'auth_saml2');
-        set_config('idpmduinames', json_encode($mduinames), 'auth_saml2');
+        $this->idpmetadata->validate($config->idpmetadata);
 
         mtrace('IdP metadata refresh completed successfully.');
         return true;
@@ -156,5 +122,12 @@ class metadata_refresh extends \core\task\scheduled_task {
      */
     public function set_writer(metadata_writer $writer) {
         $this->writer = $writer;
+    }
+
+    /**
+     * @param setting_idpmetadata $idpmetadata
+     */
+    public function set_idpmetadata(setting_idpmetadata $idpmetadata) {
+        $this->idpmetadata = $idpmetadata;
     }
 }

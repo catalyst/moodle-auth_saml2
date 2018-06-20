@@ -39,7 +39,7 @@ if ($download) {
 
 $regenerate = is_siteadmin() && optional_param('regenerate', false, PARAM_BOOL);
 if ($regenerate) {
-    $file = $saml2auth->certdir . $saml2auth->spname . '.xml';
+    $file = $saml2auth->get_file_sp_metadata_file();
     @unlink($file);
 }
 

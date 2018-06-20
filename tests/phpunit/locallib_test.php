@@ -304,19 +304,18 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
      * Test test_is_configured
      */
     public function test_is_configured() {
-        global $CFG;
-
         $this->resetAfterTest();
 
         $url = 'http://www.example.com';
         set_config('idpentityids', json_encode([$url => $url]), 'auth_saml2');
 
+        /** @var auth_plugin_saml2 $auth */
         $auth = get_auth_plugin('saml2');
 
         $files = array(
-            'crt' => $auth->certdir . $auth->spname . '.crt',
-            'pem' => $auth->certdir . $auth->spname . '.pem',
-            'xml' => $auth->certdir . md5($url) . '.idp.xml',
+            'crt' => $auth->certcrt,
+            'pem' => $auth->certpem,
+            'xml' => $auth->get_file(md5($url) . '.idp.xml'),
         );
 
         // Setup, remove the phpuunit dataroot temp files for saml2.
@@ -325,8 +324,6 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
                 @unlink($file);
             }
         }
-
-        mkdir($CFG->phpunit_dataroot . '/saml2');
 
         $this->assertFalse($auth->is_configured());
 
@@ -352,5 +349,29 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $this->assertTrue($auth->is_configured());
     }
 
+    public function test_is_configured_works_with_multi_idp_in_one_xml() {
+        $this->resetAfterTest();
+
+        $idpentityids = json_encode([
+                                        'xml' => [
+                                            'https://idp1.example.org/idp/shibboleth' => 0,
+                                            'https://idp2.example.org/idp/shibboleth' => 0,
+                                        ],
+                                    ]);
+        set_config('idpentityids', $idpentityids, 'auth_saml2');
+
+        /** @var auth_plugin_saml2 $auth */
+        $auth = get_auth_plugin('saml2');
+
+        touch($auth->certcrt);
+        touch($auth->certpem);
+
+        $this->assertFalse($auth->is_configured());
+
+        $xmlfile = md5("https://idp1.example.org/idp/shibboleth\nhttps://idp2.example.org/idp/shibboleth");
+        touch($auth->get_file("{$xmlfile}.idp.xml"));
+
+        $this->assertTrue($auth->is_configured());
+    }
 }
 

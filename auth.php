@@ -24,6 +24,8 @@
 use auth_saml2\admin\saml2_settings;
 
 defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
 require_once($CFG->libdir.'/authlib.php');
 
 /**
@@ -33,31 +35,31 @@ require_once($CFG->libdir.'/authlib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class auth_plugin_saml2 extends auth_plugin_base {
-
     /**
-     * @var $defaults The config defaults
+     * @var array $defaults The config defaults
      */
-    public $defaults = array(
-        'idpname'         => '',
-        'idpdefaultname'  => '', // Set in constructor.
-        'idpmetadata'     => '',
-        'idpmduinames'    => '',
-        'idpentityids'    => '',
-        'debug'           => 0,
-        'duallogin'       => saml2_settings::OPTION_DUAL_LOGIN_YES,
-        'anyauth'         => 1,
-        'idpattr'         => 'uid',
-        'mdlattr'         => 'username',
-        'tolower'         => 0,
-        'autocreate'      => 0,
-        'spmetadatasign'  => true,
-        'showidplink'     => true,
-        'alterlogout'     => '',
+    public $defaults = [
+        'idpname'            => '',
+        'idpdefaultname'     => '', // Set in constructor.
+        'idpmetadata'        => '',
+        'idpmduinames'       => '',
+        'idpmduilogos'       => '',
+        'idpentityids'       => '',
+        'debug'              => 0,
+        'duallogin'          => saml2_settings::OPTION_DUAL_LOGIN_YES,
+        'anyauth'            => 1,
+        'idpattr'            => 'uid',
+        'mdlattr'            => 'username',
+        'tolower'            => 0,
+        'autocreate'         => 0,
+        'spmetadatasign'     => true,
+        'showidplink'        => true,
+        'alterlogout'        => '',
         'idpmetadatarefresh' => 0,
-        'logtofile'       => 0,
-        'logdir'          => '/tmp/',
-        'nameidasattrib'  => 0,
-    );
+        'logtofile'          => 0,
+        'logdir'             => '/tmp/',
+        'nameidasattrib'     => 0,
+    ];
 
     /**
      * Constructor.
@@ -68,9 +70,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $this->authtype = 'saml2';
         $mdl = new moodle_url($CFG->wwwroot);
         $this->spname = $mdl->get_host();
-        $this->certdir = "$CFG->dataroot/saml2/";
-        $this->certpem = $this->certdir . $this->spname . '.pem';
-        $this->certcrt = $this->certdir . $this->spname . '.crt';
+        $this->certpem = $this->get_file("{$this->spname}.pem");
+        $this->certcrt = $this->get_file("{$this->spname}.crt");
         $this->config = (object) array_merge($this->defaults, (array) get_config('auth_saml2') );
 
         // Parsed IdP metadata, either a list of IdP metadata urls or a single XML blob.
@@ -80,8 +81,46 @@ class auth_plugin_saml2 extends auth_plugin_base {
         // MDUINames provided by the metadata.
         $this->idpmduinames = (array) json_decode($this->config->idpmduinames);
 
+        // MDUILogos provided by the metadata.
+        $this->idpmduilogos = (array) json_decode($this->config->idpmduilogos);
+
         // EntitiyIDs provded by the metadata.
         $this->idpentityids = (array) json_decode($this->config->idpentityids);
+    }
+
+    public function get_saml2_directory() {
+        global $CFG;
+        $directory = "{$CFG->dataroot}/saml2";
+        if (!file_exists($directory)) {
+            mkdir($directory);
+        }
+        return $directory;
+    }
+
+    public function get_file($file) {
+        return $this->get_saml2_directory() . '/' . $file;
+    }
+
+    public function get_file_sp_metadata_file() {
+        return $this->get_file($this->spname . '.xml');
+    }
+
+    /**
+     * @param string|array $url The string with the URL or an array with all URLs as keys.
+     * @return string Metadata file path.
+     */
+    public function get_file_idp_metadata_file($url) {
+        if (is_object($url)) {
+            $url = (array)$url;
+        }
+
+        if (is_array($url)) {
+            $url = array_keys($url);
+            $url = implode("\n", $url);
+        }
+
+        $filename = md5($url) . '.idp.xml';
+        return $this->get_file($filename);
     }
 
     /**
@@ -131,18 +170,27 @@ class auth_plugin_saml2 extends auth_plugin_base {
                 continue;
             }
 
-            $params = [
-                'wants' => $wantsurl,
-                'idp' => md5($this->idpentityids[$idp->idpurl]),
-            ];
+            if (is_array($this->idpentityids[$idp->idpurl]) || is_object($this->idpentityids[$idp->idpurl])) {
+                $params = [
+                    'wants' => $wantsurl,
+                    'parentidp' => md5($idp->idpurl),
+                ];
 
-            // The wants url may already be routed via login.php so don't re-re-route it.
-            if (strpos($wantsurl, '/auth/saml2/login.php')) {
-                $idpurl = new moodle_url($wantsurl);
+                $idpurl = new moodle_url('/auth/saml2/selectidp.php', $params);
             } else {
-                $idpurl = new moodle_url('/auth/saml2/login.php', $params);
+                $params = [
+                    'wants' => $wantsurl,
+                    'idp' => md5($this->idpentityids[$idp->idpurl]),
+                ];
+
+                // The wants url may already be routed via login.php so don't re-re-route it.
+                if (strpos($wantsurl, '/auth/saml2/login.php')) {
+                    $idpurl = new moodle_url($wantsurl);
+                } else {
+                    $idpurl = new moodle_url('/auth/saml2/login.php', $params);
+                }
+                $idpurl->param('passive', 'off');
             }
-            $idpurl->param('passive', 'off');
 
             // A default icon.
             $idpicon = new pix_icon('i/user', 'Login');
@@ -197,13 +245,13 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * @return bool
      */
     public function is_configured() {
-        $file = $this->certdir . $this->spname . '.crt';
+        $file = $this->certcrt;
         if (!file_exists($file)) {
             $this->log(__FUNCTION__ . ' file not found, ' . $file);
             return false;
         }
 
-        $file = $this->certdir . $this->spname . '.pem';
+        $file = $this->certpem;
         if (!file_exists($file)) {
             $this->log(__FUNCTION__ . ' file not found, ' . $file);
             return false;
@@ -211,7 +259,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         $eids = $this->idpentityids;
         foreach ($eids as $entityid) {
-            $file = $this->certdir . md5($entityid) . '.idp.xml';
+            $file = $this->get_file_idp_metadata_file($entityid);
             if (!file_exists($file)) {
                 $this->log(__FUNCTION__ . ' file not found, ' . $file);
                 return false;
@@ -394,6 +442,23 @@ class auth_plugin_saml2 extends auth_plugin_base {
         // We store the IdP in the session to generate the config/config.php array with the default local SP.
         if (isset($_GET['idp'])) {
             $SESSION->saml2idp = $_GET['idp'];
+        } else if (is_null($SESSION->saml2idp)) {
+            // First IdP (default) is a multiple set IdP so we need to redirect the user to the selection page.
+            $arr = array_reverse($saml2auth->idpentityids);
+            $parentidp = md5(key($arr));
+            $wants = core_login_get_return_url();
+
+            $params = [
+                'wants' => $wants,
+                'parentidp' => $parentidp,
+            ];
+
+            $idpurl = new moodle_url('/auth/saml2/selectidp.php', $params);
+            redirect($idpurl);
+        }
+
+        if (isset($_GET['rememberidp']) && $_GET['rememberidp'] == 1) {
+            $this->set_idp_cookie($SESSION->saml2idp);
         }
 
         $auth = new \SimpleSAML\Auth\Simple($this->spname);
@@ -402,7 +467,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $passive = (bool)optional_param('passive', $passive, PARAM_BOOL);
         $params = ['isPassive' => $passive];
         if ($passive) {
-            $params['ErrorURL'] = "{$CFG->wwwroot}/login/index.php";
+            $errorurl = optional_param('errorurl', "{$CFG->wwwroot}/login/index.php", PARAM_RAW);
+            $params['ErrorURL'] = $errorurl;
         }
 
         $auth->requireAuth($params);
@@ -591,7 +657,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         }
 
         if ($haschanged) {
-            $file = $this->certdir . $this->spname . '.xml';
+            $file = $this->get_file_sp_metadata_file();
             @unlink($file);
         }
         return true;
@@ -621,6 +687,54 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
     public function can_be_manually_set() {
         return true;
+    }
+
+    /**
+     * Sets a preferred IdP in a cookie for faster subsequent logging in.
+     *
+     * @param string $idp a md5 encoded IdP entityid
+     */
+    public function set_idp_cookie($idp) {
+        global $CFG;
+
+        if (NO_MOODLE_COOKIES) {
+            return;
+        }
+
+        $cookiename = 'MOODLEIDP1_'.$CFG->sessioncookie;
+
+        $cookiesecure = is_moodle_cookie_secure();
+
+        // Delete old cookie.
+        setcookie($cookiename, '', time() - HOURSECS, $CFG->sessioncookiepath, $CFG->sessioncookiedomain,
+                  $cookiesecure, $CFG->cookiehttponly);
+
+        if ($idp !== '') {
+            // Set username cookie for 60 days.
+            setcookie($cookiename, $idp, time() + (DAYSECS * 60), $CFG->sessioncookiepath, $CFG->sessioncookiedomain,
+                      $cookiesecure, $CFG->cookiehttponly);
+        }
+    }
+
+    /**
+     * Gets a preferred IdP from a cookie for faster subsequent logging in.
+     *
+     * @return string $idp a md5 encoded IdP entityid
+     */
+    public function get_idp_cookie() {
+        global $CFG;
+
+        if (NO_MOODLE_COOKIES) {
+            return '';
+        }
+
+        $cookiename = 'MOODLEIDP1_'.$CFG->sessioncookie;
+
+        if (empty($_COOKIE[$cookiename])) {
+            return '';
+        } else {
+            return $_COOKIE[$cookiename];
+        }
     }
 }
 

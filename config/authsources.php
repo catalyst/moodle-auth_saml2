@@ -38,8 +38,29 @@ $config = [];
 $arr = array_reverse($saml2auth->idpentityids);
 $idp = array_pop($arr);
 
+// If metadata entry has multiple IdPs we take the first active one as the default.
+if (!is_string($idp)) {
+    $subidps = (array)$idp;
+    foreach ($subidps as $subidp => $active) {
+        if ((bool)$active) {
+            $idp = $subidp;
+            break;
+        }
+    }
+}
+
 if (!empty($SESSION->saml2idp)) {
     foreach ($saml2auth->idpentityids as $idpentityid) {
+        if (!is_string($idpentityid)) {
+            $subidps = (array)$idpentityid;
+            foreach ($subidps as $subidp => $active) {
+                if ($SESSION->saml2idp === md5($subidp)) {
+                    $idp = $subidp;
+                    break 2;
+                }
+            }
+        }
+
         if ($SESSION->saml2idp === md5($idpentityid)) {
             $idp = $idpentityid;
             break;

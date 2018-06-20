@@ -34,6 +34,14 @@ if (!empty($CFG->loginhttps)) {
 
 $metadatasources = [];
 foreach ($saml2auth->idpentityids as $source => $entity) {
+    if (is_object($entity)) {
+        $entity = (array)$entity;
+    }
+    if (is_array($entity)) {
+        $entity = array_keys($entity);
+        $entity = implode("\n", $entity);
+    }
+
     $metadatasources[] = [
         'type' => 'xml',
         'file' => "$CFG->dataroot/saml2/" . md5($entity) . ".idp.xml"
@@ -42,7 +50,7 @@ foreach ($saml2auth->idpentityids as $source => $entity) {
 
 $config = array(
     'baseurlpath'       => $wwwroot . '/auth/saml2/sp/',
-    'certdir'           => $saml2auth->certdir,
+    'certdir'           => $saml2auth->get_saml2_directory() . '/',
     'debug'             => $saml2auth->config->debug ? true : false,
     'logging.level'     => $saml2auth->config->debug ? SimpleSAML\Logger::DEBUG : SimpleSAML\Logger::ERR,
     'logging.handler'   => $saml2auth->config->logtofile ? 'file' : 'errorlog',

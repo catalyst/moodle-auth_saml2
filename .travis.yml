@@ -68,6 +68,7 @@ install:
   - moodle-plugin-ci install -vvv
   - echo '$CFG->cookiesecure = false;' >> moodle/config.php
   - moodle-plugin-ci add-config 'define("AUTH_SAML2_REDIS_STORE_TEST_SERVER", "127.0.0.1");'
+  - moodle-plugin-ci add-config 'define("AUTH_SAML2_TEST_IDP_METADATA", "http://simplesamlphp.test:8001/saml2/idp/metadata.php");'
 
 script:
   # Run lint on extlib as composer may fetch newer PHP version of libs during update.

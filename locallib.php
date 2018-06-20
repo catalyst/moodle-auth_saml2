@@ -37,7 +37,7 @@ function auth_saml2_get_sp_metadata() {
 
     $sourceId = $saml2auth->spname;
 
-    $file = $saml2auth->certdir . $saml2auth->spname . '.xml';
+    $file = $saml2auth->get_file_sp_metadata_file();
     if (file_exists($file)) {
         $xml = file_get_contents($file);
         return $xml;

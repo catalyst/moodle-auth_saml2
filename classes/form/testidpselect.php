@@ -49,7 +49,19 @@ class testidpselect extends moodleform {
 
         $idpentityids = $this->_customdata['idpentityids'];
 
-        $selectvalues = array_combine($idpentityids, $idpentityids);
+        $selectvalues = [];
+
+        foreach ($idpentityids as $idpentity) {
+            if (is_string($idpentity)) {
+                $selectvalues[$idpentity] = $idpentity;
+            } else {
+                foreach ((array)$idpentity as $subidpentity => $active) {
+                    if ($active) {
+                        $selectvalues[$subidpentity] = $subidpentity;
+                    }
+                }
+            }
+        }
 
         $mform->addElement('select', 'idp', get_string('test_auth_button_login', 'auth_saml2'), $selectvalues);
 
