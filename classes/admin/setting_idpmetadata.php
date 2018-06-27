@@ -25,9 +25,11 @@ namespace auth_saml2\admin;
 use admin_setting_configtextarea;
 use auth_saml2\idp_data;
 use auth_saml2\idp_parser;
+use auth_saml2\metadata_fetcher;
 use DOMDocument;
 use DOMNodeList;
 use DOMXPath;
+use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -42,6 +44,9 @@ require_once("{$CFG->libdir}/adminlib.php");
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class setting_idpmetadata extends admin_setting_configtextarea {
+    /** @var metadata_fetcher */
+    private $fetcher;
+
     public function __construct() {
         // All parameters are hardcoded because there can be only one instance:
         // When it validates, it saves extra configs, preventing this component from being reused as is.
@@ -53,6 +58,12 @@ class setting_idpmetadata extends admin_setting_configtextarea {
             PARAM_RAW,
             80,
             5);
+
+        $this->fetcher = new metadata_fetcher();
+    }
+
+    public function set_fetcher($fetcher) {
+        $this->fetcher = $fetcher;
     }
 
     /**
@@ -177,12 +188,15 @@ class setting_idpmetadata extends admin_setting_configtextarea {
                 continue;
             }
 
-            $rawxml = @file_get_contents($idp->idpurl);
-            if ($rawxml === false) {
-                throw new setting_idpmetadata_exception(
-                    get_string('idpmetadata_badurl', 'auth_saml2', $idp->idpurl)
-                );
+            try {
+                $rawxml = $this->fetcher->fetch($idp->idpurl);
+            } catch (moodle_exception $exception) {
+                $error = get_string('idpmetadata_badurl',
+                                    'auth_saml2',
+                                    ['url' => $idp->idpurl, 'error' => $exception->getMessage()]);
+                throw new setting_idpmetadata_exception($error);
             }
+
             $idp->set_rawxml($rawxml);
         }
 

@@ -23,6 +23,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use auth_saml2\admin\setting_idpmetadata_exception;
+use auth_saml2\metadata_fetcher;
 use auth_saml2\task\metadata_refresh;
 
 defined('MOODLE_INTERNAL') || die();
@@ -73,24 +75,17 @@ XML;
         self::assertFalse($refreshtask->execute());
     }
 
-    /**
-     * @expectedException \moodle_exception
-     */
     public function test_metadata_refresh_fetch_fails() {
-        $this->markTestSkipped('This test needs to be fixed or removed.');
-
-        if (!method_exists($this, 'prophesize')) {
-            $this->markTestSkipped('Skipping due to Prophecy library not available');
-        }
-
         set_config('idpmetadatarefresh', 1, 'auth_saml2');
         set_config('idpmetadata', 'http://somefakeidpurl.local', 'auth_saml2');
-        $fetcher = $this->prophesize('auth_saml2\metadata_fetcher');
+
+        $fetcher = $this->prophesize(metadata_fetcher::class);
+        $fetcher->fetch('http://somefakeidpurl.local')->willThrow(new setting_idpmetadata_exception());
 
         $refreshtask = new metadata_refresh();
         $refreshtask->set_fetcher($fetcher->reveal());
 
-        $fetcher->fetch('http://somefakeidpurl.local')->willThrow(new \moodle_exception('metadatafetchfailed', 'auth_saml2'));
+        $this->setExpectedException(setting_idpmetadata_exception::class);
         $refreshtask->execute();
     }
 

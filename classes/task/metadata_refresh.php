@@ -25,11 +25,11 @@
 namespace auth_saml2\task;
 
 use auth_saml2\admin\setting_idpmetadata;
+use auth_saml2\admin\setting_idpmetadata_exception;
 use auth_saml2\idp_parser;
 use auth_saml2\metadata_fetcher;
 use auth_saml2\metadata_parser;
 use auth_saml2\metadata_writer;
-use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -41,11 +41,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class metadata_refresh extends \core\task\scheduled_task {
-    /**
-     * @var metadata_fetcher
-     */
-    private $fetcher;
-
     /**
      * @var metadata_parser
      */
@@ -65,6 +60,10 @@ class metadata_refresh extends \core\task\scheduled_task {
      * @var setting_idpmetadata
      */
     private $idpmetadata;
+
+    public function __construct() {
+        $this->idpmetadata = new setting_idpmetadata();
+    }
 
     public function get_name() {
         return get_string('taskmetadatarefresh', 'auth_saml2');
@@ -93,11 +92,10 @@ class metadata_refresh extends \core\task\scheduled_task {
             return false;
         }
 
-        if (!$this->idpmetadata instanceof setting_idpmetadata) {
-            $this->idpmetadata = new setting_idpmetadata();
+        $valid = $this->idpmetadata->validate($config->idpmetadata);
+        if ($valid !== true) {
+            throw new setting_idpmetadata_exception($valid);
         }
-
-        $this->idpmetadata->validate($config->idpmetadata);
 
         mtrace('IdP metadata refresh completed successfully.');
         return true;
@@ -107,7 +105,7 @@ class metadata_refresh extends \core\task\scheduled_task {
      * @param metadata_fetcher $fetcher
      */
     public function set_fetcher(metadata_fetcher $fetcher) {
-        $this->fetcher = $fetcher;
+        $this->idpmetadata->set_fetcher($fetcher);
     }
 
     /**
