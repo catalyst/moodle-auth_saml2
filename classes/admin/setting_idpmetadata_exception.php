@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of SAML2 Authentication Plugin for Moodle
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,18 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information
- *
- * @package    auth_saml2
- * @copyright  Brendan Heywood <brendan@catalyst-au.net>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     auth_saml2
+ * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
+ * @copyright   2018 Catalyst IT Australia {@link http://www.catalyst-au.net}
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+namespace auth_saml2\admin;
+
+use Exception;
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2018062500;    // The current plugin version (Date: YYYYMMDDXX).
-$plugin->release   = 2018062500;    // Match release exactly to version.
-$plugin->requires  = 2014051200;    // Requires this Moodle version. (2.7)
-$plugin->component = 'auth_saml2';  // Full name of the plugin (used for diagnostics).
-$plugin->maturity  = MATURITY_STABLE;
-
+class setting_idpmetadata_exception extends Exception {
+}
