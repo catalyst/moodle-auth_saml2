@@ -85,7 +85,7 @@ XML;
         $refreshtask = new metadata_refresh();
         $refreshtask->set_fetcher($fetcher->reveal());
 
-        $this->setExpectedException(setting_idpmetadata_exception::class);
+        $this->expect_exception(setting_idpmetadata_exception::class);
         $refreshtask->execute();
     }
 
@@ -201,5 +201,24 @@ XML;
         }
 
         return parent::prophesize($class);
+    }
+
+    public function expect_exception($class, $message = '', $code = null) {
+        // Older PHPUnit.
+        if (method_exists($this, 'setExpectedException')) {
+            parent::setExpectedException($class, $message, $code);
+            return;
+        }
+
+        // Newer PHPUnit.
+        $this->expectException($class);
+
+        if (!empty($message)) {
+            $this->expectExceptionMessage($class);
+        }
+
+        if (!is_null($code)) {
+            $this->expectExceptionCode($code);
+        }
     }
 }
