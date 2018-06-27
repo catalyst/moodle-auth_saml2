@@ -79,7 +79,7 @@ XML;
         set_config('idpmetadatarefresh', 1, 'auth_saml2');
         set_config('idpmetadata', 'http://somefakeidpurl.local', 'auth_saml2');
 
-        $fetcher = $this->prophesize(metadata_fetcher::class);
+        $fetcher = $this->prophesize_or_skip_test(metadata_fetcher::class);
         $fetcher->fetch('http://somefakeidpurl.local')->willThrow(new setting_idpmetadata_exception());
 
         $refreshtask = new metadata_refresh();
@@ -193,5 +193,13 @@ XML;
         $md5 = md5('Some id');
         $writer->write($md5 . '.idp.xml', 'somexml')->willThrow(new coding_exception('Metadata write failed: some error'));
         $refreshtask->execute();
+    }
+
+    private function prophesize_or_skip_test($class = null) {
+        if (!method_exists($this, 'prophesize')) {
+            $this->markTestSkipped('Prophesize not available, skipping test...');
+        }
+
+        return parent::prophesize($class);
     }
 }
