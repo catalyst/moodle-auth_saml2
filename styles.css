@@ -1,11 +1,11 @@
-.mform .fitem div.fitemtitle {
+#page-auth-saml2-selectidp .mform .fitem div.fitemtitle {
     width: 0;
 }
 
-.mform .fitem .felement {
+#page-auth-saml2-selectidp .mform .fitem .felement {
     margin-left: 0;
 }
 
-.idpbtn {
+#page-auth-saml2-selectidp .idpbtn {
     margin-bottom: 10px;
 }
