@@ -139,4 +139,4 @@ $string['nameidpolicy_help'] = '';
 /*
  * Privacy provider (GDPR)
  */
-$string["privacy:no_data_reason"] = "The 'auth saml2' plugins doesn't store any personnel data.";
+$string["privacy:no_data_reason"] = "The Saml2 authentication plugin does not store any personal data.";
