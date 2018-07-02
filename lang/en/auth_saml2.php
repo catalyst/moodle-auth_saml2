@@ -135,3 +135,8 @@ $string['phone1'] = 'Phone';
 $string['phone2'] = 'Mobile phone';
 $string['nameidpolicy'] = 'NameID Policy';
 $string['nameidpolicy_help'] = '';
+
+/*
+ * Privacy provider (GDPR)
+ */
+$string["privacy:no_data_reason"] = "The 'auth saml2' plugins doesn't store any personnel data.";
