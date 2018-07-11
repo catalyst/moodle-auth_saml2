@@ -140,3 +140,13 @@ $string['nameidpolicy_help'] = '';
  * Privacy provider (GDPR)
  */
 $string["privacy:no_data_reason"] = "The Saml2 authentication plugin does not store any personal data.";
+
+/*
+ * Signing Algorithm
+ */
+$string['sha1'] = 'Legacy SHA1 (Dangerous)';
+$string['sha256'] = 'SHA256';
+$string['sha384'] = 'SHA384';
+$string['sha512'] = 'SHA512';
+$string['signaturealgorithm'] = 'Signing Algorithm';
+$string['signaturealgorithm_help'] = 'This is the algorithm that will be used to sign SAML requests. Warning: The SHA1 Algorithm is only provided for backwards compatibility, unless you absolutely must use it it is recommended to avoid it and use at least SHA256 instead.';
