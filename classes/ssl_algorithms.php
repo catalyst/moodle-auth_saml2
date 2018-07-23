@@ -15,11 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
-  * @package    auth_saml2
-  * @author     Adam Lynam <adam.lynam@catalyst.net.nz>
-  * @copyright  Catalyst IT
-  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-  */
+ * @package    auth_saml2
+ * @author     Adam Lynam <adam.lynam@catalyst.net.nz>
+ * @copyright  Catalyst IT
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 namespace auth_saml2;
 
@@ -28,41 +28,41 @@ defined('MOODLE_INTERNAL') || die();
 global $saml2auth;
 
 abstract class ssl_algorithms {
-  /*
-   * Return a sensible default signature algorithm for simplesamlphp config
-   */
-  public static function get_default_saml_signature_algorithm() {
-      //Sha1 is deprecated so we default to something more sensible
-      return 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256';
-  }
+   /*
+    * Return a sensible default signature algorithm for simplesamlphp config.
+    */
+    public static function get_default_saml_signature_algorithm() {
+        //Sha1 is deprecated so we default to something more sensible
+        return 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256';
+    }
 
-  /*
-   * Return an array of signature algorithms in a form suitable for feeding into a dropdown form
-   */
-  public static function get_valid_saml_signature_algorithms() {
-      $return = array();
-      $return['http://www.w3.org/2001/04/xmldsig-more#rsa-sha256'] = get_string('sha256', 'auth_saml2');
-      $return['http://www.w3.org/2001/04/xmldsig-more#rsa-sha384'] = get_string('sha384', 'auth_saml2');
-      $return['http://www.w3.org/2001/04/xmldsig-more#rsa-sha512'] = get_string('sha512', 'auth_saml2');
-      $return['http://www.w3.org/2000/09/xmldsig#rsa-sha1'] = get_string('sha1', 'auth_saml2');
-      return $return;
-  }
+   /*
+    * Return an array of signature algorithms in a form suitable for feeding into a dropdown form.
+    */
+    public static function get_valid_saml_signature_algorithms() {
+        $return = array();
+        $return['http://www.w3.org/2001/04/xmldsig-more#rsa-sha256'] = get_string('sha256', 'auth_saml2');
+        $return['http://www.w3.org/2001/04/xmldsig-more#rsa-sha384'] = get_string('sha384', 'auth_saml2');
+        $return['http://www.w3.org/2001/04/xmldsig-more#rsa-sha512'] = get_string('sha512', 'auth_saml2');
+        $return['http://www.w3.org/2000/09/xmldsig#rsa-sha1'] = get_string('sha1', 'auth_saml2');
+        return $return;
+    }
 
-  /*
-   * Return an array of digest algorithms in a form suitable for feeding into a dropdown form
-   */
-  public static function convert_signature_algorithm_to_digest_alg_format($signature_algorithm) {
-      switch($signature_algorithm) {
-          case 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256':
-              return 'SHA256';
-          case 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha384':
-              return 'SHA384';
-          case 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha512':
-              return 'SHA512';
-          case 'http://www.w3.org/2000/09/xmldsig#rsa-sha1':
-              return 'SHA1';
-      }
+   /*
+    * Return an array of digest algorithms in a form suitable for feeding into a dropdown form.
+    */
+    public static function convert_signature_algorithm_to_digest_alg_format($signature_algorithm) {
+        switch($signature_algorithm) {
+            case 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256':
+                return 'SHA256';
+            case 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha384':
+                return 'SHA384';
+            case 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha512':
+                return 'SHA512';
+            case 'http://www.w3.org/2000/09/xmldsig#rsa-sha1':
+                return 'SHA1';
+        }
 
-      return 'SHA256';
-  }
+        return 'SHA256';
+    }
 }
