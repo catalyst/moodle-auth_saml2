@@ -28,17 +28,17 @@ defined('MOODLE_INTERNAL') || die();
 global $saml2auth;
 
 abstract class ssl_algorithms {
-   /*
-    * Return a sensible default signature algorithm for simplesamlphp config.
-    */
+    /*
+     * Return a sensible default signature algorithm for simplesamlphp config.
+     */
     public static function get_default_saml_signature_algorithm() {
-        //Sha1 is deprecated so we default to something more sensible
+        // Sha1 is deprecated so we default to something more sensible.
         return 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256';
     }
 
-   /*
-    * Return an array of signature algorithms in a form suitable for feeding into a dropdown form.
-    */
+    /*
+     * Return an array of signature algorithms in a form suitable for feeding into a dropdown form.
+     */
     public static function get_valid_saml_signature_algorithms() {
         $return = array();
         $return['http://www.w3.org/2001/04/xmldsig-more#rsa-sha256'] = get_string('sha256', 'auth_saml2');
@@ -48,11 +48,11 @@ abstract class ssl_algorithms {
         return $return;
     }
 
-   /*
-    * Return an array of digest algorithms in a form suitable for feeding into a dropdown form.
-    */
-    public static function convert_signature_algorithm_to_digest_alg_format($signature_algorithm) {
-        switch($signature_algorithm) {
+    /*
+     * Return an array of digest algorithms in a form suitable for feeding into a dropdown form.
+     */
+    public static function convert_signature_algorithm_to_digest_alg_format($signaturealgorithm) {
+        switch($signaturealgorithm) {
             case 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256':
                 return 'SHA256';
             case 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha384':
