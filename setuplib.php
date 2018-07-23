@@ -43,10 +43,13 @@ require_once("{$CFG->dirroot}/auth/saml2/auth.php");
 function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
     global $SITE;
 
-    $opensslargs = array();
-    $opensslargs['digest_alg'] = isset($saml2auth->config->signaturealgorithm)
-            ? ssl_algorithms::convert_signature_algorithm_to_digest_alg_format($saml2auth->config->signaturealgorithm)
-            : ssl_algorithms::convert_signature_algorithm_to_digest_alg_format(ssl_algorithms::get_default_saml_signature_algorithm());
+    $signaturealgorithm = ssl_algorithms::get_default_saml_signature_algorithm();
+    if (isset($saml2auth->config->signaturealgorithm)) {
+        $signaturealgorithm = $saml2auth->config->signaturealgorithm;
+    }
+    $opensslargs = array(
+      'digest_alg' => ssl_algorithms::convert_signature_algorithm_to_digest_alg_format($signaturealgorithm),
+    );
     if (array_key_exists('OPENSSL_CONF', $_SERVER)) {
         $opensslargs['config'] = $_SERVER['OPENSSL_CONF'];
     }
