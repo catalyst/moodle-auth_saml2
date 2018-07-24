@@ -204,6 +204,7 @@ function xmldb_auth_saml2_upgrade($oldversion) {
 
     if ($oldversion < 2018071100) {
         set_config('signaturealgorithm', ssl_algorithms::get_default_saml_signature_algorithm(), 'auth_saml2');
+        upgrade_plugin_savepoint(true, 2018071100, 'auth', 'saml2');
     }
 
     return true;
