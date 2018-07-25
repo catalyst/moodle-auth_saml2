@@ -44,7 +44,7 @@ function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
     global $SITE;
 
     $signaturealgorithm = ssl_algorithms::get_default_saml_signature_algorithm();
-    if (isset($saml2auth->config->signaturealgorithm)) {
+    if (!empty($saml2auth->config->signaturealgorithm)) {
         $signaturealgorithm = $saml2auth->config->signaturealgorithm;
     }
     $opensslargs = array(
