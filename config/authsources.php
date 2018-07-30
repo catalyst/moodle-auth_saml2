@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use auth_saml2\ssl_signing_algorithm;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $saml2auth, $CFG, $SITE, $SESSION;
@@ -93,7 +95,7 @@ $config[$saml2auth->spname] = [
     'certificate' => $saml2auth->spname . '.crt',
     'sign.logout' => true,
     'redirect.sign' => true,
-    'signature.algorithm' => 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256',
+    'signature.algorithm' => $saml2auth->config->signaturealgorithm,
 ];
 
 /*

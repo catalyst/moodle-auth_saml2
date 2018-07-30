@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use auth_saml2\ssl_algorithms;
+
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/_autoload.php');
 
@@ -41,7 +43,13 @@ require_once("{$CFG->dirroot}/auth/saml2/auth.php");
 function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
     global $SITE;
 
-    $opensslargs = array();
+    $signaturealgorithm = ssl_algorithms::get_default_saml_signature_algorithm();
+    if (!empty($saml2auth->config->signaturealgorithm)) {
+        $signaturealgorithm = $saml2auth->config->signaturealgorithm;
+    }
+    $opensslargs = array(
+      'digest_alg' => ssl_algorithms::convert_signature_algorithm_to_digest_alg_format($signaturealgorithm),
+    );
     if (array_key_exists('OPENSSL_CONF', $_SERVER)) {
         $opensslargs['config'] = $_SERVER['OPENSSL_CONF'];
     }
@@ -170,4 +178,3 @@ class saml2_exception extends moodle_exception {
         parent::__construct('exception', 'auth_saml2', '', htmlspecialchars($a), $debuginfo);
     }
 }
-

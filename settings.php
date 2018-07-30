@@ -25,6 +25,7 @@
 use auth_saml2\admin\saml2_settings;
 use auth_saml2\admin\setting_button;
 use auth_saml2\admin\setting_textonly;
+use auth_saml2\ssl_algorithms;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -145,6 +146,13 @@ if ($ADMIN->fulltree) {
             get_string('spmetadatasign', 'auth_saml2'),
             get_string('spmetadatasign_help', 'auth_saml2'),
             0, $yesno));
+
+    $settings->add(new admin_setting_configselect(
+        'auth_saml2/signaturealgorithm',
+        get_string('signaturealgorithm', 'auth_saml2'),
+        get_string('signaturealgorithm_help', 'auth_saml2'),
+        ssl_algorithms::get_default_saml_signature_algorithm(),
+        ssl_algorithms::get_valid_saml_signature_algorithms()));
 
     // Dual Login.
     $dualloginoptions = [

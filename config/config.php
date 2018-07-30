@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+ use auth_saml2\ssl_algorithms;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG, $saml2auth;
@@ -81,6 +83,8 @@ $config = array(
     'session.phpsession.httponly'   => true,
 
     'enable.http_post' => false,
+
+    'signature.algorithm' => !empty($saml2auth->config->signaturealgorithm) ? $saml2auth->config->signaturealgorithm : ssl_algorithms::get_default_saml_signature_algorithm(),
 
     'metadata.sign.enable'          => $saml2auth->config->spmetadatasign ? true : false,
     'metadata.sign.certificate'     => $saml2auth->certcrt,
