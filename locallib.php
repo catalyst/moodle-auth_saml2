@@ -409,6 +409,52 @@ function auth_saml2_profile_get_custom_fields($onlyinuserobject = false) {
     return $fields;
 }
 
+/**
+ * This helper function gets all the active IdPs configured.
+ * @param boolean $active if true get only active IdPs, else get all IdPs.
+ * @param boolean $asarray if true each idp object will be an array.
+ * @return array Array of active IdPs grouped by metadataurl.
+ */
+function auth_saml2_get_idps($active = false, $asarray = false) {
+    global $DB;
+
+    $conditions = array();
+    if ($active) {
+        $conditions = array('activeidp' => 1);
+    }
+
+    $idpentitiesrs = $DB->get_records('auth_saml2_idps', $conditions);
+    $idpentities = array();
+
+    foreach ($idpentitiesrs as $idpentity) {
+        if (!isset($idpentities[$idpentity->metadataurl])) {
+            $idpentities[$idpentity->metadataurl] = array();
+        }
+
+        $md5entityid = md5($idpentity->entityid);
+        if ($asarray) {
+            $idpentities[$idpentity->metadataurl][$md5entityid] = (array) $idpentity;
+        } else {
+            $idpentities[$idpentity->metadataurl][$md5entityid] = $idpentity;
+        }
+        
+    }
+
+    return $idpentities;
+}
+
+/**
+ * This helper function returns the default IdP if it is configured.
+ * @return object The default IdP object, or NULL if there is no default IdP set.
+ */
+function auth_saml2_get_default_idp() {
+    global $DB;
+
+    $defaultidps = $DB->get_records('auth_saml2_idps', array('activeidp' => 1, 'defaultidp' => 1));
+
+    // There should only be 1 but just in case we will use the first one.
+    return array_shift($defaultidps);
+}
 
 // @codingStandardsIgnoreEnd
 

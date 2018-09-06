@@ -35,18 +35,10 @@ if (!empty($CFG->loginhttps)) {
 }
 
 $metadatasources = [];
-foreach ($saml2auth->idpentityids as $source => $entity) {
-    if (is_object($entity)) {
-        $entity = (array)$entity;
-    }
-    if (is_array($entity)) {
-        $entity = array_keys($entity);
-        $entity = implode("\n", $entity);
-    }
-
+foreach ($saml2auth->metadataentities as $metadataurl => $idpentities) {
     $metadatasources[] = [
         'type' => 'xml',
-        'file' => "$CFG->dataroot/saml2/" . md5($entity) . ".idp.xml"
+        'file' => "$CFG->dataroot/saml2/" . md5($metadataurl) . ".idp.xml"
     ];
 }
 

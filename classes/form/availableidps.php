@@ -47,43 +47,55 @@ class availableidps extends moodleform {
     public function definition() {
         $mform = $this->_form;
 
-        $idpentityids = $this->_customdata['idpentityids'];
-        $idpmduinames = $this->_customdata['idpmduinames'];
+        $metadataentities = $this->_customdata['metadataentities'];
 
-        $selectvalues = [];
+        foreach ($metadataentities as $metadataurl => $idpentities) {
+            $mform->addElement('header', $metadataurl.'header', $metadataurl);
 
-        foreach ($idpentityids as $key => $idpentity) {
-            if (is_array($idpentity)) {
-                $mform->addElement('header', $key.'header', $key);
-
-                $starttable = <<< EOM
+            // Start the table.
+            $starttable = <<< EOM
 <table>
     <thead>
         <tr>
             <th>IdP Entity</th>
             <th>Name</th>
-            <th> </th>
+            <th>Active</th>
+            <th>Default</th>
+            <th>Admin</th>
+            <th>Alias</th>
         </tr>
     </thead>
-    <tbody>
+<tbody>
 EOM;
-                $mform->addElement('html', $starttable);
-                foreach ($idpentity as $subidpentity => $value) {
-                    $fieldkey = 'values['.$key.']['.$subidpentity.']';
+            $mform->addElement('html', $starttable);
+            foreach ($idpentities as $idpentityid => $idpentity) {
+                $fieldkey = 'metadataentities['.$metadataurl.']['.$idpentityid.']';
 
-                    $name = '';
-                    if (isset($idpmduinames[$key][$subidpentity])) {
-                        $name = $idpmduinames[$key][$subidpentity];
-                    }
+                // Add the start of the row, entiyid, name, etc.
+                $mform->addElement('html', '<tr><td>');
+                $mform->addElement('hidden', $fieldkey.'[id]');
+                $mform->addElement('html', $idpentity['entityid'].'</td>');
+                $mform->addElement('html', '<td>'.$idpentity['name'].'</td><td>');
 
-                    $startrow = '<tr><td>'.$subidpentity.'</td><td>'.$name.'</td><td>';
-                    $mform->addElement('html', $startrow);
-                    $mform->addElement('advcheckbox', $fieldkey , '', '', array(), array(false, true));
-                    $mform->addElement('html', '</td></tr>');
-                }
+                // Add the activeidp checkbox.
+                $mform->addElement('advcheckbox', $fieldkey.'[activeidp]' , '', '', array(), array(false, true));
+                $mform->addElement('html', '</td><td>');
 
-                $mform->addElement('html', '</tbody></table>');
+                // Add the defaultidp checkbox.
+                $mform->addElement('advcheckbox', $fieldkey.'[defaultidp]' , '', '', array(), array(false, true));
+                $mform->addElement('html', '</td><td>');
+
+                // Add the adminidp checkbox.
+                $mform->addElement('advcheckbox', $fieldkey.'[adminidp]' , '', '', array(), array(false, true));
+                $mform->addElement('html', '</td><td>');
+
+                // Add the alias textbox.
+                $mform->addElement('text', $fieldkey.'[alias]' , '');
+                $mform->addElement('html', '</td></tr>');
             }
+
+            // Close off the table.
+            $mform->addElement('html', '</tbody></table>');
         }
 
         $this->add_action_buttons();

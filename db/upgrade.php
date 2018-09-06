@@ -207,5 +207,77 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2018071100, 'auth', 'saml2');
     }
 
+    if ($oldversion < 2018080400) {
+
+        // Define table auth_saml2_idps to be created.
+        $tablename = 'auth_saml2_idps';
+        $table = new xmldb_table($tablename);
+
+        // Adding fields to table auth_saml2_idps.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('metadataurl', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('entityid', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('activeidp', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, null, null, '0');
+        $table->add_field('defaultidp', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, null, null, '0');
+        $table->add_field('adminidp', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, null, null, '0');
+        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('logo', XMLDB_TYPE_TEXT, 'big', null, null, null, null);
+        $table->add_field('alias', XMLDB_TYPE_CHAR, '50', null, null, null, null);
+
+        // Adding keys to table auth_saml2_idps.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        // Conditionally launch create table for auth_saml2_idps.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        $idpentityids = json_decode(get_config('auth_saml2', 'idpentityids'), true);
+        $idpmduinames = json_decode(get_config('auth_saml2', 'idpmduinames'), true);
+        $idpmduilogos = json_decode(get_config('auth_saml2', 'idpmduilogos'), true);
+
+        foreach ($idpentityids as $metadatakey => $idpentityid) {
+            if (is_array($idpentityid)) {
+                foreach ($idpentityid as $singleidpentityid => $active) {
+                    $idpobject = new stdClass();
+
+                    $idpobject->metadataurl = $metadatakey;
+                    $idpobject->entityid = $singleidpentityid;
+                    $idpobject->activeidp = $active;
+                    $idpobject->defaultidp = 0;
+                    $idpobject->adminidp = 0;
+
+                    if (isset($idpmduinames[$metadatakey][$singleidpentityid])) {
+                        $idpobject->name = $idpmduinames[$metadatakey][$singleidpentityid];
+                    }
+                    if (isset($idpmduilogos[$metadatakey][$singleidpentityid])) {
+                        $idpobject->logo = $idpmduilogos[$metadatakey][$singleidpentityid];
+                    }
+                    
+                    $DB->insert_record($tablename, $idpobject);
+                }
+            } else {
+                $idpobject = new stdClass();
+
+                $idpobject->metadataurl = $metadatakey;
+                $idpobject->entityid = $metadatakey;
+                $idpobject->activeidp = 1;
+                $idpobject->defaultidp = 0;
+                $idpobject->adminidp = 0;
+
+                if (isset($idpmduinames[$metadatakey])) {
+                    $idpobject->name = $idpmduinames[$metadatakey];
+                }
+                if (isset($idpmduilogos[$metadatakey])) {
+                    $idpobject->logo = $idpmduilogos[$metadatakey];
+                }
+                
+                $DB->insert_record($tablename, $idpobject);
+            }
+        }
+
+        upgrade_plugin_savepoint(true, 2018080400, 'auth', 'saml2');
+    }
+
     return true;
 }

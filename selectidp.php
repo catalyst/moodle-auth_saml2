@@ -36,56 +36,16 @@ $PAGE->set_heading("$site->fullname");
 $PAGE->navbar->add($loginsite);
 $PAGE->requires->css('/auth/saml2/styles.css');
 
-$parentidp = optional_param('parentidp', '', PARAM_RAW);
 $wants = optional_param('wants', '', PARAM_RAW);
 
-$idpentityids = $saml2auth->idpentityids;
-$idpmduinames = $saml2auth->idpmduinames;
-$idpmduilogos = $saml2auth->idpmduilogos;
 $idpname = $saml2auth->config->idpname;
 $defaultidp = $saml2auth->get_idp_cookie();
 if (empty($idpname)) {
     $idpname = get_string('idpnamedefault', 'auth_saml2');
 }
 
-$activeidpentityids = [];
-$activeidpentitylogos = [];
-
-foreach ($idpentityids as $metadataentity => $subidps) {
-    if ($parentidp == md5($metadataentity)) {
-        $idpmduinames = (array)$idpmduinames[$metadataentity];
-        $idpmduilogos = (array)$idpmduilogos[$metadataentity];
-
-        foreach ((array)$subidps as $idpentity => $active) {
-            if ((bool)$active) {
-                $activeidpentityids[md5($idpentity)] = $idpmduinames[$idpentity];
-
-                if (isset($idpmduilogos[$idpentity])) {
-                    $activeidpentitylogos[md5($idpentity)] = $idpmduilogos[$idpentity];
-                }
-            }
-        }
-
-        break;
-    }
-}
-
-if (count($activeidpentityids) == 1) {
-    reset($activeidpentityids);
-    $idp = key($activeidpentityids);
-
-    $params = [
-        'wants' => $wants,
-        'idp' => $idp,
-    ];
-
-    $idpurl = new moodle_url('/auth/saml2/login.php', $params);
-    redirect($idpurl);
-}
-
 $data = [
-    'idpentityids' => $activeidpentityids,
-    'idpentitylogos' => $activeidpentitylogos,
+    'metadataentities' => $saml2auth->metadataentities,
     'defaultidp' => $defaultidp,
     'wants' => $wants,
     'idpname' => $idpname

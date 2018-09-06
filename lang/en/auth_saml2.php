@@ -29,9 +29,9 @@ $string['anyauth_help'] = 'Yes: Allow SAML login for all users? No: Only users w
 $string['auth_saml2description'] = 'Authenticate with a SAML2 IdP';
 $string['autocreate'] = 'Auto create users';
 $string['autocreate_help'] = 'If users are in the IdP but not in moodle create a moodle account.';
-$string['availableidps'] = 'Select available IdPs';
-$string['availableidps_help'] = 'If an IdP metadata xml contains multiple IdP entities, you will need to select which entities are availiable
-for users to login with.';
+$string['availableidps'] = 'Manage available IdPs';
+$string['availableidps_help'] = 'If an IdP metadata xml contains multiple IdP entities or you have specificed multiple metadata urls, 
+you will need to select which entities are availiable for users to login with.';
 $string['certificatedetails'] = 'Certificate details';
 $string['certificatedetailshelp'] = '<h1>SAML2 auto generated public certificate contents</h1><p>The path for the cert is here:</p>';
 $string['certificate_help'] = 'Regenerate the Private Key and Certificate used by this SP. | <a href=\'{$a}\'>View SP certificate</a>';
@@ -77,6 +77,12 @@ $string['mdlattr'] = 'Mapping Moodle';
 $string['metadatafetchfailed'] = 'Metadata fetch failed: {$a}';
 $string['metadatafetchfailedstatus'] = 'Metadata fetch failed: Status code {$a}';
 $string['metadatafetchfailedunknown'] = 'Metadata fetch failed: Unknown cURL error';
+$string['multiidpinfo'] = '
+<p>An IdP can only be used if it is set as Active</p>
+<p>When duallogin has been turned on all active IdPs will be displayed on the login page</p>
+<p>When an IdP has been set as Default and duallogin is not turned on, this IdP will automatically be used unless ?multiidp=on or saml=off is passed on /login/index.php</p>
+<p>When an IdP has been set as Admin any users that log in using this IdP will automatically be made an admin</p>
+<p>An IdP can be given an Alias, when going to /login/index.php?idpalias={alias} the alias can be passed to directly use that IdP</p>';
 $string['multiidpbuttons'] = 'Buttons with icons';
 $string['multiidpdisplay'] = 'Multiple IdP display type';
 $string['multiidpdisplay_help'] = 'If an IdP metadata xml contains multiple IdP entities, how will each available IdP be displayed?';
@@ -84,6 +90,7 @@ $string['multiidpdropdown'] = 'Drop-down list';
 $string['nameidasattrib'] = 'Expose NameID as attribute';
 $string['nameidasattrib_help'] = 'The NameID claim will be exposed to SSPHP as an attribute named nameid';
 $string['noattribute'] = 'You have logged in succesfully but we could not find your \'{$a}\' attribute to associate you to an account in Moodle.';
+$string['noidpfound'] = 'The IdP \'{$a}\' was not found as a configured IdP.';
 $string['nouser'] = 'You have logged in succesfully as \'{$a}\' but do not have an account in Moodle.';
 $string['nullprivatecert'] = 'Creation of Private Certificate failed.';
 $string['nullpubliccert'] = 'Creation of Public Certificate failed.';
