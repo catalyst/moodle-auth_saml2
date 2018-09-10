@@ -84,6 +84,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         // Check if we have mutiple IdPs configured.
         // If we have mutliple metadata entries set multiidp to true.
+        $this->multiidp = false;
+
         if (count($this->metadataentities) > 1) {
             $this->multiidp = true;
         } else {
@@ -185,7 +187,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
                     'wants' => $wantsurl,
                     'idp' => $idpentityid,
                 ];
-                
+
                 // The wants url may already be routed via login.php so don't re-re-route it.
                 if (strpos($wantsurl, '/auth/saml2/login.php')) {
                     $idpurl = new moodle_url($wantsurl);
@@ -193,17 +195,17 @@ class auth_plugin_saml2 extends auth_plugin_base {
                     $idpurl = new moodle_url('/auth/saml2/login.php', $params);
                 }
                 $idpurl->param('passive', 'off');
-                
+
                 // A default icon.
                 if (!empty($idp->logo)) {
                     $idpicon = $idp->logo;
                 } else {
                     $idpicon = new pix_icon('i/user', 'Login');
                 }
-                
+
                 // Initially use the default name. This is suitable for a single IdP.
                 $idpname = $conf->idpdefaultname;
-                
+
                 // When multiple IdPs are configured, use a different default based on the IdP.
                 if ($this->multiidp) {
                     $host = parse_url($idp->entityid, PHP_URL_HOST);
@@ -214,7 +216,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
                 if (!empty($metadata->idpname)) {
                     $idpname = $metadata->idpname;
                 }
-                
+
                 // Has the IdP label override been set in the admin configuration?
                 // This is best used with a single IdP. Multiple IdP overrides are different.
                 if (!empty($conf->idpname)) {
@@ -225,7 +227,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
                 if (!empty($idp->name)) {
                     $idpname = $idp->name;
                 }
-                
+
                 $idplist[] = [
                     'url'  => $idpurl,
                     'icon' => $idpicon,

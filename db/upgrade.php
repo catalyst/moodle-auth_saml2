@@ -253,7 +253,7 @@ function xmldb_auth_saml2_upgrade($oldversion) {
                     if (isset($idpmduilogos[$metadatakey][$singleidpentityid])) {
                         $idpobject->logo = $idpmduilogos[$metadatakey][$singleidpentityid];
                     }
-                    
+
                     $DB->insert_record($tablename, $idpobject);
                 }
             } else {
@@ -271,7 +271,7 @@ function xmldb_auth_saml2_upgrade($oldversion) {
                 if (isset($idpmduilogos[$metadatakey])) {
                     $idpobject->logo = $idpmduilogos[$metadatakey];
                 }
-                
+
                 $DB->insert_record($tablename, $idpobject);
             }
         }

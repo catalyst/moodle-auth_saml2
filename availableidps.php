@@ -23,10 +23,10 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-global $DB;
-
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/locallib.php');
+
+global $DB;
 
 require_login();
 require_capability('moodle/site:config', context_system::instance());

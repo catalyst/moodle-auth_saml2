@@ -118,7 +118,7 @@ class setting_idpmetadata extends admin_setting_configtextarea {
         $this->save_idp_metadata_xml($idp->idpurl, $idp->get_rawxml());
     }
 
-    private function process_idp_xml(idp_data $idp, DOMElement $idpelements, DOMXPath $xpath, 
+    private function process_idp_xml(idp_data $idp, DOMElement $idpelements, DOMXPath $xpath,
                                         &$oldidps, $activedefault = 0) {
         global $DB;
         $entityid = $idpelements->getAttribute('entityID');
@@ -135,7 +135,7 @@ class setting_idpmetadata extends admin_setting_configtextarea {
         }
 
         // Locate a logo element provided by the IdP XML metadata.
-        $logos = $xpath->query('.//mdui:Logo', $idpelement);
+        $logos = $xpath->query('.//mdui:Logo', $idpelements);
         $logo = null;
         if ($logos && $logos->length > 0) {
             $logo = $logos->item(0)->textContent;

@@ -38,8 +38,15 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
      * Regression test for Issue 132.
      */
     public function test_it_can_initialise_more_than_once() {
-        global $CFG;
+        global $CFG, $DB;
         $this->resetAfterTest(true);
+
+        // Add a fake IdP.
+        $DB->insert_record('auth_saml2_idps', array(
+            'metadataurl' => 'http://www.example.com',
+            'entityid'    => 'http://www.example.com',
+            'name'        => 'Test IdP',
+            'activeidp'   => 1));
 
         for ($i = 0; $i < 3; $i++) {
             require($CFG->dirroot . '/auth/saml2/setup.php');
@@ -304,10 +311,17 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
      * Test test_is_configured
      */
     public function test_is_configured() {
+        global $DB;
+
         $this->resetAfterTest();
 
+        // Add a fake IdP.
         $url = 'http://www.example.com';
-        set_config('idpentityids', json_encode([$url => $url]), 'auth_saml2');
+        $DB->insert_record('auth_saml2_idps', array(
+            'metadataurl' => $url,
+            'entityid'    => $url,
+            'name'        => 'Test IdP',
+            'activeidp'   => 1));
 
         /** @var auth_plugin_saml2 $auth */
         $auth = get_auth_plugin('saml2');
@@ -350,15 +364,22 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
     }
 
     public function test_is_configured_works_with_multi_idp_in_one_xml() {
+        global $DB;
+
         $this->resetAfterTest();
 
-        $idpentityids = json_encode([
-                                        'xml' => [
-                                            'https://idp1.example.org/idp/shibboleth' => 0,
-                                            'https://idp2.example.org/idp/shibboleth' => 0,
-                                        ],
-                                    ]);
-        set_config('idpentityids', $idpentityids, 'auth_saml2');
+        // Add two fake IdPs.
+        $metadataurl = 'https://idp.example.org/idp/shibboleth';
+        $DB->insert_record('auth_saml2_idps', array(
+            'metadataurl' => $metadataurl,
+            'entityid'    => 'https://idp1.example.org/idp/shibboleth',
+            'name'        => 'Test IdP 1',
+            'activeidp'   => 1));
+        $DB->insert_record('auth_saml2_idps', array(
+            'metadataurl' => $metadataurl,
+            'entityid'    => 'https://idp2.example.org/idp/shibboleth',
+            'name'        => 'Test IdP 2',
+            'activeidp'   => 1));
 
         /** @var auth_plugin_saml2 $auth */
         $auth = get_auth_plugin('saml2');
@@ -368,7 +389,7 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
 
         $this->assertFalse($auth->is_configured());
 
-        $xmlfile = md5("https://idp1.example.org/idp/shibboleth\nhttps://idp2.example.org/idp/shibboleth");
+        $xmlfile = md5("https://idp.example.org/idp/shibboleth");
         touch($auth->get_file("{$xmlfile}.idp.xml"));
 
         $this->assertTrue($auth->is_configured());

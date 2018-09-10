@@ -30,7 +30,7 @@ $string['auth_saml2description'] = 'Authenticate with a SAML2 IdP';
 $string['autocreate'] = 'Auto create users';
 $string['autocreate_help'] = 'If users are in the IdP but not in moodle create a moodle account.';
 $string['availableidps'] = 'Manage available IdPs';
-$string['availableidps_help'] = 'If an IdP metadata xml contains multiple IdP entities or you have specificed multiple metadata urls, 
+$string['availableidps_help'] = 'If an IdP metadata xml contains multiple IdP entities or you have specificed multiple metadata urls,
 you will need to select which entities are availiable for users to login with.';
 $string['certificatedetails'] = 'Certificate details';
 $string['certificatedetailshelp'] = '<h1>SAML2 auto generated public certificate contents</h1><p>The path for the cert is here:</p>';
