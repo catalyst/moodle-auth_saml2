@@ -146,10 +146,10 @@ if ($fromform = $mform->get_data()) {
 }
 
 echo $OUTPUT->header();
-echo "<div class=\"loginbox\">";
-echo "<h2>Select a login service</h2>";
-echo "<div class=\"subcontent\">";
+echo html_writer::start_div('loginbox');
+echo html_writer::tag('h2', get_string('selectloginservice', 'auth_saml2'));
+echo html_writer::start_div('subcontent');
 $mform->display();
-echo "</div>";
-echo "</div>";
+echo html_writer::end_div();
+echo html_writer::end_div();
 echo $OUTPUT->footer();
