@@ -313,6 +313,14 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * All the checking happens before the login page in this hook
      */
     public function loginpage_hook() {
+
+        $pluginsfunction = get_plugins_with_function('auth_loginpage_hook', 'lib.php');
+        foreach ($pluginsfunction as $plugintype => $plugins) {
+            foreach ($plugins as $pluginfunction) {
+                $pluginfunction();
+            }
+        }
+
         $this->log(__FUNCTION__ . ' enter');
 
         // If the plugin has not been configured then do NOT try to use saml2.
@@ -603,6 +611,13 @@ class auth_plugin_saml2 extends auth_plugin_base {
         // 3) The IdP session, if the IdP supports SingleSignout.
 
         global $SESSION, $redirect;
+
+        $pluginsfunction = get_plugins_with_function('auth_logoutpage_hook', 'lib.php');
+        foreach ($pluginsfunction as $plugintype => $plugins) {
+            foreach ($plugins as $pluginfunction) {
+                $pluginfunction();
+            }
+        }
 
         // Lets capture the saml2idp hash.
         $idp = $this->spname;
