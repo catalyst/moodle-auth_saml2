@@ -72,17 +72,20 @@ $string['logdir_help'] = 'The log directory SSPHP will write to, the file will b
 $string['logdir'] = 'Log Directory';
 $string['logtofile'] = 'Enable logging to file';
 $string['logtofile_help'] = 'Turning this on will redirect SSPHP log output to a file in the logdir';
+$string['manageidpsheading'] = 'Manage available IdPs';
 $string['mdlattr_help'] = 'Which Moodle user field should the IdP attribute be matched to?';
 $string['mdlattr'] = 'Mapping Moodle';
 $string['metadatafetchfailed'] = 'Metadata fetch failed: {$a}';
 $string['metadatafetchfailedstatus'] = 'Metadata fetch failed: Status code {$a}';
 $string['metadatafetchfailedunknown'] = 'Metadata fetch failed: Unknown cURL error';
 $string['multiidpinfo'] = '
-<p>An IdP can only be used if it is set as Active</p>
-<p>When duallogin has been turned on all active IdPs will be displayed on the login page</p>
-<p>When an IdP has been set as Default and duallogin is not turned on, this IdP will automatically be used unless ?multiidp=on or saml=off is passed on /login/index.php</p>
-<p>When an IdP has been set as Admin any users that log in using this IdP will automatically be made an admin</p>
-<p>An IdP can be given an Alias, when going to /login/index.php?idpalias={alias} the alias can be passed to directly use that IdP</p>';
+<ul>
+<li>An IdP can only be used if it is set as Active</li>
+<li>When duallogin has been turned on all active IdPs will be displayed on the login page</li>
+<li>When an IdP has been set as Default and duallogin is not turned on, this IdP will automatically be used unless ?multiidp=on or saml=off is passed on /login/index.php</li>
+<li>When an IdP has been set as Admin any users that log in using this IdP will automatically be made an admin</li>
+<li>An IdP can be given an Alias, when going to /login/index.php?idpalias={alias} the alias can be passed to directly use that IdP</li>
+</ul>';
 $string['multiidpbuttons'] = 'Buttons with icons';
 $string['multiidpdisplay'] = 'Multiple IdP display type';
 $string['multiidpdisplay_help'] = 'If an IdP metadata xml contains multiple IdP entities, how will each available IdP be displayed?';

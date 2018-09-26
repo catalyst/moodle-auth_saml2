@@ -30,8 +30,22 @@ global $DB;
 
 require_login();
 require_capability('moodle/site:config', context_system::instance());
+
+$heading = get_string('manageidpsheading', 'auth_saml2');
+
 $PAGE->set_url("$CFG->wwwroot/auth/saml2/avilableidps.php");
 $PAGE->set_course($SITE);
+$PAGE->set_title($SITE->shortname . ': ' . $heading);
+$PAGE->set_heading($SITE->fullname);
+$PAGE->set_pagelayout('standard');
+
+$PAGE->navbar->add(get_string('administrationsite'));
+$PAGE->navbar->add(get_string('plugins', 'admin'));
+$PAGE->navbar->add(get_string('authentication', 'admin'));
+$PAGE->navbar->add(get_string('pluginname', 'auth_saml2'),
+        new moodle_url('/admin/settings.php', array('section' => 'authsettingsaml2')));
+$PAGE->navbar->add($heading);
+
 $PAGE->requires->css('/auth/saml2/styles.css');
 
 $metadataentities = auth_saml2_get_idps(false, true);
@@ -59,6 +73,7 @@ if ($fromform = $mform->get_data()) {
 }
 
 echo $OUTPUT->header();
-echo "<h1>Manage available IdPs</h1>";
+echo $OUTPUT->heading($heading);
+echo get_string('multiidpinfo', 'auth_saml2');
 $mform->display();
 echo $OUTPUT->footer();
