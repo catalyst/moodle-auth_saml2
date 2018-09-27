@@ -314,10 +314,12 @@ class auth_plugin_saml2 extends auth_plugin_base {
      */
     public function loginpage_hook() {
 
-        $pluginsfunction = get_plugins_with_function('auth_saml2_loginpage_hook', 'lib.php');
-        foreach ($pluginsfunction as $plugintype => $plugins) {
-            foreach ($plugins as $pluginfunction) {
-                $pluginfunction();
+        if (function_exists('get_plugins_with_function')) {
+            $pluginsfunction = get_plugins_with_function('auth_saml2_loginpage_hook', 'lib.php');
+            foreach ($pluginsfunction as $plugintype => $plugins) {
+                foreach ($plugins as $pluginfunction) {
+                    $pluginfunction();
+                }
             }
         }
 
@@ -612,10 +614,12 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         global $SESSION, $redirect;
 
-        $pluginsfunction = get_plugins_with_function('auth_saml2_logoutpage_hook', 'lib.php');
-        foreach ($pluginsfunction as $plugintype => $plugins) {
-            foreach ($plugins as $pluginfunction) {
-                $pluginfunction();
+        if (function_exists('get_plugins_with_function')) {
+            $pluginsfunction = get_plugins_with_function('auth_saml2_logoutpage_hook', 'lib.php');
+            foreach ($pluginsfunction as $plugintype => $plugins) {
+                foreach ($plugins as $pluginfunction) {
+                    $pluginfunction();
+                }
             }
         }
 
