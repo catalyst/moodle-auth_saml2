@@ -742,7 +742,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
     }
 
     /**
-     * @param $function function name
+     * Execute callback function
+     * @param $function name of the callback function to be executed
      * @param string $file file to find the function
      */
     private function execute_callback($function, $file = 'lib.php') {
