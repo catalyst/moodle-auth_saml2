@@ -322,6 +322,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * All the checking happens before the login page in this hook
      */
     public function loginpage_hook() {
+        $this->execute_callback('auth_saml2_loginpage_hook');
+
         $this->log(__FUNCTION__ . ' enter');
 
         // If the plugin has not been configured then do NOT try to use saml2.
@@ -656,6 +658,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         global $SESSION, $redirect;
 
+        $this->execute_callback('auth_saml2_logoutpage_hook');
+
         // Lets capture the saml2idp hash.
         $idp = $this->spname;
         if (!empty($SESSION->saml2idp)) {
@@ -786,6 +790,22 @@ class auth_plugin_saml2 extends auth_plugin_base {
             return '';
         } else {
             return $_COOKIE[$cookiename];
+        }
+    }
+
+    /**
+     * Execute callback function
+     * @param $function name of the callback function to be executed
+     * @param string $file file to find the function
+     */
+    private function execute_callback($function, $file = 'lib.php') {
+        if (function_exists('get_plugins_with_function')) {
+            $pluginsfunction = get_plugins_with_function($function, $file);
+            foreach ($pluginsfunction as $plugintype => $plugins) {
+                foreach ($plugins as $pluginfunction) {
+                    $pluginfunction();
+                }
+            }
         }
     }
 }

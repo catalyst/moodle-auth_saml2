@@ -160,3 +160,4 @@ $string['sha384'] = 'SHA384';
 $string['sha512'] = 'SHA512';
 $string['signaturealgorithm'] = 'Signing Algorithm';
 $string['signaturealgorithm_help'] = 'This is the algorithm that will be used to sign SAML requests. Warning: The SHA1 Algorithm is only provided for backwards compatibility, unless you absolutely must use it it is recommended to avoid it and use at least SHA256 instead.';
+$string['selectloginservice'] = 'Select a login service';
