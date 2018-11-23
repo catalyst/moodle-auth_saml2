@@ -240,6 +240,14 @@ if ($ADMIN->fulltree) {
         saml2_settings::OPTION_MULTI_IDP_DISPLAY_DROPDOWN,
         $multiidpdisplayoptions));
 
+    // Attempt Single Sign out.
+    $settings->add(new admin_setting_configselect(
+        'auth_saml2/attemptsignout',
+        get_string('attemptsignout', 'auth_saml2'),
+        get_string('attemptsignout_help', 'auth_saml2'),
+        1,
+        $yesno));
+
     // SAMLPHP version.
     $authplugin = get_auth_plugin('saml2');
     $settings->add(new setting_textonly(
