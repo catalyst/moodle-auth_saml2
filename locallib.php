@@ -427,6 +427,8 @@ function auth_saml2_get_idps($active = false, $asarray = false) {
     $idpentities = array();
 
     foreach ($idpentitiesrs as $idpentity) {
+        $idpentity->name = empty($idpentity->displayname) ? $idpentity->defaultname : $idpentity->displayname;
+
         if (!isset($idpentities[$idpentity->metadataurl])) {
             $idpentities[$idpentity->metadataurl] = array();
         }
@@ -453,7 +455,11 @@ function auth_saml2_get_default_idp() {
     $defaultidps = $DB->get_records('auth_saml2_idps', array('activeidp' => 1, 'defaultidp' => 1));
 
     // There should only be 1 but just in case we will use the first one.
-    return array_shift($defaultidps);
+    $defaultidp = array_shift($defaultidps);
+    if ($defaultidp) {
+        $defaultidp->name = empty($defaultidp->displayname) ? $defaultidp->defaultname : $defaultidp->displayname;
+    }
+    return $defaultidp;
 }
 
 // @codingStandardsIgnoreEnd

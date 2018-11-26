@@ -58,11 +58,11 @@ class availableidps extends moodleform {
     <thead>
         <tr>
             <th>IdP Entity</th>
-            <th>Name</th>
+            <th>Display name</th>
+            <th>Alias</th>
             <th>Active</th>
             <th>Default</th>
             <th>Admin</th>
-            <th>Alias</th>
         </tr>
     </thead>
 <tbody>
@@ -74,23 +74,26 @@ EOM;
                 // Add the start of the row, entiyid, name, etc.
                 $mform->addElement('html', '<tr><td>');
                 $mform->addElement('hidden', $fieldkey.'[id]');
-                $mform->addElement('html', $idpentity['entityid'].'</td>');
-                $mform->addElement('html', '<td>'.$idpentity['name'].'</td><td>');
+                $mform->addElement('html', $idpentity['entityid'].'</td><td>');
 
-                // Add the activeidp checkbox.
-                $mform->addElement('advcheckbox', $fieldkey.'[activeidp]' , '', '', array(), array(false, true));
-                $mform->addElement('html', '</td><td>');
-
-                // Add the defaultidp checkbox.
-                $mform->addElement('advcheckbox', $fieldkey.'[defaultidp]' , '', '', array(), array(false, true));
-                $mform->addElement('html', '</td><td>');
-
-                // Add the adminidp checkbox.
-                $mform->addElement('advcheckbox', $fieldkey.'[adminidp]' , '', '', array(), array(false, true));
+                // Add the displayname textbox
+                $mform->addElement('text', $fieldkey.'[displayname]', '', array('placeholder' => $idpentity['defaultname']));
                 $mform->addElement('html', '</td><td>');
 
                 // Add the alias textbox.
-                $mform->addElement('text', $fieldkey.'[alias]' , '');
+                $mform->addElement('text', $fieldkey.'[alias]', '');
+                $mform->addElement('html', '</td><td>');
+
+                // Add the activeidp checkbox.
+                $mform->addElement('advcheckbox', $fieldkey.'[activeidp]', '', '', array(), array(false, true));
+                $mform->addElement('html', '</td><td>');
+
+                // Add the defaultidp checkbox.
+                $mform->addElement('advcheckbox', $fieldkey.'[defaultidp]', '', '', array(), array(false, true));
+                $mform->addElement('html', '</td><td>');
+
+                // Add the adminidp checkbox.
+                $mform->addElement('advcheckbox', $fieldkey.'[adminidp]', '', '', array(), array(false, true));
                 $mform->addElement('html', '</td></tr>');
             }
 

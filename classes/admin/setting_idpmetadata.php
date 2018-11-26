@@ -144,8 +144,8 @@ class setting_idpmetadata extends admin_setting_configtextarea {
         if (isset($oldidps[$idp->idpurl][$entityid])) {
             $oldidp = $oldidps[$idp->idpurl][$entityid];
 
-            if (!empty($idpname) && $oldidp->name !== $idpname) {
-                $DB->set_field('auth_saml2_idps', 'name', $idpname, array('id' => $oldidp->id));
+            if (!empty($idpname) && $oldidp->defaultname !== $idpname) {
+                $DB->set_field('auth_saml2_idps', 'defaultname', $idpname, array('id' => $oldidp->id));
             }
 
             if (!empty($logo) && $oldidp->logo !== $logo) {
@@ -161,7 +161,7 @@ class setting_idpmetadata extends admin_setting_configtextarea {
             $newidp->activeidp = $activedefault;
             $newidp->defaultidp = 0;
             $newidp->adminidp = 0;
-            $newidp->name = $idpname;
+            $newidp->defaultname = $idpname;
             $newidp->logo = $logo;
 
             $DB->insert_record('auth_saml2_idps', $newidp);
