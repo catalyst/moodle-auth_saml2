@@ -176,6 +176,13 @@ if ($ADMIN->fulltree) {
             get_string('anyauth_help', 'auth_saml2'),
             0, $yesno));
 
+    // Simplify attributes
+    $settings->add(new admin_setting_configselect(
+            'auth_saml2/attrsimple',
+            get_string('attrsimple', 'auth_saml2'),
+            get_string('attrsimple_help', 'auth_saml2'),
+            1, $yesno));
+
     // IDP to Moodle mapping.
     // IDP attribute.
     $settings->add(new admin_setting_configtext(
