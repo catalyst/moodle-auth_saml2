@@ -428,7 +428,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
     public function saml_login() {
 
         // @codingStandardsIgnoreStart
-        global $CFG, $DB, $USER, $SESSION, $saml2auth;
+        global $CFG, $DB, $USER, $SESSION, $PAGE, $saml2auth;
         // @codingStandardsIgnoreEnd
 
         require('setup.php');
@@ -484,6 +484,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
             $this->error_page(get_string('noattribute', 'auth_saml2', $attr));
         }
 
+        $PAGE->set_context(context_system::instance());
         $user = null;
         foreach ($attributes[$attr] as $key => $uid) {
             if ($this->config->tolower) {
@@ -536,6 +537,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         // If we are not on the page we want, then redirect to it.
         if ( qualified_me() !== $urltogo ) {
             $this->log(__FUNCTION__ . " redirecting to $urltogo");
+            $PAGE->set_url($urltogo);
             redirect($urltogo);
             exit;
         } else {
@@ -785,4 +787,3 @@ class auth_plugin_saml2 extends auth_plugin_base {
         }
     }
 }
-
