@@ -115,7 +115,9 @@ class idp_parser {
                     $idpdata = new \auth_saml2\idp_data(null, $idpurl, null);
                 }
 
-                $this->idps[] = $idpdata;
+                if ($idpurl !== 'http') {
+                    $this->idps[] = $idpdata;
+                }
             }
         }
     }
