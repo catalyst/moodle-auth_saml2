@@ -8,34 +8,6 @@
     <licenseversion>2.1+</licenseversion>
   </library>
   <library>
-    <location>extlib/saml2</location>
-    <name>saml2</name>
-    <version>1.7</version>
-    <license>LGPL</license>
-    <licenseversion>2.1+</licenseversion>
-  </library>
-  <library>
-    <location>extlib/xmlseclibs</location>
-    <name>XmlSecLibs</name>
-    <version>1.10</version>
-    <license>Custom</license>
-    <licenseversion></licenseversion>
-  </library>
-  <library>
-    <location>extlib/php-fig-log</location>
-    <name>Psr Log</name>
-    <version>1.0</version>
-    <license>Custom</license>
-    <licenseversion></licenseversion>
-  </library>
-  <library>
-    <location>extlib/twig</location>
-    <name>Twig</name>
-    <version>1.0</version>
-    <license>Custom</license>
-    <licenseversion></licenseversion>
-  </library>
-  <library>
     <location>sp/metadata.php</location>
     <name>SP metadata</name>
     <version></version>

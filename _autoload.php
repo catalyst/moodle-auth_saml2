@@ -24,16 +24,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once('extlib/xmlseclibs/xmlseclibs.php');
+require_once('extlib/simplesamlphp/vendor/autoload.php');
 
 spl_autoload_register(
     function($classname) {
         $map = [
             'SAML2'      => 'saml2/src/',
-            'Twig'       => 'twig/twig/lib/',
-            'Psr'        => 'php-fig-log/',
-            'SimpleSAML' => 'simplesamlphp/lib/',
-            'sspmod'     => 'simplesamlphp/modules/',
         ];
         foreach ($map as $namespace => $subpath) {
             $classpath = explode('_', $classname);
@@ -43,15 +39,8 @@ spl_autoload_register(
                     continue;
                 }
             }
-
             $subpath = __DIR__ . '/extlib/' . $subpath;
-            if ($namespace == 'sspmod') {
-                array_shift($classpath);
-                $module = array_shift($classpath);
-                $filepath = $subpath . "$module/lib/" . implode('/', $classpath) . '.php';
-            } else {
-                $filepath = $subpath . implode('/', $classpath) . '.php';
-            }
+            $filepath = $subpath . implode('/', $classpath) . '.php';
             if (file_exists($filepath)) {
                 require_once($filepath);
             }
