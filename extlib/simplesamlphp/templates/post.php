@@ -4,9 +4,9 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>POST data</title>
-    <script type="text/javascript" src="/<?php echo $this->data['baseurlpath']; ?>../extlib/simplesamlphp/www/resources/post.js"></script>
-    <link
-        type="text/css" rel="stylesheet" href="/<?php echo $this->data['baseurlpath']; ?>../extlib/simplesamlphp/www/resources/post.css" />
+    <script type="text/javascript" src="/<?php echo $this->data['baseurlpath']; ?>resources/post.js"></script>
+    <link 
+        type="text/css" rel="stylesheet" href="/<?php echo $this->data['baseurlpath']; ?>resources/post.css" />
 </head>
 <body>
 
@@ -28,9 +28,9 @@ if (array_key_exists('post', $this->data)) {
     $post = $this->data['post'];
 } else {
     // For backwards compatibility
-    assert('array_key_exists("response", $this->data)');
-    assert('array_key_exists("RelayStateName", $this->data)');
-    assert('array_key_exists("RelayState", $this->data)');
+    assert(array_key_exists('response', $this->data));
+    assert(array_key_exists('RelayStateName', $this->data));
+    assert(array_key_exists('RelayState', $this->data));
         $post = array(
         'SAMLResponse' => $this->data['response'],
         $this->data['RelayStateName'] => $this->data['RelayState'],
@@ -48,8 +48,8 @@ if (array_key_exists('post', $this->data)) {
  * @param string|array $value  The value of the element.
  */
 function printItem($name, $value) {
-    assert('is_string($name)');
-    assert('is_string($value) || is_array($value)');
+    assert(is_string($name));
+    assert(is_string($value) || is_array($value));
     if (is_string($value)) {
         echo '<input type="hidden" name="' . 
             htmlspecialchars($name) . '" value="' . 
