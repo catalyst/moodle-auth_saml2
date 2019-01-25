@@ -63,17 +63,17 @@
     },
     {
         "name": "gettext/languages",
-        "version": "2.3.0",
-        "version_normalized": "2.3.0.0",
+        "version": "2.4.0",
+        "version_normalized": "2.4.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/mlocati/cldr-to-gettext-plural-rules.git",
-            "reference": "49c39e51569963cc917a924b489e7025bfb9d8c7"
+            "reference": "1b74377bd0c4cd87e8d72b948f5d8867e23505a5"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/mlocati/cldr-to-gettext-plural-rules/zipball/49c39e51569963cc917a924b489e7025bfb9d8c7",
-            "reference": "49c39e51569963cc917a924b489e7025bfb9d8c7",
+            "url": "https://api.github.com/repos/mlocati/cldr-to-gettext-plural-rules/zipball/1b74377bd0c4cd87e8d72b948f5d8867e23505a5",
+            "reference": "1b74377bd0c4cd87e8d72b948f5d8867e23505a5",
             "shasum": ""
         },
         "require": {
@@ -82,7 +82,7 @@
         "require-dev": {
             "phpunit/phpunit": "^4"
         },
-        "time": "2017-03-23T17:02:28+00:00",
+        "time": "2018-06-21T15:58:36+00:00",
         "bin": [
             "bin/export-plural-rules",
             "bin/export-plural-rules.php"
@@ -221,26 +221,24 @@
     },
     {
         "name": "robrichards/xmlseclibs",
-        "version": "3.0.1",
-        "version_normalized": "3.0.1.0",
+        "version": "3.0.2",
+        "version_normalized": "3.0.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/robrichards/xmlseclibs.git",
-            "reference": "d937712f70f93a584eb0299ccd87dc6374003781"
+            "reference": "1f4de0c0d121922aafd8c62c2a9f5e528830cf38"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/robrichards/xmlseclibs/zipball/d937712f70f93a584eb0299ccd87dc6374003781",
-            "reference": "d937712f70f93a584eb0299ccd87dc6374003781",
+            "url": "https://api.github.com/repos/robrichards/xmlseclibs/zipball/1f4de0c0d121922aafd8c62c2a9f5e528830cf38",
+            "reference": "1f4de0c0d121922aafd8c62c2a9f5e528830cf38",
             "shasum": ""
         },
         "require": {
+            "ext-openssl": "*",
             "php": ">= 5.4"
         },
-        "suggest": {
-            "ext-openssl": "OpenSSL extension"
-        },
-        "time": "2017-08-31T09:27:07+00:00",
+        "time": "2018-09-27T13:24:13+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -263,17 +261,17 @@
     },
     {
         "name": "simplesamlphp/saml2",
-        "version": "v3.1.4",
-        "version_normalized": "3.1.4.0",
+        "version": "v3.2.2",
+        "version_normalized": "3.2.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/simplesamlphp/saml2.git",
-            "reference": "4f6af7f69f29df8555a18b9bb7b646906b45924d"
+            "reference": "b3a040ec186f4a3749228b8c13642c5295fc451b"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/simplesamlphp/saml2/zipball/4f6af7f69f29df8555a18b9bb7b646906b45924d",
-            "reference": "4f6af7f69f29df8555a18b9bb7b646906b45924d",
+            "url": "https://api.github.com/repos/simplesamlphp/saml2/zipball/b3a040ec186f4a3749228b8c13642c5295fc451b",
+            "reference": "b3a040ec186f4a3749228b8c13642c5295fc451b",
             "shasum": ""
         },
         "require": {
@@ -287,16 +285,16 @@
         "require-dev": {
             "mockery/mockery": "~0.9",
             "phpmd/phpmd": "~1.5",
-            "phpunit/phpunit": "~3.7",
+            "phpunit/phpunit": "~4",
             "sebastian/phpcpd": "~1.4",
             "sensiolabs/security-checker": "~1.1",
             "squizlabs/php_codesniffer": "~1.4"
         },
-        "time": "2018-03-02T14:30:38+00:00",
+        "time": "2018-09-27T14:09:06+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "v3.0.x-dev"
+                "dev-master": "v3.1.x-dev"
             }
         },
         "installation-source": "dist",
@@ -380,17 +378,17 @@
     },
     {
         "name": "twig/twig",
-        "version": "v1.35.0",
-        "version_normalized": "1.35.0.0",
+        "version": "v1.35.3",
+        "version_normalized": "1.35.3.0",
         "source": {
             "type": "git",
             "url": "https://github.com/twigphp/Twig.git",
-            "reference": "daa657073e55b0a78cce8fdd22682fddecc6385f"
+            "reference": "b48680b6eb7d16b5025b9bfc4108d86f6b8af86f"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/twigphp/Twig/zipball/daa657073e55b0a78cce8fdd22682fddecc6385f",
-            "reference": "daa657073e55b0a78cce8fdd22682fddecc6385f",
+            "url": "https://api.github.com/repos/twigphp/Twig/zipball/b48680b6eb7d16b5025b9bfc4108d86f6b8af86f",
+            "reference": "b48680b6eb7d16b5025b9bfc4108d86f6b8af86f",
             "shasum": ""
         },
         "require": {
@@ -398,10 +396,10 @@
         },
         "require-dev": {
             "psr/container": "^1.0",
-            "symfony/debug": "~2.7",
-            "symfony/phpunit-bridge": "~3.3@dev"
+            "symfony/debug": "^2.7",
+            "symfony/phpunit-bridge": "^3.3"
         },
-        "time": "2017-09-27T18:06:46+00:00",
+        "time": "2018-03-20T04:25:58+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
