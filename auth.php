@@ -59,6 +59,11 @@ class auth_plugin_saml2 extends auth_plugin_base {
         'logtofile'          => 0,
         'logdir'             => '/tmp/',
         'nameidasattrib'     => 0,
+        'flagresponsetype'   => saml2_settings::OPTION_FLAGGED_LOGIN_NONE,
+        'flagattribute'      => 'encumbered',
+        'flagvalue'          => 'true',
+        'flagredirecturl'    => '',
+        'flagmessage'        => '' // Set in constructor
     ];
 
     /**
@@ -67,6 +72,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
     public function __construct() {
         global $CFG;
         $this->defaults['idpdefaultname'] = get_string('idpnamedefault', 'auth_saml2');
+        $this->defaults['flagmessage'] = get_string('flagmessage_default', 'auth_saml2');
         $this->authtype = 'saml2';
         $mdl = new moodle_url($CFG->wwwroot);
         $this->spname = $mdl->get_host();
@@ -479,6 +485,30 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $attr = $this->config->idpattr;
         if (empty($attributes[$attr]) ) {
             $this->error_page(get_string('noattribute', 'auth_saml2', $attr));
+        }
+
+
+
+        // TODO Move into a separate function in locallib
+        // Check if flagged login feature is enabled
+        if ($this->config->flagresponsetype != saml2_settings::OPTION_FLAGGED_LOGIN_NONE) {
+            // Only look for flag if set and corresponding IdP attribute value indicates active
+            $isflagactive = ($attributes[$this->config->flagattribute][0] == $this->config->flagvalue);
+
+            if (!empty($this->config->flagattribute) && $isflagactive) {
+
+                if ($this->config->flagresponsetype == saml2_settings::OPTION_FLAGGED_LOGIN_MESSAGE) {
+                    $this->error_page($this->config->flagmessage);
+                }
+                if ($this->config->flagresponsetype == saml2_settings::OPTION_FLAGGED_LOGIN_REDIRECT) {
+                    $url = $this->config->flagredirecturl;
+                    // Only redirect if valid URL in config
+                    if (!empty($url) && filter_var($url, FILTER_VALIDATE_URL)) {
+                        redirect(new moodle_url($url));
+                        // TODO Improve security to prevent malicious URLs being utilised
+                    }
+                }
+            }
         }
 
         $user = null;

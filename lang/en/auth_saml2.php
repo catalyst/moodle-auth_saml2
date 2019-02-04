@@ -29,11 +29,13 @@ $string['anyauth_help'] = 'Yes: Allow SAML login for all users? No: Only users w
 $string['attemptsignout'] = 'Attempt IdP Signout';
 $string['attemptsignout_help'] = 'This will attempt to communicate with the IdP to send a sign out request';
 $string['auth_saml2description'] = 'Authenticate with a SAML2 IdP';
+$string['auth_saml2blockredirectdescription'] = 'Redirect or display message to SAML2 logins based on defined flag';
 $string['autocreate'] = 'Auto create users';
 $string['autocreate_help'] = 'If users are in the IdP but not in moodle create a moodle account.';
 $string['availableidps'] = 'Select available IdPs';
 $string['availableidps_help'] = 'If an IdP metadata xml contains multiple IdP entities, you will need to select which entities are availiable
 for users to login with.';
+$string['blockredirectheading'] = 'Flagged account blocking / redirection';
 $string['certificatedetails'] = 'Certificate details';
 $string['certificatedetailshelp'] = '<h1>SAML2 auto generated public certificate contents</h1><p>The path for the cert is here:</p>';
 $string['certificate_help'] = 'Regenerate the Private Key and Certificate used by this SP. | <a href=\'{$a}\'>View SP certificate</a>';
@@ -55,6 +57,26 @@ $string['duallogin_help'] = '
 $string['errorparsingxml'] = 'Error parsing XML: {$a}';
 $string['exception'] = 'SAML2 exception: {$a}';
 $string['expirydays'] = 'Expiry in Days';
+$string['flaggedresponsetypemessage'] = 'Display custom message';
+$string['flaggedresponsetypenone'] = 'Do not respond (off)';
+$string['flaggedresponsetyperedirect'] = 'Redirect to external URL';
+$string['flagredirecturl'] = 'Redirect URL';
+$string['flagredirecturl_help'] = '
+<p>The URL to redirect a user when flag name and correct value detected.</p>
+<p>(Only utilised when \'Flagged response type\' is \'Redirect to external URL\'.)</p>';
+$string['flagmessage'] = 'Response message';
+$string['flagmessage_help'] = '
+<p>The message to display when flag attribute present and flag value indicates active.</p>
+<p>(Only displayed when \'Flagged response type\' is \'Display custom message\'.)</p>';
+$string['flagmessage_default'] = 'You are logged in however this account has been flagged and has limited access, please contact your administrator for more details.';
+$string['flagresponsetype'] = 'Flagged response type';
+$string['flagattribute'] = 'Flag attribute';
+$string['flagattribute_help'] = 'Which IdP attribute will indicate user has been flagged?';
+$string['flagattribute_default'] = 'encumbered';
+$string['flagvalue'] = 'Flag value';
+$string['flagvalue_help'] = 'What value will indicate flag is active and block message or redirect response is required?';
+$string['flagvalue_default'] = 'true';
+$string['flagresponsetype_help'] = 'If the flag is detected, how should Moodle respond?';
 $string['idpattr_help'] = 'Which IdP attribute should be matched against a Moodle user field?';
 $string['idpattr'] = 'Mapping IdP';
 $string['idpmetadata_badurl'] = 'Invalid metadata at {$a}';
