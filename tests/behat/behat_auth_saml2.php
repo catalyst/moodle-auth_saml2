@@ -203,6 +203,15 @@ class behat_auth_saml2 extends behat_base {
             ];
         }
 
+        if ($setting == 'Flagged response type') {
+            $setting = 'flagresponsetype';
+            $map = [
+                'do not respond (off)'     => saml2_settings::OPTION_FLAGGED_LOGIN_NONE,
+                'display custom message'   => saml2_settings::OPTION_FLAGGED_LOGIN_MESSAGE,
+                'redirect to external url' => saml2_settings::OPTION_FLAGGED_LOGIN_REDIRECT,
+            ];
+        }
+
         $lowervalue = strtolower($value);
         $value = in_array($lowervalue, $map) ? $map[$lowervalue] : $value;
         set_config($setting, $value, 'auth_saml2');
