@@ -59,6 +59,11 @@ class auth_plugin_saml2 extends auth_plugin_base {
         'logtofile'          => 0,
         'logdir'             => '/tmp/',
         'nameidasattrib'     => 0,
+        'flagresponsetype'   => saml2_settings::OPTION_FLAGGED_LOGIN_NONE,
+        'flagattribute'      => 'encumbered',
+        'flagvalue'          => 'true',
+        'flagredirecturl'    => '',
+        'flagmessage'        => '' // Set in constructor.
     ];
 
     /**
@@ -67,6 +72,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
     public function __construct() {
         global $CFG;
         $this->defaults['idpdefaultname'] = get_string('idpnamedefault', 'auth_saml2');
+        $this->defaults['flagmessage'] = get_string('flagmessage_default', 'auth_saml2');
         $this->authtype = 'saml2';
         $mdl = new moodle_url($CFG->wwwroot);
         $this->spname = $mdl->get_host();
@@ -475,11 +481,16 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         $auth->requireAuth($params);
         $attributes = $auth->getAttributes();
+        if ($this->config->attrsimple) {
+            $attributes = $this->simplify_attr($attributes);
+        }
 
         $attr = $this->config->idpattr;
         if (empty($attributes[$attr]) ) {
             $this->error_page(get_string('noattribute', 'auth_saml2', $attr));
         }
+
+        $this->handle_flagged_login($attributes);
 
         $user = null;
         foreach ($attributes[$attr] as $key => $uid) {
@@ -540,6 +551,121 @@ class auth_plugin_saml2 extends auth_plugin_base {
         }
 
         return;
+    }
+
+    /**
+     * Redirect SAML2 login if a flagredirecturl has been configured.
+     *
+     * @throws \moodle_exception
+     */
+    protected function redirect_flagged_login() {
+
+        if (!empty($this->config->flagredirecturl)) {
+            redirect(new moodle_url($this->config->flagredirecturl));
+        } else {
+            $this->log(__FUNCTION__ . ' no redirect URL value set.');
+            // Fallback to flag message if redirect URL not set.
+            $this->error_page($this->config->flagmessage);
+        }
+    }
+
+    /**
+     * Check if flagattribute has been set to a non-empty value.
+     *
+     * @return bool true if flagattribute value not empty, false otherwise
+     */
+    protected function is_flag_attribute_set() {
+        if (!empty($this->config->flagattribute)) {
+            return true;
+        }
+        $this->log(__FUNCTION__ . ' configured flag attribute is empty.');
+        return false;
+    }
+
+    /**
+     * Check if the configured flagattribute is present in the passed in attribute array.
+     *
+     * @param array $attributes the attributes received from Identity Provider
+     *
+     * @return bool true if flag is set and found in attributes, false otherwise
+     */
+    protected function is_flag_attribute_in_idp_attributes($attributes) {
+
+        if (array_key_exists($this->config->flagattribute, $attributes)) {
+            return true;
+        }
+        $this->log(__FUNCTION__ . ' configured flag attribute is empty.');
+        return false;
+    }
+
+    /**
+     * Check if the configured flagattribute is active in the passed in attributes
+     *
+     * @param array $attributes the attributes received from Identity Provider
+     *
+     * @return bool true if the flag is active, false otherwise
+     */
+    protected function is_flag_active($attributes) {
+        if ($this->is_flag_attribute_set() && $this->is_flag_attribute_in_idp_attributes($attributes)) {
+            // Some IdPs (ie. simpleSAMLphp) only allow array values for attributes, if so assume the first element in
+            // array is flag value.
+            if (is_array($attributes[$this->config->flagattribute])) {
+                return ($attributes[$this->config->flagattribute][0] == $this->config->flagvalue);
+            } else {
+                return ($attributes[$this->config->flagattribute] == $this->config->flagvalue);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks if the flagged user feature is enabled and if so, handles configured flag attribute
+     * based on configured response type.
+     *
+     * @param $attributes
+     *
+     * @throws \moodle_exception
+     */
+    protected function handle_flagged_login($attributes) {
+
+        if ($this->is_flag_active($attributes)) {
+            switch ($this->config->flagresponsetype) {
+                case saml2_settings::OPTION_FLAGGED_LOGIN_NONE:
+                    break;
+                case saml2_settings::OPTION_FLAGGED_LOGIN_MESSAGE:
+                    $this->error_page($this->config->flagmessage);
+                    break;
+                case saml2_settings::OPTION_FLAGGED_LOGIN_REDIRECT:
+                    $this->redirect_flagged_login();
+                    break;
+                default:
+                    // Fallback behaviour is to allow user login to Moodle.
+                    break;
+            }
+        } else {
+            $this->log(__FUNCTION__ . ' user is not flagged.');
+        }
+    }
+
+
+    /**
+     * Simplifies attribute key names
+     *
+     * Rather than attempting to have an explicity mapping this simply
+     * detects long key names which contain non word characters and then
+     * grabs the last useful component of the string. Note it creates new
+     * keys, doesn't remove the old ones, and will not overwrite keys either.
+     */
+    public function simplify_attr($attributes) {
+
+        foreach ($attributes as $key => $val) {
+            if (preg_match("/\W/", $key)) {
+                $parts = preg_split("/\W/", $key);
+                $simple = $parts[count($parts) - 1];
+                $attributes[$simple] = $attributes[$key];
+            }
+        }
+        return $attributes;
     }
 
     /**

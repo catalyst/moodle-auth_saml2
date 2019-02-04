@@ -176,6 +176,13 @@ if ($ADMIN->fulltree) {
             get_string('anyauth_help', 'auth_saml2'),
             0, $yesno));
 
+    // Simplify attributes.
+    $settings->add(new admin_setting_configselect(
+            'auth_saml2/attrsimple',
+            get_string('attrsimple', 'auth_saml2'),
+            get_string('attrsimple_help', 'auth_saml2'),
+            1, $yesno));
+
     // IDP to Moodle mapping.
     // IDP attribute.
     $settings->add(new admin_setting_configtext(
@@ -261,6 +268,60 @@ if ($ADMIN->fulltree) {
     $help = get_string('auth_updatelocal_expl', 'auth');
     $help .= get_string('auth_fieldlock_expl', 'auth');
     $help .= get_string('auth_updateremote_expl', 'auth');
+
+    // User block and redirect feature setting section.
+    $settings->add(new admin_setting_heading('auth_saml2/blockredirectheading', get_string('blockredirectheading', 'auth_saml2'),
+        new lang_string('auth_saml2blockredirectdescription', 'auth_saml2')));
+
+    // Flagged login response options.
+    $flaggedloginresponseoptions = [
+        saml2_settings::OPTION_FLAGGED_LOGIN_NONE => get_string('flaggedresponsetypenone', 'auth_saml2'),
+        saml2_settings::OPTION_FLAGGED_LOGIN_MESSAGE => get_string('flaggedresponsetypemessage', 'auth_saml2'),
+        saml2_settings::OPTION_FLAGGED_LOGIN_REDIRECT => get_string('flaggedresponsetyperedirect', 'auth_saml2')
+    ];
+
+    // Flagged login response options selector.
+    $settings->add(new admin_setting_configselect(
+        'auth_saml2/flagresponsetype',
+        get_string('flagresponsetype', 'auth_saml2'),
+        get_string('flagresponsetype_help', 'auth_saml2'),
+        saml2_settings::OPTION_FLAGGED_LOGIN_NONE,
+        $flaggedloginresponseoptions));
+
+    // IdP attribute to look for indicating flagged account.
+    $settings->add(new admin_setting_configtext(
+        'auth_saml2/flagattribute',
+        get_string('flagattribute', 'auth_saml2'),
+        get_string('flagattribute_help', 'auth_saml2'),
+        get_string('flagattribute_default', 'auth_saml2'),
+        PARAM_TEXT));
+
+    // Value to look for indicating flag is active.
+    $settings->add(new admin_setting_configtext(
+        'auth_saml2/flagvalue',
+        get_string('flagvalue', 'auth_saml2'),
+        get_string('flagvalue_help', 'auth_saml2'),
+        get_string('flagvalue_default', 'auth_saml2'),
+        PARAM_TEXT));
+
+    // Set the http OR https fully qualified scheme domain name redirect destination for flagged accounts.
+    $settings->add(new admin_setting_configtext(
+        'auth_saml2/flagredirecturl',
+        get_string('flagredirecturl', 'auth_saml2'),
+        get_string('flagredirecturl_help', 'auth_saml2'),
+        '',
+        // Regex pattern to ensure only http/https fully qualified domain names OR empty string are utilised.
+        \auth_saml2\settings_helper::get_https_regex()));
+
+    // Set the displayed message for flagged accounts.
+    $settings->add(new admin_setting_configtextarea(
+        'auth_saml2/flagmessage',
+        get_string('flagmessage', 'auth_saml2'),
+        get_string('flagmessage_help', 'auth_saml2'),
+        get_string('flagmessage_default', 'auth_saml2'),
+        PARAM_TEXT,
+        50,
+        3));
 
     if (moodle_major_version() < '3.3') {
         auth_saml2_display_auth_lock_options($settings, $authplugin->authtype, $authplugin->userfields, $help, true, true,

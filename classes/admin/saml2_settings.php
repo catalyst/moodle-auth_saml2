@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * @package     auth_saml2
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
+ * @link        http://tools.ietf.org/html/rfc3986 (the URI specification)
  * @copyright   2018 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -41,4 +42,10 @@ abstract class saml2_settings {
     const OPTION_MULTI_IDP_DISPLAY_DROPDOWN = 0;
 
     const OPTION_MULTI_IDP_DISPLAY_BUTTONS = 1;
+
+    const OPTION_FLAGGED_LOGIN_NONE = 0;
+
+    const OPTION_FLAGGED_LOGIN_MESSAGE = 1;
+
+    const OPTION_FLAGGED_LOGIN_REDIRECT = 2;
 }

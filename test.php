@@ -88,6 +88,7 @@ if ($passive) {
     var_dump($attributes);
     echo 'IdP: ' . $auth->getAuthData('saml:sp:IdP');
     echo '</pre>';
+    echo '<p>You are logged in: <a href="?logout=true">Logout</a></p>';
 }
 
 unset($SESSION->saml2testidp);
