@@ -573,9 +573,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
                     $this->error_page($this->config->flagmessage);
                 }
                 if ($this->config->flagresponsetype == saml2_settings::OPTION_FLAGGED_LOGIN_REDIRECT) {
-                    $url = $this->config->flagredirecturl;
-                    if (!empty($url)) {
-                        $redirect = $url;
+                    if (!empty($this->config->flagredirecturl)) {
+                        $redirect = $this->config->flagredirecturl;
                         $this->logoutpage_hook();
                         exit;
                     }
