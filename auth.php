@@ -434,7 +434,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
     public function saml_login() {
 
         // @codingStandardsIgnoreStart
-        global $CFG, $DB, $USER, $SESSION, $saml2auth, $redirect;
+        global $CFG, $DB, $USER, $SESSION, $saml2auth;
         // @codingStandardsIgnoreEnd
 
         require('setup.php');
