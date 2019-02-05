@@ -434,7 +434,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
     public function saml_login() {
 
         // @codingStandardsIgnoreStart
-        global $CFG, $DB, $USER, $SESSION, $saml2auth;
+        global $CFG, $DB, $USER, $SESSION, $saml2auth, $redirect;
         // @codingStandardsIgnoreEnd
 
         require('setup.php');
@@ -487,29 +487,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
             $this->error_page(get_string('noattribute', 'auth_saml2', $attr));
         }
 
-
-
-        // TODO Move into a separate function in locallib
-        // Check if flagged login feature is enabled
-        if ($this->config->flagresponsetype != saml2_settings::OPTION_FLAGGED_LOGIN_NONE) {
-            // Only look for flag if set and corresponding IdP attribute value indicates active
-            $isflagactive = ($attributes[$this->config->flagattribute][0] == $this->config->flagvalue);
-
-            if (!empty($this->config->flagattribute) && $isflagactive) {
-
-                if ($this->config->flagresponsetype == saml2_settings::OPTION_FLAGGED_LOGIN_MESSAGE) {
-                    $this->error_page($this->config->flagmessage);
-                }
-                if ($this->config->flagresponsetype == saml2_settings::OPTION_FLAGGED_LOGIN_REDIRECT) {
-                    $url = $this->config->flagredirecturl;
-                    // Only redirect if valid URL in config
-                    if (!empty($url) && filter_var($url, FILTER_VALIDATE_URL)) {
-                        redirect(new moodle_url($url));
-                        // TODO Improve security to prevent malicious URLs being utilised
-                    }
-                }
-            }
-        }
+        $this->handle_flagged_login($attributes);
 
         $user = null;
         foreach ($attributes[$attr] as $key => $uid) {
@@ -570,6 +548,40 @@ class auth_plugin_saml2 extends auth_plugin_base {
         }
 
         return;
+    }
+
+    /**
+     * Checks if the flagged user feature is enabled and if so, handles configured flag attribute
+     *
+     * @param $attributes
+     *
+     * @throws \moodle_exception
+     */
+
+    public function handle_flagged_login($attributes) {
+        global $redirect;
+
+        // Check if flagged login feature is enabled
+        if ($this->config->flagresponsetype != saml2_settings::OPTION_FLAGGED_LOGIN_NONE) {
+
+            $isflagactive = ($attributes[$this->config->flagattribute][0] == $this->config->flagvalue);
+
+            // Only act on flag if not empty and IdP attribute value indicates flag is active
+            if (!empty($this->config->flagattribute) && $isflagactive) {
+
+                if ($this->config->flagresponsetype == saml2_settings::OPTION_FLAGGED_LOGIN_MESSAGE) {
+                    $this->error_page($this->config->flagmessage);
+                }
+                if ($this->config->flagresponsetype == saml2_settings::OPTION_FLAGGED_LOGIN_REDIRECT) {
+                    $url = $this->config->flagredirecturl;
+                    if (!empty($url)) {
+                        $redirect = $url;
+                        $this->logoutpage_hook();
+                        exit;
+                    }
+                }
+            }
+        }
     }
 
     /**

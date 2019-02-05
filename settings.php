@@ -299,13 +299,14 @@ if ($ADMIN->fulltree) {
         null,
         saml2_settings::FLAG_ATTRIBUTE_MAX_LENGTH));
 
-    // Set the redirect URL for flagged accounts.
+    // Set the redirect fully qualified domain name of the http OR https scheme for flagged accounts.
     $settings->add(new admin_setting_configtext(
         'auth_saml2/flagredirecturl',
         get_string('flagredirecturl', 'auth_saml2'),
         get_string('flagredirecturl_help', 'auth_saml2'),
         '',
-        PARAM_URL));
+        // Regex pattern to ensure only http or https fully qualified domain names are utilised.
+        '/(https?\:\/\/(www\.)?[-a-zA-Z0-9\@\:\%\._\+\~\#\=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9\@\:\%_\+\.\~\#\?\&\/\=]*))?/'));
 
     // Set the displayed message for flagged accounts.
     $settings->add(new admin_setting_configtextarea(
