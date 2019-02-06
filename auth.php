@@ -576,7 +576,6 @@ class auth_plugin_saml2 extends auth_plugin_base {
                     if (!empty($this->config->flagredirecturl)) {
                         $redirect = $this->config->flagredirecturl;
                         $this->logoutpage_hook();
-                        exit;
                     }
                 }
             }
