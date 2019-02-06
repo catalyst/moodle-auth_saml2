@@ -559,7 +559,6 @@ class auth_plugin_saml2 extends auth_plugin_base {
      */
 
     protected function handle_flagged_login($attributes) {
-        global $redirect;
 
         $isflagactive = ($attributes[$this->config->flagattribute][0] == $this->config->flagvalue);
 
@@ -574,8 +573,9 @@ class auth_plugin_saml2 extends auth_plugin_base {
                     break;
                 case saml2_settings::OPTION_FLAGGED_LOGIN_REDIRECT:
                     if (!empty($this->config->flagredirecturl)) {
-                        $redirect = $this->config->flagredirecturl;
-                        $this->logoutpage_hook();
+                        $url = new moodle_url($this->config->flagredirecturl);
+                        $url->set_scheme('http');
+                        redirect($url, $this->config->flagmessage, 2);
                     }
                     else {
                         $this->log(__FUNCTION__ . ' no redirect URL value set.');
