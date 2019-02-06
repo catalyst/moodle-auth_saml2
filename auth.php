@@ -63,7 +63,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         'flagattribute'      => 'encumbered',
         'flagvalue'          => 'true',
         'flagredirecturl'    => '',
-        'flagmessage'        => '' // Set in constructor
+        'flagmessage'        => '' // Set in constructor.
     ];
 
     /**
@@ -561,12 +561,12 @@ class auth_plugin_saml2 extends auth_plugin_base {
     protected function handle_flagged_login($attributes) {
         global $redirect;
 
-        // Check if flagged login feature is enabled
+        // Check if flagged login feature is enabled.
         if ($this->config->flagresponsetype != saml2_settings::OPTION_FLAGGED_LOGIN_NONE) {
 
             $isflagactive = ($attributes[$this->config->flagattribute][0] == $this->config->flagvalue);
 
-            // Only act on flag if not empty and IdP attribute value indicates flag is active
+            // Only act on flag if not empty and IdP attribute value indicates flag is active.
             if (!empty($this->config->flagattribute) && $isflagactive) {
 
                 if ($this->config->flagresponsetype == saml2_settings::OPTION_FLAGGED_LOGIN_MESSAGE) {
