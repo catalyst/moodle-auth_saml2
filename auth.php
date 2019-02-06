@@ -558,7 +558,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * @throws \moodle_exception
      */
 
-    public function handle_flagged_login($attributes) {
+    protected function handle_flagged_login($attributes) {
         global $redirect;
 
         // Check if flagged login feature is enabled
