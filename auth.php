@@ -561,24 +561,34 @@ class auth_plugin_saml2 extends auth_plugin_base {
     protected function handle_flagged_login($attributes) {
         global $redirect;
 
-        // Check if flagged login feature is enabled.
-        if ($this->config->flagresponsetype != saml2_settings::OPTION_FLAGGED_LOGIN_NONE) {
+        $isflagactive = ($attributes[$this->config->flagattribute][0] == $this->config->flagvalue);
 
-            $isflagactive = ($attributes[$this->config->flagattribute][0] == $this->config->flagvalue);
+        // Only act on flag if not empty and IdP attribute value indicates flag is active.
+        if (!empty($this->config->flagattribute) && $isflagactive) {
 
-            // Only act on flag if not empty and IdP attribute value indicates flag is active.
-            if (!empty($this->config->flagattribute) && $isflagactive) {
-
-                if ($this->config->flagresponsetype == saml2_settings::OPTION_FLAGGED_LOGIN_MESSAGE) {
+            switch($this->config->flagresponsetype) {
+                case saml2_settings::OPTION_FLAGGED_LOGIN_NONE:
+                    break;
+                case saml2_settings::OPTION_FLAGGED_LOGIN_MESSAGE:
                     $this->error_page($this->config->flagmessage);
-                }
-                if ($this->config->flagresponsetype == saml2_settings::OPTION_FLAGGED_LOGIN_REDIRECT) {
+                    break;
+                case saml2_settings::OPTION_FLAGGED_LOGIN_REDIRECT:
                     if (!empty($this->config->flagredirecturl)) {
                         $redirect = $this->config->flagredirecturl;
                         $this->logoutpage_hook();
                     }
-                }
+                    else {
+                        $this->log(__FUNCTION__ . ' no redirect URL value set.');
+                        // Fallback to login message display if redirect URL not set.
+                        $this->error_page($this->config->flagmessage);
+                    }
+                    break;
+                default:
+                    break;
             }
+        }
+        else {
+            $this->log(__FUNCTION__ . ' flag not set or not active for user.');
         }
     }
 
