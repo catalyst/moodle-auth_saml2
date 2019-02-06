@@ -47,6 +47,4 @@ abstract class saml2_settings {
     const OPTION_FLAGGED_LOGIN_MESSAGE = 1;
 
     const OPTION_FLAGGED_LOGIN_REDIRECT = 2;
-
-    const FLAG_ATTRIBUTE_MAX_LENGTH = 50;
 }
