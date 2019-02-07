@@ -63,6 +63,7 @@ $string['flaggedresponsetyperedirect'] = 'Redirect to external URL';
 $string['flagredirecturl'] = 'Redirect URL';
 $string['flagredirecturl_help'] = '
 <p>The URL to redirect a user when flag name and correct value detected.</p>
+<p>Must include \'http://\' or \'https://\' to be valid.</p>
 <p>(Only utilised when \'Flagged response type\' is \'Redirect to external URL\'.)</p>';
 $string['flagmessage'] = 'Response message';
 $string['flagmessage_help'] = '
