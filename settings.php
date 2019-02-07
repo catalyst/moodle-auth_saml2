@@ -301,8 +301,8 @@ if ($ADMIN->fulltree) {
         get_string('flagredirecturl', 'auth_saml2'),
         get_string('flagredirecturl_help', 'auth_saml2'),
         '',
-        // Regex pattern to ensure only http or https fully qualified domain names are utilised.
-        PARAM_URL));
+        // Regex pattern to ensure only http/https fully qualified domain names OR empty string are utilised.
+        \auth_saml2\settings_helper::get_http_https_regex()));
 
     // Set the displayed message for flagged accounts.
     $settings->add(new admin_setting_configtextarea(
