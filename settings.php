@@ -321,7 +321,7 @@ if ($ADMIN->fulltree) {
         50,
         3));
 
-        if (moodle_major_version() < '3.3') {
+    if (moodle_major_version() < '3.3') {
         auth_saml2_display_auth_lock_options($settings, $authplugin->authtype, $authplugin->userfields, $help, true, true,
             $authplugin->get_custom_user_profile_fields());
     } else {
