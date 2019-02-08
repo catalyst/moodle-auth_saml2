@@ -279,6 +279,8 @@ if ($ADMIN->fulltree) {
         saml2_settings::OPTION_FLAGGED_LOGIN_MESSAGE => get_string('flaggedresponsetypemessage', 'auth_saml2'),
         saml2_settings::OPTION_FLAGGED_LOGIN_REDIRECT => get_string('flaggedresponsetyperedirect', 'auth_saml2')
     ];
+
+    // Flagged login response options selector.
     $settings->add(new admin_setting_configselect(
         'auth_saml2/flagresponsetype',
         get_string('flagresponsetype', 'auth_saml2'),
@@ -302,7 +304,7 @@ if ($ADMIN->fulltree) {
         get_string('flagvalue_default', 'auth_saml2'),
         PARAM_TEXT));
 
-    // Set the redirect fully qualified domain name of the http OR https scheme for flagged accounts.
+    // Set the http OR https fully qualified scheme domain name redirect destination for flagged accounts.
     $settings->add(new admin_setting_configtext(
         'auth_saml2/flagredirecturl',
         get_string('flagredirecturl', 'auth_saml2'),

@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * @package     auth_saml2
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
+ * @link        http://tools.ietf.org/html/rfc3986 (the URI specification)
  * @copyright   2018 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -48,6 +49,7 @@ abstract class saml2_settings {
 
     const OPTION_FLAGGED_LOGIN_REDIRECT = 2;
 
+    // Regex to check http/https scheme URL in accordance with RFC3986.
     const SETTINGS_REGEXP_HTTP_HTTPS_URL =
         '/(^(https?\:\/\/(www\.)?[^\.\-\s][\-\w\d\@\:\%\.\_\+\~\#\=\(\)]{0,256}\.[\w\-]{2,6}'
         . '(?![\.\-\s])([\-\w\d\@\:\%\_\+\~\#\?\&\/\=\(\)]*))$)|^(?![\s\S])/';

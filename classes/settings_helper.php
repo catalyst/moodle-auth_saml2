@@ -27,25 +27,39 @@ namespace auth_saml2;
 
 use auth_saml2\admin\saml2_settings;
 /**
- * Utility class for auth/saml2 settings
+ * Utility class for auth/saml2 settings.
+ *
  * @package auth_saml2
- * @copyright  Catalyst IT
+ * @author     Tom Dickman <tomdickman@catalyst-au.net>
+ * @copyright   2019 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class settings_helper {
 
+    /**
+     * @var string representation of PCRE Regular Expression for checking http/https scheme URLs
+     * in accordance with RFC3986.
+     */
     private static $http_https_regex;
 
     /**
-     * Direct initiation not allowed, utility class
+     * Direct initiation not allowed, utility class.
      */
     protected function __construct() {
     }
 
+    /**
+     * Setter for $http_https_regex.
+     */
     protected static function set_http_https_regex() {
         self::$http_https_regex = saml2_settings::SETTINGS_REGEXP_HTTP_HTTPS_URL;
     }
 
+    /**
+     * Getter for $http_https_regex.
+     *
+     * @return string representation of PCRE Regular Expression
+     */
     public static function get_http_https_regex() {
         self::set_http_https_regex();
         return self::$http_https_regex;

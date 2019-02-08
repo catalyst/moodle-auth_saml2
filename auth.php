@@ -563,9 +563,10 @@ class auth_plugin_saml2 extends auth_plugin_base {
     protected function handle_flagged_login($attributes) {
 
         if (!isset($attributes) || empty($this->config->flagattribute)) {
-            $this->log(__FUNCTION__ . ' passed in attributes not set or configured flag attribute is empty string.');
+            $this->log(__FUNCTION__ . ' attributes not set or configured flag attribute is empty.');
         } else {
-            // Some IdPs (ie. simpleSAMLphp) only allow array values for attributes, if so assume the first element in array is flag value.
+            // Some IdPs (ie. simpleSAMLphp) only allow array values for attributes, if so assume the first element in
+            // array is flag value.
             if (is_array($attributes[$this->config->flagattribute])) {
                 $isflagactive = ($attributes[$this->config->flagattribute][0] == $this->config->flagvalue);
             } else {
@@ -583,15 +584,16 @@ class auth_plugin_saml2 extends auth_plugin_base {
                             redirect(new moodle_url($this->config->flagredirecturl));
                         } else {
                             $this->log(__FUNCTION__ . ' no redirect URL value set.');
-                            // Fallback to login message display if redirect URL not set.
+                            // Fallback to flag message if redirect URL not set.
                             $this->error_page($this->config->flagmessage);
                         }
                         break;
                     default:
+                        // Fallback behaviour is to allow user login to Moodle.
                         break;
                 }
             } else {
-                $this->log(__FUNCTION__ . ' use is not flagged.');
+                $this->log(__FUNCTION__ . ' user is not flagged.');
             }
         }
     }
