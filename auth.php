@@ -557,40 +557,43 @@ class auth_plugin_saml2 extends auth_plugin_base {
      *
      * @throws \moodle_exception
      */
-
     protected function handle_flagged_login($attributes) {
 
-        $isflagactive = ($attributes[$this->config->flagattribute][0] == $this->config->flagvalue);
-
-        // Only act on flag if not empty and IdP attribute value indicates flag is active.
-        if (!empty($this->config->flagattribute) && $isflagactive) {
-
-            switch($this->config->flagresponsetype) {
-                case saml2_settings::OPTION_FLAGGED_LOGIN_NONE:
-                    break;
-                case saml2_settings::OPTION_FLAGGED_LOGIN_MESSAGE:
-                    $this->error_page($this->config->flagmessage);
-                    break;
-                case saml2_settings::OPTION_FLAGGED_LOGIN_REDIRECT:
-                    if (!empty($this->config->flagredirecturl)) {
-                        $url = new moodle_url($this->config->flagredirecturl);
-                        $url->set_scheme('http');
-                        redirect($url, $this->config->flagmessage, 2);
-                    }
-                    else {
-                        $this->log(__FUNCTION__ . ' no redirect URL value set.');
-                        // Fallback to login message display if redirect URL not set.
+        if (!isset($attributes) || empty($this->config->flagattribute)) {
+            $this->log(__FUNCTION__ . ' passed in attributes not set or configured flag attribute is empty string.');
+        } else {
+            // Some IdPs (ie. simpleSAMLphp) only allow array values for attributes, if so assume the first element in array is flag value.
+            if (is_array($attributes[$this->config->flagattribute])) {
+                $isflagactive = ($attributes[$this->config->flagattribute][0] == $this->config->flagvalue);
+            } else {
+                $isflagactive = ($attributes[$this->config->flagattribute] == $this->config->flagvalue);
+            }
+            if ($isflagactive) {
+                switch ($this->config->flagresponsetype) {
+                    case saml2_settings::OPTION_FLAGGED_LOGIN_NONE:
+                        break;
+                    case saml2_settings::OPTION_FLAGGED_LOGIN_MESSAGE:
                         $this->error_page($this->config->flagmessage);
-                    }
-                    break;
-                default:
-                    break;
+                        break;
+                    case saml2_settings::OPTION_FLAGGED_LOGIN_REDIRECT:
+                        if (!empty($this->config->flagredirecturl)) {
+                            redirect(new moodle_url($this->config->flagredirecturl));
+                        } else {
+                            $this->log(__FUNCTION__ . ' no redirect URL value set.');
+                            // Fallback to login message display if redirect URL not set.
+                            $this->error_page($this->config->flagmessage);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            } else {
+                $this->log(__FUNCTION__ . ' use is not flagged.');
             }
         }
-        else {
-            $this->log(__FUNCTION__ . ' flag not set or not active for user.');
-        }
     }
+
+
 
     /**
      * Checks the field map config for values that update onlogin or when a new user is created
