@@ -23,7 +23,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$validurls =array(
+defined('MOODLE_INTERNAL') || die();
+
+$validurls = array(
     array("http://foo.com/blah_blah"),
     array("http://foo.com/blah_blah/"),
     array("http://foo.com/blah_blah_(wikipedia)"),

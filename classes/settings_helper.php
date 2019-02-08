@@ -40,7 +40,7 @@ class settings_helper {
      * @var string representation of PCRE Regular Expression for checking http/https scheme URLs
      * in accordance with RFC3986.
      */
-    private static $http_https_regex;
+    private static $httpsregex;
 
     /**
      * Direct initiation not allowed, utility class.
@@ -51,8 +51,8 @@ class settings_helper {
     /**
      * Setter for $http_https_regex.
      */
-    protected static function set_http_https_regex() {
-        self::$http_https_regex = saml2_settings::SETTINGS_REGEXP_HTTP_HTTPS_URL;
+    protected static function set_https_regex() {
+        self::$httpsregex = saml2_settings::SETTINGS_REGEXP_HTTP_HTTPS_URL;
     }
 
     /**
@@ -60,8 +60,8 @@ class settings_helper {
      *
      * @return string representation of PCRE Regular Expression
      */
-    public static function get_http_https_regex() {
-        self::set_http_https_regex();
-        return self::$http_https_regex;
+    public static function get_https_regex() {
+        self::set_https_regex();
+        return self::$httpsregex;
     }
 }

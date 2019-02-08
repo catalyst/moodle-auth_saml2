@@ -176,7 +176,7 @@ if ($ADMIN->fulltree) {
             get_string('anyauth_help', 'auth_saml2'),
             0, $yesno));
 
-    // Simplify attributes
+    // Simplify attributes.
     $settings->add(new admin_setting_configselect(
             'auth_saml2/attrsimple',
             get_string('attrsimple', 'auth_saml2'),
@@ -290,7 +290,7 @@ if ($ADMIN->fulltree) {
 
     // IdP attribute to look for indicating flagged account.
     $settings->add(new admin_setting_configtext(
-        'auth_saml2/flagattribute', 
+        'auth_saml2/flagattribute',
         get_string('flagattribute', 'auth_saml2'),
         get_string('flagattribute_help', 'auth_saml2'),
         get_string('flagattribute_default', 'auth_saml2'),
@@ -311,7 +311,7 @@ if ($ADMIN->fulltree) {
         get_string('flagredirecturl_help', 'auth_saml2'),
         '',
         // Regex pattern to ensure only http/https fully qualified domain names OR empty string are utilised.
-        \auth_saml2\settings_helper::get_http_https_regex()));
+        \auth_saml2\settings_helper::get_https_regex()));
 
     // Set the displayed message for flagged accounts.
     $settings->add(new admin_setting_configtextarea(

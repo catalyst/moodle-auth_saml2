@@ -51,6 +51,6 @@ abstract class saml2_settings {
 
     // Regex to check http/https scheme URL in accordance with RFC3986.
     const SETTINGS_REGEXP_HTTP_HTTPS_URL =
-        '/(^(https?\:\/\/(www\.)?[^\.\-\s][\-\w\d\@\:\%\.\_\+\~\#\=\(\)]{0,256}\.[\w\-]{2,6}'
-        . '(?![\.\-\s])([\-\w\d\@\:\%\_\+\~\#\?\&\/\=\(\)]*))$)|^(?![\s\S])/';
+        '/(^(https?\:\/\/(www\.)?[^\.\-\s][\-\w\d\@\:\%\.\_\+\~\#\=\(\)]{0,256}\.[\w\-]{2,6}(?![\.\-\s])([\-\w\d\@\:\%\_\+\~\#\?\&\/\=\(\)]*))$)|^(?![\s\S])/';
+
 }
