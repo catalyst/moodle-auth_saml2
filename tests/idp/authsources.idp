@@ -8,6 +8,7 @@ $config = array(
             'surname' => array('Alpha'),
             'email' => array('studenta@moodle.test'),
             'lang' => array('en'),
+            'encumbered' => array('false')
         ),
         'employee:employeepass' => array(
             'uid' => array('employee'),
@@ -15,6 +16,7 @@ $config = array(
             'surname' => array('Doe'),
             'email' => array('employee@moodle.test'),
             'lang' => array('en'),
+            'encumbered' => array('false')
         ),
     ),
 );
