@@ -25,7 +25,9 @@
 
 namespace auth_saml2;
 
-use auth_saml2\admin\saml2_settings;
+
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Utility class for auth/saml2 settings.
  *
@@ -52,7 +54,13 @@ class settings_helper {
      * Setter for $http_https_regex.
      */
     protected static function set_https_regex() {
-        self::$httpsregex = saml2_settings::SETTINGS_REGEXP_HTTP_HTTPS_URL;
+        // Build the regular expression for validating https/https URLs in accordance with RFC3986.
+        self::$httpsregex = implode('', array(
+            '/(^(https?\\:\\/\\/(www\\.)?',
+            '[^\\.\\-\\s][\\-\\w\\d\\@\\:\\%\\.\\_\\+\\~\\#\\=\\(\\)]{0,256}',
+            '\.[\\w\\-]{2,6}(?![\\.\\-\\s])',
+            '([\\-\\w\\d\\@\\:\\%\\_\\+\\~\\#\\?\\&\\/\\=\\(\\)]*))$)',
+            '|^(?![\\s\\S])/'));
     }
 
     /**
