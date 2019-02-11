@@ -1,8 +1,8 @@
 @auth @auth_saml2 @javascript
-Feature: SAML2 settings
-  In order to handle flagged accounts
+Feature: SAML2 flagged accounts settings
+  In order to handle flagged accounts logging in through and IdP
   As an administrator
-  I need to change flagged account settings in Moodle
+  I need to be able to change flagged account settings in Moodle
 
   Scenario: I can navigate to the settings page
     Given the authentication plugin saml2 is enabled                                    # auth_saml2
