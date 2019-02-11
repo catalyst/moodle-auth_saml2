@@ -30,7 +30,7 @@ Feature: SAML2 flagged accounts login
     And I press "Login"
     Then I should see "Wikipedia"
     And I should not see "Moodle"
-    
+
   Scenario: If my account is flagged and response message is set, on SAML2 login I should see the response message
     Given the authentication plugin saml2 is enabled                                     # auth_saml2
     And the saml2 setting "Dual Login" is set to "no"                                    # auth_saml2
