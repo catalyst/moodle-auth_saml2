@@ -47,7 +47,7 @@ Feature: SAML2 flagged accounts login
   Scenario: If the account flagging is turned off, I should always be able to log in to Moodle
     Given the authentication plugin saml2 is enabled                                     # auth_saml2
     And the saml2 setting "Dual Login" is set to "passive"                               # auth_saml2
-    And the saml2 setting "Flagged response type" is set to "Do no respond (off)"        # auth_saml2
+    And the saml2 setting "Flagged response type" is set to "Do not respond (off)"        # auth_saml2
     When I go to the login page                                                          # auth_saml2
     And I follow "Login via SAML2"
     Then I should see "A service has requested you to authenticate yourself"
