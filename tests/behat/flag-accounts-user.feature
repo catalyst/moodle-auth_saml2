@@ -17,7 +17,6 @@ Feature: SAML2 flagged accounts login
     And I press "Login"
     Then I should see "You are not logged in."
 
-
   Scenario: If my account is flagged and redirect page is set, on SAML2 login I should see the redirect page
     Given the authentication plugin saml2 is enabled                                     # auth_saml2
     And the saml2 setting "Dual Login" is set to "passive"                               # auth_saml2
