@@ -7,7 +7,7 @@ Feature: SAML2 flagged accounts settings
   Scenario: I can navigate to the settings page
     Given the authentication plugin saml2 is enabled                                    # auth_saml2
     And I am an administrator                                                           # auth_saml2
-    When I navigate to "SAML2" node in "Site administration > Plugins > Authentication"
+    When I navigate to "Plugins > Authentication" in site administration
     Then I should see "Flagged account blocking / redirection"
     And I should see "Redirect or display message to SAML2 logins based on defined flag"
 
