@@ -17,18 +17,6 @@ Feature: SAML2 flagged accounts login
     And I press "Login"
     Then I should see "You are not logged in."
 
-  Scenario: If my account is flagged and response message is set, on SAML2 login I should see the response message
-    Given the authentication plugin saml2 is enabled                                     # auth_saml2
-    And the saml2 setting "Dual Login" is set to "no"                                    # auth_saml2
-    And the saml2 setting "Flagged response type" is set to "Display custom message"     # auth_saml2
-    And the saml2 setting "flagmessage" is set to "No access"                            # auth_saml2
-    When I go to the login page                                                          # auth_saml2
-    Then I should see "A service has requested you to authenticate yourself"
-    And I set the field "Username" to "studentflagged"
-    And I set the field "Password" to "studentpass"
-    And I press "Login"
-    Then I should see "No access"
-
   Scenario: If my account is flagged and redirect page is set, on SAML2 login I should see the redirect page
     Given the authentication plugin saml2 is enabled                                     # auth_saml2
     And the saml2 setting "Dual Login" is set to "passive"                               # auth_saml2
@@ -42,6 +30,18 @@ Feature: SAML2 flagged accounts login
     And I press "Login"
     Then I should see "Wikipedia"
     And I should not see "Moodle"
+
+  Scenario: If my account is flagged and response message is set, on SAML2 login I should see the response message
+    Given the authentication plugin saml2 is enabled                                     # auth_saml2
+    And the saml2 setting "Dual Login" is set to "no"                                    # auth_saml2
+    And the saml2 setting "Flagged response type" is set to "Display custom message"     # auth_saml2
+    And the saml2 setting "flagmessage" is set to "No access"                            # auth_saml2
+    When I go to the login page                                                          # auth_saml2
+    Then I should see "A service has requested you to authenticate yourself"
+    And I set the field "Username" to "studentflagged"
+    And I set the field "Password" to "studentpass"
+    And I press "Login"
+    Then I should see "No access"
 
   Scenario: If the account flagging is turned off, I should always be able to log in to Moodle
     Given the authentication plugin saml2 is enabled                                     # auth_saml2
