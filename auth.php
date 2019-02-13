@@ -554,7 +554,73 @@ class auth_plugin_saml2 extends auth_plugin_base {
     }
 
     /**
+     * Redirect SAML2 login if a flagredirecturl has been configured.
+     *
+     * @throws \moodle_exception
+     */
+    protected function redirect_flagged_login() {
+
+        if (!empty($this->config->flagredirecturl)) {
+            redirect(new moodle_url($this->config->flagredirecturl));
+        } else {
+            $this->log(__FUNCTION__ . ' no redirect URL value set.');
+            // Fallback to flag message if redirect URL not set.
+            $this->error_page($this->config->flagmessage);
+        }
+    }
+
+    /**
+     * Check if flagattribute has been set to a non-empty value.
+     *
+     * @return bool true if flagattribute value not empty, false otherwise
+     */
+    protected function is_flag_attribute_set() {
+        if (!empty($this->config->flagattribute)) {
+            return true;
+        }
+        $this->log(__FUNCTION__ . ' configured flag attribute is empty.');
+        return false;
+    }
+
+    /**
+     * Check if the configured flagattribute is present in the passed in attribute array.
+     *
+     * @param array $attributes the attributes received from Identity Provider
+     *
+     * @return bool true if flag is set and found in attributes, false otherwise
+     */
+    protected function is_flag_attribute_in_idp_attributes($attributes) {
+
+        if ($this->is_flag_attribute_set() && array_key_exists($this->config->flagattribute, $attributes)) {
+            return true;
+        }
+        $this->log(__FUNCTION__ . ' configured flag attribute is empty.');
+        return false;
+    }
+
+    /**
+     * Check if the configured flagattribute is present and active in the passed in attributes
+     *
+     * @param array $attributes the attributes received from Identity Provider
+     *
+     * @return bool true if the flag is active, false otherwise
+     */
+    protected function is_flag_active($attributes) {
+        if ($this->is_flag_attribute_in_idp_attributes($attributes)) {
+            // Some IdPs (ie. simpleSAMLphp) only allow array values for attributes, if so assume the first element in
+            // array is flag value.
+            if (is_array($attributes[$this->config->flagattribute])) {
+                return ($attributes[$this->config->flagattribute][0] == $this->config->flagvalue);
+            } else {
+                return ($attributes[$this->config->flagattribute] == $this->config->flagvalue);
+            }
+        }
+        return false;
+    }
+
+    /**
      * Checks if the flagged user feature is enabled and if so, handles configured flag attribute
+     * based on configured response type.
      *
      * @param $attributes
      *
@@ -562,39 +628,22 @@ class auth_plugin_saml2 extends auth_plugin_base {
      */
     protected function handle_flagged_login($attributes) {
 
-        if (!isset($attributes) || empty($this->config->flagattribute)) {
-            $this->log(__FUNCTION__ . ' attributes not set or configured flag attribute is empty.');
+        if ($this->is_flag_active($attributes)) {
+            switch ($this->config->flagresponsetype) {
+                case saml2_settings::OPTION_FLAGGED_LOGIN_NONE:
+                    break;
+                case saml2_settings::OPTION_FLAGGED_LOGIN_MESSAGE:
+                    $this->error_page($this->config->flagmessage);
+                    break;
+                case saml2_settings::OPTION_FLAGGED_LOGIN_REDIRECT:
+                    $this->redirect_flagged_login();
+                    break;
+                default:
+                    // Fallback behaviour is to allow user login to Moodle.
+                    break;
+            }
         } else {
-            // Some IdPs (ie. simpleSAMLphp) only allow array values for attributes, if so assume the first element in
-            // array is flag value.
-            if (is_array($attributes[$this->config->flagattribute])) {
-                $isflagactive = ($attributes[$this->config->flagattribute][0] == $this->config->flagvalue);
-            } else {
-                $isflagactive = ($attributes[$this->config->flagattribute] == $this->config->flagvalue);
-            }
-            if ($isflagactive) {
-                switch ($this->config->flagresponsetype) {
-                    case saml2_settings::OPTION_FLAGGED_LOGIN_NONE:
-                        break;
-                    case saml2_settings::OPTION_FLAGGED_LOGIN_MESSAGE:
-                        $this->error_page($this->config->flagmessage);
-                        break;
-                    case saml2_settings::OPTION_FLAGGED_LOGIN_REDIRECT:
-                        if (!empty($this->config->flagredirecturl)) {
-                            redirect(new moodle_url($this->config->flagredirecturl));
-                        } else {
-                            $this->log(__FUNCTION__ . ' no redirect URL value set.');
-                            // Fallback to flag message if redirect URL not set.
-                            $this->error_page($this->config->flagmessage);
-                        }
-                        break;
-                    default:
-                        // Fallback behaviour is to allow user login to Moodle.
-                        break;
-                }
-            } else {
-                $this->log(__FUNCTION__ . ' user is not flagged.');
-            }
+            $this->log(__FUNCTION__ . ' user is not flagged.');
         }
     }
 
