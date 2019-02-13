@@ -591,7 +591,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
      */
     protected function is_flag_attribute_in_idp_attributes($attributes) {
 
-        if ($this->is_flag_attribute_set() && array_key_exists($this->config->flagattribute, $attributes)) {
+        if (array_key_exists($this->config->flagattribute, $attributes)) {
             return true;
         }
         $this->log(__FUNCTION__ . ' configured flag attribute is empty.');
@@ -599,14 +599,14 @@ class auth_plugin_saml2 extends auth_plugin_base {
     }
 
     /**
-     * Check if the configured flagattribute is present and active in the passed in attributes
+     * Check if the configured flagattribute is active in the passed in attributes
      *
      * @param array $attributes the attributes received from Identity Provider
      *
      * @return bool true if the flag is active, false otherwise
      */
     protected function is_flag_active($attributes) {
-        if ($this->is_flag_attribute_in_idp_attributes($attributes)) {
+        if ($this->is_flag_attribute_set() && $this->is_flag_attribute_in_idp_attributes($attributes)) {
             // Some IdPs (ie. simpleSAMLphp) only allow array values for attributes, if so assume the first element in
             // array is flag value.
             if (is_array($attributes[$this->config->flagattribute])) {
