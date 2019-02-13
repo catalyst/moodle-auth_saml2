@@ -45,12 +45,6 @@ class settings_helper {
     private static $httpsregex;
 
     /**
-     * Direct initiation not allowed, utility class.
-     */
-    protected function __construct() {
-    }
-
-    /**
      * Setter for $http_https_regex.
      */
     protected static function set_https_regex() {
