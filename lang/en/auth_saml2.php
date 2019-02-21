@@ -34,6 +34,8 @@ $string['autocreate_help'] = 'If users are in the IdP but not in moodle create a
 $string['availableidps'] = 'Manage available IdPs';
 $string['availableidps_help'] = 'If an IdP metadata xml contains multiple IdP entities or you have specificed multiple metadata urls,
 you will need to select which entities are availiable for users to login with.';
+$string['attrsimple'] = 'Simplify attributes';
+$string['attrsimple_help'] = 'Various IdP\'s such as ADFS use long attribute keys such as urns or namespaced xml schema names. If set to Yes this will simplify these, eg map http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname to such \'givenname\'.';
 $string['certificatedetails'] = 'Certificate details';
 $string['certificatedetailshelp'] = '<h1>SAML2 auto generated public certificate contents</h1><p>The path for the cert is here:</p>';
 $string['certificate_help'] = 'Regenerate the Private Key and Certificate used by this SP. | <a href=\'{$a}\'>View SP certificate</a>';

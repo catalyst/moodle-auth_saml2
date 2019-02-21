@@ -503,6 +503,9 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         $auth->requireAuth($params);
         $attributes = $auth->getAttributes();
+        if ($this->config->attrsimple) {
+            $attributes = $this->simplify_attr($attributes);
+        }
 
         $attr = $this->config->idpattr;
         if (empty($attributes[$attr]) ) {
@@ -592,6 +595,26 @@ class auth_plugin_saml2 extends auth_plugin_base {
         }
 
         return;
+    }
+
+    /**
+     * Simplifies attribute key names
+     *
+     * Rather than attempting to have an explicity mapping this simply
+     * detects long key names which contain non word characters and then
+     * grabs the last useful component of the string. Note it creates new
+     * keys, doesn't remove the old ones, and will not overwrite keys either.
+     */
+    public function simplify_attr($attributes) {
+
+        foreach ($attributes as $key => $val) {
+            if (preg_match("/\W/", $key)) {
+                $parts = preg_split("/\W/", $key);
+                $simple = $parts[count($parts) - 1];
+                $attributes[$simple] = $attributes[$key];
+            }
+        }
+        return $attributes;
     }
 
     /**
