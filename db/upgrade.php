@@ -221,7 +221,7 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         $table->add_field('defaultidp', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, null, null, '0');
         $table->add_field('adminidp', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, null, null, '0');
         $table->add_field('defaultname', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
-        $field->add_field('displayname', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('displayname', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
         $table->add_field('logo', XMLDB_TYPE_TEXT, 'big', null, null, null, null);
         $table->add_field('alias', XMLDB_TYPE_CHAR, '50', null, null, null, null);
 
