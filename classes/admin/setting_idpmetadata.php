@@ -26,6 +26,7 @@ use admin_setting_configtextarea;
 use auth_saml2\idp_data;
 use auth_saml2\idp_parser;
 use DOMDocument;
+use DOMElement;
 use DOMNodeList;
 use DOMXPath;
 
@@ -82,83 +83,97 @@ class setting_idpmetadata extends admin_setting_configtextarea {
      * @param idp_data[] $idps
      */
     private function process_all_idps_metadata($idps) {
-        $entityids = [];
-        $mduinames = [];
-        $mduilogos = [];
+        global $DB;
+
+        $currentidpsrs = $DB->get_records('auth_saml2_idps');
+        $oldidps = array();
+        foreach ($currentidpsrs as $idpentity) {
+            if (!isset($oldidps[$idpentity->metadataurl])) {
+                $oldidps[$idpentity->metadataurl] = array();
+            }
+
+            $oldidps[$idpentity->metadataurl][$idpentity->entityid] = $idpentity;
+        }
 
         foreach ($idps as $idp) {
-            $this->process_idp_metadata($idp, $entityids, $mduinames, $mduilogos);
+            $this->process_idp_metadata($idp, $oldidps);
         }
 
-        // If multiple IdPs are configured, force 'duallogin' to display the IdP links.
-        if (count($idps) > 1) {
-            set_config('duallogin', '1', 'auth_saml2');
-        }
-
-        // Encode arrays to be saved the config.
-        set_config('idpentityids', json_encode($entityids), 'auth_saml2');
-        set_config('idpmduinames', json_encode($mduinames), 'auth_saml2');
-        set_config('idpmduilogos', json_encode($mduilogos), 'auth_saml2');
+        // We remove any old IdPs that are left over.
+        $this->remove_old_idps($oldidps);
     }
 
-    private function process_idp_metadata(idp_data $idp, &$entityids, &$mduinames, &$mduilogos) {
+    private function process_idp_metadata(idp_data $idp, &$oldidps) {
         $xpath = $this->get_idp_xml_path($idp);
         $idpelements = $this->find_all_idp_sso_descriptors($xpath);
 
         if ($idpelements->length == 1) {
-            $this->process_idp_xml_with_single_idp($idp, $idpelements, $xpath, $entityids, $mduinames);
+            $this->process_idp_xml($idp, $idpelements->item(0), $xpath, $oldidps, 1);
         } else if ($idpelements->length > 1) {
-            $this->process_idp_xml_with_multiple_idps($idp, $idpelements, $xpath, $entityids, $mduinames, $mduilogos);
+            foreach ($idpelements as $childidpelements) {
+                $this->process_idp_xml($idp, $childidpelements, $xpath, $oldidps, 0);
+            }
         }
 
-        if (empty($entityids)) {
-            throw new setting_idpmetadata_exception(get_string('idpmetadata_noentityid', 'auth_saml2'));
-        }
-
-        $this->save_idp_metadata_xml($entityids[$idp->idpurl], $idp->get_rawxml());
+        $this->save_idp_metadata_xml($idp->idpurl, $idp->get_rawxml());
     }
 
-    private function process_idp_xml_with_single_idp(idp_data $idp, DOMNodeList $idpelements,
-                                                        DOMXPath $xpath, &$entityids, &$mduinames) {
-        $entityids[$idp->idpurl] = $idpelements->item(0)->getAttribute('entityID');
+    private function process_idp_xml(idp_data $idp, DOMElement $idpelements, DOMXPath $xpath,
+                                        &$oldidps, $activedefault = 0) {
+        global $DB;
+        $entityid = $idpelements->getAttribute('entityID');
 
         // Locate a displayname element provided by the IdP XML metadata.
-        $names = $xpath->query('.//mdui:DisplayName', $idpelements->item(0));
+        $names = $xpath->query('.//mdui:DisplayName', $idpelements);
+        $idpname = null;
         if ($names && $names->length > 0) {
-            $mduinames[$idp->idpurl] = $names->item(0)->textContent;
+            $idpname = $names->item(0)->textContent;
+        } else if (!empty($idp->idpname)) {
+            $idpname = $idp->idpname;
         } else {
-            $mduinames[$idp->idpurl] = get_string('idpnamedefault', 'auth_saml2');
+            $idpname = get_string('idpnamedefault', 'auth_saml2');
+        }
+
+        // Locate a logo element provided by the IdP XML metadata.
+        $logos = $xpath->query('.//mdui:Logo', $idpelements);
+        $logo = null;
+        if ($logos && $logos->length > 0) {
+            $logo = $logos->item(0)->textContent;
+        }
+
+        if (isset($oldidps[$idp->idpurl][$entityid])) {
+            $oldidp = $oldidps[$idp->idpurl][$entityid];
+
+            if (!empty($idpname) && $oldidp->defaultname !== $idpname) {
+                $DB->set_field('auth_saml2_idps', 'defaultname', $idpname, array('id' => $oldidp->id));
+            }
+
+            if (!empty($logo) && $oldidp->logo !== $logo) {
+                $DB->set_field('auth_saml2_idps', 'logo', $logo, array('id' => $oldidp->id));
+            }
+
+            // Remove the idp from the current array so that we don't delete it later.
+            unset($oldidps[$idp->idpurl][$entityid]);
+        } else {
+            $newidp = new \stdClass();
+            $newidp->metadataurl = $idp->idpurl;
+            $newidp->entityid = $entityid;
+            $newidp->activeidp = $activedefault;
+            $newidp->defaultidp = 0;
+            $newidp->adminidp = 0;
+            $newidp->defaultname = $idpname;
+            $newidp->logo = $logo;
+
+            $DB->insert_record('auth_saml2_idps', $newidp);
         }
     }
 
-    private function process_idp_xml_with_multiple_idps(idp_data $idp, DOMNodeList $idpelements,
-                                                     DOMXPath $xpath, &$entityids, &$mduinames, &$mduilogos) {
-        $oldentityids = json_decode(get_config('auth_saml2', 'idpentityids'), true);
+    private function remove_old_idps($oldidps) {
+        global $DB;
 
-        $entityids[$idp->idpurl] = [];
-        $mduinames[$idp->idpurl] = [];
-        $mduilogos[$idp->idpurl] = [];
-
-        foreach ($idpelements as $idpelement) {
-            $entityid = $idpelement->getAttribute('entityID');
-            $active = 0;
-            if (isset($oldentityids[$idp->idpurl][$entityid])) {
-                $active = $oldentityids[$idp->idpurl][$entityid];
-            }
-            $entityids[$idp->idpurl][$entityid] = $active;
-
-            // Locate a displayname element provided by the IdP XML metadata.
-            $names = $xpath->query('.//mdui:DisplayName', $idpelement);
-            if ($names && $names->length > 0) {
-                $mduinames[$idp->idpurl][$entityid] = $names->item(0)->textContent;
-            } else {
-                $mduinames[$idp->idpurl][$entityid] = get_string('idpnamedefault', 'auth_saml2');
-            }
-
-            // Locate a displayname element provided by the IdP XML metadata.
-            $logos = $xpath->query('.//mdui:Logo', $idpelement);
-            if ($logos && $logos->length > 0) {
-                $mduilogos[$idp->idpurl][$entityid] = $logos->item(0)->textContent;
+        foreach ($oldidps as $metadataidps) {
+            foreach ($metadataidps as $oldidp) {
+                $DB->delete_records('auth_saml2_idps', array('id' => $oldidp->id));
             }
         }
     }

@@ -9,3 +9,11 @@
 #page-auth-saml2-selectidp .idpbtn {
     margin-bottom: 10px;
 }
+
+#page-auth-saml2-avilableidps .femptylabel .fitemtitle {
+    display: none;
+}
+
+#page-auth-saml2-avilableidps .femptylabel .felement {
+    margin-left: 10px;
+}

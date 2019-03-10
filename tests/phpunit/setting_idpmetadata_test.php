@@ -61,10 +61,18 @@ class setting_idpmetadata_test extends advanced_testcase {
         $actual = get_config('auth_saml2');
 
         self::assertSame($xml, $actual->idpmetadata, 'Invalid config metadata.');
-        self::assertSame('{"xml":"https:\/\/idp.example.org\/idp\/shibboleth"}', $actual->idpentityids);
-        self::assertSame('{"xml":"Example.com test IDP"}', $actual->idpmduinames);
 
-        $file = md5('https://idp.example.org/idp/shibboleth') . '.idp.xml';
+        $metadataidps = auth_saml2_get_idps();
+        foreach ($metadataidps as $metadataurl => $idps) {
+            self::assertSame('xml', $metadataurl);
+
+            foreach ($idps as $idp) {
+                self::assertSame('https://idp.example.org/idp/shibboleth', $idp->entityid);
+                self::assertSame('Example.com test IDP', $idp->name);
+            }
+        }
+
+        $file = md5('xml') . '.idp.xml';
         $file = "{$CFG->dataroot}/saml2/{$file}";
         self::assertFileExists($file);
         $actual = file_get_contents($file);
@@ -81,22 +89,22 @@ class setting_idpmetadata_test extends advanced_testcase {
         $actual = get_config('auth_saml2');
 
         self::assertSame($xml, $actual->idpmetadata, 'Invalid config metadata.');
-        $expected = json_encode([
-                                    'xml' => [
-                                        'https://idp1.example.org/idp/shibboleth' => 0,
-                                        'https://idp2.example.org/idp/shibboleth' => 0,
-                                    ],
-                                ]);
-        self::assertSame($expected, $actual->idpentityids);
-        $expected = json_encode([
-                                    'xml' => [
-                                        'https://idp1.example.org/idp/shibboleth' => 'First Test IDP',
-                                        'https://idp2.example.org/idp/shibboleth' => 'Second Test IDP',
-                                    ],
-                                ]);
-        self::assertSame($expected, $actual->idpmduinames);
 
-        $file = md5("https://idp1.example.org/idp/shibboleth\nhttps://idp2.example.org/idp/shibboleth") . '.idp.xml';
+        $metadataidps = auth_saml2_get_idps();
+        foreach ($metadataidps as $metadataurl => $idps) {
+            self::assertSame('xml', $metadataurl);
+
+            $idp1md5 = md5('https://idp1.example.org/idp/shibboleth');
+            $idp2md5 = md5('https://idp2.example.org/idp/shibboleth');
+
+            self::assertTrue(array_key_exists($idp1md5, $idps));
+            self::assertTrue(array_key_exists($idp2md5, $idps));
+
+            self::assertSame('First Test IDP', $idps[$idp1md5]->name);
+            self::assertSame('Second Test IDP', $idps[$idp2md5]->name);
+        }
+
+        $file = md5("xml") . '.idp.xml';
         $file = "{$CFG->dataroot}/saml2/{$file}";
         self::assertFileExists($file);
         $actual = file_get_contents($file);

@@ -56,6 +56,15 @@ if ($ADMIN->fulltree) {
             get_string('idpnamedefault', 'auth_saml2'),
             PARAM_TEXT));
 
+    // Manage available IdPs.
+    $settings->add(new setting_button(
+        'auth_saml2/availableidps',
+        get_string('availableidps', 'auth_saml2'),
+        get_string('availableidps_help', 'auth_saml2'),
+        get_string('availableidps', 'auth_saml2'),
+        $CFG->wwwroot . '/auth/saml2/availableidps.php'
+        ));
+
     // Display IDP Link.
     $settings->add(new admin_setting_configselect(
             'auth_saml2/showidplink',
@@ -225,15 +234,6 @@ if ($ADMIN->fulltree) {
             get_string('alterlogout_help', 'auth_saml2'),
             '',
             PARAM_URL));
-
-    // Select available IdPs.
-    $settings->add(new setting_button(
-        'auth_saml2/availableidps',
-        get_string('availableidps', 'auth_saml2'),
-        get_string('availableidps_help', 'auth_saml2'),
-        get_string('availableidps', 'auth_saml2'),
-        $CFG->wwwroot . '/auth/saml2/availableidps.php'
-        ));
 
     // Multi IdP display type.
     $multiidpdisplayoptions = [

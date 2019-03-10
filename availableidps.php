@@ -24,18 +24,34 @@
  */
 
 require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/locallib.php');
+
+global $DB;
 
 require_login();
 require_capability('moodle/site:config', context_system::instance());
+
+$heading = get_string('manageidpsheading', 'auth_saml2');
+
 $PAGE->set_url("$CFG->wwwroot/auth/saml2/avilableidps.php");
 $PAGE->set_course($SITE);
+$PAGE->set_title($SITE->shortname . ': ' . $heading);
+$PAGE->set_heading($SITE->fullname);
+$PAGE->set_pagelayout('standard');
 
-$idpentityids = json_decode(get_config('auth_saml2', 'idpentityids'), true);
-$idpmduinames = json_decode(get_config('auth_saml2', 'idpmduinames'), true);
+$PAGE->navbar->add(get_string('administrationsite'));
+$PAGE->navbar->add(get_string('plugins', 'admin'));
+$PAGE->navbar->add(get_string('authentication', 'admin'));
+$PAGE->navbar->add(get_string('pluginname', 'auth_saml2'),
+        new moodle_url('/admin/settings.php', array('section' => 'authsettingsaml2')));
+$PAGE->navbar->add($heading);
+
+$PAGE->requires->css('/auth/saml2/styles.css');
+
+$metadataentities = auth_saml2_get_idps(false, true);
 
 $data = [
-    'idpentityids' => $idpentityids,
-    'idpmduinames' => $idpmduinames
+    'metadataentities' => $metadataentities
 ];
 
 $action = new moodle_url('/auth/saml2/availableidps.php');
@@ -46,18 +62,18 @@ if ($mform->is_cancelled()) {
 }
 
 if ($fromform = $mform->get_data()) {
-    // Go through each metadata group and override the idpentities.
-    // We don't overrride the whole lot because metadata entries with only 1 IdP entity won't be in the form.
-    foreach ($fromform->values as $metadata => $idpentityvalues) {
-        $idpentityids[$metadata] = $idpentityvalues;
+    // Go through each idp and update its flags.
+    foreach ($fromform->metadataentities as $idpentities) {
+        foreach ($idpentities as $idpentity) {
+            $DB->update_record('auth_saml2_idps', (object) $idpentity);
+        }
     }
-
-    set_config('idpentityids', json_encode($idpentityids), 'auth_saml2');
 } else {
-    $mform->set_data(array('values' => $idpentityids));
+    $mform->set_data(array('metadataentities' => $metadataentities));
 }
 
 echo $OUTPUT->header();
-echo "<h1>Select available IdPs</h1>";
+echo $OUTPUT->heading($heading);
+echo get_string('multiidpinfo', 'auth_saml2');
 $mform->display();
 echo $OUTPUT->footer();

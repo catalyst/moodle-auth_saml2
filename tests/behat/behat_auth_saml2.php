@@ -236,6 +236,9 @@ class behat_auth_saml2 extends behat_base {
     protected function execute($contextapi, $params = []) {
         global $CFG;
 
+        // We allow usage of depricated behat steps for now.
+        $CFG->behat_usedeprecated = true;
+
         // If newer Moodle, use the correct version.
         if ($CFG->branch >= 29) {
             return parent::execute($contextapi, $params);
