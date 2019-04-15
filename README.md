@@ -10,6 +10,7 @@ https://moodle.org/plugins/auth_saml2
 ![Churchill quote](/pix/churchill.jpg?raw=true)
 
 * [What is this?](#what-is-this)
+* [What version/branch](#what-version/branch)
 * [Why is it better?](#why-is-it-better)
 * [How does it work?](#how-does-it-work)
 * [Features](#features)
@@ -27,6 +28,11 @@ What is this?
 
 This plugin does authentication, user auto creation with field mapping.
 
+What version/branch
+-------------
+
+The "master" branch requires PHP 7 and supports Moodle 3.5 and Totara 12 and higher
+The "27_34STABLE" branch supports Moodle 2.7 - 3.4 (and Totara 2.7 -> Totara 11)
 
 Why is it better?
 -----------------
