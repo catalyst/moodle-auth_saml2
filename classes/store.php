@@ -46,8 +46,8 @@ class store extends \SimpleSAML\Store {
     public function get($type, $key) {
         global $DB;
 
-        assert('is_string($type)');
-        assert('is_string($key)');
+        assert(is_string($type));
+        assert(is_string($key));
 
         if (strlen($key) > 50) {
             $key = sha1($key);
@@ -93,9 +93,9 @@ class store extends \SimpleSAML\Store {
     public function set($type, $key, $value, $expire = null) {
         global $DB;
 
-        assert('is_string($type)');
-        assert('is_string($key)');
-        assert('is_null($expire) || (is_int($expire) && $expire > 2592000)');
+        assert(is_string($type));
+        assert(is_string($key));
+        assert(is_null($expire) || (is_int($expire) && $expire > 2592000));
 
         if (rand(0, 1000) < 10) {
             $this->delete_expired(); // TODO convert to task.
@@ -138,8 +138,8 @@ class store extends \SimpleSAML\Store {
     public function delete($type, $key) {
         global $DB;
 
-        assert('is_string($type)');
-        assert('is_string($key)');
+        assert(is_string($type));
+        assert(is_string($key));
 
         if (strlen($key) > 50) {
             $key = sha1($key);
