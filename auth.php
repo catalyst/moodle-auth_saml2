@@ -523,6 +523,11 @@ class auth_plugin_saml2 extends auth_plugin_base {
             }
         }
 
+        // Testing user's groups and allow access decided on preferences
+        if (!$this->is_access_allowed_for_member($attributes)) {
+            $this->error_page(get_string('wrongauth', 'auth_saml2', $uid));
+        }
+
         $newuser = false;
         if (!$user) {
             if ($this->config->autocreate) {
@@ -595,6 +600,29 @@ class auth_plugin_saml2 extends auth_plugin_base {
         }
 
         return;
+    }
+
+    /**
+     * Testing user's groups attribute and allow access decided on preferences.
+     *
+     */
+    public function is_access_allowed_for_member($attributes) {
+
+        if (empty($this->config->groupattr)) {
+            return true;
+        }
+
+        $groups = $attributes[$this->config->groupattr];
+        $deny  = preg_split("/[\s,]+/", $this->config->restricted_groups, null, PREG_SPLIT_NO_EMPTY);
+        $allow = preg_split("/[\s,]+/", $this->config->allowed_groups, null, PREG_SPLIT_NO_EMPTY);
+        if (!empty(array_intersect($deny, $groups)) || empty(array_intersect($allow, $groups))) {
+            $this->log(__FUNCTION__ . " user '$uid' is in restricted group or isn't in allowed. Access denied.");
+            return false;
+        } else {
+            $this->log(__FUNCTION__ . " user '$uid' is in allowed group and isn't in restricted. Access allowed.");
+        }
+        return true;
+
     }
 
     /**
