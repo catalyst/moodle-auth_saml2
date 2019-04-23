@@ -609,7 +609,6 @@ class auth_plugin_saml2 extends auth_plugin_base {
     public function is_access_allowed_for_member($attributes) {
 
         if (empty($this->config->groupattr)) {
-            $this->log(__FUNCTION__ . " group attribute not found.");
             return true;
         }
 
