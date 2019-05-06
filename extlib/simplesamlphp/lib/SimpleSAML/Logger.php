@@ -341,6 +341,7 @@ class Logger
         // save the message for later
         self::$earlyLog[] = array('level' => $level, 'string' => $message, 'statsLog' => $stats);
 
+
         // register a shutdown handler if needed
         if (!self::$shutdownRegistered) {
             register_shutdown_function(array('SimpleSAML\Logger', 'flush'));
