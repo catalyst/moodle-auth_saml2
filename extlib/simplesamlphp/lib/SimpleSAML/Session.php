@@ -490,6 +490,10 @@ class SimpleSAML_Session implements Serializable
 
         $this->dirty = true;
 
+        // Moodle auth_saml2 hack, because we register a shutdown handler in
+        // moodle in the constructor we don't need to register a callback here.
+        return;
+
         if (!function_exists('header_register_callback')) {
             // PHP version < 5.4, can't register the callback
             return;
@@ -511,7 +515,9 @@ class SimpleSAML_Session implements Serializable
      */
     public function __destruct()
     {
-        $this->save();
+        // Moodle auth_saml2 hack, we don't need to save here because we have
+        // a custom shutdown handle registered with moodle.
+        // $this->save();
     }
 
     /**
