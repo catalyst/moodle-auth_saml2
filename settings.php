@@ -185,7 +185,7 @@ if ($ADMIN->fulltree) {
         get_string('anyauth_help', 'auth_saml2'),
         0, $yesno));
 
-    // Simplify attributes
+    // Simplify attributes.
     $settings->add(new admin_setting_configselect(
         'auth_saml2/attrsimple',
         get_string('attrsimple', 'auth_saml2'),
@@ -248,7 +248,7 @@ if ($ADMIN->fulltree) {
         'employee',
         PARAM_TEXT));
 
-    // Allowed groups
+    // Allowed groups.
     $settings->add(new admin_setting_configtext(
         'auth_saml2/allowed_groups',
         get_string('allowed_groups', 'auth_saml2'),
