@@ -56,6 +56,15 @@ if ($ADMIN->fulltree) {
             get_string('idpnamedefault', 'auth_saml2'),
             PARAM_TEXT));
 
+    // Manage available IdPs.
+    $settings->add(new setting_button(
+        'auth_saml2/availableidps',
+        get_string('availableidps', 'auth_saml2'),
+        get_string('availableidps_help', 'auth_saml2'),
+        get_string('availableidps', 'auth_saml2'),
+        $CFG->wwwroot . '/auth/saml2/availableidps.php'
+        ));
+
     // Display IDP Link.
     $settings->add(new admin_setting_configselect(
             'auth_saml2/showidplink',
@@ -218,6 +227,30 @@ if ($ADMIN->fulltree) {
             get_string('autocreate_help', 'auth_saml2'),
             0, $yesno));
 
+    // Attribute name that contains groups
+    $settings->add(new admin_setting_configtext(
+            'auth_saml2/groupattr',
+            get_string('groupattr', 'auth_saml2'),
+            get_string('groupattr_help', 'auth_saml2'),
+            '',
+            PARAM_TEXT));
+
+    // Restricted groups
+    $settings->add(new admin_setting_configtext(
+            'auth_saml2/restricted_groups',
+            get_string('restricted_groups', 'auth_saml2'),
+            get_string('restricted_groups_help', 'auth_saml2'),
+            'employee',
+            PARAM_TEXT));
+
+    // Allowed groups
+    $settings->add(new admin_setting_configtext(
+            'auth_saml2/allowed_groups',
+            get_string('allowed_groups', 'auth_saml2'),
+            get_string('allowed_groups_help', 'auth_saml2'),
+            'student',
+            PARAM_TEXT));
+
     // Alternative Logout URL.
     $settings->add(new admin_setting_configtext(
             'auth_saml2/alterlogout',
@@ -225,15 +258,6 @@ if ($ADMIN->fulltree) {
             get_string('alterlogout_help', 'auth_saml2'),
             '',
             PARAM_URL));
-
-    // Select available IdPs.
-    $settings->add(new setting_button(
-        'auth_saml2/availableidps',
-        get_string('availableidps', 'auth_saml2'),
-        get_string('availableidps_help', 'auth_saml2'),
-        get_string('availableidps', 'auth_saml2'),
-        $CFG->wwwroot . '/auth/saml2/availableidps.php'
-        ));
 
     // Multi IdP display type.
     $multiidpdisplayoptions = [

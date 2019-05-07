@@ -32,12 +32,12 @@ $string['auth_saml2description'] = 'Authenticate with a SAML2 IdP';
 $string['auth_saml2blockredirectdescription'] = 'Redirect or display message to SAML2 logins based on defined flag';
 $string['autocreate'] = 'Auto create users';
 $string['autocreate_help'] = 'If users are in the IdP but not in moodle create a moodle account.';
-$string['availableidps'] = 'Select available IdPs';
-$string['availableidps_help'] = 'If an IdP metadata xml contains multiple IdP entities, you will need to select which entities are availiable
-for users to login with.';
-$string['blockredirectheading'] = 'Flagged account blocking / redirection';
+$string['availableidps'] = 'Manage available IdPs';
+$string['availableidps_help'] = 'If an IdP metadata xml contains multiple IdP entities or you have specificed multiple metadata urls,
+you will need to select which entities are availiable for users to login with.';
 $string['attrsimple'] = 'Simplify attributes';
 $string['attrsimple_help'] = 'Various IdP\'s such as ADFS use long attribute keys such as urns or namespaced xml schema names. If set to Yes this will simplify these, eg map http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname to such \'givenname\'.';
+$string['blockredirectheading'] = 'Flagged account blocking / redirection';
 $string['certificatedetails'] = 'Certificate details';
 $string['certificatedetailshelp'] = '<h1>SAML2 auto generated public certificate contents</h1><p>The path for the cert is here:</p>';
 $string['certificate_help'] = 'Regenerate the Private Key and Certificate used by this SP. | <a href=\'{$a}\'>View SP certificate</a>';
@@ -99,11 +99,20 @@ $string['logdir_help'] = 'The log directory SSPHP will write to, the file will b
 $string['logdir'] = 'Log Directory';
 $string['logtofile'] = 'Enable logging to file';
 $string['logtofile_help'] = 'Turning this on will redirect SSPHP log output to a file in the logdir';
+$string['manageidpsheading'] = 'Manage available IdPs';
 $string['mdlattr_help'] = 'Which Moodle user field should the IdP attribute be matched to?';
 $string['mdlattr'] = 'Mapping Moodle';
 $string['metadatafetchfailed'] = 'Metadata fetch failed: {$a}';
 $string['metadatafetchfailedstatus'] = 'Metadata fetch failed: Status code {$a}';
 $string['metadatafetchfailedunknown'] = 'Metadata fetch failed: Unknown cURL error';
+$string['multiidpinfo'] = '
+<ul>
+<li>An IdP can only be used if it is set as Active</li>
+<li>When duallogin has been turned on all active IdPs will be displayed on the login page</li>
+<li>When an IdP has been set as Default and duallogin is not turned on, this IdP will automatically be used unless ?multiidp=on or saml=off is passed on /login/index.php</li>
+<li>When an IdP has been set as Admin any users that log in using this IdP will automatically be made an admin</li>
+<li>An IdP can be given an Alias, when going to /login/index.php?idpalias={alias} the alias can be passed to directly use that IdP</li>
+</ul>';
 $string['multiidpbuttons'] = 'Buttons with icons';
 $string['multiidpdisplay'] = 'Multiple IdP display type';
 $string['multiidpdisplay_help'] = 'If an IdP metadata xml contains multiple IdP entities, how will each available IdP be displayed?';
@@ -111,6 +120,7 @@ $string['multiidpdropdown'] = 'Drop-down list';
 $string['nameidasattrib'] = 'Expose NameID as attribute';
 $string['nameidasattrib_help'] = 'The NameID claim will be exposed to SSPHP as an attribute named nameid';
 $string['noattribute'] = 'You have logged in successfully but we could not find your \'{$a}\' attribute to associate you to an account in Moodle.';
+$string['noidpfound'] = 'The IdP \'{$a}\' was not found as a configured IdP.';
 $string['nouser'] = 'You have logged in successfully as \'{$a}\' but do not have an account in Moodle.';
 $string['nullprivatecert'] = 'Creation of Private Certificate failed.';
 $string['nullpubliccert'] = 'Creation of Public Certificate failed.';
@@ -162,6 +172,12 @@ $string['phone1'] = 'Phone';
 $string['phone2'] = 'Mobile phone';
 $string['nameidpolicy'] = 'NameID Policy';
 $string['nameidpolicy_help'] = '';
+$string['groupattr'] = 'Groups Attribute';
+$string['groupattr_help'] = 'Attribute that contains a set of user groups.';
+$string['restricted_groups'] = 'Restricted Groups';
+$string['restricted_groups_help'] = 'Comma delimited list of groups. User will not be allowed to login if one of the groups contains in Groups Attribute.';
+$string['allowed_groups'] = 'Allowed Groups';
+$string['allowed_groups_help'] = 'Comma delimited list of groups. User will be allowed to login if one of the groups contains in Groups Attribute. Restricted Groups will test first.';
 
 /*
  * Privacy provider (GDPR)
