@@ -171,3 +171,11 @@ $string['sha512'] = 'SHA512';
 $string['signaturealgorithm'] = 'Signing Algorithm';
 $string['signaturealgorithm_help'] = 'This is the algorithm that will be used to sign SAML requests. Warning: The SHA1 Algorithm is only provided for backwards compatibility, unless you absolutely must use it it is recommended to avoid it and use at least SHA256 instead.';
 $string['selectloginservice'] = 'Select a login service';
+
+/* Affiliation */
+$string['incorrectaffliliation'] = 'You have logged in successfully but you do not have the correct affiliations to come into Moodle.';
+$string['registered_no_moodle'] = '
+<div>
+<p class="alert alert-danger">Whilst you have successfully logged into the system, this account <strong>({$a})</strong> does not have permission to use Moodle.</p>
+</div>';
+

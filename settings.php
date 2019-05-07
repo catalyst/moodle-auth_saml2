@@ -212,7 +212,11 @@ if ($ADMIN->fulltree) {
             get_string('mdlattr', 'auth_saml2'),
             get_string('mdlattr_help', 'auth_saml2'),
             'username', $fields));
-
+    $fields = array();
+    $fields = ['student'=>'student','library-walk-in'=>'library-walk-in','faculty'=>'faculty','alum'=>'alum','member'=>'member','affiliate'=>'affiliate','staff'=>'staff','employee'=>'employee'];
+    $settings->add(new admin_setting_configmultiselect(
+        'auth_saml2/eduPersonAffiliation'
+    ,'Affiliation','Affiliation',array_keys($fields),$fields));
     // Lowercase.
     $settings->add(new admin_setting_configselect(
             'auth_saml2/tolower',

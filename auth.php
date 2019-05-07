@@ -507,6 +507,15 @@ class auth_plugin_saml2 extends auth_plugin_base {
             $attributes = $this->simplify_attr($attributes);
         }
 
+        // Check member affiliation and only allow the ones selected
+        // https://www.internet2.edu/media/medialibrary/2013/09/04/internet2-mace-dir-eduperson-201203.html#eduPersonAffiliation
+         if(!empty($this->config->eduPersonAffiliation)){
+            $affiliationattr = explode(",",$this->config->eduPersonAffiliation);
+            $matchingarray = (array_intersect($affiliationattr, $attributes['eduPersonAffiliation']));
+            if(empty($matchingarray)){
+                $this->error_page(get_string('registered_no_moodle', 'auth_saml2', $attributes['uid'][0]));
+            }
+        }
         $attr = $this->config->idpattr;
         if (empty($attributes[$attr]) ) {
             $this->error_page(get_string('noattribute', 'auth_saml2', $attr));
