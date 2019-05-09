@@ -503,6 +503,10 @@ class Session implements \Serializable, Utils\ClearableState
 
         $this->dirty = true;
 
+        // Moodle auth_saml2 hack, because we register a shutdown handler in
+        // moodle in the constructor we don't need to register a callback here.
+        return;
+
         if ($this->callback_registered) {
             // we already have a shutdown callback registered for this object, no need to add another one
             return;
@@ -518,7 +522,9 @@ class Session implements \Serializable, Utils\ClearableState
      */
     public function __destruct()
     {
-        $this->save();
+        // Moodle auth_saml2 hack, we don't need to save here because we have
+        // a custom shutdown handle registered with moodle.
+        // $this->save();
     }
 
     /**
