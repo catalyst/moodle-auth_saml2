@@ -55,7 +55,7 @@ before_install:
   - echo $CI
   - phpenv config-rm xdebug.ini
   - echo "extension = redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-  - tests/idp/simplesamlphp.sh
+  - bash tests/idp/simplesamlphp.sh
   - cd ../..
   - if [ "$CI" = 2 ]; then
       nvm install 8.9;
