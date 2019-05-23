@@ -37,10 +37,9 @@ if (!empty($CFG->loginhttps)) {
 $config = [];
 
 // Case for specifying no $SESSION IdP, select the first configured IdP as the default.
-$arr = array_reverse($saml2auth->metadataentities);
-$metadataentities = array_pop($arr);
-$idpentity = array_pop($metadataentities);
-$idp = md5($idpentity->entityid);
+$metadataentities = reset($saml2auth->metadataentities);
+$idpentity = reset($metadataentities);
+$idp = $idpentity->entityid;
 
 if (!empty($SESSION->saml2idp)) {
     foreach ($saml2auth->metadataentities as $idpentities) {
