@@ -709,7 +709,6 @@ class auth_plugin_saml2 extends auth_plugin_base {
      *
      */
     public function is_access_allowed_for_member($attributes) {
-        error_log(print_r($attributes, true));
 
         // If there is no encumberance attribute configured in Moodle, let them pass.
         if (empty($this->config->groupattr) ) {
