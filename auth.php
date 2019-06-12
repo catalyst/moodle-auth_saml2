@@ -618,29 +618,6 @@ class auth_plugin_saml2 extends auth_plugin_base {
     }
 
     /**
-     * Testing user's groups attribute and allow access decided on preferences.
-     *
-     */
-    public function is_access_allowed_for_member($attributes) {
-
-        if (empty($this->config->groupattr)) {
-            return true;
-        }
-
-        $groups = $attributes[$this->config->groupattr];
-        $deny  = preg_split("/[\s,]+/", $this->config->restricted_groups, null, PREG_SPLIT_NO_EMPTY);
-        $allow = preg_split("/[\s,]+/", $this->config->allowed_groups, null, PREG_SPLIT_NO_EMPTY);
-        if (!empty(array_intersect($deny, $groups)) || empty(array_intersect($allow, $groups))) {
-            $this->log(__FUNCTION__ . " user '$uid' is in restricted group or isn't in allowed. Access denied.");
-            return false;
-        } else {
-            $this->log(__FUNCTION__ . " user '$uid' is in allowed group and isn't in restricted. Access allowed.");
-        }
-        return true;
-
-    }
-
-    /**
      * Redirect SAML2 login if a flagredirecturl has been configured.
      *
      * @throws \moodle_exception
@@ -696,7 +673,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         if ($this->is_flag_attribute_set() && $this->is_flag_attribute_in_idp_attributes($attributes)) {
             // Some IdPs (ie. simpleSAMLphp) only allow array values for attributes, if so assume the first element in
             // array is flag value.
-            if (is_array($attributes[$this->config->flagattribute])) {
+            if (is_array($attributes[$this->config->flagattribute]) && !empty($attributes[$this->config->flagattribute])) {
                 return ($attributes[$this->config->flagattribute][0] == $this->config->flagvalue);
             } else {
                 return ($attributes[$this->config->flagattribute] == $this->config->flagvalue);
@@ -732,6 +709,51 @@ class auth_plugin_saml2 extends auth_plugin_base {
         } else {
             $this->log(__FUNCTION__ . ' user is not flagged.');
         }
+    }
+
+    /**
+     * Testing user's groups attribute and allow access decided on preferences.
+     *
+     */
+    public function is_access_allowed_for_member($attributes) {
+        error_log(print_r($attributes, true));
+
+        // If there is no encumberance attribute configured in Moodle, let them pass.
+        if (empty($this->config->groupattr) ) {
+            return true;
+        }
+
+        // If a user has no encumberance attribute let them into Moodle.
+        if (empty($attributes[$this->config->groupattr])) {
+            return true;
+        }
+
+        $groups = $attributes[$this->config->groupattr];
+
+        $uid = $attributes[$this->config->idpattr][0];
+        $deny  = preg_split("/[\s,]+/", $this->config->restricted_groups, null, PREG_SPLIT_NO_EMPTY);
+        $allow = preg_split("/[\s,]+/", $this->config->allowed_groups, null, PREG_SPLIT_NO_EMPTY);
+
+        // If a user has an encumberance attribute and one of the groups in it match an allow group,
+        // then let them in.
+        if (empty(array_intersect($allow, $groups))) {
+            $this->log(__FUNCTION__ . " user '$uid' is in restricted group or isn't in allowed. Access denied.");
+            return false;
+        } else {
+            $this->log(__FUNCTION__ . " user '$uid' is in allowed group and isn't in restricted. Access allowed.");
+            return true;
+        }
+
+        // If a user has an encumberance attribute and one of the groups in it match a deny group,
+        // then don't let them in.
+        // We realise that they may not get here if they are in an allow group.
+        if (!empty(array_intersect($deny, $groups))) {
+            $this->log(__FUNCTION__ . " user '$uid' is in restricted group or isn't in allowed. Access denied.");
+            return false;
+        }
+
+        return true;
+
     }
 
     /**
