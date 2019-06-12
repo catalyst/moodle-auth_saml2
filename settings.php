@@ -312,21 +312,6 @@ if ($ADMIN->fulltree) {
         saml2_settings::OPTION_FLAGGED_LOGIN_NONE,
         $flaggedloginresponseoptions));
 
-    // IdP attribute to look for indicating flagged account.
-    $settings->add(new admin_setting_configtext(
-        'auth_saml2/flagattribute',
-        get_string('flagattribute', 'auth_saml2'),
-        get_string('flagattribute_help', 'auth_saml2'),
-        get_string('flagattribute_default', 'auth_saml2'),
-        PARAM_TEXT));
-
-    // Value to look for indicating flag is active.
-    $settings->add(new admin_setting_configtext(
-        'auth_saml2/flagvalue',
-        get_string('flagvalue', 'auth_saml2'),
-        get_string('flagvalue_help', 'auth_saml2'),
-        get_string('flagvalue_default', 'auth_saml2'),
-        PARAM_TEXT));
 
     // Set the http OR https fully qualified scheme domain name redirect destination for flagged accounts.
     $settings->add(new admin_setting_configtext(
