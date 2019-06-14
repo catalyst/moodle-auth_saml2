@@ -41,6 +41,8 @@ $passive = optional_param('passive', '', PARAM_RAW);
 $passivefail = optional_param('passivefail', '', PARAM_RAW);
 $trylogin = optional_param('login', '', PARAM_RAW);
 
+$auth = new SimpleSAML\Auth\Simple($saml2auth->spname);
+
 if ($logout) {
     $urlparams = [
         'sesskey' => sesskey(),
@@ -49,8 +51,6 @@ if ($logout) {
     $url = new moodle_url('/auth/test_settings.php', $urlparams);
     $auth->logout(['ReturnTo' => $url->out(false)]);
 }
-
-$auth = new SimpleSAML\Auth\Simple($saml2auth->spname);
 
 if ($passive) {
     /* Prevent it from calling the missing post redirection. /auth/saml2/sp/module.php/core/postredirect.php */
@@ -88,6 +88,7 @@ if ($passive) {
     var_dump($attributes);
     echo 'IdP: ' . $auth->getAuthData('saml:sp:IdP');
     echo '</pre>';
+    echo '<p>You are logged in: <a href="?logout=true&idplogout=' . $auth->getAuthData('saml:sp:IdP') . '">Logout</a></p>';
 }
 
 unset($SESSION->saml2testidp);
