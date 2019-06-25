@@ -26,8 +26,9 @@ require_once(__DIR__ . '/../../config.php');
 
 $idps = auth_saml2_get_idps(false, true);
 $idpentityids = array();
-foreach ($idps as $idpid => $idp) {
-    $idpentityids[] = $idpid;
+foreach ($idps as $idpid => $idparray) {
+    $idp = array_shift($idparray);
+    $idpentityids[] = $idp['entityid'];
 }
 
 $data = [
