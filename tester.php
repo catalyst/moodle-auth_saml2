@@ -24,14 +24,17 @@
 
 require_once(__DIR__ . '/../../config.php');
 
-$idps = auth_saml2_get_idps(false, true);
-$idpentityids = array();
-foreach ($idps as $idpid => $idp) {
-    $idpentityids[] = $idpid;
+$idps = auth_saml2_get_idps(true, true);
+$idpentities = array();
+
+foreach ($idps as $idpid) {
+    foreach ($idpid as $idp) {
+         $idpentities[$idp['entityid']] = $idp['name'];
+    }
 }
 
 $data = [
-        'idpentityids' => $idpentityids,
+    'idpentities' => $idpentities,
 ];
 
 $action = new moodle_url('/auth/saml2/test.php');

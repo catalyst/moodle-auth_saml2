@@ -46,23 +46,7 @@ class testidpselect extends moodleform {
      */
     public function definition() {
         $mform = $this->_form;
-
-        $idpentityids = $this->_customdata['idpentityids'];
-
-        $selectvalues = [];
-
-        foreach ($idpentityids as $idpentity) {
-            if (is_string($idpentity)) {
-                $selectvalues[$idpentity] = $idpentity;
-            } else {
-                foreach ((array)$idpentity as $subidpentity => $active) {
-                    if ($active) {
-                        $selectvalues[$subidpentity] = $subidpentity;
-                    }
-                }
-            }
-        }
-
+        $selectvalues = $this->_customdata['idpentities'];
         $mform->addElement('select', 'idp', get_string('test_auth_button_login', 'auth_saml2'), $selectvalues);
 
         $radioarray = [];
