@@ -92,7 +92,7 @@ if ($ADMIN->fulltree) {
             get_string('logtofile', 'auth_saml2'),
             get_string('logtofile_help', 'auth_saml2'),
             0, $yesno));
-    $settings->add(new admin_setting_configtext(
+    $settings->add(new admin_setting_configexecutable(
             'auth_saml2/logdir',
             get_string('logdir', 'auth_saml2'),
             get_string('logdir_help', 'auth_saml2'),
