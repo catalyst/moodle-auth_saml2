@@ -40,7 +40,7 @@ $config = [];
 $arr = array_reverse($saml2auth->metadataentities);
 $metadataentities = array_pop($arr);
 $idpentity = array_pop($metadataentities);
-$idp = md5($idpentity->entityid);
+$idp = $idpentity->entityid;
 
 if (!empty($SESSION->saml2idp)) {
     foreach ($saml2auth->metadataentities as $idpentities) {
