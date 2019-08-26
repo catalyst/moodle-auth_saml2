@@ -73,6 +73,8 @@ Branches
 
 * For Moodle 2.7 to 3.4 use the 27_34STABLE branch
 * For Moodle 3.5 to 3.8 use the master branch
+* For PHP 7.2 support - use the php72support branch. for more details see:
+  https://github.com/catalyst/moodle-auth_saml2/issues/308
 
 Installation
 ------------
