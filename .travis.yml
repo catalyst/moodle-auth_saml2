@@ -37,20 +37,13 @@ matrix:
       env: DB=mysqli  MOODLE_BRANCH=master
 
 before_install:
-  - export MOODLE_VERSION=$(echo "$MOODLE_BRANCH" | cut -d'_' -f 2)
-  - if [ "$MOODLE_VERSION" = "master" ] || [ "$MOODLE_VERSION" -ge 32 ]; then export CI=2; else export CI=1; fi
-  - echo $CI
   - phpenv config-rm xdebug.ini
   - echo "extension = redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - bash tests/idp/simplesamlphp.sh
   - cd ../..
-  - if [ "$CI" = 2 ]; then
-      nvm install 8.9;
-      nvm use 8.9;
-      composer create-project -n --no-dev --prefer-dist moodlerooms/moodle-plugin-ci ci ^2;
-    else
-      composer create-project -n --no-dev --prefer-dist moodlerooms/moodle-plugin-ci ci ^1;
-    fi
+  - nvm install 8.9;
+  - nvm use 8.9;
+  - composer create-project -n --no-dev --prefer-dist blackboard-open-source/moodle-plugin-ci ci ^2;
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
 
 install:
@@ -68,14 +61,8 @@ script:
   - moodle-plugin-ci phpcpd
   - moodle-plugin-ci phpmd
   - moodle-plugin-ci codechecker
-
-  - if [ "$CI" -eq 1 ]; then moodle-plugin-ci csslint    ; fi
-  - if [ "$CI" -eq 1 ]; then moodle-plugin-ci jshint     ; fi
-  - if [ "$CI" -eq 1 ]; then moodle-plugin-ci shifter    ; fi
-
-  - if [ "$CI" -eq 2 ]; then moodle-plugin-ci savepoints ; fi
-  - if [ "$CI" -eq 2 ]; then moodle-plugin-ci mustache   ; fi
-  - if [ "$CI" -eq 2 ]; then moodle-plugin-ci grunt      ; fi
-
+  - moodle-plugin-ci savepoints
+  - moodle-plugin-ci mustache
+  - moodle-plugin-ci grunt
   - moodle-plugin-ci phpunit
   - moodle-plugin-ci behat
