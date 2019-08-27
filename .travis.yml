@@ -5,16 +5,17 @@ sudo: required
 addons:
   hosts:
     - simplesamlphp.test
-  firefox: "35.0.1"
-  postgresql: "9.3"
+  firefox: "47.0.1"
+  postgresql: "9.4"
   apt:
     packages:
-      - oracle-java9-installer
-      - oracle-java9-set-default
+      - openjdk-8-jre-headless
+      - chromium-chromedriver
       - redis-server
 
 services:
   - redis-server
+  - mysql
 
 cache:
   directories:
@@ -24,28 +25,14 @@ cache:
 # Alternate tests with MySQL and PostgreSQL
 matrix:
   include:
-    # PHP 5.5
-    - php: 5.5
-      env: DB=pgsql  MOODLE_BRANCH=MOODLE_27_STABLE
-    - php: 5.5
-      env: DB=mysqli MOODLE_BRANCH=MOODLE_28_STABLE
-    - php: 5.5
-      env: DB=pgsql  MOODLE_BRANCH=MOODLE_29_STABLE
-    # PHP 5.6
-    - php: 5.6
-      env: DB=mysqli MOODLE_BRANCH=MOODLE_30_STABLE
-    - php: 5.6
-      env: DB=pgsql  MOODLE_BRANCH=MOODLE_31_STABLE
-    - php: 5.6
-      env: DB=mysqli MOODLE_BRANCH=MOODLE_32_STABLE
     # PHP 7.0
     - php: 7.0
-      env: DB=pgsql  MOODLE_BRANCH=MOODLE_33_STABLE
+      env: DB=pgsql  MOODLE_BRANCH=MOODLE_35_STABLE
     - php: 7.0
-      env: DB=mysqli MOODLE_BRANCH=MOODLE_34_STABLE
-    - php: 7.0
-      env: DB=pgsql MOODLE_BRANCH=MOODLE_35_STABLE
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_36_STABLE
     # PHP 7.1
+    - php: 7.1
+      env: DB=pgsql MOODLE_BRANCH=MOODLE_37_STABLE
     - php: 7.1
       env: DB=mysqli  MOODLE_BRANCH=master
 
