@@ -69,7 +69,7 @@ function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
     }
 
     certificate_openssl_error_strings(); // Ensure existing messages are dropped.
-    $privkeypass = get_site_identifier();
+    $privkeypass = get_config('auth_saml2', 'privatekeypass');
     $privkey = openssl_pkey_new($opensslargs);
     $csr     = openssl_csr_new($dn, $privkey, $opensslargs);
     $sscert  = openssl_csr_sign($csr, null, $privkey, $numberofdays, $opensslargs);
