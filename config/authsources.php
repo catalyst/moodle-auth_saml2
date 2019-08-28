@@ -74,7 +74,7 @@ $config[$saml2auth->spname] = [
         'en' => $CFG->wwwroot,
     ),
     'privatekey' => $saml2auth->spname . '.pem',
-    'privatekey_pass' => get_site_identifier(),
+    'privatekey_pass' => get_config('auth_saml2', 'privatekeypass'),
     'certificate' => $saml2auth->spname . '.crt',
     'sign.logout' => true,
     'redirect.sign' => true,
