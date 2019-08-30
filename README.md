@@ -13,6 +13,7 @@ https://moodle.org/plugins/auth_saml2
 * [Why is it better?](#why-is-it-better)
 * [How does it work?](#how-does-it-work)
 * [Features](#features)
+* [Branches](#branches)
 * [Installation](#installation)
 * [Configuration](#configuration)
 * [Testing](#testing)
@@ -67,6 +68,13 @@ Features not yet implemented:
 * Enrolment - this should be an enrol plugin and not in an auth plugin
 * Role mapping - not yet implemented
 
+Branches
+--------
+
+* For Moodle 2.7 to 3.4 use the 27_34STABLE branch
+* For Moodle 3.5 to 3.8 use the master branch
+* For full PHP 7.2 support (Totara 12 etc) - use the php72support branch. for more details see:
+  https://github.com/catalyst/moodle-auth_saml2/issues/308
 
 Installation
 ------------

@@ -142,6 +142,13 @@ if ($ADMIN->fulltree) {
             $CFG->wwwroot . '/auth/saml2/regenerate.php'
             ));
 
+    $settings->add(new admin_setting_configpasswordunmask(
+        'auth_saml2/privatekeypass',
+        get_string('privatekeypass', 'auth_saml2'),
+        get_string('privatekeypass_help', 'auth_saml2'),
+        get_site_identifier(),
+        PARAM_TEXT));
+
     // SP Metadata.
     $settings->add(new setting_textonly(
            'auth_saml2/spmetadata',

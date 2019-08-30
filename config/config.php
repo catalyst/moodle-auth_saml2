@@ -53,7 +53,7 @@ $config = array(
     'showerrors'        => $CFG->debugdisplay ? true : false,
     'errorreporting'    => false,
     'debug.validatexml' => false,
-    'secretsalt'        => get_site_identifier(),
+    'secretsalt'        => $saml2auth->config->privatekeypass,
     'technicalcontact_name'  => $CFG->supportname,
     'technicalcontact_email' => $CFG->supportemail ? $CFG->supportemail : $CFG->noreplyaddress,
     // TODO \core_user::get_support_user().
@@ -81,7 +81,7 @@ $config = array(
     'metadata.sign.enable'          => $saml2auth->config->spmetadatasign ? true : false,
     'metadata.sign.certificate'     => $saml2auth->certcrt,
     'metadata.sign.privatekey'      => $saml2auth->certpem,
-    'metadata.sign.privatekey_pass' => get_site_identifier(),
+    'metadata.sign.privatekey_pass' => $saml2auth->config->privatekeypass,
     'metadata.sources'              => $metadatasources,
 
     'store.type' => !empty($CFG->auth_saml2_store) ? $CFG->auth_saml2_store : '\\auth_saml2\\store',
