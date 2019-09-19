@@ -75,14 +75,17 @@ EOM;
                 $mform->addElement('html', '<tr><td>');
                 $mform->addElement('hidden', $fieldkey.'[id]');
                 $mform->addElement('html', $idpentity['entityid'].'</td><td>');
+                $mform->setType($fieldkey.'[id]', PARAM_INT);
 
                 // Add the displayname textbox
                 $mform->addElement('text', $fieldkey.'[displayname]', '', array('placeholder' => $idpentity['defaultname']));
                 $mform->addElement('html', '</td><td>');
+                $mform->setType($fieldkey.'[displayname]', PARAM_TEXT);
 
                 // Add the alias textbox.
                 $mform->addElement('text', $fieldkey.'[alias]', '');
                 $mform->addElement('html', '</td><td>');
+                $mform->setType($fieldkey.'[alias]', PARAM_TEXT);
 
                 // Add the activeidp checkbox.
                 $mform->addElement('advcheckbox', $fieldkey.'[activeidp]', '', '', array(), array(false, true));
