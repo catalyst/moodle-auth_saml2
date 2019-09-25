@@ -48,6 +48,7 @@ $string['commonname'] = 'Common Name';
 $string['countryname'] = 'Country';
 $string['debug'] = 'Debugging';
 $string['debug_help'] = '<p>This adds extra debugging to the normal moodle log | <a href=\'{$a}\'>View SSP config</a></p>';
+$string['auth_saml2disabledauthusers'] = '<p class="alert alert-warning">The ability for any auth type to use the SAML Login has been enabled, but there are users in your site linked to a disabled authentication plugin. These users may be able to login, but the Moodle session clean up task will delete their session, requiring them to login again within a short time period. Please delete these users or update the authentication used in their profile.</p>';
 $string['duallogin'] = 'Dual login';
 $string['duallogin_help'] = '
 <p>If on, then users will see both manual and a SAML login button. If off they will always be taken directly to the IdP login page.</p>

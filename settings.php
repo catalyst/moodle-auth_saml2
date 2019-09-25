@@ -43,6 +43,29 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_heading('auth_saml2/pluginname', '',
         new lang_string('auth_saml2description', 'auth_saml2')));
 
+    if (!empty(get_config("auth_saml2", "anyauth")) && strpos($CFG->auth, 'saml2')) {
+        // Check for disabled auth plugins that have users.
+        $disabledplugins = array();
+
+        $authenabled = get_enabled_auth_plugins(); // All enabled plugins.
+
+        // Get array of full frankenstyle plugin name of all installed auth plugins.
+        $authsavailable = array_keys(core_component::get_plugin_list('auth'));
+
+        // Get an array list of disabled plugins.
+        foreach ($authsavailable as $auth) {
+            $shortname = str_replace('auth_', '', $auth);
+            if (!in_array($shortname, $authenabled)) {
+                $disabledplugins[] = $shortname;
+            }
+        }
+        list($insql, $inparams) = $DB->get_in_or_equal($disabledplugins);
+        if ($DB->record_exists_select('user', 'deleted = 0 AND auth '.$insql, $inparams)) {
+            $settings->add(new admin_setting_heading('auth_saml2/warning', '',
+                new lang_string('auth_saml2disabledauthusers', 'auth_saml2')));
+        }
+    }
+
     // IDP Metadata.
     $idpmetadata = new \auth_saml2\admin\setting_idpmetadata();
     $idpmetadata->set_updatedcallback('auth_saml2_update_idp_metadata');
