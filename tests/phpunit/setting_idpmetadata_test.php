@@ -30,11 +30,11 @@ require_once(__DIR__ . '/../../_autoload.php');
 
 class setting_idpmetadata_test extends advanced_testcase {
     /** @var setting_idpmetadata */
-    private $config;
+    private static $config;
 
     protected function setUp() {
         parent::setUp();
-        $this->config = new setting_idpmetadata();
+        self::$config = new setting_idpmetadata();
     }
 
     private function get_test_metadata_url() {
@@ -47,7 +47,7 @@ class setting_idpmetadata_test extends advanced_testcase {
     public function test_it_validates_the_xml() {
         $this->resetAfterTest();
         $xml = file_get_contents(__DIR__ . '/../fixtures/metadata.xml');
-        $data = $this->config->validate($xml);
+        $data = self::$config->validate($xml);
         self::assertTrue($data);
     }
 
@@ -57,7 +57,7 @@ class setting_idpmetadata_test extends advanced_testcase {
         $this->resetAfterTest();
 
         $xml = file_get_contents(__DIR__ . '/../fixtures/metadata.xml');
-        $this->config->write_setting($xml);
+        self::$config->write_setting($xml);
         $actual = get_config('auth_saml2');
 
         self::assertSame($xml, $actual->idpmetadata, 'Invalid config metadata.');
@@ -85,7 +85,7 @@ class setting_idpmetadata_test extends advanced_testcase {
         $this->resetAfterTest();
 
         $xml = file_get_contents(__DIR__ . '/../fixtures/dualmetadata.xml');
-        $this->config->write_setting($xml);
+        self::$config->write_setting($xml);
         $actual = get_config('auth_saml2');
 
         self::assertSame($xml, $actual->idpmetadata, 'Invalid config metadata.');
@@ -112,14 +112,14 @@ class setting_idpmetadata_test extends advanced_testcase {
     }
 
     public function test_it_allows_empty_values() {
-        self::assertTrue($this->config->validate(''), 'Validate empty string.');
-        self::assertTrue($this->config->validate('  '), ' Should trim spaces.');
-        self::assertTrue($this->config->validate("\n \n"), 'Should trim newlines.');
+        self::assertTrue(self::$config->validate(''), 'Validate empty string.');
+        self::assertTrue(self::$config->validate('  '), ' Should trim spaces.');
+        self::assertTrue(self::$config->validate("\n \n"), 'Should trim newlines.');
     }
 
     public function test_it_gets_idp_data_for_xml() {
         $xml = file_get_contents(__DIR__ . '/../fixtures/metadata.xml');
-        $data = $this->config->get_idps_data($xml);
+        $data = self::$config->get_idps_data($xml);
         self::assertCount(1, $data);
         $this->validate_idp_data_array($data);
     }
@@ -127,13 +127,13 @@ class setting_idpmetadata_test extends advanced_testcase {
     public function test_it_gets_idp_data_for_two_urls() {
         $url = $this->get_test_metadata_url();
         $url = "{$url}\n{$url}?second";
-        $data = $this->config->get_idps_data($url);
+        $data = self::$config->get_idps_data($url);
         self::assertCount(2, $data);
         $this->validate_idp_data_array($data);
     }
 
     public function test_it_returns_error_if_metadata_url_is_not_valid() {
-        $error = $this->config->validate('http://invalid.url.metadata.test');
+        $error = self::$config->validate('http://invalid.url.metadata.test');
         self::assertContains('Invalid metadata', $error);
         self::assertContains('http://invalid.url.metadata.test', $error);
     }
@@ -145,6 +145,19 @@ class setting_idpmetadata_test extends advanced_testcase {
         foreach ($idps as $idp) {
             self::assertInstanceOf(idp_data::class, $idp);
             self::assertNotNull($idp->get_rawxml());
+        }
+    }
+
+    /**
+     * Cleanup after all tests are executed.
+     *
+     * @static
+     * @return void
+     */
+    public static function tearDownAfterClass() {  // @codingStandardsIgnoreLine - ignore case of function.
+        parent::tearDownAfterClass();
+        if (self::$config) {
+            self::$config = null;
         }
     }
 }
