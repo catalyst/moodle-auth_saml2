@@ -61,8 +61,6 @@ class auth_plugin_saml2 extends auth_plugin_base {
         'logdir'             => '/tmp/',
         'nameidasattrib'     => 0,
         'flagresponsetype'   => saml2_settings::OPTION_FLAGGED_LOGIN_NONE,
-        'flagattribute'      => 'encumbered',
-        'flagvalue'          => 'true',
         'flagredirecturl'    => '',
         'flagmessage'        => '' // Set in constructor.
     ];
@@ -531,7 +529,6 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         // Testing user's groups and allow access decided on preferences
         if (!$this->is_access_allowed_for_member($attributes)) {
-            //$this->error_page(get_string('wrongauth', 'auth_saml2', $uid));
             $this->handle_flagged_login($attributes);
         }
 
@@ -680,16 +677,6 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $deny  = preg_split("/[\s,]+/", $this->config->restricted_groups, null, PREG_SPLIT_NO_EMPTY);
         $allow = preg_split("/[\s,]+/", $this->config->allowed_groups, null, PREG_SPLIT_NO_EMPTY);
 
-        // If a user has an encumberance attribute and one of the groups in it match an allow group,
-        // then let them in.
-        if (empty(array_intersect($allow, $groups))) {
-            $this->log(__FUNCTION__ . " user '$uid' is in restricted group or isn't in allowed. Access denied.");
-            return false;
-        } else {
-            $this->log(__FUNCTION__ . " user '$uid' is in allowed group and isn't in restricted. Access allowed.");
-            return true;
-        }
-
         // If a user has an encumberance attribute and one of the groups in it match a deny group,
         // then don't let them in.
         // We realise that they may not get here if they are in an allow group.
@@ -698,8 +685,15 @@ class auth_plugin_saml2 extends auth_plugin_base {
             return false;
         }
 
-        return true;
+        // If a user has an encumberance attribute and one of the groups in it match an allow group,
+        // then let them in.
+        if (empty(array_intersect($allow, $groups))) {
+            $this->log(__FUNCTION__ . " user '$uid' is in restricted group or isn't in allowed. Access denied.");
+            return false;
+        }
 
+        $this->log(__FUNCTION__ . " user '$uid' is in allowed group and isn't in restricted. Access allowed.");
+        return true;
     }
 
     /**

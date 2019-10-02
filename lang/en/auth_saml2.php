@@ -75,12 +75,6 @@ $string['flagmessage_help'] = '
 <p>(Only displayed when \'Flagged response type\' is \'Display custom message\'.)</p>';
 $string['flagmessage_default'] = 'You are logged in to your identity provider however, this account has been flagged and has limited access to Moodle, please contact your administrator for more details.';
 $string['flagresponsetype'] = 'Flagged response type';
-$string['flagattribute'] = 'Flag attribute';
-$string['flagattribute_help'] = 'Which IdP attribute will indicate user has been flagged?';
-$string['flagattribute_default'] = 'encumbered';
-$string['flagvalue'] = 'Flag value';
-$string['flagvalue_help'] = 'What value will indicate flag is active and message display or redirect response is required?';
-$string['flagvalue_default'] = 'true';
 $string['flagresponsetype_help'] = 'If the flag is detected, how should Moodle respond?';
 $string['idpattr_help'] = 'Which IdP attribute should be matched against a Moodle user field?';
 $string['idpattr'] = 'Mapping IdP';
