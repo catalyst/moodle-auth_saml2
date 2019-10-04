@@ -2,7 +2,6 @@
 
 namespace SimpleSAML;
 
-
 /**
  * The main logger class for SimpleSAMLphp.
  *
@@ -10,7 +9,6 @@ namespace SimpleSAML;
  * @author Andreas Åkre Solberg, UNINETT AS. <andreas.solberg@uninett.no>
  * @author Jaime Pérez Crespo, UNINETT AS <jaime.perez@uninett.no>
  * @package SimpleSAMLphp
- * @version $ID$
  */
 class Logger
 {
@@ -305,7 +303,7 @@ class Logger
      */
     public static function maskErrors($mask)
     {
-        assert('is_int($mask)');
+        assert(is_int($mask));
 
         $currentEnabled = error_reporting();
         self::$logLevelStack[] = array($currentEnabled, self::$logMask);
@@ -340,7 +338,6 @@ class Logger
     {
         // save the message for later
         self::$earlyLog[] = array('level' => $level, 'string' => $message, 'statsLog' => $stats);
-
 
         // register a shutdown handler if needed
         if (!self::$shutdownRegistered) {
