@@ -275,6 +275,12 @@ function xmldb_auth_saml2_upgrade($oldversion) {
                     $DB->insert_record($tablename, $idpobject);
                 }
             }
+
+            $data = get_config('auth_saml2', 'idpmetadata');
+            if (!empty($data)) {
+                $idpmetadata = new \auth_saml2\admin\setting_idpmetadata();
+                $idpmetadata->write_setting($data);
+            }
         }
 
         upgrade_plugin_savepoint(true, 2019022100, 'auth', 'saml2');
