@@ -399,17 +399,20 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $this->resetAfterTest();
 
         $auth = get_auth_plugin('saml2');
-
         $this->assertFalse($auth->get_email_from_attributes([]));
         $this->assertFalse($auth->get_email_from_attributes(['email' => ['test@test.com']]));
 
         set_config('field_map_email', 'test', 'auth_saml2');
+        $auth = get_auth_plugin('saml2');
+
         $this->assertFalse($auth->get_email_from_attributes(['email' => ['test@test.com']]));
 
         set_config('field_map_email', 'email', 'auth_saml2');
+        $auth = get_auth_plugin('saml2');
         $this->assertEquals('test@test.com', $auth->get_email_from_attributes(['email' => ['test@test.com']]));
 
         set_config('field_map_email', 'email', 'auth_saml2');
+        $auth = get_auth_plugin('saml2');
         $this->assertEquals('test@test.com', $auth->get_email_from_attributes(['email' => ['test@test.com', 'test2@test.com']]));
     }
 

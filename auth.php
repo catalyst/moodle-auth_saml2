@@ -723,10 +723,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * @return bool
      */
     public function get_email_from_attributes(array $attributes) {
-        $emailattr = get_config('auth_saml2', 'field_map_email');
-
-        if (!empty($emailattr) && !empty($attributes[$emailattr])) {
-            return $attributes[$emailattr][0];
+        if (!empty($this->config->field_map_email) && !empty($attributes[$this->config->field_map_email])) {
+            return $attributes[$this->config->field_map_email][0];
         }
 
         return false;
