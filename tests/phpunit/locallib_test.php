@@ -394,5 +394,55 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
 
         $this->assertTrue($auth->is_configured());
     }
+
+    public function test_get_email_from_attributes() {
+        $this->resetAfterTest();
+
+        $auth = get_auth_plugin('saml2');
+        $this->assertFalse($auth->get_email_from_attributes([]));
+        $this->assertFalse($auth->get_email_from_attributes(['email' => ['test@test.com']]));
+
+        set_config('field_map_email', 'test', 'auth_saml2');
+        $auth = get_auth_plugin('saml2');
+
+        $this->assertFalse($auth->get_email_from_attributes(['email' => ['test@test.com']]));
+
+        set_config('field_map_email', 'email', 'auth_saml2');
+        $auth = get_auth_plugin('saml2');
+        $this->assertEquals('test@test.com', $auth->get_email_from_attributes(['email' => ['test@test.com']]));
+
+        set_config('field_map_email', 'email', 'auth_saml2');
+        $auth = get_auth_plugin('saml2');
+        $this->assertEquals('test@test.com', $auth->get_email_from_attributes(['email' => ['test@test.com', 'test2@test.com']]));
+    }
+
+    public function test_is_email_taken() {
+        $this->resetAfterTest();
+
+        $auth = get_auth_plugin('saml2');
+        $user = $this->getDataGenerator()->create_user();
+
+        $this->assertFalse($auth->is_email_taken(''));
+        $this->assertFalse($auth->is_email_taken('', $user->username));
+
+        $this->assertTrue($auth->is_email_taken($user->email));
+        $this->assertTrue($auth->is_email_taken(strtoupper($user->email)));
+        $this->assertTrue($auth->is_email_taken(ucfirst($user->email)));
+        $this->assertFalse($auth->is_email_taken($user->email, $user->username));
+        $this->assertFalse($auth->is_email_taken(strtoupper($user->email), $user->username));
+        $this->assertFalse($auth->is_email_taken(ucfirst($user->email), $user->username));
+
+        // Create a new user with the same email, but different mnethostid.
+        $user2 = $this->getDataGenerator()->create_user(['email' => $user->email, 'mnethostid' => 777]);
+
+        // Delete original user.
+        delete_user($user);
+        $this->assertFalse($auth->is_email_taken($user->email));
+        $this->assertFalse($auth->is_email_taken(strtoupper($user->email)));
+        $this->assertFalse($auth->is_email_taken(ucfirst($user->email)));
+        $this->assertFalse($auth->is_email_taken($user->email, $user->username));
+        $this->assertFalse($auth->is_email_taken(strtoupper($user->email), $user->username));
+        $this->assertFalse($auth->is_email_taken(ucfirst($user->email), $user->username));
+    }
 }
 

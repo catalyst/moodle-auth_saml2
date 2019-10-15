@@ -531,6 +531,13 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $newuser = false;
         if (!$user) {
             if ($this->config->autocreate) {
+                $email = $this->get_email_from_attributes($attributes);
+                // If can't have accounts with the same emails, check if email is taken before create a new user.
+                if (empty($CFG->allowaccountssameemail) && $this->is_email_taken($email)) {
+                    $this->log(__FUNCTION__ . " user '$uid' can't be autocreated as email '$email' is taken");
+                    $this->error_page(get_string('emailtaken', 'auth_saml2', $email));
+                }
+
                 $this->log(__FUNCTION__ . " user '$uid' is not in moodle so autocreating");
                 $user = create_user_record($uid, '', 'saml2');
                 $newuser = true;
@@ -672,6 +679,20 @@ class auth_plugin_saml2 extends auth_plugin_base {
                         if (array_key_exists($attr, $attributes)) {
                             // Handing an empty array of attributes.
                             if (!empty($attributes[$attr])) {
+
+                                // If can't have accounts with the same emails, check if email is taken before update a new user.
+                                if ($field == 'email' && empty($CFG->allowaccountssameemail)) {
+                                    $email = $attributes[$attr][0];
+                                    if ($this->is_email_taken($email, $user->username)) {
+                                        $this->log(__FUNCTION__ .
+                                            " user '$user->username' email can't be updated as '$email' is taken");
+                                        // Warn user that we are not able to update his email.
+                                        \core\notification::warning(get_string('emailtakenupdate', 'auth_saml2', $email));
+
+                                        continue;
+                                    }
+                                }
+
                                 // Custom profile fields have the prefix profile_field_ and will be saved as profile field data.
                                 $user->$field = $attributes[$attr][0];
                                 $update = true;
@@ -695,6 +716,55 @@ class auth_plugin_saml2 extends auth_plugin_base {
         }
 
         return $update;
+    }
+
+    /**
+     * Get email address from attributes.
+     *
+     * @param array $attributes A list of attributes.
+     *
+     * @return bool
+     */
+    public function get_email_from_attributes(array $attributes) {
+        if (!empty($this->config->field_map_email) && !empty($attributes[$this->config->field_map_email])) {
+            return $attributes[$this->config->field_map_email][0];
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if given email is taken by other user(s).
+     *
+     * @param string | bool $email Email to check.
+     * @param string | null $excludeusername A user name to exclude.
+     *
+     * @return bool
+     */
+    public function is_email_taken($email, $excludeusername = null) {
+        global $CFG, $DB;
+
+        if (!empty($email)) {
+            // Make a case-insensitive query for the given email address.
+            $select = $DB->sql_equal('email', ':email', false) . ' AND mnethostid = :mnethostid AND deleted = :deleted';
+            $params = array(
+                'email' => $email,
+                'mnethostid' => $CFG->mnet_localhost_id,
+                'deleted' => 0
+            );
+
+            if ($excludeusername) {
+                $select .= ' AND username <> :username';
+                $params['username'] = $excludeusername;
+            }
+
+            // If there are other user(s) that already have the same email, display an error.
+            if ($DB->record_exists_select('user', $select, $params)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
