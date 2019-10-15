@@ -55,6 +55,7 @@ $string['duallogin_help'] = '
 <p>If off, then admins can still see the manual login page via /login/index.php?saml=off</p>
 <p>If on, then external pages can deep link into moodle using saml eg /course/view.php?id=45&saml=on</p>';
 $string['emailtaken'] = 'Can\'t create a new account, because {$a} email address is already registered';
+$string['emailtakenupdate'] = 'Your email wasn\'t updated, because email address {$a} is already registered';
 $string['errorparsingxml'] = 'Error parsing XML: {$a}';
 $string['exception'] = 'SAML2 exception: {$a}';
 $string['expirydays'] = 'Expiry in Days';

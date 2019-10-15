@@ -686,6 +686,9 @@ class auth_plugin_saml2 extends auth_plugin_base {
                                     if ($this->is_email_taken($email, $user->username)) {
                                         $this->log(__FUNCTION__ .
                                             " user '$user->username' email can't be updated as '$email' is taken");
+                                        // Warn user that we are not able to update his email.
+                                        \core\notification::warning(get_string('emailtakenupdate', 'auth_saml2', $email));
+
                                         continue;
                                     }
                                 }
