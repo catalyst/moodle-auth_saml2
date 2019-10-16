@@ -306,7 +306,6 @@ if ($ADMIN->fulltree) {
 
     // Flagged login response options.
     $flaggedloginresponseoptions = [
-        saml2_settings::OPTION_FLAGGED_LOGIN_NONE => get_string('flaggedresponsetypenone', 'auth_saml2'),
         saml2_settings::OPTION_FLAGGED_LOGIN_MESSAGE => get_string('flaggedresponsetypemessage', 'auth_saml2'),
         saml2_settings::OPTION_FLAGGED_LOGIN_REDIRECT => get_string('flaggedresponsetyperedirect', 'auth_saml2')
     ];
@@ -316,7 +315,7 @@ if ($ADMIN->fulltree) {
         'auth_saml2/flagresponsetype',
         get_string('flagresponsetype', 'auth_saml2'),
         get_string('flagresponsetype_help', 'auth_saml2'),
-        saml2_settings::OPTION_FLAGGED_LOGIN_NONE,
+        saml2_settings::OPTION_FLAGGED_LOGIN_REDIRECT,
         $flaggedloginresponseoptions));
 
 

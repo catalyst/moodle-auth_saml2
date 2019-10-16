@@ -60,7 +60,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         'logtofile'          => 0,
         'logdir'             => '/tmp/',
         'nameidasattrib'     => 0,
-        'flagresponsetype'   => saml2_settings::OPTION_FLAGGED_LOGIN_NONE,
+        'flagresponsetype'   => saml2_settings::OPTION_FLAGGED_LOGIN_MESSAGE,
         'flagredirecturl'    => '',
         'flagmessage'        => '' // Set in constructor.
     ];
@@ -529,7 +529,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         // Testing user's groups and allow access decided on preferences
         if (!$this->is_access_allowed_for_member($attributes)) {
-            $this->handle_flagged_login($attributes);
+            $this->handle_blocked_access();
         }
 
         $newuser = false;
@@ -618,7 +618,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
      *
      * @throws \moodle_exception
      */
-    protected function redirect_flagged_login() {
+    protected function redirect_blocked_access() {
 
         if (!empty($this->config->flagredirecturl)) {
             redirect(new moodle_url($this->config->flagredirecturl));
@@ -630,27 +630,16 @@ class auth_plugin_saml2 extends auth_plugin_base {
     }
 
     /**
-     * Checks if the flagged user feature is enabled and if so, handles configured flag attribute
-     * based on configured response type.
-     *
-     * @param $attributes
-     *
-     * @throws \moodle_exception
+     * Handles blocked access based on configuration.
      */
-    protected function handle_flagged_login($attributes) {
+    protected function handle_blocked_access() {
         switch ($this->config->flagresponsetype) {
-            case saml2_settings::OPTION_FLAGGED_LOGIN_NONE :
-                $this->log ( __FUNCTION__ . ' user is not flagged.' );
+            case saml2_settings::OPTION_FLAGGED_LOGIN_REDIRECT :
+                $this->redirect_blocked_access ();
                 break;
             case saml2_settings::OPTION_FLAGGED_LOGIN_MESSAGE :
-                $this->error_page ( $this->config->flagmessage );
-                break;
-            case saml2_settings::OPTION_FLAGGED_LOGIN_REDIRECT :
-                $this->redirect_flagged_login ();
-                break;
             default :
-                $this->log ( __FUNCTION__ . ' user is not flagged.' );
-                // Fallback behaviour is to allow user login to Moodle.
+                $this->error_page ( $this->config->flagmessage );
                 break;
         }
     }
@@ -658,6 +647,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
     /**
      * Testing user's groups attribute and allow access decided on preferences.
      *
+     * @param array $attributes A list of attributes from the request
+     * @return bool
      */
     public function is_access_allowed_for_member($attributes) {
 

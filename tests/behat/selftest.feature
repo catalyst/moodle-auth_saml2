@@ -5,5 +5,6 @@ Feature: Self tests
   I should be able to run self tests
 
   Scenario: Access the self test page
-    When I go to the self-test page         # auth_saml2
+    Given the authentication plugin saml2 is enabled  # auth_saml2
+    When I go to the self-test page                   # auth_saml2
     Then I should not see "Error"
