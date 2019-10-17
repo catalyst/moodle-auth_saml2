@@ -24,38 +24,38 @@
 namespace auth_saml2\tests;
 
 use \advanced_testcase;
-use auth_saml2\settings_helper;
+use auth_saml2\admin\saml2_settings;
 
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/../../_autoload.php');
 
 /**
- * Class settings_helper_testcase
+ * Class https_regex_testcase
  *
  * @package auth_saml2\tests
  */
-class settings_helper_testcase extends advanced_testcase {
+class https_regex_testcase extends advanced_testcase {
 
     /**
-     * Test that get_http_https_regex method correctly validates valid urls
+     * Test that saml2_settings::URL_HTTPS_REGEX correctly validates valid urls
      *
      * @dataProvider provide_valid_urls
      */
     public function test_valid_urls($url) {
 
-        $actual = preg_match(settings_helper::get_https_regex(), $url);
+        $actual = preg_match(saml2_settings::URL_HTTPS_REGEX, $url);
         $this->assertEquals(true, (bool) $actual);
     }
 
     /**
-     * Test that get_http_https_regex method does not validate invalid urls
+     * Test that saml2_settings::URL_HTTPS_REGEX does not validate invalid urls
      *
      * @dataProvider provide_invalid_urls
      */
     public function test_invalid_urls($url) {
 
-        $actual = preg_match(settings_helper::get_https_regex(), $url);
+        $actual = preg_match(saml2_settings::URL_HTTPS_REGEX, $url);
         $this->assertEquals(false, (bool) $actual);
     }
 
