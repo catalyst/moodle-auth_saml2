@@ -62,20 +62,78 @@ class settings_helper_testcase extends advanced_testcase {
     /**
      * Provider for valid urls from fixture
      *
-     * @return mixed
+     * @return array
      */
     public function provide_valid_urls() {
-        require_once(__DIR__ . '/../fixtures/validurls.php');
-        return $validurls;
+        return array(
+            array("http://foo.com/blah_blah"),
+            array("http://foo.com/blah_blah/"),
+            array("http://foo.com/blah_blah_(wikipedia)"),
+            array("http://foo.com/blah_blah_(wikipedia)_(again)"),
+            array("http://www.example.com/wpstyle/?p=364"),
+            array("https://www.example.com/foo/?bar=baz&inga=42&quux"),
+            array("http://userid:password@example.com:8080"),
+            array("http://userid:password@example.com:8080/"),
+            array("http://userid@example.com"),
+            array("http://userid@example.com/"),
+            array("http://userid@example.com:8080"),
+            array("http://userid@example.com:8080/"),
+            array("http://userid:password@example.com"),
+            array("http://userid:password@example.com/"),
+            array("http://foo.com/blah_(wikipedia)#cite-1"),
+            array("http://foo.com/blah_(wikipedia)_blah#cite-1"),
+            array("http://foo.com/(something)?after=parens"),
+            array("http://code.google.com/events/#&product=browser"),
+            array("http://j.mp"),
+            array("https://foo.bar/baz"),
+            array("http://foo.bar/?q=Test%20URL-encoded%20stuff"),
+            array("http://1337.net"),
+            array("http://a.b-c.de"),
+            array("http://223.255.255.254"),
+            array("http://xn--nw2a.xn--j6w193g/"),
+            array("http://foo.com/blah_blah"),
+            array(""),
+        );
     }
 
     /**
      * Provider for invalid urls from fixture
      *
-     * @return mixed
+     * @return array
      */
     public function provide_invalid_urls() {
-        require_once(__DIR__ . '/../fixtures/invalidurls.php');
-        return $invalidurls;
+        return array(
+            array("http://"),
+            array("http://."),
+            array("http://.."),
+            array("http://../"),
+            array("http://?"),
+            array("http://??"),
+            array("http://??/"),
+            array("http://#"),
+            array("http://##"),
+            array("http://##/"),
+            array("http://foo.bar?q=Spaces should be encoded"),
+            array("//"),
+            array("//a"),
+            array("///a"),
+            array("///"),
+            array("http:///a"),
+            array("foo.com"),
+            array("rdar://1234"),
+            array("h://test"),
+            array("http:// shouldfail.com"),
+            array(":// should fail"),
+            array("http://foo.bar/foo(bar)baz quu"),
+            array("ftps://foo.bar/"),
+            array("http://-error-.invalid/"),
+            array("http://-a.b.co"),
+            array("http://a.b-."),
+            array("http://0.0.0.0"),
+            array("http://3628126748"),
+            array("http://.www.foo.bar/"),
+            array("http://www.foo.bar./"),
+            array("http://.www.foo.bar."),
+        );
     }
 }
