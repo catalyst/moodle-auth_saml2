@@ -46,13 +46,4 @@ abstract class saml2_settings {
 
     const OPTION_FLAGGED_LOGIN_REDIRECT = 2;
 
-    /**
-     * @var string representation of PCRE Regular Expression for checking http/https scheme URLs
-     * in accordance with RFC3986.
-     */
-    const URL_HTTPS_REGEX = '/(^(https?\\:\\/\\/(www\\.)?'
-    . '[^\\.\\-\\s][\\-\\w\\d\\@\\:\\%\\.\\_\\+\\~\\#\\=\\(\\)]{0,256}'
-    . '\.[\\w\\-]{2,6}(?![\\.\\-\\s])'
-    . '([\\-\\w\\d\\@\\:\\%\\_\\+\\~\\#\\?\\&\\/\\=\\(\\)]*))$)'
-    . '|^(?![\\s\\S])/';
 }
