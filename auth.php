@@ -60,6 +60,9 @@ class auth_plugin_saml2 extends auth_plugin_base {
         'logtofile'          => 0,
         'logdir'             => '/tmp/',
         'nameidasattrib'     => 0,
+        'flagresponsetype'   => saml2_settings::OPTION_FLAGGED_LOGIN_MESSAGE,
+        'flagredirecturl'    => '',
+        'flagmessage'        => '' // Set in constructor.
     ];
 
     /**
@@ -68,6 +71,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
     public function __construct() {
         global $CFG, $DB;
         $this->defaults['idpdefaultname'] = get_string('idpnamedefault', 'auth_saml2');
+        $this->defaults['flagmessage'] = get_string('flagmessage_default', 'auth_saml2');
         $this->authtype = 'saml2';
         $mdl = new moodle_url($CFG->wwwroot);
         $this->spname = $mdl->get_host();
@@ -525,7 +529,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         // Testing user's groups and allow access decided on preferences
         if (!$this->is_access_allowed_for_member($attributes)) {
-            $this->error_page(get_string('wrongauth', 'auth_saml2', $uid));
+            $this->handle_blocked_access();
         }
 
         $newuser = false;
@@ -610,26 +614,77 @@ class auth_plugin_saml2 extends auth_plugin_base {
     }
 
     /**
+     * Redirect SAML2 login if a flagredirecturl has been configured.
+     *
+     * @throws \moodle_exception
+     */
+    protected function redirect_blocked_access() {
+
+        if (!empty($this->config->flagredirecturl)) {
+            redirect(new moodle_url($this->config->flagredirecturl));
+        } else {
+            $this->log(__FUNCTION__ . ' no redirect URL value set.');
+            // Fallback to flag message if redirect URL not set.
+            $this->error_page($this->config->flagmessage);
+        }
+    }
+
+    /**
+     * Handles blocked access based on configuration.
+     */
+    protected function handle_blocked_access() {
+        switch ($this->config->flagresponsetype) {
+            case saml2_settings::OPTION_FLAGGED_LOGIN_REDIRECT :
+                $this->redirect_blocked_access ();
+                break;
+            case saml2_settings::OPTION_FLAGGED_LOGIN_MESSAGE :
+            default :
+                $this->error_page ( $this->config->flagmessage );
+                break;
+        }
+    }
+
+    /**
      * Testing user's groups attribute and allow access decided on preferences.
      *
+     * @param array $attributes A list of attributes from the request
+     * @return bool
      */
     public function is_access_allowed_for_member($attributes) {
 
-        if (empty($this->config->groupattr)) {
+        // If there is no encumberance attribute configured in Moodle, let them pass.
+        if (empty($this->config->groupattr) ) {
+            return true;
+        }
+
+        // If a user has no encumberance attribute let them into Moodle.
+        if (empty($attributes[$this->config->groupattr])) {
             return true;
         }
 
         $groups = $attributes[$this->config->groupattr];
+
+        $uid = $attributes[$this->config->idpattr][0];
         $deny  = preg_split("/[\s,]+/", $this->config->restricted_groups, null, PREG_SPLIT_NO_EMPTY);
         $allow = preg_split("/[\s,]+/", $this->config->allowed_groups, null, PREG_SPLIT_NO_EMPTY);
-        if (!empty(array_intersect($deny, $groups)) || empty(array_intersect($allow, $groups))) {
+
+        // If a user has an encumberance attribute and one of the groups in it match a deny group,
+        // then don't let them in.
+        // We realise that they may not get here if they are in an allow group.
+        if (!empty(array_intersect($deny, $groups))) {
             $this->log(__FUNCTION__ . " user '$uid' is in restricted group or isn't in allowed. Access denied.");
             return false;
-        } else {
-            $this->log(__FUNCTION__ . " user '$uid' is in allowed group and isn't in restricted. Access allowed.");
         }
-        return true;
 
+        // If a user has an encumberance attribute and one of the groups in it match an allow group,
+        // then let them in.
+        if (empty(array_intersect($allow, $groups))) {
+            $this->log(__FUNCTION__ . " user '$uid' is in restricted group or isn't in allowed. Access denied.");
+            return false;
+        }
+
+        $this->log(__FUNCTION__ . " user '$uid' is in allowed group and isn't in restricted. Access allowed.");
+        return true;
     }
 
     /**

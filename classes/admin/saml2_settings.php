@@ -41,4 +41,9 @@ abstract class saml2_settings {
     const OPTION_MULTI_IDP_DISPLAY_DROPDOWN = 0;
 
     const OPTION_MULTI_IDP_DISPLAY_BUTTONS = 1;
+
+    const OPTION_FLAGGED_LOGIN_MESSAGE = 1;
+
+    const OPTION_FLAGGED_LOGIN_REDIRECT = 2;
+
 }
