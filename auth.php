@@ -914,7 +914,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
      */
     public function get_ssp_version() {
         require('setup.php');
-        $config = new SimpleSAML_Configuration(array(), '');
+        $config = new SimpleSAML\Configuration(array(), '');
         return $config->getVersion();
     }
 

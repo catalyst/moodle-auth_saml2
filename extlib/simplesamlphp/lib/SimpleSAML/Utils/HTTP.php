@@ -997,7 +997,7 @@ class HTTP
         // This is a Moodle hack. Both moodle and SSPHP rely on automatic
         // destructors to cleanup the $DB var and the SSPHP session but
         // this order is not guaranteed, so we force session saving here.
-        $session = \SimpleSAML_Session::getSessionFromRequest();
+        $session = \SimpleSAML\Session::getSessionFromRequest();
         $session->save();
 
         self::redirect($url, $parameters);
