@@ -49,7 +49,7 @@ function auth_saml2_get_sp_metadata() {
         throw new SimpleSAML\Error\NotFound('Could not find authentication source with id ' . $sourceId);
     }
 
-    if (!($source instanceof sspmod_saml_Auth_Source_SP)) {
+    if (!($source instanceof \SimpleSAML\Module\saml\Auth\Source\SP)) {
         throw new SimpleSAML\Error\NotFound('Source isn\'t a SAML SP: ' . var_export($sourceId, TRUE));
     }
 
