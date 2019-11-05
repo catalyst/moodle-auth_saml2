@@ -9,7 +9,6 @@ class ComposerStaticInit0ca81f0942befe3b0fd9f11752fd86c2
     public static $files = array (
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
-        '023d27dca8066ef29e6739335ea73bad' => __DIR__ . '/..' . '/symfony/polyfill-php70/bootstrap.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         '6175f5662c2e26de0149cb048cda7209' => __DIR__ . '/..' . '/simplesamlphp/saml2/src/_autoload.php',
         '5abda994d126976858eb25d2546ee3c9' => __DIR__ . '/../..' . '/lib/_autoload_modules.php',
@@ -78,10 +77,6 @@ class ComposerStaticInit0ca81f0942befe3b0fd9f11752fd86c2
         'Twig\\' => 
         array (
             0 => __DIR__ . '/..' . '/twig/twig/src',
-        ),
-        'Symfony\\Polyfill\\Php70\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/symfony/polyfill-php70',
         ),
         'Symfony\\Polyfill\\Mbstring\\' => 
         array (
@@ -179,10 +174,7 @@ class ComposerStaticInit0ca81f0942befe3b0fd9f11752fd86c2
     );
 
     public static $classMap = array (
-        'ArithmeticError' => __DIR__ . '/..' . '/symfony/polyfill-php70/Resources/stubs/ArithmeticError.php',
-        'AssertionError' => __DIR__ . '/..' . '/symfony/polyfill-php70/Resources/stubs/AssertionError.php',
-        'DivisionByZeroError' => __DIR__ . '/..' . '/symfony/polyfill-php70/Resources/stubs/DivisionByZeroError.php',
-        'Error' => __DIR__ . '/..' . '/symfony/polyfill-php70/Resources/stubs/Error.php',
+
         'Gettext\\BaseTranslator' => __DIR__ . '/..' . '/gettext/gettext/src/BaseTranslator.php',
         'Gettext\\Extractors\\Blade' => __DIR__ . '/..' . '/gettext/gettext/src/Extractors/Blade.php',
         'Gettext\\Extractors\\Csv' => __DIR__ . '/..' . '/gettext/gettext/src/Extractors/Csv.php',
@@ -248,7 +240,6 @@ class ComposerStaticInit0ca81f0942befe3b0fd9f11752fd86c2
         'JaimePerez\\TwigConfigurableI18n\\Twig\\Extensions\\Extension\\I18n' => __DIR__ . '/..' . '/jaimeperez/twig-configurable-i18n/src/Twig/Extensions/Extension/I18n.php',
         'JaimePerez\\TwigConfigurableI18n\\Twig\\Extensions\\Node\\Trans' => __DIR__ . '/..' . '/jaimeperez/twig-configurable-i18n/src/Twig/Extensions/Node/Trans.php',
         'JaimePerez\\TwigConfigurableI18n\\Twig\\Extensions\\TokenParser\\Trans' => __DIR__ . '/..' . '/jaimeperez/twig-configurable-i18n/src/Twig/Extensions/TokenParser/Trans.php',
-        'ParseError' => __DIR__ . '/..' . '/symfony/polyfill-php70/Resources/stubs/ParseError.php',
         'Psr\\Container\\ContainerExceptionInterface' => __DIR__ . '/..' . '/psr/container/src/ContainerExceptionInterface.php',
         'Psr\\Container\\ContainerInterface' => __DIR__ . '/..' . '/psr/container/src/ContainerInterface.php',
         'Psr\\Container\\NotFoundExceptionInterface' => __DIR__ . '/..' . '/psr/container/src/NotFoundExceptionInterface.php',
@@ -422,7 +413,6 @@ class ComposerStaticInit0ca81f0942befe3b0fd9f11752fd86c2
         'SAML2\\XML\\saml\\SubjectConfirmationData' => __DIR__ . '/..' . '/simplesamlphp/saml2/src/SAML2/XML/saml/SubjectConfirmationData.php',
         'SAML2\\XML\\samlp\\Extensions' => __DIR__ . '/..' . '/simplesamlphp/saml2/src/SAML2/XML/samlp/Extensions.php',
         'SAML2\\XML\\shibmd\\Scope' => __DIR__ . '/..' . '/simplesamlphp/saml2/src/SAML2/XML/shibmd/Scope.php',
-        'SessionUpdateTimestampHandlerInterface' => __DIR__ . '/..' . '/symfony/polyfill-php70/Resources/stubs/SessionUpdateTimestampHandlerInterface.php',
         'SimpleSAML\\AuthMemCookie' => __DIR__ . '/../..' . '/lib/SimpleSAML/AuthMemCookie.php',
         'SimpleSAML\\Auth\\AuthenticationFactory' => __DIR__ . '/../..' . '/lib/SimpleSAML/Auth/AuthenticationFactory.php',
         'SimpleSAML\\Auth\\DefaultAuth' => __DIR__ . '/../..' . '/lib/SimpleSAML/Auth/Default.php',
@@ -1058,7 +1048,6 @@ class ComposerStaticInit0ca81f0942befe3b0fd9f11752fd86c2
         'Symfony\\Component\\Yaml\\Yaml' => __DIR__ . '/..' . '/symfony/yaml/Yaml.php',
         'Symfony\\Polyfill\\Ctype\\Ctype' => __DIR__ . '/..' . '/symfony/polyfill-ctype/Ctype.php',
         'Symfony\\Polyfill\\Mbstring\\Mbstring' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/Mbstring.php',
-        'Symfony\\Polyfill\\Php70\\Php70' => __DIR__ . '/..' . '/symfony/polyfill-php70/Php70.php',
         'Twig\\Cache\\CacheInterface' => __DIR__ . '/..' . '/twig/twig/src/Cache/CacheInterface.php',
         'Twig\\Cache\\FilesystemCache' => __DIR__ . '/..' . '/twig/twig/src/Cache/FilesystemCache.php',
         'Twig\\Cache\\NullCache' => __DIR__ . '/..' . '/twig/twig/src/Cache/NullCache.php',
@@ -1465,7 +1454,6 @@ class ComposerStaticInit0ca81f0942befe3b0fd9f11752fd86c2
         'Twig_TokenStream' => __DIR__ . '/..' . '/twig/twig/lib/Twig/TokenStream.php',
         'Twig_Util_DeprecationCollector' => __DIR__ . '/..' . '/twig/twig/lib/Twig/Util/DeprecationCollector.php',
         'Twig_Util_TemplateDirIterator' => __DIR__ . '/..' . '/twig/twig/lib/Twig/Util/TemplateDirIterator.php',
-        'TypeError' => __DIR__ . '/..' . '/symfony/polyfill-php70/Resources/stubs/TypeError.php',
         'Webmozart\\Assert\\Assert' => __DIR__ . '/..' . '/webmozart/assert/src/Assert.php',
         'WhiteHat101\\Crypt\\APR1_MD5' => __DIR__ . '/..' . '/whitehat101/apr1-md5/src/APR1_MD5.php',
     );

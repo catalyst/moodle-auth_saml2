@@ -6,10 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'ArithmeticError' => $vendorDir . '/symfony/polyfill-php70/Resources/stubs/ArithmeticError.php',
-    'AssertionError' => $vendorDir . '/symfony/polyfill-php70/Resources/stubs/AssertionError.php',
-    'DivisionByZeroError' => $vendorDir . '/symfony/polyfill-php70/Resources/stubs/DivisionByZeroError.php',
-    'Error' => $vendorDir . '/symfony/polyfill-php70/Resources/stubs/Error.php',
     'Gettext\\BaseTranslator' => $vendorDir . '/gettext/gettext/src/BaseTranslator.php',
     'Gettext\\Extractors\\Blade' => $vendorDir . '/gettext/gettext/src/Extractors/Blade.php',
     'Gettext\\Extractors\\Csv' => $vendorDir . '/gettext/gettext/src/Extractors/Csv.php',
@@ -75,7 +71,6 @@ return array(
     'JaimePerez\\TwigConfigurableI18n\\Twig\\Extensions\\Extension\\I18n' => $vendorDir . '/jaimeperez/twig-configurable-i18n/src/Twig/Extensions/Extension/I18n.php',
     'JaimePerez\\TwigConfigurableI18n\\Twig\\Extensions\\Node\\Trans' => $vendorDir . '/jaimeperez/twig-configurable-i18n/src/Twig/Extensions/Node/Trans.php',
     'JaimePerez\\TwigConfigurableI18n\\Twig\\Extensions\\TokenParser\\Trans' => $vendorDir . '/jaimeperez/twig-configurable-i18n/src/Twig/Extensions/TokenParser/Trans.php',
-    'ParseError' => $vendorDir . '/symfony/polyfill-php70/Resources/stubs/ParseError.php',
     'Psr\\Container\\ContainerExceptionInterface' => $vendorDir . '/psr/container/src/ContainerExceptionInterface.php',
     'Psr\\Container\\ContainerInterface' => $vendorDir . '/psr/container/src/ContainerInterface.php',
     'Psr\\Container\\NotFoundExceptionInterface' => $vendorDir . '/psr/container/src/NotFoundExceptionInterface.php',
@@ -249,7 +244,6 @@ return array(
     'SAML2\\XML\\saml\\SubjectConfirmationData' => $vendorDir . '/simplesamlphp/saml2/src/SAML2/XML/saml/SubjectConfirmationData.php',
     'SAML2\\XML\\samlp\\Extensions' => $vendorDir . '/simplesamlphp/saml2/src/SAML2/XML/samlp/Extensions.php',
     'SAML2\\XML\\shibmd\\Scope' => $vendorDir . '/simplesamlphp/saml2/src/SAML2/XML/shibmd/Scope.php',
-    'SessionUpdateTimestampHandlerInterface' => $vendorDir . '/symfony/polyfill-php70/Resources/stubs/SessionUpdateTimestampHandlerInterface.php',
     'SimpleSAML\\AuthMemCookie' => $baseDir . '/lib/SimpleSAML/AuthMemCookie.php',
     'SimpleSAML\\Auth\\AuthenticationFactory' => $baseDir . '/lib/SimpleSAML/Auth/AuthenticationFactory.php',
     'SimpleSAML\\Auth\\DefaultAuth' => $baseDir . '/lib/SimpleSAML/Auth/Default.php',
@@ -885,7 +879,6 @@ return array(
     'Symfony\\Component\\Yaml\\Yaml' => $vendorDir . '/symfony/yaml/Yaml.php',
     'Symfony\\Polyfill\\Ctype\\Ctype' => $vendorDir . '/symfony/polyfill-ctype/Ctype.php',
     'Symfony\\Polyfill\\Mbstring\\Mbstring' => $vendorDir . '/symfony/polyfill-mbstring/Mbstring.php',
-    'Symfony\\Polyfill\\Php70\\Php70' => $vendorDir . '/symfony/polyfill-php70/Php70.php',
     'Twig\\Cache\\CacheInterface' => $vendorDir . '/twig/twig/src/Cache/CacheInterface.php',
     'Twig\\Cache\\FilesystemCache' => $vendorDir . '/twig/twig/src/Cache/FilesystemCache.php',
     'Twig\\Cache\\NullCache' => $vendorDir . '/twig/twig/src/Cache/NullCache.php',
@@ -1292,7 +1285,6 @@ return array(
     'Twig_TokenStream' => $vendorDir . '/twig/twig/lib/Twig/TokenStream.php',
     'Twig_Util_DeprecationCollector' => $vendorDir . '/twig/twig/lib/Twig/Util/DeprecationCollector.php',
     'Twig_Util_TemplateDirIterator' => $vendorDir . '/twig/twig/lib/Twig/Util/TemplateDirIterator.php',
-    'TypeError' => $vendorDir . '/symfony/polyfill-php70/Resources/stubs/TypeError.php',
     'Webmozart\\Assert\\Assert' => $vendorDir . '/webmozart/assert/src/Assert.php',
     'WhiteHat101\\Crypt\\APR1_MD5' => $vendorDir . '/whitehat101/apr1-md5/src/APR1_MD5.php',
 );
