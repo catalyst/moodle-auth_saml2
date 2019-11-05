@@ -1,0 +1,1 @@
+../simplesamlphp/simplesamlphp-test-framework/bin/check-syntax-json.sh

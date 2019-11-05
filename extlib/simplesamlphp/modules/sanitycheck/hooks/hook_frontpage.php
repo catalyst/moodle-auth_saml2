@@ -1,17 +1,21 @@
 <?php
+
+use Webmozart\Assert\Assert;
+
 /**
  * Hook to add the modinfo module to the frontpage.
  *
  * @param array &$links  The links on the frontpage, split into sections.
+ * @return void
  */
 function sanitycheck_hook_frontpage(&$links)
 {
-    assert(is_array($links));
-    assert(array_key_exists('links', $links));
+    Assert::isArray($links);
+    Assert::keyExists($links, 'links', $links);
 
-    $links['config']['santitycheck'] = array(
+    $links['config']['sanitycheck'] = [
         'href' => SimpleSAML\Module::getModuleURL('sanitycheck/index.php'),
-        'text' => array('en' => 'Sanity check of your SimpleSAMLphp setup'),
-        'shorttext' => array('en' => 'SanityCheck'),
-    );
+        'text' => '{sanitycheck:strings:link_sanitycheck}',
+    ];
 }
+
