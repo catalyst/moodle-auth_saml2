@@ -667,21 +667,6 @@ class ArrayIterator implements SeekableIterator, ArrayAccess, Serializable, Coun
 }
 
 /**
- * The DOMElement class
- * @link http://php.net/manual/en/class.domelement.php
- */
-class DOMElement extends DOMNode  {
-    /**
-     * @return DOMNodeList<DOMElement>
-     */
-    public function getElementsByTagName ($name) {}
-    /**
-     * @return DOMNodeList<DOMElement>
-     */
-    public function getElementsByTagNameNS ($namespaceURI, $localName) {}
-}
-
-/**
  * @template TNode as DOMNode
  */
 class DOMNodeList implements Traversable, Countable {
