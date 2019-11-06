@@ -43,14 +43,14 @@ function auth_saml2_get_sp_metadata() {
         return $xml;
     }
 
-    $config = SimpleSAML_Configuration::getInstance();
-    $source = SimpleSAML_Auth_Source::getById($sourceId);
+    $config = SimpleSAML\Configuration::getInstance();
+    $source = SimpleSAML\Auth\Source::getById($sourceId);
     if ($source === NULL) {
-        throw new SimpleSAML_Error_NotFound('Could not find authentication source with id ' . $sourceId);
+        throw new SimpleSAML\Error\NotFound('Could not find authentication source with id ' . $sourceId);
     }
 
-    if (!($source instanceof sspmod_saml_Auth_Source_SP)) {
-        throw new SimpleSAML_Error_NotFound('Source isn\'t a SAML SP: ' . var_export($sourceId, TRUE));
+    if (!($source instanceof \SimpleSAML\Module\saml\Auth\Source\SP)) {
+        throw new SimpleSAML\Error\NotFound('Source isn\'t a SAML SP: ' . var_export($sourceId, TRUE));
     }
 
     $entityId = $source->getEntityId();

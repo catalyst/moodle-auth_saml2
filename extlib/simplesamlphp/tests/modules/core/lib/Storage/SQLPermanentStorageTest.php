@@ -1,21 +1,23 @@
 <?php
 
+namespace SimpleSAML\Test\Module\core\Storage;
+
 use PHPUnit\Framework\TestCase;
 
 /**
  * Test for the SQLPermanentStorage class.
  */
-class Test_Core_Storage_SQLPermanentStorage extends TestCase
+class SQLPermanentStorageTest extends TestCase
 {
     private static $sql;
 
     public static function setUpBeforeClass()
     {
         // Create instance
-        $config = \SimpleSAML_Configuration::loadFromArray([
+        $config = \SimpleSAML\Configuration::loadFromArray([
             'datadir' => sys_get_temp_dir(),
         ]);
-        self::$sql = new sspmod_core_Storage_SQLPermanentStorage('test', $config);
+        self::$sql = new \SimpleSAML\Module\core\Storage\SQLPermanentStorage('test', $config);
     }
 
     public static function tearDownAfterClass()
