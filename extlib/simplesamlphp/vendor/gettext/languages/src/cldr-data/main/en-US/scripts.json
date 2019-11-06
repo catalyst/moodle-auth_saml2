@@ -4,7 +4,7 @@
       "identity": {
         "version": {
           "_number": "$Revision: 13869 $",
-          "_cldrVersion": "33.1"
+          "_cldrVersion": "34"
         },
         "language": "en",
         "territory": "US"
@@ -145,6 +145,7 @@
           "Phnx": "Phoenician",
           "Plrd": "Pollard Phonetic",
           "Prti": "Inscriptional Parthian",
+          "Qaag": "Qaag",
           "Rjng": "Rejang",
           "Rohg": "Hanifi Rohingya",
           "Roro": "Rongorongo",

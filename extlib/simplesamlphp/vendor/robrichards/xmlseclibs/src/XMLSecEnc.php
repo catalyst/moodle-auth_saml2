@@ -10,7 +10,7 @@ use RobRichards\XMLSecLibs\Utils\XPath as XPath;
 /**
  * xmlseclibs.php
  *
- * Copyright (c) 2007-2018, Robert Richards <rrichards@cdatazone.org>.
+ * Copyright (c) 2007-2019, Robert Richards <rrichards@cdatazone.org>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ use RobRichards\XMLSecLibs\Utils\XPath as XPath;
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * @author    Robert Richards <rrichards@cdatazone.org>
- * @copyright 2007-2018 Robert Richards <rrichards@cdatazone.org>
+ * @copyright 2007-2019 Robert Richards <rrichards@cdatazone.org>
  * @license   http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
 
@@ -471,7 +471,7 @@ class XMLSecEnc
                     }
                     $id = substr($uri, 1);
 
-                    $query = '//xmlsecenc:EncryptedKey[@Id="'.XPath::filterAttrValue($id, XPAth::DOUBLE_QUOTE).'"]';
+                    $query = '//xmlsecenc:EncryptedKey[@Id="'.XPath::filterAttrValue($id, XPath::DOUBLE_QUOTE).'"]';
                     $keyElement = $xpath->query($query)->item(0);
                     if (!$keyElement) {
                         throw new Exception("Unable to locate EncryptedKey with @Id='$id'.");

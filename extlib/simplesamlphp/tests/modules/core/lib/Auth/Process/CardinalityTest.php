@@ -1,4 +1,7 @@
 <?php
+
+namespace SimpleSAML\Test\Module\core\Auth\Process;
+
 // Alias the PHPUnit 6.0 ancestor if available, else fall back to legacy ancestor
 if (class_exists('\PHPUnit\Framework\TestCase', true) and !class_exists('\PHPUnit_Framework_TestCase', true)) {
     class_alias('\PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase', true);
@@ -7,7 +10,7 @@ if (class_exists('\PHPUnit\Framework\TestCase', true) and !class_exists('\PHPUni
 /**
  * Test for the core:Cardinality filter.
  */
-class Test_Core_Auth_Process_CardinalityTest extends \PHPUnit_Framework_TestCase
+class CardinalityTest extends \PHPUnit_Framework_TestCase
 {
     private $http;
 
@@ -22,16 +25,16 @@ class Test_Core_Auth_Process_CardinalityTest extends \PHPUnit_Framework_TestCase
     {
         $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
         $_SERVER['REQUEST_METHOD'] = 'GET';
-        $filter = new sspmod_core_Auth_Process_Cardinality($config, null, $this->http);
+        $filter = new \SimpleSAML\Module\core\Auth\Process\Cardinality($config, null, $this->http);
         $filter->process($request);
         return $request;
     }
 
     protected function setUp()
     {
-        \SimpleSAML_Configuration::loadFromArray(array(), '[ARRAY]', 'simplesaml');
+        \SimpleSAML\Configuration::loadFromArray([], '[ARRAY]', 'simplesaml');
         $this->http = $this->getMockBuilder('SimpleSAML\Utils\HTTPAdapter')
-                           ->setMethods(array('redirectTrustedURL'))
+                           ->setMethods(['redirectTrustedURL'])
                            ->getMock();
     }
 
@@ -40,17 +43,17 @@ class Test_Core_Auth_Process_CardinalityTest extends \PHPUnit_Framework_TestCase
      */
     public function testMinNoMax()
     {
-        $config = array(
-            'mail' => array('min' => 1),
-        );
-        $request = array(
-            'Attributes' => array(
-                'mail' => array('joe@example.com', 'bob@example.com'),
-            ),
-        );
+        $config = [
+            'mail' => ['min' => 1],
+        ];
+        $request = [
+            'Attributes' => [
+                'mail' => ['joe@example.com', 'bob@example.com'],
+            ],
+        ];
         $result = $this->processFilter($config, $request);
         $attributes = $result['Attributes'];
-        $expectedData = array('mail' => array('joe@example.com', 'bob@example.com'));
+        $expectedData = ['mail' => ['joe@example.com', 'bob@example.com']];
         $this->assertEquals($expectedData, $attributes, "Assertion values should not have changed");
     }
 
@@ -59,17 +62,17 @@ class Test_Core_Auth_Process_CardinalityTest extends \PHPUnit_Framework_TestCase
      */
     public function testMaxNoMin()
     {
-        $config = array(
-            'mail' => array('max' => 2),
-        );
-        $request = array(
-            'Attributes' => array(
-                'mail' => array('joe@example.com', 'bob@example.com'),
-            ),
-        );
+        $config = [
+            'mail' => ['max' => 2],
+        ];
+        $request = [
+            'Attributes' => [
+                'mail' => ['joe@example.com', 'bob@example.com'],
+            ],
+        ];
         $result = $this->processFilter($config, $request);
         $attributes = $result['Attributes'];
-        $expectedData = array('mail' => array('joe@example.com', 'bob@example.com'));
+        $expectedData = ['mail' => ['joe@example.com', 'bob@example.com']];
         $this->assertEquals($expectedData, $attributes, "Assertion values should not have changed");
     }
 
@@ -78,17 +81,17 @@ class Test_Core_Auth_Process_CardinalityTest extends \PHPUnit_Framework_TestCase
      */
     public function testMaxMin()
     {
-        $config = array(
-            'mail' => array('min' => 1, 'max' => 2),
-        );
-        $request = array(
-            'Attributes' => array(
-                'mail' => array('joe@example.com', 'bob@example.com'),
-            ),
-        );
+        $config = [
+            'mail' => ['min' => 1, 'max' => 2],
+        ];
+        $request = [
+            'Attributes' => [
+                'mail' => ['joe@example.com', 'bob@example.com'],
+            ],
+        ];
         $result = $this->processFilter($config, $request);
         $attributes = $result['Attributes'];
-        $expectedData = array('mail' => array('joe@example.com', 'bob@example.com'));
+        $expectedData = ['mail' => ['joe@example.com', 'bob@example.com']];
         $this->assertEquals($expectedData, $attributes, "Assertion values should not have changed");
     }
 
@@ -97,14 +100,14 @@ class Test_Core_Auth_Process_CardinalityTest extends \PHPUnit_Framework_TestCase
      */
     public function testMaxOutOfBounds()
     {
-        $config = array(
-            'mail' => array('max' => 2),
-        );
-        $request = array(
-            'Attributes' => array(
-                'mail' => array('joe@example.com', 'bob@example.com', 'fred@example.com'),
-            ),
-        );
+        $config = [
+            'mail' => ['max' => 2],
+        ];
+        $request = [
+            'Attributes' => [
+                'mail' => ['joe@example.com', 'bob@example.com', 'fred@example.com'],
+            ],
+        ];
 
         $this->http->expects($this->once())
                    ->method('redirectTrustedURL');
@@ -117,14 +120,14 @@ class Test_Core_Auth_Process_CardinalityTest extends \PHPUnit_Framework_TestCase
      */
     public function testMinOutOfBounds()
     {
-        $config = array(
-            'mail' => array('min' => 3),
-        );
-        $request = array(
-            'Attributes' => array(
-                'mail' => array('joe@example.com', 'bob@example.com'),
-            ),
-        );
+        $config = [
+            'mail' => ['min' => 3],
+        ];
+        $request = [
+            'Attributes' => [
+                'mail' => ['joe@example.com', 'bob@example.com'],
+            ],
+        ];
 
         $this->http->expects($this->once())
                    ->method('redirectTrustedURL');
@@ -137,12 +140,12 @@ class Test_Core_Auth_Process_CardinalityTest extends \PHPUnit_Framework_TestCase
      */
     public function testMissingAttribute()
     {
-        $config = array(
-            'mail' => array('min' => 1),
-        );
-        $request = array(
-            'Attributes' => array( ),
-        );
+        $config = [
+            'mail' => ['min' => 1],
+        ];
+        $request = [
+            'Attributes' => [],
+        ];
 
         $this->http->expects($this->once())
                    ->method('redirectTrustedURL');
@@ -156,91 +159,91 @@ class Test_Core_Auth_Process_CardinalityTest extends \PHPUnit_Framework_TestCase
 
     /**
      * Test invalid minimum values
-     * @expectedException SimpleSAML_Error_Exception
+     * @expectedException \SimpleSAML\Error\Exception
      * @expectedExceptionMessageRegExp /Minimum/
      */
     public function testMinInvalid()
     {
-        $config = array(
-            'mail' => array('min' => false),
-        );
-        $request = array(
-            'Attributes' => array(
-                'mail' => array('joe@example.com', 'bob@example.com'),
-            ),
-        );
+        $config = [
+            'mail' => ['min' => false],
+        ];
+        $request = [
+            'Attributes' => [
+                'mail' => ['joe@example.com', 'bob@example.com'],
+            ],
+        ];
         $this->processFilter($config, $request);
     }
 
     /**
      * Test invalid minimum values
-     * @expectedException SimpleSAML_Error_Exception
+     * @expectedException \SimpleSAML\Error\Exception
      * @expectedExceptionMessageRegExp /Minimum/
      */
     public function testMinNegative()
     {
-        $config = array(
-            'mail' => array('min' => -1),
-        );
-        $request = array(
-            'Attributes' => array(
-                'mail' => array('joe@example.com', 'bob@example.com'),
-            ),
-        );
+        $config = [
+            'mail' => ['min' => -1],
+        ];
+        $request = [
+            'Attributes' => [
+                'mail' => ['joe@example.com', 'bob@example.com'],
+            ],
+        ];
         $this->processFilter($config, $request);
     }
 
     /**
      * Test invalid maximum values
-     * @expectedException SimpleSAML_Error_Exception
+     * @expectedException \SimpleSAML\Error\Exception
      * @expectedExceptionMessageRegExp /Maximum/
      */
     public function testMaxInvalid()
     {
-        $config = array(
-            'mail' => array('max' => false),
-        );
-        $request = array(
-            'Attributes' => array(
-                'mail' => array('joe@example.com', 'bob@example.com'),
-            ),
-        );
+        $config = [
+            'mail' => ['max' => false],
+        ];
+        $request = [
+            'Attributes' => [
+                'mail' => ['joe@example.com', 'bob@example.com'],
+            ],
+        ];
         $this->processFilter($config, $request);
     }
 
     /**
      * Test maximum < minimum
-     * @expectedException SimpleSAML_Error_Exception
+     * @expectedException \SimpleSAML\Error\Exception
      * @expectedExceptionMessageRegExp /less than/
      */
     public function testMinGreaterThanMax()
     {
-        $config = array(
-            'mail' => array('min' => 2, 'max' => 1),
-        );
-        $request = array(
-            'Attributes' => array(
-                'mail' => array('joe@example.com', 'bob@example.com'),
-            ),
-        );
+        $config = [
+            'mail' => ['min' => 2, 'max' => 1],
+        ];
+        $request = [
+            'Attributes' => [
+                'mail' => ['joe@example.com', 'bob@example.com'],
+            ],
+        ];
         $this->processFilter($config, $request);
     }
 
     /**
      * Test invalid attribute name
-     * @expectedException SimpleSAML_Error_Exception
+     * @expectedException \SimpleSAML\Error\Exception
      * @expectedExceptionMessageRegExp /Invalid attribute/
      */
     public function testInvalidAttributeName()
     {
-        $config = array(
-            array('min' => 2, 'max' => 1),
-        );
-        $request = array(
-            'Attributes' => array(
-                'mail' => array('joe@example.com', 'bob@example.com'),
-            ),
-        );
-        self::processFilter($config, $request);
+        $config = [
+            ['min' => 2, 'max' => 1],
+        ];
+        $request = [
+            'Attributes' => [
+                'mail' => ['joe@example.com', 'bob@example.com'],
+            ],
+        ];
+        $this->processFilter($config, $request);
     }
 }
