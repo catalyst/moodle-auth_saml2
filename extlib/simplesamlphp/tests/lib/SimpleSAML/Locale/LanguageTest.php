@@ -3,27 +3,27 @@
 namespace SimpleSAML\Test\Locale;
 
 use PHPUnit\Framework\TestCase;
+use SimpleSAML\Configuration;
 use SimpleSAML\Locale\Language;
 
 class LanguageTest extends TestCase
 {
-
-
     /**
      * Test SimpleSAML\Locale\Language::getDefaultLanguage().
+     * @return void
      */
     public function testGetDefaultLanguage()
     {
         // test default
-        $c = \SimpleSAML_Configuration::loadFromArray(array());
+        $c = Configuration::loadFromArray([]);
         $l = new Language($c);
         $this->assertEquals('en', $l->getDefaultLanguage());
 
         // test defaults coming from configuration
-        $c = \SimpleSAML_Configuration::loadFromArray(array(
-            'language.available' => array('en', 'es', 'nn'),
+        $c = Configuration::loadFromArray([
+            'language.available' => ['en', 'es', 'nn'],
             'language.default' => 'es',
-        ));
+        ]);
         $l = new Language($c);
         $this->assertEquals('es', $l->getDefaultLanguage());
     }
@@ -31,23 +31,24 @@ class LanguageTest extends TestCase
 
     /**
      * Test SimpleSAML\Locale\Language::getLanguageCookie().
+     * @return void
      */
     public function testGetLanguageCookie()
     {
         // test it works when no cookie is set
-        \SimpleSAML_Configuration::loadFromArray(array(), '', 'simplesaml');
+        Configuration::loadFromArray([], '', 'simplesaml');
         $this->assertNull(Language::getLanguageCookie());
 
         // test that it works fine with defaults
-        \SimpleSAML_Configuration::loadFromArray(array(), '', 'simplesaml');
+        Configuration::loadFromArray([], '', 'simplesaml');
         $_COOKIE['language'] = 'en';
         $this->assertEquals('en', Language::getLanguageCookie());
 
         // test that it works with non-defaults
-        \SimpleSAML_Configuration::loadFromArray(array(
-            'language.available' => array('en', 'es', 'nn'),
+        Configuration::loadFromArray([
+            'language.available' => ['en', 'es', 'nn'],
             'language.cookie.name' => 'xyz'
-        ), '', 'simplesaml');
+        ], '', 'simplesaml');
         $_COOKIE['xyz'] = 'Es'; // test values are converted to lowercase too
         $this->assertEquals('es', Language::getLanguageCookie());
     }
@@ -55,65 +56,69 @@ class LanguageTest extends TestCase
 
     /**
      * Test SimpleSAML\Locale\Language::getLanguageList().
+     * @return void
      */
     public function testGetLanguageListNoConfig()
     {
-        // test defaults
-        $c = \SimpleSAML_Configuration::loadFromArray(array(), '', 'simplesaml');
+        // test default
+        $c = Configuration::loadFromArray([], '', 'simplesaml');
         $l = new Language($c);
         $l->setLanguage('en');
-        $this->assertEquals(array('en' => true), $l->getLanguageList());
+        $this->assertEquals(['en' => true], $l->getLanguageList());
     }
 
 
     /**
      * Test SimpleSAML\Locale\Language::getLanguageList().
+     * @return void
      */
     public function testGetLanguageListCorrectConfig()
     {
         // test langs from from language_names
-        $c = \SimpleSAML_Configuration::loadFromArray(array(
-            'language.available' => array('en', 'nn', 'es'),
-        ), '', 'simplesaml');
+        $c = Configuration::loadFromArray([
+            'language.available' => ['en', 'nn', 'es'],
+        ], '', 'simplesaml');
         $l = new Language($c);
         $l->setLanguage('es');
-        $this->assertEquals(array(
+        $this->assertEquals([
             'en' => false,
             'es' => true,
             'nn' => false,
-        ), $l->getLanguageList());
+        ], $l->getLanguageList());
     }
 
 
     /**
      * Test SimpleSAML\Locale\Language::getLanguageList().
+     * @return void
      */
     public function testGetLanguageListIncorrectConfig()
     {
         // test non-existent langs
-        $c = \SimpleSAML_Configuration::loadFromArray(array(
-            'language.available' => array('foo', 'bar'),
-        ), '', 'simplesaml');
+        $c = Configuration::loadFromArray([
+            'language.available' => ['foo', 'bar'],
+        ], '', 'simplesaml');
         $l = new Language($c);
         $l->setLanguage('foo');
-        $this->assertEquals(array('en' => true), $l->getLanguageList());
+        $this->assertEquals(['en' => true], $l->getLanguageList());
     }
 
 
     /**
      * Test SimpleSAML\Locale\Language::getLanguageParameterName().
+     * @return void
      */
     public function testGetLanguageParameterName()
     {
         // test for default configuration
-        $c = \SimpleSAML_Configuration::loadFromArray(array(), '', 'simplesaml');
+        $c = Configuration::loadFromArray([], '', 'simplesaml');
         $l = new Language($c);
         $this->assertEquals('language', $l->getLanguageParameterName());
 
         // test for valid configuration
-        $c = \SimpleSAML_Configuration::loadFromArray(array(
+        $c = Configuration::loadFromArray([
             'language.parameter.name' => 'xyz'
-        ), '', 'simplesaml');
+        ], '', 'simplesaml');
         $l = new Language($c);
         $this->assertEquals('xyz', $l->getLanguageParameterName());
     }
@@ -121,28 +126,29 @@ class LanguageTest extends TestCase
 
     /**
      * Test SimpleSAML\Locale\Language::isLanguageRTL().
+     * @return void
      */
     public function testIsLanguageRTL()
     {
         // test defaults
-        $c = \SimpleSAML_Configuration::loadFromArray(array(), '', 'simplesaml');
+        $c = Configuration::loadFromArray([], '', 'simplesaml');
         $l = new Language($c);
         $l->setLanguage('en');
         $this->assertFalse($l->isLanguageRTL());
 
         // test non-defaults, non-RTL
-        $c = \SimpleSAML_Configuration::loadFromArray(array(
-            'language.rtl' => array('foo', 'bar'),
-        ), '', 'simplesaml');
+        $c = Configuration::loadFromArray([
+            'language.rtl' => ['foo', 'bar'],
+        ], '', 'simplesaml');
         $l = new Language($c);
         $l->setLanguage('en');
         $this->assertFalse($l->isLanguageRTL());
 
         // test non-defaults, RTL
-        $c = \SimpleSAML_Configuration::loadFromArray(array(
-            'language.available' => array('en', 'nn', 'es'),
-            'language.rtl' => array('nn', 'es'),
-        ), '', 'simplesaml');
+        $c = Configuration::loadFromArray([
+            'language.available' => ['en', 'nn', 'es'],
+            'language.rtl' => ['nn', 'es'],
+        ], '', 'simplesaml');
         $l = new Language($c);
         $l->setLanguage('es');
         $this->assertTrue($l->isLanguageRTL());
@@ -151,15 +157,16 @@ class LanguageTest extends TestCase
 
     /**
      * Test SimpleSAML\Locale\Language::setLanguage().
+     * @return void
      */
     public function testSetLanguage()
     {
         // test with valid configuration, no cookies set
-        $c = \SimpleSAML_Configuration::loadFromArray(array(
-            'language.available' => array('en', 'nn', 'es'),
+        $c = Configuration::loadFromArray([
+            'language.available' => ['en', 'nn', 'es'],
             'language.parameter.name' => 'xyz',
             'language.parameter.setcookie' => false,
-        ), '', 'simplesaml');
+        ], '', 'simplesaml');
         $_GET['xyz'] = 'Es'; // test also that lang code is transformed to lower caps
         $l = new Language($c);
         $this->assertEquals('es', $l->getLanguage());

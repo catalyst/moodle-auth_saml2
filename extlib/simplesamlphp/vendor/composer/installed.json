@@ -1,28 +1,30 @@
 [
     {
         "name": "gettext/gettext",
-        "version": "v3.6.1",
-        "version_normalized": "3.6.1.0",
+        "version": "v4.6.3",
+        "version_normalized": "4.6.3.0",
         "source": {
             "type": "git",
             "url": "https://github.com/oscarotero/Gettext.git",
-            "reference": "cd3be64443551e3a693117c4bccbe53e36282456"
+            "reference": "70c6ff2fecd275e6ef9cdd542f55939a3d1904d6"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/oscarotero/Gettext/zipball/cd3be64443551e3a693117c4bccbe53e36282456",
-            "reference": "cd3be64443551e3a693117c4bccbe53e36282456",
+            "url": "https://api.github.com/repos/oscarotero/Gettext/zipball/70c6ff2fecd275e6ef9cdd542f55939a3d1904d6",
+            "reference": "70c6ff2fecd275e6ef9cdd542f55939a3d1904d6",
             "shasum": ""
         },
         "require": {
-            "gettext/languages": "2.*",
-            "php": ">=5.3.0"
+            "gettext/languages": "^2.3",
+            "php": ">=5.4.0"
         },
         "require-dev": {
             "illuminate/view": "*",
+            "phpunit/phpunit": "^4.8|^5.7|^6.5",
+            "squizlabs/php_codesniffer": "^3.0",
             "symfony/yaml": "~2",
             "twig/extensions": "*",
-            "twig/twig": "*"
+            "twig/twig": "^1.31|^2.0"
         },
         "suggest": {
             "illuminate/view": "Is necessary if you want to use the Blade extractor",
@@ -30,7 +32,7 @@
             "twig/extensions": "Is necessary if you want to use the Twig extractor",
             "twig/twig": "Is necessary if you want to use the Twig extractor"
         },
-        "time": "2016-08-01T18:09:57+00:00",
+        "time": "2019-07-15T12:56:31+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -63,17 +65,17 @@
     },
     {
         "name": "gettext/languages",
-        "version": "2.4.0",
-        "version_normalized": "2.4.0.0",
+        "version": "2.5.0",
+        "version_normalized": "2.5.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/mlocati/cldr-to-gettext-plural-rules.git",
-            "reference": "1b74377bd0c4cd87e8d72b948f5d8867e23505a5"
+            "reference": "78db2d17933f0765a102f368a6663f057162ddbd"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/mlocati/cldr-to-gettext-plural-rules/zipball/1b74377bd0c4cd87e8d72b948f5d8867e23505a5",
-            "reference": "1b74377bd0c4cd87e8d72b948f5d8867e23505a5",
+            "url": "https://api.github.com/repos/mlocati/cldr-to-gettext-plural-rules/zipball/78db2d17933f0765a102f368a6663f057162ddbd",
+            "reference": "78db2d17933f0765a102f368a6663f057162ddbd",
             "shasum": ""
         },
         "require": {
@@ -82,7 +84,7 @@
         "require-dev": {
             "phpunit/phpunit": "^4"
         },
-        "time": "2018-06-21T15:58:36+00:00",
+        "time": "2018-11-13T22:06:07+00:00",
         "bin": [
             "bin/export-plural-rules",
             "bin/export-plural-rules.php"
@@ -125,70 +127,268 @@
         ]
     },
     {
-        "name": "jaimeperez/twig-configurable-i18n",
-        "version": "v1.2",
-        "version_normalized": "1.2.0.0",
+        "name": "paragonie/random_compat",
+        "version": "v2.0.18",
+        "version_normalized": "2.0.18.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/jaimeperez/twig-configurable-i18n.git",
-            "reference": "75d4926fd102c9e62219ad7f94a6136d2f2ccd93"
+            "url": "https://github.com/paragonie/random_compat.git",
+            "reference": "0a58ef6e3146256cc3dc7cc393927bcc7d1b72db"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/jaimeperez/twig-configurable-i18n/zipball/75d4926fd102c9e62219ad7f94a6136d2f2ccd93",
-            "reference": "75d4926fd102c9e62219ad7f94a6136d2f2ccd93",
+            "url": "https://api.github.com/repos/paragonie/random_compat/zipball/0a58ef6e3146256cc3dc7cc393927bcc7d1b72db",
+            "reference": "0a58ef6e3146256cc3dc7cc393927bcc7d1b72db",
             "shasum": ""
         },
         "require": {
-            "twig/extensions": "^1.3"
+            "php": ">=5.2.0"
         },
-        "time": "2016-10-03T12:34:15+00:00",
-        "type": "project",
+        "require-dev": {
+            "phpunit/phpunit": "4.*|5.*"
+        },
+        "suggest": {
+            "ext-libsodium": "Provides a modern crypto API that can be used to generate random bytes."
+        },
+        "time": "2019-01-03T20:59:08+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "lib/random.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Paragon Initiative Enterprises",
+                "email": "security@paragonie.com",
+                "homepage": "https://paragonie.com"
+            }
+        ],
+        "description": "PHP 5.x polyfill for random_bytes() and random_int() from PHP 7",
+        "keywords": [
+            "csprng",
+            "polyfill",
+            "pseudorandom",
+            "random"
+        ]
+    },
+    {
+        "name": "phpfastcache/riak-client",
+        "version": "3.4.3",
+        "version_normalized": "3.4.3.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/PHPSocialNetwork/riak-php-client.git",
+            "reference": "d771f75d16196006604a30bb15adc1c6a9b0fcc9"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/PHPSocialNetwork/riak-php-client/zipball/d771f75d16196006604a30bb15adc1c6a9b0fcc9",
+            "reference": "d771f75d16196006604a30bb15adc1c6a9b0fcc9",
+            "shasum": ""
+        },
+        "require": {
+            "ext-curl": "*",
+            "ext-json": "*",
+            "php": ">=5.4"
+        },
+        "conflict": {
+            "basho/riak": "*"
+        },
+        "require-dev": {
+            "apigen/apigen": "4.1.*",
+            "phpunit/phpunit": "4.8.*"
+        },
+        "time": "2017-11-23T21:33:15+00:00",
+        "type": "library",
         "installation-source": "dist",
         "autoload": {
             "psr-4": {
-                "JaimePerez\\TwigConfigurableI18n\\": "src/"
+                "Basho\\": "src/"
             }
         },
         "notification-url": "https://packagist.org/downloads/",
         "license": [
-            "LGPL-2.1"
+            "Apache-2.0"
         ],
         "authors": [
             {
-                "name": "Jaime Perez",
-                "email": "jaime.perez@uninett.no"
+                "name": "Georges.L",
+                "email": "contact@geolim4.com",
+                "homepage": "https://github.com/Geolim4",
+                "role": "Maintainer"
+            },
+            {
+                "name": "Christopher Mancini",
+                "email": "cmancini@basho.com",
+                "homepage": "https://github.com/christophermancini",
+                "role": "Former Lead Developer"
+            },
+            {
+                "name": "Alex Moore",
+                "email": "amoore@basho.com",
+                "homepage": "https://github.com/alexmoore",
+                "role": "Former Developer"
             }
         ],
-        "description": "This is an extension on top of Twig's i18n extension, allowing you to customize which functions to use for translations.",
+        "description": "Riak client for PHP (Fork of the official basho/riak due to maintainer significant inactivity)",
+        "homepage": "https://github.com/PHPSocialNetwork/riak-php-client",
         "keywords": [
-            "extension",
-            "gettext",
-            "i18n",
-            "internationalization",
-            "translation",
-            "twig"
+            "basho",
+            "client",
+            "crdt",
+            "data",
+            "database",
+            "datatype",
+            "driver",
+            "kv",
+            "nosql",
+            "riak"
         ]
     },
     {
-        "name": "psr/log",
-        "version": "1.0.2",
-        "version_normalized": "1.0.2.0",
+        "name": "phpmailer/phpmailer",
+        "version": "v6.1.1",
+        "version_normalized": "6.1.1.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/php-fig/log.git",
-            "reference": "4ebe3a8bf773a19edfe0a84b6585ba3d401b724d"
+            "url": "https://github.com/PHPMailer/PHPMailer.git",
+            "reference": "26bd96350b0b2fcbf0ef4e6f0f9cf3528302a9d8"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/php-fig/log/zipball/4ebe3a8bf773a19edfe0a84b6585ba3d401b724d",
-            "reference": "4ebe3a8bf773a19edfe0a84b6585ba3d401b724d",
+            "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/26bd96350b0b2fcbf0ef4e6f0f9cf3528302a9d8",
+            "reference": "26bd96350b0b2fcbf0ef4e6f0f9cf3528302a9d8",
+            "shasum": ""
+        },
+        "require": {
+            "ext-ctype": "*",
+            "ext-filter": "*",
+            "php": ">=5.5.0"
+        },
+        "require-dev": {
+            "doctrine/annotations": "1.2.*",
+            "friendsofphp/php-cs-fixer": "^2.2",
+            "phpdocumentor/phpdocumentor": "2.*",
+            "phpunit/phpunit": "^4.8 || ^5.7",
+            "zendframework/zend-eventmanager": "3.0.*",
+            "zendframework/zend-i18n": "2.7.3",
+            "zendframework/zend-serializer": "2.7.*"
+        },
+        "suggest": {
+            "ext-mbstring": "Needed to send email in multibyte encoding charset",
+            "hayageek/oauth2-yahoo": "Needed for Yahoo XOAUTH2 authentication",
+            "league/oauth2-google": "Needed for Google XOAUTH2 authentication",
+            "psr/log": "For optional PSR-3 debug logging",
+            "stevenmaguire/oauth2-microsoft": "Needed for Microsoft XOAUTH2 authentication",
+            "symfony/polyfill-mbstring": "To support UTF-8 if the Mbstring PHP extension is not enabled (^1.2)"
+        },
+        "time": "2019-09-27T21:33:43+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "PHPMailer\\PHPMailer\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-2.1-only"
+        ],
+        "authors": [
+            {
+                "name": "Marcus Bointon",
+                "email": "phpmailer@synchromedia.co.uk"
+            },
+            {
+                "name": "Jim Jagielski",
+                "email": "jimjag@gmail.com"
+            },
+            {
+                "name": "Andy Prevost",
+                "email": "codeworxtech@users.sourceforge.net"
+            },
+            {
+                "name": "Brent R. Matzelle"
+            }
+        ],
+        "description": "PHPMailer is a full-featured email creation and transfer class for PHP"
+    },
+    {
+        "name": "psr/container",
+        "version": "1.0.0",
+        "version_normalized": "1.0.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/php-fig/container.git",
+            "reference": "b7ce3b176482dbbc1245ebf52b181af44c2cf55f"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/php-fig/container/zipball/b7ce3b176482dbbc1245ebf52b181af44c2cf55f",
+            "reference": "b7ce3b176482dbbc1245ebf52b181af44c2cf55f",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2016-10-10T12:19:37+00:00",
+        "time": "2017-02-14T16:28:37+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.0.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Psr\\Container\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "PHP-FIG",
+                "homepage": "http://www.php-fig.org/"
+            }
+        ],
+        "description": "Common Container Interface (PHP FIG PSR-11)",
+        "homepage": "https://github.com/php-fig/container",
+        "keywords": [
+            "PSR-11",
+            "container",
+            "container-interface",
+            "container-interop",
+            "psr"
+        ]
+    },
+    {
+        "name": "psr/log",
+        "version": "1.1.0",
+        "version_normalized": "1.1.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/php-fig/log.git",
+            "reference": "6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/php-fig/log/zipball/6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd",
+            "reference": "6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2018-11-20T15:27:04+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -221,24 +421,24 @@
     },
     {
         "name": "robrichards/xmlseclibs",
-        "version": "3.0.2",
-        "version_normalized": "3.0.2.0",
+        "version": "3.0.3",
+        "version_normalized": "3.0.3.0",
         "source": {
             "type": "git",
             "url": "https://github.com/robrichards/xmlseclibs.git",
-            "reference": "1f4de0c0d121922aafd8c62c2a9f5e528830cf38"
+            "reference": "406c68ac9124db033d079284b719958b829cb830"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/robrichards/xmlseclibs/zipball/1f4de0c0d121922aafd8c62c2a9f5e528830cf38",
-            "reference": "1f4de0c0d121922aafd8c62c2a9f5e528830cf38",
+            "url": "https://api.github.com/repos/robrichards/xmlseclibs/zipball/406c68ac9124db033d079284b719958b829cb830",
+            "reference": "406c68ac9124db033d079284b719958b829cb830",
             "shasum": ""
         },
         "require": {
             "ext-openssl": "*",
             "php": ">= 5.4"
         },
-        "time": "2018-09-27T13:24:13+00:00",
+        "time": "2018-11-15T11:59:02+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -260,18 +460,51 @@
         ]
     },
     {
-        "name": "simplesamlphp/saml2",
-        "version": "v3.2.2",
-        "version_normalized": "3.2.2.0",
+        "name": "simplesamlphp/composer-module-installer",
+        "version": "v1.1.6",
+        "version_normalized": "1.1.6.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/simplesamlphp/saml2.git",
-            "reference": "b3a040ec186f4a3749228b8c13642c5295fc451b"
+            "url": "https://github.com/simplesamlphp/composer-module-installer.git",
+            "reference": "b70414a2112fe49e97a7eddd747657bd8bc38ef0"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/simplesamlphp/saml2/zipball/b3a040ec186f4a3749228b8c13642c5295fc451b",
-            "reference": "b3a040ec186f4a3749228b8c13642c5295fc451b",
+            "url": "https://api.github.com/repos/simplesamlphp/composer-module-installer/zipball/b70414a2112fe49e97a7eddd747657bd8bc38ef0",
+            "reference": "b70414a2112fe49e97a7eddd747657bd8bc38ef0",
+            "shasum": ""
+        },
+        "require": {
+            "composer-plugin-api": "^1.0",
+            "simplesamlphp/simplesamlphp": "*"
+        },
+        "time": "2017-04-24T07:12:50+00:00",
+        "type": "composer-plugin",
+        "extra": {
+            "class": "SimpleSamlPhp\\Composer\\ModuleInstallerPlugin"
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "SimpleSamlPhp\\Composer": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "description": "A Composer plugin that allows installing SimpleSAMLphp modules through Composer."
+    },
+    {
+        "name": "simplesamlphp/saml2",
+        "version": "v3.4.1",
+        "version_normalized": "3.4.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/saml2.git",
+            "reference": "4faed2faa324f96e5082146933fc189c0a970074"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/saml2/zipball/4faed2faa324f96e5082146933fc189c0a970074",
+            "reference": "4faed2faa324f96e5082146933fc189c0a970074",
             "shasum": ""
         },
         "require": {
@@ -280,17 +513,18 @@
             "ext-zlib": "*",
             "php": ">=5.4",
             "psr/log": "~1.0",
-            "robrichards/xmlseclibs": "^3.0"
+            "robrichards/xmlseclibs": "^3.0",
+            "webmozart/assert": "^1.4"
         },
         "require-dev": {
             "mockery/mockery": "~0.9",
-            "phpmd/phpmd": "~1.5",
+            "phpmd/phpmd": "~2.6",
             "phpunit/phpunit": "~4",
-            "sebastian/phpcpd": "~1.4",
-            "sensiolabs/security-checker": "~1.1",
-            "squizlabs/php_codesniffer": "~1.4"
+            "sebastian/phpcpd": "~2.0",
+            "sensiolabs/security-checker": "~4.1",
+            "squizlabs/php_codesniffer": "~3.2"
         },
-        "time": "2018-09-27T14:09:06+00:00",
+        "time": "2019-05-17T20:20:42+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -319,31 +553,2178 @@
         "description": "SAML2 PHP library from SimpleSAMLphp"
     },
     {
-        "name": "twig/extensions",
-        "version": "v1.5.1",
-        "version_normalized": "1.5.1.0",
+        "name": "simplesamlphp/simplesamlphp-module-adfs",
+        "version": "v0.9.4",
+        "version_normalized": "0.9.4.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/twigphp/Twig-extensions.git",
-            "reference": "d188c76168b853481cc75879ea045bf93d718e9c"
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-adfs.git",
+            "reference": "edb1bbc59734875e33990c976917594b55fa412d"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/twigphp/Twig-extensions/zipball/d188c76168b853481cc75879ea045bf93d718e9c",
-            "reference": "d188c76168b853481cc75879ea045bf93d718e9c",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-adfs/zipball/edb1bbc59734875e33990c976917594b55fa412d",
+            "reference": "edb1bbc59734875e33990c976917594b55fa412d",
             "shasum": ""
         },
         "require": {
-            "twig/twig": "~1.27|~2.0"
+            "php": ">=5.6",
+            "simplesamlphp/composer-module-installer": "~1.1",
+            "webmozart/assert": "~1.4"
         },
         "require-dev": {
-            "symfony/phpunit-bridge": "~3.3@dev",
-            "symfony/translation": "~2.3|~3.0"
+            "simplesamlphp/simplesamlphp": "^1.17",
+            "simplesamlphp/simplesamlphp-test-framework": "^0.0.10"
+        },
+        "time": "2019-09-24T12:58:53+00:00",
+        "type": "simplesamlphp-module",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SimpleSAML\\Module\\adfs\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Tim van Dijen",
+                "email": "tvdijen@gmail.com"
+            }
+        ],
+        "description": "A module that implements the WS-federation IDP",
+        "keywords": [
+            "adfs",
+            "simplesamlphp"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-authcrypt",
+        "version": "v0.9.0",
+        "version_normalized": "0.9.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-authcrypt.git",
+            "reference": "46feb5ef2a24bf46870e851318d7152c7515388e"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-authcrypt/zipball/46feb5ef2a24bf46870e851318d7152c7515388e",
+            "reference": "46feb5ef2a24bf46870e851318d7152c7515388e",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.6",
+            "simplesamlphp/composer-module-installer": "~1.1",
+            "webmozart/assert": "~1.4"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~5.7",
+            "simplesamlphp/simplesamlphp": "^1.17"
+        },
+        "time": "2019-05-29T14:47:23+00:00",
+        "type": "simplesamlphp-module",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SimpleSAML\\Module\\authcrypt\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Olav Morken",
+                "email": "olavmrk@gmail.com"
+            }
+        ],
+        "description": "This module provides authentication against password hashes or .htpasswd files",
+        "keywords": [
+            "authcrypt",
+            "simplesamlphp"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-authfacebook",
+        "version": "v0.9.0",
+        "version_normalized": "0.9.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-authfacebook.git",
+            "reference": "89f0a9606c8ceb941de0fb6d5d7c0845d11afead"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-authfacebook/zipball/89f0a9606c8ceb941de0fb6d5d7c0845d11afead",
+            "reference": "89f0a9606c8ceb941de0fb6d5d7c0845d11afead",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.6",
+            "simplesamlphp/composer-module-installer": "~1.1"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~5.7",
+            "simplesamlphp/simplesamlphp": "^1.17"
+        },
+        "time": "2019-06-03T20:18:32+00:00",
+        "type": "simplesamlphp-module",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SimpleSAML\\Module\\authfacebook\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Andjelko Horvat",
+                "email": "comel@vingd.com"
+            },
+            {
+                "name": "Tim van Dijen",
+                "email": "tvdijen@gmail.com"
+            }
+        ],
+        "description": "A module that is able to authenticate against Facebook",
+        "keywords": [
+            "facebook",
+            "simplesamlphp"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-authorize",
+        "version": "v0.9.0",
+        "version_normalized": "0.9.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-authorize.git",
+            "reference": "470470373f352d0682b7e57ff41626fd0453c7c3"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-authorize/zipball/470470373f352d0682b7e57ff41626fd0453c7c3",
+            "reference": "470470373f352d0682b7e57ff41626fd0453c7c3",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.6",
+            "simplesamlphp/composer-module-installer": "~1.1"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~5.7",
+            "simplesamlphp/simplesamlphp": "^1.17"
+        },
+        "time": "2019-05-29T14:32:20+00:00",
+        "type": "simplesamlphp-module",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SimpleSAML\\Module\\authorize\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Ernesto Revilla",
+                "email": "erny@yaco.es"
+            }
+        ],
+        "description": "This module provides a user authorization filter based on attribute matching",
+        "keywords": [
+            "authorize",
+            "simplesamlphp"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-authtwitter",
+        "version": "v0.9.0",
+        "version_normalized": "0.9.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-authtwitter.git",
+            "reference": "7af50a5ff86ce18b00524f770ba31825aa0f3367"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-authtwitter/zipball/7af50a5ff86ce18b00524f770ba31825aa0f3367",
+            "reference": "7af50a5ff86ce18b00524f770ba31825aa0f3367",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.5",
+            "simplesamlphp/composer-module-installer": "~1.0",
+            "simplesamlphp/simplesamlphp-module-oauth": "^0.9"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~4.8.35",
+            "simplesamlphp/simplesamlphp": "^1.17"
+        },
+        "time": "2019-06-03T21:07:37+00:00",
+        "type": "simplesamlphp-module",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SimpleSAML\\Module\\authtwitter\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Tim van Dijen",
+                "email": "tvdijen@gmail.com"
+            },
+            {
+                "name": "Olav Morken",
+                "email": "olavmrk@gmail.com"
+            }
+        ],
+        "description": "A module that is able to perform authentication against Twitter",
+        "keywords": [
+            "simplesamlphp",
+            "twitter"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-authwindowslive",
+        "version": "v0.9.0",
+        "version_normalized": "0.9.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-authwindowslive.git",
+            "reference": "62db69c5c8b8b625a4940e6dca7a8da7e4c237af"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-authwindowslive/zipball/62db69c5c8b8b625a4940e6dca7a8da7e4c237af",
+            "reference": "62db69c5c8b8b625a4940e6dca7a8da7e4c237af",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.6",
+            "simplesamlphp/composer-module-installer": "~1.1"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~5.7",
+            "simplesamlphp/simplesamlphp": "^1.17"
+        },
+        "time": "2019-06-03T20:26:19+00:00",
+        "type": "simplesamlphp-module",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SimpleSAML\\Module\\authwindowslive\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Tim van Dijen",
+                "email": "tvdijen@gmail.com"
+            },
+            {
+                "name": "Olav Morken",
+                "email": "olavmrk@gmail.com"
+            }
+        ],
+        "description": "A module that is able to perform authentication against Windows Live",
+        "keywords": [
+            "live",
+            "simplesamlphp",
+            "windows",
+            "windowslive"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-authx509",
+        "version": "v0.9.0",
+        "version_normalized": "0.9.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-authX509.git",
+            "reference": "eb680d69fd0f31e7e52b40713dbaaaa3d730ba88"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-authX509/zipball/eb680d69fd0f31e7e52b40713dbaaaa3d730ba88",
+            "reference": "eb680d69fd0f31e7e52b40713dbaaaa3d730ba88",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.5",
+            "simplesamlphp/composer-module-installer": "~1.1",
+            "simplesamlphp/simplesamlphp-module-ldap": "^0.9"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~4.8.36",
+            "simplesamlphp/simplesamlphp": "^1.17"
+        },
+        "time": "2019-06-03T20:56:39+00:00",
+        "type": "simplesamlphp-module",
+        "extra": {
+            "ssp-mixedcase-module-name": "authX509"
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SimpleSAML\\Module\\authX509\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Tim van Dijen",
+                "email": "tvdijen@gmail.com"
+            },
+            {
+                "name": "Joost van Dijk",
+                "email": "Joost.vanDijk@surfnet.nl"
+            }
+        ],
+        "description": "A module that is able to authenticate users based on X509 client certificates",
+        "keywords": [
+            "simplesamlphp",
+            "x509"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-authyubikey",
+        "version": "v0.9.0",
+        "version_normalized": "0.9.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-authyubikey.git",
+            "reference": "a9e4710befefc496d5c6b1bf67871c9d8c41363f"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-authyubikey/zipball/a9e4710befefc496d5c6b1bf67871c9d8c41363f",
+            "reference": "a9e4710befefc496d5c6b1bf67871c9d8c41363f",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.6",
+            "simplesamlphp/composer-module-installer": "~1.1",
+            "webmozart/assert": "~1.4"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~5.7",
+            "simplesamlphp/simplesamlphp": "^1.17"
+        },
+        "time": "2019-06-03T20:01:24+00:00",
+        "type": "simplesamlphp-module",
+        "extra": {
+            "ssp-mixedcase-module-name": "authYubikey"
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SimpleSAML\\modules\\yubikey\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Tim van Dijen",
+                "email": "tvdijen@gmail.com"
+            }
+        ],
+        "description": "A module that is able to authenticate against YubiKey",
+        "keywords": [
+            "authyubikey",
+            "simplesamlphp"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-cas",
+        "version": "v0.9.0",
+        "version_normalized": "0.9.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-cas.git",
+            "reference": "5a26f3109fc08bb594645cd1136ef1e034ba02a1"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-cas/zipball/5a26f3109fc08bb594645cd1136ef1e034ba02a1",
+            "reference": "5a26f3109fc08bb594645cd1136ef1e034ba02a1",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.6",
+            "simplesamlphp/composer-module-installer": "~1.1",
+            "simplesamlphp/simplesamlphp-module-ldap": "^0.9",
+            "webmozart/assert": "~1.4"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~5.7",
+            "simplesamlphp/simplesamlphp": "^1.17"
+        },
+        "time": "2019-06-03T20:58:20+00:00",
+        "type": "simplesamlphp-module",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SimpleSAML\\Module\\cas\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Olav Morken",
+                "email": "olavmrk@gmail.com"
+            }
+        ],
+        "description": "A module that provides CAS authentication",
+        "keywords": [
+            "cas",
+            "simplesamlphp"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-cdc",
+        "version": "v0.9.0",
+        "version_normalized": "0.9.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-cdc.git",
+            "reference": "c7f566051ec69d6ac87dea3138d04ad9ea14bd20"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-cdc/zipball/c7f566051ec69d6ac87dea3138d04ad9ea14bd20",
+            "reference": "c7f566051ec69d6ac87dea3138d04ad9ea14bd20",
+            "shasum": ""
+        },
+        "require": {
+            "simplesamlphp/composer-module-installer": ">=1.1.6"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~5.7",
+            "simplesamlphp/simplesamlphp": "^1.17"
+        },
+        "time": "2019-06-03T20:21:57+00:00",
+        "type": "simplesamlphp-module",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SimpleSAML\\Module\\cdc\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Olav Morken",
+                "email": "olav.morken@uninett.no"
+            },
+            {
+                "name": "Jaime Perez Crespo",
+                "email": "jaime.perez@uninett.no"
+            }
+        ],
+        "description": "A SimpleSAMLphp module that allows integration with CDC",
+        "homepage": "https://simplesamlphp.org/",
+        "keywords": [
+            "cdc",
+            "simplesamlphp"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-consent",
+        "version": "v0.9.2",
+        "version_normalized": "0.9.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-consent.git",
+            "reference": "adbfee34a06e4dec7a04340943b8f87c2a9c5d3a"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-consent/zipball/adbfee34a06e4dec7a04340943b8f87c2a9c5d3a",
+            "reference": "adbfee34a06e4dec7a04340943b8f87c2a9c5d3a",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.6",
+            "simplesamlphp/composer-module-installer": "~1.1"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~5.7",
+            "simplesamlphp/simplesamlphp": "^1.17"
+        },
+        "time": "2019-08-29T13:59:49+00:00",
+        "type": "simplesamlphp-module",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SimpleSAML\\Module\\consent\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Olav Morken",
+                "email": "lavmrk@gmail.com"
+            }
+        ],
+        "description": "A module that will ask for user consent before releasing attributes",
+        "keywords": [
+            "consent",
+            "simplesamlphp"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-consentadmin",
+        "version": "v0.9.0",
+        "version_normalized": "0.9.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-consentadmin.git",
+            "reference": "849da4adb293e3a3cb93483fa755a1c6ef9dc5b0"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-consentadmin/zipball/849da4adb293e3a3cb93483fa755a1c6ef9dc5b0",
+            "reference": "849da4adb293e3a3cb93483fa755a1c6ef9dc5b0",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.6",
+            "simplesamlphp/composer-module-installer": "~1.1",
+            "simplesamlphp/simplesamlphp-module-consent": "^0.9",
+            "webmozart/assert": "~1.4"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~5.7",
+            "simplesamlphp/simplesamlphp": "^1.17"
+        },
+        "time": "2019-06-04T09:29:52+00:00",
+        "type": "simplesamlphp-module",
+        "extra": {
+            "ssp-mixedcase-module-name": "consentAdmin"
+        },
+        "installation-source": "dist",
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Olav Morken",
+                "email": "olav.morken@uninett.no"
+            },
+            {
+                "name": "Jacob Christiansen",
+                "email": "jach@wayf.dk"
+            }
+        ],
+        "description": "A module that allows users to manage their consent",
+        "keywords": [
+            "consentadmin",
+            "simplesamlphp"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-discopower",
+        "version": "v0.9.0",
+        "version_normalized": "0.9.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-discopower.git",
+            "reference": "9577a5fa9729b54cf2d40164747070cc5ff41c55"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-discopower/zipball/9577a5fa9729b54cf2d40164747070cc5ff41c55",
+            "reference": "9577a5fa9729b54cf2d40164747070cc5ff41c55",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.6",
+            "simplesamlphp/composer-module-installer": "~1.1",
+            "webmozart/assert": "~1.4"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~5.7",
+            "simplesamlphp/simplesamlphp": "^1.17"
+        },
+        "time": "2019-06-03T08:34:01+00:00",
+        "type": "simplesamlphp-module",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SimpleSAML\\modules\\discopower\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Andreas Åkre Solberg",
+                "email": "andreas.solberg@uninett.no"
+            }
+        ],
+        "description": "Fancy tabbed discovery service with filtering capabilities where SPs can have different sets of metadata listed",
+        "keywords": [
+            "discopower",
+            "discovery",
+            "simplesamlphp"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-exampleattributeserver",
+        "version": "v1.0.0",
+        "version_normalized": "1.0.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-exampleattributeserver.git",
+            "reference": "63e0323e81c32bc3c9eaa01ea45194bb10153708"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-exampleattributeserver/zipball/63e0323e81c32bc3c9eaa01ea45194bb10153708",
+            "reference": "63e0323e81c32bc3c9eaa01ea45194bb10153708",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.6",
+            "simplesamlphp/composer-module-installer": "~1.1"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~5.7",
+            "simplesamlphp/simplesamlphp": "^1.17"
+        },
+        "time": "2019-05-28T12:37:15+00:00",
+        "type": "simplesamlphp-module",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SimpleSAML\\Module\\exampleattributeserver\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Olav Morken",
+                "email": "olavmrk@gmail.com"
+            }
+        ],
+        "description": "An example for SAML attributes queries",
+        "keywords": [
+            "exampleattributeserver",
+            "simplesamlphp"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-expirycheck",
+        "version": "v0.9.0",
+        "version_normalized": "0.9.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-expirycheck.git",
+            "reference": "fb3fb0d45c25cf67aae2c9a6fbb1c2ed9e59c6ec"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-expirycheck/zipball/fb3fb0d45c25cf67aae2c9a6fbb1c2ed9e59c6ec",
+            "reference": "fb3fb0d45c25cf67aae2c9a6fbb1c2ed9e59c6ec",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.6",
+            "simplesamlphp/composer-module-installer": "~1.1",
+            "webmozart/assert": "~1.4"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~5.7",
+            "simplesamlphp/simplesamlphp": "^1.17"
+        },
+        "time": "2019-05-29T14:43:00+00:00",
+        "type": "simplesamlphp-module",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SimpleSAML\\Module\\expirycheck\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Alex Mihičinac",
+                "email": "alexm@arnes.si"
+            }
+        ],
+        "description": "The expirycheck module validates user's expiry date",
+        "keywords": [
+            "expirycheck",
+            "simplesamlphp"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-ldap",
+        "version": "v0.9.1",
+        "version_normalized": "0.9.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-ldap.git",
+            "reference": "6945bfde7f91527240a5151674247c83c347506c"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-ldap/zipball/6945bfde7f91527240a5151674247c83c347506c",
+            "reference": "6945bfde7f91527240a5151674247c83c347506c",
+            "shasum": ""
+        },
+        "require": {
+            "ext-ldap": "*",
+            "php": ">=5.6",
+            "simplesamlphp/composer-module-installer": "~1.1",
+            "webmozart/assert": "~1.4"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~5.7",
+            "simplesamlphp/simplesamlphp": "^1.17"
+        },
+        "time": "2019-07-13T12:07:27+00:00",
+        "type": "simplesamlphp-module",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SimpleSAML\\Module\\ldap\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Tim van Dijen",
+                "email": "tvdijen@gmail.com"
+            },
+            {
+                "name": "Olav Morken",
+                "email": "olavmrk@gmail.com"
+            }
+        ],
+        "description": "A module that provides authentication against LDAP stores",
+        "keywords": [
+            "ldap",
+            "simplesamlphp"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-memcachemonitor",
+        "version": "v0.9.0",
+        "version_normalized": "0.9.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-memcachemonitor.git",
+            "reference": "6eef1e86ad7d2c9325b37c5004813947ace90c50"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-memcachemonitor/zipball/6eef1e86ad7d2c9325b37c5004813947ace90c50",
+            "reference": "6eef1e86ad7d2c9325b37c5004813947ace90c50",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.6",
+            "simplesamlphp/composer-module-installer": "~1.1"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~5.7",
+            "simplesamlphp/simplesamlphp": "^1.17"
+        },
+        "time": "2019-06-03T20:41:38+00:00",
+        "type": "simplesamlphp-module",
+        "extra": {
+            "ssp-mixedcase-module-name": "memcacheMonitor"
+        },
+        "installation-source": "dist",
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Andreas Åkre Solberg",
+                "email": "andreas.solberg@uninett.no"
+            },
+            {
+                "name": "Tim van Dijen",
+                "email": "tvdijen@gmail.com"
+            }
+        ],
+        "description": "A module that is able display usage statistics of a memcache(d) store",
+        "keywords": [
+            "memcachemonitor",
+            "simplesamlphp"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-memcookie",
+        "version": "v1.2.2",
+        "version_normalized": "1.2.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-memcookie.git",
+            "reference": "39535304e8d464b7baa1e82cb441fa432947ff57"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-memcookie/zipball/39535304e8d464b7baa1e82cb441fa432947ff57",
+            "reference": "39535304e8d464b7baa1e82cb441fa432947ff57",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.6",
+            "simplesamlphp/composer-module-installer": ">=1.1.6"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~5.7",
+            "simplesamlphp/simplesamlphp": "^1.17",
+            "simplesamlphp/simplesamlphp-test-framework": "^0.0.6"
+        },
+        "time": "2019-08-08T18:33:47+00:00",
+        "type": "simplesamlphp-module",
+        "installation-source": "dist",
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-2.1"
+        ],
+        "authors": [
+            {
+                "name": "Olav Morken",
+                "email": "olav.morken@uninett.no"
+            },
+            {
+                "name": "Jaime Perez Crespo",
+                "email": "jaime.perez@uninett.no"
+            }
+        ],
+        "description": "A SimpleSAMLphp module that allows integration with Auth MemCookie, allowing web applications written in other languages than PHP to integrate with SimpleSAMLphp.",
+        "homepage": "https://simplesamlphp.org/",
+        "keywords": [
+            "Auth MemCookie",
+            "apache",
+            "cookies",
+            "simplesamlphp"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-metarefresh",
+        "version": "v0.9.0",
+        "version_normalized": "0.9.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-metarefresh.git",
+            "reference": "03ea37e15660224e58a817ad14ce71062e6aa0f8"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-metarefresh/zipball/03ea37e15660224e58a817ad14ce71062e6aa0f8",
+            "reference": "03ea37e15660224e58a817ad14ce71062e6aa0f8",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.6",
+            "simplesamlphp/composer-module-installer": "~1.1"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~5.7",
+            "simplesamlphp/simplesamlphp": "^1.17"
+        },
+        "time": "2019-06-03T19:21:26+00:00",
+        "type": "simplesamlphp-metarefresh",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SimpleSAML\\Module\\metarefresh\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Andreas Åkre Solberg",
+                "email": "andreas.solberg@uninett.no"
+            }
+        ],
+        "description": "The metarefresh module will download and parse metadata documents and store them locally",
+        "keywords": [
+            "metarefresh",
+            "simplesamlphp"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-negotiate",
+        "version": "v0.9.2",
+        "version_normalized": "0.9.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-negotiate.git",
+            "reference": "11a701361ee478c17580008442c419c865aed3d5"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-negotiate/zipball/11a701361ee478c17580008442c419c865aed3d5",
+            "reference": "11a701361ee478c17580008442c419c865aed3d5",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.6",
+            "simplesamlphp/composer-module-installer": "~1.1",
+            "simplesamlphp/simplesamlphp-module-ldap": "^0.9",
+            "webmozart/assert": "~1.4"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~5.7",
+            "simplesamlphp/simplesamlphp": "^1.17"
+        },
+        "time": "2019-08-27T10:09:17+00:00",
+        "type": "simplesamlphp-module",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SimpleSAML\\Module\\negotiate\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Olav Morken",
+                "email": "olavmrk@gmail.com"
+            }
+        ],
+        "description": "The Negotiate module implements Microsofts Kerberos SPNEGO mechanism",
+        "keywords": [
+            "negotiate",
+            "simplesamlphp"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-oauth",
+        "version": "v0.9.0",
+        "version_normalized": "0.9.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-oauth.git",
+            "reference": "a980d8974f85f410fe4c14c8b3c5446c9c89ea4e"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-oauth/zipball/a980d8974f85f410fe4c14c8b3c5446c9c89ea4e",
+            "reference": "a980d8974f85f410fe4c14c8b3c5446c9c89ea4e",
+            "shasum": ""
+        },
+        "require": {
+            "simplesamlphp/composer-module-installer": ">=1.1.6"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~4.8.36",
+            "simplesamlphp/simplesamlphp": "^1.17"
+        },
+        "time": "2019-05-29T15:58:47+00:00",
+        "type": "simplesamlphp-module",
+        "installation-source": "dist",
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.1"
+        ],
+        "authors": [
+            {
+                "name": "Olav Morken",
+                "email": "olav.morken@uninett.no"
+            },
+            {
+                "name": "Jaime Perez Crespo",
+                "email": "jaime.perez@uninett.no"
+            }
+        ],
+        "description": "A SimpleSAMLphp module that allows integration with OAuth1,",
+        "homepage": "https://simplesamlphp.org/",
+        "keywords": [
+            "oauth1",
+            "simplesamlphp"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-preprodwarning",
+        "version": "v0.9.0",
+        "version_normalized": "0.9.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-preprodwarning.git",
+            "reference": "b63b256082e482e7f1a449d02f82c9326e1857fc"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-preprodwarning/zipball/b63b256082e482e7f1a449d02f82c9326e1857fc",
+            "reference": "b63b256082e482e7f1a449d02f82c9326e1857fc",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.6",
+            "simplesamlphp/composer-module-installer": "~1.1"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~5.7",
+            "simplesamlphp/simplesamlphp": "^1.17",
+            "webmozart/assert": "^1.4"
+        },
+        "time": "2019-06-04T09:25:57+00:00",
+        "type": "simplesamlphp-module",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SimpleSAML\\Module\\preprodwarning\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Andreas Åkre Solberg",
+                "email": "andreas.solberg@uninett.no"
+            }
+        ],
+        "description": "Display a warning when using a pre-production environment",
+        "keywords": [
+            "preprodwarning",
+            "simplesamlphp"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-radius",
+        "version": "v0.9.2",
+        "version_normalized": "0.9.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-radius.git",
+            "reference": "aabca2c4d3e47c08d28571bbee1fa791abdd12d1"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-radius/zipball/aabca2c4d3e47c08d28571bbee1fa791abdd12d1",
+            "reference": "aabca2c4d3e47c08d28571bbee1fa791abdd12d1",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.6",
+            "simplesamlphp/composer-module-installer": "~1.1"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~5.7",
+            "simplesamlphp/simplesamlphp": "^1.17",
+            "simplesamlphp/simplesamlphp-test-framework": "^0.0.7"
+        },
+        "time": "2019-08-10T14:23:25+00:00",
+        "type": "simplesamlphp-module",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SimpleSAML\\Module\\radius\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Olav Morken",
+                "email": "olavmrk@gmail.com"
+            }
+        ],
+        "description": "A module that is able perform authentication against a RADIUS server",
+        "keywords": [
+            "radius",
+            "simplesamlphp"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-riak",
+        "version": "v0.9.0",
+        "version_normalized": "0.9.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-riak.git",
+            "reference": "7cf7599bc01157b1652e916c2db872624d42fa62"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-riak/zipball/7cf7599bc01157b1652e916c2db872624d42fa62",
+            "reference": "7cf7599bc01157b1652e916c2db872624d42fa62",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.6",
+            "phpfastcache/riak-client": "^3.4",
+            "simplesamlphp/composer-module-installer": "~1.1"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~5.7",
+            "simplesamlphp/simplesamlphp": "^1.17"
+        },
+        "time": "2019-06-03T20:37:42+00:00",
+        "type": "simplesamlphp-module",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SimpleSAML\\Module\\riak\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Tim van Dijen",
+                "email": "tvdijen@gmail.com"
+            }
+        ],
+        "description": "A module that is able to store key/value pairs in a Riak store",
+        "keywords": [
+            "riak",
+            "simplesamlphp"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-sanitycheck",
+        "version": "v0.9.0",
+        "version_normalized": "0.9.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-sanitycheck.git",
+            "reference": "1efbeab5df8e616522690bcc6e49a99436a748b9"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-sanitycheck/zipball/1efbeab5df8e616522690bcc6e49a99436a748b9",
+            "reference": "1efbeab5df8e616522690bcc6e49a99436a748b9",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.6",
+            "simplesamlphp/composer-module-installer": "~1.1",
+            "webmozart/assert": "~1.4"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~5.7",
+            "simplesamlphp/simplesamlphp": "^1.17"
+        },
+        "time": "2019-05-28T12:19:05+00:00",
+        "type": "simplesamlphp-module",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SimpleSAML\\Module\\sanitycheck\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Andreas Åkre Solberg",
+                "email": "andreas.solberg@uninett.no"
+            }
+        ],
+        "description": "Perform sanity checks on configuration",
+        "keywords": [
+            "sanitycheck",
+            "simplesamlphp"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-smartattributes",
+        "version": "v0.9.0",
+        "version_normalized": "0.9.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-smartattributes.git",
+            "reference": "244d3657dd4cb3b9cd90076f112101f7ab213340"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-smartattributes/zipball/244d3657dd4cb3b9cd90076f112101f7ab213340",
+            "reference": "244d3657dd4cb3b9cd90076f112101f7ab213340",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.6",
+            "simplesamlphp/composer-module-installer": "~1.1"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~5.7",
+            "simplesamlphp/simplesamlphp": "^1.17"
+        },
+        "time": "2019-05-29T16:13:01+00:00",
+        "type": "simplesamlphp-module",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SimpleSAML\\Module\\smartattributes\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Andreas Åkre Solberg",
+                "email": "andreas.solberg@uninett.no"
+            }
+        ],
+        "description": "The SmartAttributes module provides additional authentication processing filters to manipulate attributes.",
+        "keywords": [
+            "simplesamlphp",
+            "smartattributes"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-sqlauth",
+        "version": "v0.9.0",
+        "version_normalized": "0.9.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-sqlauth.git",
+            "reference": "c0201d6f894ef3b28b9e5855b92168a4fa7fd026"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-sqlauth/zipball/c0201d6f894ef3b28b9e5855b92168a4fa7fd026",
+            "reference": "c0201d6f894ef3b28b9e5855b92168a4fa7fd026",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.6",
+            "simplesamlphp/composer-module-installer": "~1.1"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~5.7",
+            "simplesamlphp/simplesamlphp": "^1.17",
+            "webmozart/assert": "^1.4"
+        },
+        "time": "2019-05-29T15:29:12+00:00",
+        "type": "simplesamlphp-module",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SimpleSAML\\Module\\sqlauth\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Olav Morken",
+                "email": "olavmrk@gmail.com"
+            }
+        ],
+        "description": "This is a authentication module for authenticating a user against a SQL database",
+        "keywords": [
+            "simplesamlphp",
+            "sqlauth"
+        ]
+    },
+    {
+        "name": "simplesamlphp/simplesamlphp-module-statistics",
+        "version": "v0.9.2",
+        "version_normalized": "0.9.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/simplesamlphp-module-statistics.git",
+            "reference": "03d4d2fd0a2fd68b3aba312421841662ec63c4db"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/simplesamlphp-module-statistics/zipball/03d4d2fd0a2fd68b3aba312421841662ec63c4db",
+            "reference": "03d4d2fd0a2fd68b3aba312421841662ec63c4db",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.6",
+            "simplesamlphp/composer-module-installer": "~1.1",
+            "webmozart/assert": "^1.4"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~5.7",
+            "simplesamlphp/simplesamlphp": "^1.17",
+            "simplesamlphp/simplesamlphp-test-framework": "^0.0.10"
+        },
+        "time": "2019-08-26T14:57:57+00:00",
+        "type": "simplesamlphp-module",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SimpleSAML\\Module\\statistics\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-3.0-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Andreas Åkre Solberg",
+                "email": "andreas.solberg@uninett.no"
+            }
+        ],
+        "description": "The SimpleSAMLphp statistics module",
+        "keywords": [
+            "simplesamlphp",
+            "statistics"
+        ]
+    },
+    {
+        "name": "simplesamlphp/twig-configurable-i18n",
+        "version": "v2.2",
+        "version_normalized": "2.2.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/simplesamlphp/twig-configurable-i18n.git",
+            "reference": "b036c134157ce40ed66da2fc9d01f63e3b1d3abd"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/simplesamlphp/twig-configurable-i18n/zipball/b036c134157ce40ed66da2fc9d01f63e3b1d3abd",
+            "reference": "b036c134157ce40ed66da2fc9d01f63e3b1d3abd",
+            "shasum": ""
+        },
+        "require": {
+            "twig/extensions": "^1.5"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~4.8.36 || ~7.5",
+            "twig/twig": "^1.37 || ^2.7"
+        },
+        "time": "2019-07-09T08:35:44+00:00",
+        "type": "project",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "SimpleSAML\\TwigConfigurableI18n\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-2.1"
+        ],
+        "authors": [
+            {
+                "name": "Jaime Perez",
+                "email": "jaime.perez@uninett.no"
+            }
+        ],
+        "description": "This is an extension on top of Twig's i18n extension, allowing you to customize which functions to use for translations.",
+        "keywords": [
+            "extension",
+            "gettext",
+            "i18n",
+            "internationalization",
+            "translation",
+            "twig"
+        ]
+    },
+    {
+        "name": "symfony/config",
+        "version": "v3.4.31",
+        "version_normalized": "3.4.31.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/symfony/config.git",
+            "reference": "24a60c0d7ad98a0fa5d1f892e9286095a389404f"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/symfony/config/zipball/24a60c0d7ad98a0fa5d1f892e9286095a389404f",
+            "reference": "24a60c0d7ad98a0fa5d1f892e9286095a389404f",
+            "shasum": ""
+        },
+        "require": {
+            "php": "^5.5.9|>=7.0.8",
+            "symfony/filesystem": "~2.8|~3.0|~4.0",
+            "symfony/polyfill-ctype": "~1.8"
+        },
+        "conflict": {
+            "symfony/dependency-injection": "<3.3",
+            "symfony/finder": "<3.3"
+        },
+        "require-dev": {
+            "symfony/dependency-injection": "~3.3|~4.0",
+            "symfony/event-dispatcher": "~3.3|~4.0",
+            "symfony/finder": "~3.3|~4.0",
+            "symfony/yaml": "~3.0|~4.0"
+        },
+        "suggest": {
+            "symfony/yaml": "To use the yaml reference dumper"
+        },
+        "time": "2019-08-26T07:52:57+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.4-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Symfony\\Component\\Config\\": ""
+            },
+            "exclude-from-classmap": [
+                "/Tests/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Fabien Potencier",
+                "email": "fabien@symfony.com"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
+            }
+        ],
+        "description": "Symfony Config Component",
+        "homepage": "https://symfony.com"
+    },
+    {
+        "name": "symfony/debug",
+        "version": "v3.4.31",
+        "version_normalized": "3.4.31.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/symfony/debug.git",
+            "reference": "0b600300918780001e2821db77bc28b677794486"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/symfony/debug/zipball/0b600300918780001e2821db77bc28b677794486",
+            "reference": "0b600300918780001e2821db77bc28b677794486",
+            "shasum": ""
+        },
+        "require": {
+            "php": "^5.5.9|>=7.0.8",
+            "psr/log": "~1.0"
+        },
+        "conflict": {
+            "symfony/http-kernel": ">=2.3,<2.3.24|~2.4.0|>=2.5,<2.5.9|>=2.6,<2.6.2"
+        },
+        "require-dev": {
+            "symfony/http-kernel": "~2.8|~3.0|~4.0"
+        },
+        "time": "2019-08-20T13:31:17+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.4-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Symfony\\Component\\Debug\\": ""
+            },
+            "exclude-from-classmap": [
+                "/Tests/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Fabien Potencier",
+                "email": "fabien@symfony.com"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
+            }
+        ],
+        "description": "Symfony Debug Component",
+        "homepage": "https://symfony.com"
+    },
+    {
+        "name": "symfony/dependency-injection",
+        "version": "v3.4.31",
+        "version_normalized": "3.4.31.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/symfony/dependency-injection.git",
+            "reference": "2709bc2978ceb90f5180181f777f8a09125f2d89"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/symfony/dependency-injection/zipball/2709bc2978ceb90f5180181f777f8a09125f2d89",
+            "reference": "2709bc2978ceb90f5180181f777f8a09125f2d89",
+            "shasum": ""
+        },
+        "require": {
+            "php": "^5.5.9|>=7.0.8",
+            "psr/container": "^1.0"
+        },
+        "conflict": {
+            "symfony/config": "<3.3.7",
+            "symfony/finder": "<3.3",
+            "symfony/proxy-manager-bridge": "<3.4",
+            "symfony/yaml": "<3.4"
+        },
+        "provide": {
+            "psr/container-implementation": "1.0"
+        },
+        "require-dev": {
+            "symfony/config": "~3.3|~4.0",
+            "symfony/expression-language": "~2.8|~3.0|~4.0",
+            "symfony/yaml": "~3.4|~4.0"
+        },
+        "suggest": {
+            "symfony/config": "",
+            "symfony/expression-language": "For using expressions in service container configuration",
+            "symfony/finder": "For using double-star glob patterns or when GLOB_BRACE portability is required",
+            "symfony/proxy-manager-bridge": "Generate service proxies to lazy load them",
+            "symfony/yaml": ""
+        },
+        "time": "2019-08-26T16:07:57+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.4-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Symfony\\Component\\DependencyInjection\\": ""
+            },
+            "exclude-from-classmap": [
+                "/Tests/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Fabien Potencier",
+                "email": "fabien@symfony.com"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
+            }
+        ],
+        "description": "Symfony DependencyInjection Component",
+        "homepage": "https://symfony.com"
+    },
+    {
+        "name": "symfony/event-dispatcher",
+        "version": "v3.4.31",
+        "version_normalized": "3.4.31.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/symfony/event-dispatcher.git",
+            "reference": "3e922c4c3430b9de624e8a285dada5e61e230959"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/3e922c4c3430b9de624e8a285dada5e61e230959",
+            "reference": "3e922c4c3430b9de624e8a285dada5e61e230959",
+            "shasum": ""
+        },
+        "require": {
+            "php": "^5.5.9|>=7.0.8"
+        },
+        "conflict": {
+            "symfony/dependency-injection": "<3.3"
+        },
+        "require-dev": {
+            "psr/log": "~1.0",
+            "symfony/config": "~2.8|~3.0|~4.0",
+            "symfony/dependency-injection": "~3.3|~4.0",
+            "symfony/expression-language": "~2.8|~3.0|~4.0",
+            "symfony/stopwatch": "~2.8|~3.0|~4.0"
+        },
+        "suggest": {
+            "symfony/dependency-injection": "",
+            "symfony/http-kernel": ""
+        },
+        "time": "2019-08-23T08:05:57+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.4-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Symfony\\Component\\EventDispatcher\\": ""
+            },
+            "exclude-from-classmap": [
+                "/Tests/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Fabien Potencier",
+                "email": "fabien@symfony.com"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
+            }
+        ],
+        "description": "Symfony EventDispatcher Component",
+        "homepage": "https://symfony.com"
+    },
+    {
+        "name": "symfony/filesystem",
+        "version": "v3.4.31",
+        "version_normalized": "3.4.31.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/symfony/filesystem.git",
+            "reference": "00e3a6ddd723b8bcfe4f2a1b6f82b98eeeb51516"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/symfony/filesystem/zipball/00e3a6ddd723b8bcfe4f2a1b6f82b98eeeb51516",
+            "reference": "00e3a6ddd723b8bcfe4f2a1b6f82b98eeeb51516",
+            "shasum": ""
+        },
+        "require": {
+            "php": "^5.5.9|>=7.0.8",
+            "symfony/polyfill-ctype": "~1.8"
+        },
+        "time": "2019-08-20T13:31:17+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.4-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Symfony\\Component\\Filesystem\\": ""
+            },
+            "exclude-from-classmap": [
+                "/Tests/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Fabien Potencier",
+                "email": "fabien@symfony.com"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
+            }
+        ],
+        "description": "Symfony Filesystem Component",
+        "homepage": "https://symfony.com"
+    },
+    {
+        "name": "symfony/http-foundation",
+        "version": "v3.4.31",
+        "version_normalized": "3.4.31.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/symfony/http-foundation.git",
+            "reference": "b3d57a1c325f39f703b249bed7998ce8c64236b4"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/symfony/http-foundation/zipball/b3d57a1c325f39f703b249bed7998ce8c64236b4",
+            "reference": "b3d57a1c325f39f703b249bed7998ce8c64236b4",
+            "shasum": ""
+        },
+        "require": {
+            "php": "^5.5.9|>=7.0.8",
+            "symfony/polyfill-mbstring": "~1.1"
+        },
+        "require-dev": {
+            "symfony/expression-language": "~2.8|~3.0|~4.0"
+        },
+        "time": "2019-08-26T07:50:50+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.4-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Symfony\\Component\\HttpFoundation\\": ""
+            },
+            "exclude-from-classmap": [
+                "/Tests/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Fabien Potencier",
+                "email": "fabien@symfony.com"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
+            }
+        ],
+        "description": "Symfony HttpFoundation Component",
+        "homepage": "https://symfony.com"
+    },
+    {
+        "name": "symfony/http-kernel",
+        "version": "v3.4.31",
+        "version_normalized": "3.4.31.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/symfony/http-kernel.git",
+            "reference": "f6d35bb306b26812df007525f5757a8b0e95857e"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/symfony/http-kernel/zipball/f6d35bb306b26812df007525f5757a8b0e95857e",
+            "reference": "f6d35bb306b26812df007525f5757a8b0e95857e",
+            "shasum": ""
+        },
+        "require": {
+            "php": "^5.5.9|>=7.0.8",
+            "psr/log": "~1.0",
+            "symfony/debug": "^3.3.3|~4.0",
+            "symfony/event-dispatcher": "~2.8|~3.0|~4.0",
+            "symfony/http-foundation": "~3.4.12|~4.0.12|^4.1.1",
+            "symfony/polyfill-ctype": "~1.8"
+        },
+        "conflict": {
+            "symfony/config": "<2.8",
+            "symfony/dependency-injection": "<3.4.10|<4.0.10,>=4",
+            "symfony/var-dumper": "<3.3",
+            "twig/twig": "<1.34|<2.4,>=2"
+        },
+        "provide": {
+            "psr/log-implementation": "1.0"
+        },
+        "require-dev": {
+            "psr/cache": "~1.0",
+            "symfony/browser-kit": "~2.8|~3.0|~4.0",
+            "symfony/class-loader": "~2.8|~3.0",
+            "symfony/config": "~2.8|~3.0|~4.0",
+            "symfony/console": "~2.8|~3.0|~4.0",
+            "symfony/css-selector": "~2.8|~3.0|~4.0",
+            "symfony/dependency-injection": "^3.4.10|^4.0.10",
+            "symfony/dom-crawler": "~2.8|~3.0|~4.0",
+            "symfony/expression-language": "~2.8|~3.0|~4.0",
+            "symfony/finder": "~2.8|~3.0|~4.0",
+            "symfony/process": "~2.8|~3.0|~4.0",
+            "symfony/routing": "~3.4|~4.0",
+            "symfony/stopwatch": "~2.8|~3.0|~4.0",
+            "symfony/templating": "~2.8|~3.0|~4.0",
+            "symfony/translation": "~2.8|~3.0|~4.0",
+            "symfony/var-dumper": "~3.3|~4.0"
+        },
+        "suggest": {
+            "symfony/browser-kit": "",
+            "symfony/config": "",
+            "symfony/console": "",
+            "symfony/dependency-injection": "",
+            "symfony/finder": "",
+            "symfony/var-dumper": ""
+        },
+        "time": "2019-08-26T16:36:29+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.4-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Symfony\\Component\\HttpKernel\\": ""
+            },
+            "exclude-from-classmap": [
+                "/Tests/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Fabien Potencier",
+                "email": "fabien@symfony.com"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
+            }
+        ],
+        "description": "Symfony HttpKernel Component",
+        "homepage": "https://symfony.com"
+    },
+    {
+        "name": "symfony/polyfill-ctype",
+        "version": "v1.12.0",
+        "version_normalized": "1.12.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/symfony/polyfill-ctype.git",
+            "reference": "550ebaac289296ce228a706d0867afc34687e3f4"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/550ebaac289296ce228a706d0867afc34687e3f4",
+            "reference": "550ebaac289296ce228a706d0867afc34687e3f4",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.3"
+        },
+        "suggest": {
+            "ext-ctype": "For best performance"
+        },
+        "time": "2019-08-06T08:03:45+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.12-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Symfony\\Polyfill\\Ctype\\": ""
+            },
+            "files": [
+                "bootstrap.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Gert de Pagter",
+                "email": "BackEndTea@gmail.com"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
+            }
+        ],
+        "description": "Symfony polyfill for ctype functions",
+        "homepage": "https://symfony.com",
+        "keywords": [
+            "compatibility",
+            "ctype",
+            "polyfill",
+            "portable"
+        ]
+    },
+    {
+        "name": "symfony/polyfill-mbstring",
+        "version": "v1.12.0",
+        "version_normalized": "1.12.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/symfony/polyfill-mbstring.git",
+            "reference": "b42a2f66e8f1b15ccf25652c3424265923eb4f17"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/b42a2f66e8f1b15ccf25652c3424265923eb4f17",
+            "reference": "b42a2f66e8f1b15ccf25652c3424265923eb4f17",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.3"
+        },
+        "suggest": {
+            "ext-mbstring": "For best performance"
+        },
+        "time": "2019-08-06T08:03:45+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.12-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Symfony\\Polyfill\\Mbstring\\": ""
+            },
+            "files": [
+                "bootstrap.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Nicolas Grekas",
+                "email": "p@tchwork.com"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
+            }
+        ],
+        "description": "Symfony polyfill for the Mbstring extension",
+        "homepage": "https://symfony.com",
+        "keywords": [
+            "compatibility",
+            "mbstring",
+            "polyfill",
+            "portable",
+            "shim"
+        ]
+    },
+    {
+        "name": "symfony/routing",
+        "version": "v3.4.31",
+        "version_normalized": "3.4.31.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/symfony/routing.git",
+            "reference": "8b0faa681c4ee14701e76a7056fef15ac5384163"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/symfony/routing/zipball/8b0faa681c4ee14701e76a7056fef15ac5384163",
+            "reference": "8b0faa681c4ee14701e76a7056fef15ac5384163",
+            "shasum": ""
+        },
+        "require": {
+            "php": "^5.5.9|>=7.0.8"
+        },
+        "conflict": {
+            "symfony/config": "<3.3.1",
+            "symfony/dependency-injection": "<3.3",
+            "symfony/yaml": "<3.4"
+        },
+        "require-dev": {
+            "doctrine/annotations": "~1.0",
+            "psr/log": "~1.0",
+            "symfony/config": "^3.3.1|~4.0",
+            "symfony/dependency-injection": "~3.3|~4.0",
+            "symfony/expression-language": "~2.8|~3.0|~4.0",
+            "symfony/http-foundation": "~2.8|~3.0|~4.0",
+            "symfony/yaml": "~3.4|~4.0"
+        },
+        "suggest": {
+            "doctrine/annotations": "For using the annotation loader",
+            "symfony/config": "For using the all-in-one router or any loader",
+            "symfony/expression-language": "For using expression matching",
+            "symfony/http-foundation": "For using a Symfony Request object",
+            "symfony/yaml": "For using the YAML loader"
+        },
+        "time": "2019-08-26T07:50:50+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.4-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Symfony\\Component\\Routing\\": ""
+            },
+            "exclude-from-classmap": [
+                "/Tests/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Fabien Potencier",
+                "email": "fabien@symfony.com"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
+            }
+        ],
+        "description": "Symfony Routing Component",
+        "homepage": "https://symfony.com",
+        "keywords": [
+            "router",
+            "routing",
+            "uri",
+            "url"
+        ]
+    },
+    {
+        "name": "symfony/yaml",
+        "version": "v3.4.31",
+        "version_normalized": "3.4.31.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/symfony/yaml.git",
+            "reference": "3dc414b7db30695bae671a1d86013d03f4ae9834"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/symfony/yaml/zipball/3dc414b7db30695bae671a1d86013d03f4ae9834",
+            "reference": "3dc414b7db30695bae671a1d86013d03f4ae9834",
+            "shasum": ""
+        },
+        "require": {
+            "php": "^5.5.9|>=7.0.8",
+            "symfony/polyfill-ctype": "~1.8"
+        },
+        "conflict": {
+            "symfony/console": "<3.4"
+        },
+        "require-dev": {
+            "symfony/console": "~3.4|~4.0"
+        },
+        "suggest": {
+            "symfony/console": "For validating YAML files using the lint command"
+        },
+        "time": "2019-08-20T13:31:17+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.4-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Symfony\\Component\\Yaml\\": ""
+            },
+            "exclude-from-classmap": [
+                "/Tests/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Fabien Potencier",
+                "email": "fabien@symfony.com"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
+            }
+        ],
+        "description": "Symfony Yaml Component",
+        "homepage": "https://symfony.com"
+    },
+    {
+        "name": "twig/extensions",
+        "version": "v1.5.4",
+        "version_normalized": "1.5.4.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/twigphp/Twig-extensions.git",
+            "reference": "57873c8b0c1be51caa47df2cdb824490beb16202"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/twigphp/Twig-extensions/zipball/57873c8b0c1be51caa47df2cdb824490beb16202",
+            "reference": "57873c8b0c1be51caa47df2cdb824490beb16202",
+            "shasum": ""
+        },
+        "require": {
+            "twig/twig": "^1.27|^2.0"
+        },
+        "require-dev": {
+            "symfony/phpunit-bridge": "^3.4",
+            "symfony/translation": "^2.7|^3.4"
         },
         "suggest": {
             "symfony/translation": "Allow the time_diff output to be translated"
         },
-        "time": "2017-06-08T18:19:53+00:00",
+        "time": "2018-12-05T18:34:18+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -370,7 +2751,6 @@
             }
         ],
         "description": "Common additional features for Twig that do not directly belong in core",
-        "homepage": "http://twig.sensiolabs.org/doc/extensions/index.html",
         "keywords": [
             "i18n",
             "text"
@@ -378,32 +2758,33 @@
     },
     {
         "name": "twig/twig",
-        "version": "v1.35.3",
-        "version_normalized": "1.35.3.0",
+        "version": "v1.42.3",
+        "version_normalized": "1.42.3.0",
         "source": {
             "type": "git",
             "url": "https://github.com/twigphp/Twig.git",
-            "reference": "b48680b6eb7d16b5025b9bfc4108d86f6b8af86f"
+            "reference": "201baee843e0ffe8b0b956f336dd42b2a92fae4e"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/twigphp/Twig/zipball/b48680b6eb7d16b5025b9bfc4108d86f6b8af86f",
-            "reference": "b48680b6eb7d16b5025b9bfc4108d86f6b8af86f",
+            "url": "https://api.github.com/repos/twigphp/Twig/zipball/201baee843e0ffe8b0b956f336dd42b2a92fae4e",
+            "reference": "201baee843e0ffe8b0b956f336dd42b2a92fae4e",
             "shasum": ""
         },
         "require": {
-            "php": ">=5.3.3"
+            "php": ">=5.5.0",
+            "symfony/polyfill-ctype": "^1.8"
         },
         "require-dev": {
             "psr/container": "^1.0",
-            "symfony/debug": "^2.7",
-            "symfony/phpunit-bridge": "^3.3"
+            "symfony/debug": "^3.4|^4.2",
+            "symfony/phpunit-bridge": "^4.4@dev|^5.0"
         },
-        "time": "2018-03-20T04:25:58+00:00",
+        "time": "2019-08-24T12:51:03+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "1.35-dev"
+                "dev-master": "1.42-dev"
             }
         },
         "installation-source": "dist",
@@ -427,20 +2808,72 @@
                 "role": "Lead Developer"
             },
             {
+                "name": "Twig Team",
+                "homepage": "https://twig.symfony.com/contributors",
+                "role": "Contributors"
+            },
+            {
                 "name": "Armin Ronacher",
                 "email": "armin.ronacher@active-4.com",
                 "role": "Project Founder"
-            },
-            {
-                "name": "Twig Team",
-                "homepage": "http://twig.sensiolabs.org/contributors",
-                "role": "Contributors"
             }
         ],
         "description": "Twig, the flexible, fast, and secure template language for PHP",
-        "homepage": "http://twig.sensiolabs.org",
+        "homepage": "https://twig.symfony.com",
         "keywords": [
             "templating"
+        ]
+    },
+    {
+        "name": "webmozart/assert",
+        "version": "1.5.0",
+        "version_normalized": "1.5.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/webmozart/assert.git",
+            "reference": "88e6d84706d09a236046d686bbea96f07b3a34f4"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/webmozart/assert/zipball/88e6d84706d09a236046d686bbea96f07b3a34f4",
+            "reference": "88e6d84706d09a236046d686bbea96f07b3a34f4",
+            "shasum": ""
+        },
+        "require": {
+            "php": "^5.3.3 || ^7.0",
+            "symfony/polyfill-ctype": "^1.8"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "^4.8.36 || ^7.5.13"
+        },
+        "time": "2019-08-24T08:43:50+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.3-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Webmozart\\Assert\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Bernhard Schussek",
+                "email": "bschussek@gmail.com"
+            }
+        ],
+        "description": "Assertions to validate method input/output with nice error messages.",
+        "keywords": [
+            "assert",
+            "check",
+            "validate"
         ]
     },
     {

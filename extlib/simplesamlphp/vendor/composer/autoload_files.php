@@ -6,6 +6,8 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    '320cde22f66dd4f5d3fd621d3e88b98f' => $vendorDir . '/symfony/polyfill-ctype/bootstrap.php',
+    '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => $vendorDir . '/symfony/polyfill-mbstring/bootstrap.php',
     '6175f5662c2e26de0149cb048cda7209' => $vendorDir . '/simplesamlphp/saml2/src/_autoload.php',
     '5abda994d126976858eb25d2546ee3c9' => $baseDir . '/lib/_autoload_modules.php',
 );

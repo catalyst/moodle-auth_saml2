@@ -1,22 +1,36 @@
 <?php
 
-class sspmod_core_Auth_UserPassBaseTest extends \PHPUnit_Framework_TestCase
+namespace SimpleSAML\Test\Module\core\Auth;
+
+use SAML2\Constants;
+use SimpleSAML\Error\Error as SspError;
+use SimpleSAML\Module\core\Auth\UserPassBase;
+
+class UserPassBaseTest extends \PHPUnit\Framework\TestCase
 {
+    /**
+     * @return void
+     */
     public function testAuthenticateECPCallsLoginAndSetsAttributes()
     {
         $state = [
-            'saml:Binding' => \SAML2\Constants::BINDING_PAOS,
+            'saml:Binding' => Constants::BINDING_PAOS,
         ];
-        $attributes = array('attrib' => 'val');
+        $attributes = ['attrib' => 'val'];
 
         $username = $_SERVER['PHP_AUTH_USER'] = 'username';
         $password = $_SERVER['PHP_AUTH_PW'] = 'password';
 
-        $stub = $this->getMockBuilder('sspmod_core_Auth_UserPassBase')
+        /** @var \SimpleSAML\Module\core\Auth\UserPassBase $stub */
+        $stub = $this->getMockBuilder(UserPassBase::class)
             ->disableOriginalConstructor()
-            ->setMethods(array('login'))
+            ->setMethods(['login'])
             ->getMockForAbstractClass();
 
+        /**
+         * @psalm-suppress InvalidArgument   Remove when PHPunit 8 is in place
+         * @psalm-suppress UndefinedMethod
+         */
         $stub->expects($this->once())
             ->method('login')
             ->with($username, $password)
@@ -28,17 +42,23 @@ class sspmod_core_Auth_UserPassBaseTest extends \PHPUnit_Framework_TestCase
     }
 
 
+    /**
+     * @return void
+     */
     public function testAuthenticateECPMissingUsername()
     {
-        $this->setExpectedException('SimpleSAML_Error_Error', 'WRONGUSERPASS');
+        $this->expectException(SspError::class);
+        $this->expectExceptionMessage('WRONGUSERPASS');
 
         $state = [
-            'saml:Binding' => \SAML2\Constants::BINDING_PAOS,
+            'saml:Binding' => Constants::BINDING_PAOS,
         ];
 
         unset($_SERVER['PHP_AUTH_USER']);
         $_SERVER['PHP_AUTH_PW'] = 'password';
-        $stub = $this->getMockBuilder('sspmod_core_Auth_UserPassBase')
+
+        /** @var \SimpleSAML\Module\core\Auth\UserPassBase $stub */
+        $stub = $this->getMockBuilder(UserPassBase::class)
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
 
@@ -46,49 +66,61 @@ class sspmod_core_Auth_UserPassBaseTest extends \PHPUnit_Framework_TestCase
     }
 
 
+    /**
+     * @return void
+     */
     public function testAuthenticateECPMissingPassword()
     {
-        $this->setExpectedException('SimpleSAML_Error_Error', 'WRONGUSERPASS');
+        $this->expectException(SspError::class);
+        $this->expectExceptionMessage('WRONGUSERPASS');
 
         $state = [
-            'saml:Binding' => \SAML2\Constants::BINDING_PAOS,
+            'saml:Binding' => Constants::BINDING_PAOS,
         ];
 
         $_SERVER['PHP_AUTH_USER'] = 'username';
         unset($_SERVER['PHP_AUTH_PW']);
 
-        $stub = $this->getMockBuilder('sspmod_core_Auth_UserPassBase')
+        $stub = $this->getMockBuilder(UserPassBase::class)
             ->disableOriginalConstructor()
             ->getMockForAbstractClass();
 
+        /** @psalm-suppress UndefinedMethod   Remove when Psalm 3.x is in place */
         $stub->authenticate($state);
     }
 
 
+    /**
+     * @return void
+     */
     public function testAuthenticateECPCallsLoginWithForcedUsername()
     {
         $state = [
-            'saml:Binding' => \SAML2\Constants::BINDING_PAOS,
+            'saml:Binding' => Constants::BINDING_PAOS,
         ];
-        $attributes = array();
+        $attributes = [];
 
         $forcedUsername = 'forcedUsername';
 
         $_SERVER['PHP_AUTH_USER'] = 'username';
         $password = $_SERVER['PHP_AUTH_PW'] = 'password';
 
-        $stub = $this->getMockBuilder('sspmod_core_Auth_UserPassBase')
+        /** @var \SimpleSAML\Module\core\Auth\UserPassBase $stub */
+        $stub = $this->getMockBuilder(UserPassBase::class)
             ->disableOriginalConstructor()
-            ->setMethods(array('login'))
+            ->setMethods(['login'])
             ->getMockForAbstractClass();
 
+        /**
+         * @psalm-suppress InvalidArgument   Remove when PHPunit 8 is in place
+         * @psalm-suppress UndefinedMethod
+         */
         $stub->expects($this->once())
             ->method('login')
             ->with($forcedUsername, $password)
             ->will($this->returnValue($attributes));
 
         $stub->setForcedUsername($forcedUsername);
-
         $stub->authenticate($state);
     }
 }

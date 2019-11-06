@@ -1,21 +1,29 @@
 <?php
+
+namespace SimpleSAML\Module\adfs\SAML2\XML\fed;
+
+use Webmozart\Assert\Assert;
+
 /**
  * Class representing fed Endpoint.
  *
  * @package SimpleSAMLphp
  */
-class sspmod_adfs_SAML2_XML_fed_Endpoint
+
+class Endpoint
 {
     /**
      * Add this endpoint to an XML element.
      *
-     * @param DOMElement $parent  The element we should append this endpoint to.
+     * @param \DOMElement $parent  The element we should append this endpoint to.
      * @param string $name  The name of the element we should create.
+     * @param string $address
+     * @return \DOMElement
      */
-    public static function appendXML(DOMElement $parent, $name, $address)
+    public static function appendXML(\DOMElement $parent, $name, $address)
     {
-        assert(is_string($name));
-        assert(is_string($address));
+        Assert::string($name);
+        Assert::string($address);
 
         $e = $parent->ownerDocument->createElement($name);
         $parent->appendChild($e);
