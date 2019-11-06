@@ -49,9 +49,6 @@ configuration from Moodle configuration. In the future we should be able to
 swap to a different internal SAML implementation and the plugin GUI shouldn't
 need to change at all.
 
-* SimpleSAMLphp version 1.14.10
-
-
 Features
 --------
 
@@ -71,8 +68,11 @@ Features not yet implemented:
 Branches
 --------
 
-* For Moodle 2.7 to 3.4 use the 27_34STABLE branch
-* For Moodle 3.5 to 3.8 use the master branch
+| Moodle verion     | Branch      | PHP  | SimpleSAMLphp |
+| ----------------- | ----------- | ---- | ------------- |
+| Moodle 2.7 to 3.4 | 27_34STABLE | 5.5+ | v1.15.4       |
+| Moodle 3.5 to 3.8 | master      | 7.0+ | v1.17.7       |
+| Totara 12+        | master      | 7.0+ | v1.17.7       |
 
 Installation
 ------------
