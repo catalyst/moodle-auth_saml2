@@ -501,8 +501,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $passive = (bool)optional_param('passive', $passive, PARAM_BOOL);
         $params = ['isPassive' => $passive];
         if ($passive) {
-            $errorurl = optional_param('errorurl', "{$CFG->wwwroot}/login/index.php", PARAM_RAW);
-            $params['ErrorURL'] = $errorurl;
+            $params['ErrorURL'] = "{$CFG->wwwroot}/login/index.php?saml=0";
         }
 
         $auth->requireAuth($params);
