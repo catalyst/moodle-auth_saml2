@@ -44,7 +44,7 @@ Commit the changes directly into the repo.
 ### Cherry-pick previous changes.
 Look at the previous history on extlib/simplesaml and cherry-pick our custom changes.
 
-#Using a published release 
+# Using a published release 
 Sometimes you might get away with using a published release with the following instructions.
 
 Do not copy & paste blindly, this is the general idea only.
