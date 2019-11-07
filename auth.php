@@ -667,18 +667,27 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $deny  = preg_split("/[\s,]+/", $this->config->restricted_groups, null, PREG_SPLIT_NO_EMPTY);
         $allow = preg_split("/[\s,]+/", $this->config->allowed_groups, null, PREG_SPLIT_NO_EMPTY);
 
-        // If a user has an encumberance attribute and one of the groups in it match a deny group,
+        $inallowed = array_intersect($allow, $groups);
+        $indenied = array_intersect($deny, $groups);
+
+        // If allowed groups is a priority, then exit earlier if a user is in allowed groups.
+        if (!empty($this->config->allowedgroupspriority)) {
+            if (!empty($inallowed)) {
+                return true;
+            }
+        }
+
+        // If a user has a group attribute and one of the groups in it match a deny group,
         // then don't let them in.
-        // We realise that they may not get here if they are in an allow group.
-        if (!empty(array_intersect($deny, $groups))) {
-            $this->log(__FUNCTION__ . " user '$uid' is in restricted group or isn't in allowed. Access denied.");
+        if (!empty($indenied)) {
+            $this->log(__FUNCTION__ . " user '$uid' is in restricted group. Access denied.");
             return false;
         }
 
-        // If a user has an encumberance attribute and one of the groups in it match an allow group,
+        // If a user has a group attribute and one of the groups in it match an allow group,
         // then let them in.
-        if (empty(array_intersect($allow, $groups))) {
-            $this->log(__FUNCTION__ . " user '$uid' is in restricted group or isn't in allowed. Access denied.");
+        if (empty($inallowed)) {
+            $this->log(__FUNCTION__ . " user '$uid' isn't in allowed. Access denied.");
             return false;
         }
 

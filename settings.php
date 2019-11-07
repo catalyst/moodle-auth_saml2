@@ -258,6 +258,13 @@ if ($ADMIN->fulltree) {
             'student',
             PARAM_TEXT));
 
+    // Priority of the allowed groups.
+    $settings->add(new admin_setting_configselect(
+        'auth_saml2/allowedgroupspriority',
+        get_string('allowedgroupspriority', 'auth_saml2'),
+        get_string('allowedgroupspriority_help', 'auth_saml2'),
+        0, $yesno));
+
     // Alternative Logout URL.
     $settings->add(new admin_setting_configtext(
             'auth_saml2/alterlogout',
