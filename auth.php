@@ -455,14 +455,23 @@ class auth_plugin_saml2 extends auth_plugin_base {
         require('setup.php');
         require_once("$CFG->dirroot/login/lib.php");
 
-        // Set the default IdP to be the first in the list. Used when dual login is disabled.
-        $arr = array_reverse($saml2auth->metadataentities);
-        $metadataentities = array_pop($arr);
-        $idpentity = array_pop($metadataentities);
-        $idp = md5($idpentity->entityid);
+        $idpfromparam = optional_param('idp', '', PARAM_TEXT);
+        if (!empty($idpfromparam)) {
+            $SESSION->saml2idp = $idpfromparam;
+        }
 
-        // Specify the default IdP to use.
-        $SESSION->saml2idp = $idp;
+        // Backup in case we can't get the idp from the url param or our session idp is empty.
+        // Set the default IdP to be the first in the list. Used when dual login is disabled.
+        if (!$SESSION->saml2idp) {
+            // Set the default IdP to be the first in the list. Used when dual login is disabled.
+            $arr = array_reverse($saml2auth->metadataentities);
+            $metadataentities = array_pop($arr);
+            $idpentity = array_pop($metadataentities);
+            $idp = $idpentity->entityid;
+
+            // Specify the default IdP to use.
+            $SESSION->saml2idp = $idp;
+        }
 
         // We store the IdP in the session to generate the config/config.php array with the default local SP.
         $idpalias = optional_param('idpalias', '', PARAM_TEXT);
@@ -482,8 +491,6 @@ class auth_plugin_saml2 extends auth_plugin_base {
             if (!$idpfound) {
                 $this->error_page(get_string('noidpfound', 'auth_saml2', $idpalias));
             }
-        } else if (isset($_GET['idp'])) {
-            $SESSION->saml2idp = $_GET['idp'];
         } else if (!is_null($saml2auth->defaultidp)) {
             $SESSION->saml2idp = md5($saml2auth->defaultidp->entityid);
         } else if ($saml2auth->multiidp) {

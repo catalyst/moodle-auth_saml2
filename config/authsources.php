@@ -36,6 +36,12 @@ if (!empty($CFG->loginhttps)) {
 
 $config = [];
 
+// Grab the idp from the request if it's available
+if (isset($_GET['idp'])) {
+    $idp = $_GET['idp'];
+}
+
+// Backup in case we can't get the idp from the url param or our session idp is empty.
 // Case for specifying no $SESSION IdP, select the first configured IdP as the default.
 $metadataentities = reset($saml2auth->metadataentities);
 $idpentity = reset($metadataentities);
