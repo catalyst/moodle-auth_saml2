@@ -41,12 +41,6 @@ if (isset($_GET['idp'])) {
     $idp = $_GET['idp'];
 }
 
-// Backup in case we can't get the idp from the url param or our session idp is empty.
-// Case for specifying no $SESSION IdP, select the first configured IdP as the default.
-$metadataentities = reset($saml2auth->metadataentities);
-$idpentity = reset($metadataentities);
-$idp = $idpentity->entityid;
-
 if (!empty($SESSION->saml2idp)) {
     foreach ($saml2auth->metadataentities as $idpentities) {
         foreach ($idpentities as $md5entityid => $idpentity) {
@@ -56,6 +50,12 @@ if (!empty($SESSION->saml2idp)) {
             }
         }
     }
+}
+
+// Backup in case we can't get the idp from the url param or session
+// Case for specifying no $SESSION IdP, select the first configured IdP as the default.
+if (!isset($idp)) {
+    $idp = auth_saml2_get_default_idp()->entityid;
 }
 
 // The testing tool will set the IdP that it uses.

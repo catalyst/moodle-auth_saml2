@@ -462,15 +462,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         // Backup in case we can't get the idp from the url param or our session idp is empty.
         // Set the default IdP to be the first in the list. Used when dual login is disabled.
-        if (!$SESSION->saml2idp) {
-            // Set the default IdP to be the first in the list. Used when dual login is disabled.
-            $arr = array_reverse($saml2auth->metadataentities);
-            $metadataentities = array_pop($arr);
-            $idpentity = array_pop($metadataentities);
-            $idp = $idpentity->entityid;
-
-            // Specify the default IdP to use.
-            $SESSION->saml2idp = $idp;
+        if (empty($SESSION->saml2idp)) {
+            $SESSION->saml2idp = auth_saml2_get_default_idp();
         }
 
         // We store the IdP in the session to generate the config/config.php array with the default local SP.
@@ -491,9 +484,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
             if (!$idpfound) {
                 $this->error_page(get_string('noidpfound', 'auth_saml2', $idpalias));
             }
-        } else if (!is_null($saml2auth->defaultidp)) {
-            $SESSION->saml2idp = md5($saml2auth->defaultidp->entityid);
-        } else if ($saml2auth->multiidp) {
+        }
+        if ($saml2auth->multiidp) {
             $idpurl = new moodle_url('/auth/saml2/selectidp.php');
             redirect($idpurl);
         }

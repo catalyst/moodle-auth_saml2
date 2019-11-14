@@ -439,7 +439,7 @@ function auth_saml2_get_idps($active = false, $asarray = false) {
         } else {
             $idpentities[$idpentity->metadataurl][$md5entityid] = $idpentity;
         }
-        
+
     }
 
     return $idpentities;
@@ -450,7 +450,7 @@ function auth_saml2_get_idps($active = false, $asarray = false) {
  * @return object The default IdP object, or NULL if there is no default IdP set.
  */
 function auth_saml2_get_default_idp() {
-    global $DB;
+    global $DB, $saml2auth;
 
     $defaultidps = $DB->get_records('auth_saml2_idps', array('activeidp' => 1, 'defaultidp' => 1));
 
@@ -458,6 +458,18 @@ function auth_saml2_get_default_idp() {
     $defaultidp = array_shift($defaultidps);
     if ($defaultidp) {
         $defaultidp->name = empty($defaultidp->displayname) ? $defaultidp->defaultname : $defaultidp->displayname;
+    }
+
+    if (!$defaultidp
+        && isset($saml2auth->metadataentities)
+        && is_array($saml2auth->metadataentities)) {
+        // Set the default IdP to be the first in the list. Used when dual login is disabled.
+        $metadataentities = reset($saml2auth->metadataentities);
+        if (!empty($metadataentities)) {
+            $defaultidp = reset($metadataentities);
+        } else {
+            $defaultidp = null;
+        }
     }
     return $defaultidp;
 }
