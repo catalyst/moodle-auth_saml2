@@ -49,11 +49,12 @@ class selectidp_buttons extends moodleform {
 
         $metadataentities = $this->_customdata['metadataentities'];
         $defaultidp = $this->_customdata['defaultidp'];
-        $wants = $this->_customdata['wants'];
 
+        $wants = $this->_customdata['wants'];
         $mform->addElement('hidden', 'wants', $wants);
-        $mform->addElement('checkbox', 'rememberidp' , '', get_string('rememberidp', 'auth_saml2'));
         $mform->setType('wants', PARAM_RAW);
+
+        $mform->addElement('checkbox', 'rememberidp' , '', get_string('rememberidp', 'auth_saml2'));
 
         foreach ($metadataentities as $idpentities) {
             if (isset($idpentities[$defaultidp])) {
