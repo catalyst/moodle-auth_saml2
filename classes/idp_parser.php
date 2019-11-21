@@ -79,6 +79,11 @@ class idp_parser {
             $idpdata = null;
             $scheme = 'http';
 
+            $line = trim($line);
+            if (!$line) {
+                continue;
+            }
+
             // Separate the line base on the scheme http. The scheme added back to the urls.
             $parts = array_map('rtrim', explode($scheme, $line));
 
