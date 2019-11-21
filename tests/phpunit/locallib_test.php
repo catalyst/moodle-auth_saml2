@@ -444,12 +444,12 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $this->assertFalse($auth->is_email_taken(strtoupper($user->email), $user->username));
         $this->assertFalse($auth->is_email_taken(ucfirst($user->email), $user->username));
     }
-    public function test_get_default_idp_returns_idp_object() {
+    public function test_get_fallback_idp_returns_idp_object() {
         global $DB, $saml2auth;
         $this->resetAfterTest();
         // First test when we have no idp's configured.
-        $defaultidp = auth_saml2_get_default_idp();
-        $this->assertTrue(is_null($defaultidp));
+        $fallbackidp = auth_saml2_get_fallback_idp();
+        $this->assertTrue(is_null($fallbackidp));
 
         // Add two fake IdPs.
         $metadataurl = 'https://idp.example.org/idp/shibboleth';
@@ -469,10 +469,10 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
 
         // Our idps in the auth_saml2_idps table are not marked as default,
         // so we get the default idp (first in the list) from $saml2auth metadataentities
-        $defaultidp = auth_saml2_get_default_idp();
-        $this->assertTrue(is_object($defaultidp));
-        $this->assertTrue($defaultidp->entityid === 'https://idp1.example.org/idp/shibboleth');
-        $this->assertTrue($defaultidp->defaultname === 'Test IdP 1');
+        $fallbackidp = auth_saml2_get_fallback_idp();
+        $this->assertTrue(is_object($fallbackidp));
+        $this->assertTrue($fallbackidp->entityid === 'https://idp1.example.org/idp/shibboleth');
+        $this->assertTrue($fallbackidp->defaultname === 'Test IdP 1');
 
         // Update the second idp to be marked as default.
         $updatedidp = $DB->get_record('auth_saml2_idps', ['defaultname' => 'Test IdP 2']);
@@ -480,10 +480,10 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $DB->update_record('auth_saml2_idps', $updatedidp);
 
         // Now we get the default idp object from the auth_saml2_idps table
-        $defaultidp = auth_saml2_get_default_idp();
-        $this->assertTrue(is_object($defaultidp));
-        $this->assertTrue($defaultidp->entityid === 'https://idp2.example.org/idp/shibboleth');
-        $this->assertTrue($defaultidp->defaultname === 'Test IdP 2');
+        $fallbackidp = auth_saml2_get_fallback_idp();
+        $this->assertTrue(is_object($fallbackidp));
+        $this->assertTrue($fallbackidp->entityid === 'https://idp2.example.org/idp/shibboleth');
+        $this->assertTrue($fallbackidp->defaultname === 'Test IdP 2');
     }
 }
 

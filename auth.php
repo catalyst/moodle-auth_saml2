@@ -455,15 +455,15 @@ class auth_plugin_saml2 extends auth_plugin_base {
         require('setup.php');
         require_once("$CFG->dirroot/login/lib.php");
 
+        // Fallback in case we can't get the idp from the url param or our session idp is empty.
+        // Set the default IdP to be the first in the list. Used when dual login is disabled.
+        $fallbackidp = auth_saml2_get_fallback_idp();
+        if (!is_null($fallbackidp)) {
+            $SESSION->saml2idp = md5(auth_saml2_get_fallback_idp()->entityid);
+        }
         $idpfromparam = optional_param('idp', '', PARAM_TEXT);
         if (!empty($idpfromparam)) {
             $SESSION->saml2idp = $idpfromparam;
-        }
-
-        // Backup in case we can't get the idp from the url param or our session idp is empty.
-        // Set the default IdP to be the first in the list. Used when dual login is disabled.
-        if (empty($SESSION->saml2idp)) {
-            $SESSION->saml2idp = auth_saml2_get_default_idp();
         }
 
         // We store the IdP in the session to generate the config/config.php array with the default local SP.
@@ -484,8 +484,11 @@ class auth_plugin_saml2 extends auth_plugin_base {
             if (!$idpfound) {
                 $this->error_page(get_string('noidpfound', 'auth_saml2', $idpalias));
             }
-        }
-        if ($saml2auth->multiidp) {
+        } else if ($idpfromparam) {
+            $SESSION->saml2idp = $idpfromparam;
+        } else if (!is_null($saml2auth->defaultidp)) {
+            $SESSION->saml2idp = md5($saml2auth->defaultidp->entityid);
+        } else if ($saml2auth->multiidp) {
             $idpurl = new moodle_url('/auth/saml2/selectidp.php');
             redirect($idpurl);
         }

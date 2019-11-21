@@ -55,7 +55,7 @@ if (!empty($SESSION->saml2idp)) {
 // Backup in case we can't get the idp from the url param or session
 // Case for specifying no $SESSION IdP, select the first configured IdP as the default.
 if (!isset($idp)) {
-    $idp = auth_saml2_get_default_idp()->entityid;
+    $idp = auth_saml2_get_fallback_idp()->entityid;
 }
 
 // The testing tool will set the IdP that it uses.

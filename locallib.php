@@ -444,13 +444,32 @@ function auth_saml2_get_idps($active = false, $asarray = false) {
 
     return $idpentities;
 }
+/**
+ * This helper function returns a fallback IdP, the first in the list when there are multiple.
+ * @return object The default IdP object, or NULL if there is no IdP set.
+ */
+function auth_saml2_get_fallback_idp() {
+    global $DB, $saml2auth;
 
+    // First fall back to the default idp if it is set.
+    $fallbackidp = auth_saml2_get_default_idp();
+    if (!$fallbackidp
+        && isset($saml2auth->metadataentities)
+        && is_array($saml2auth->metadataentities)) {
+        // Set the default IdP to be the first in the list. Used when dual login is disabled.
+        $metadataentities = reset($saml2auth->metadataentities);
+        if (!empty($metadataentities)) {
+            $fallbackidp = reset($metadataentities);
+        }
+    }
+    return $fallbackidp;
+}
 /**
  * This helper function returns the default IdP if it is configured.
  * @return object The default IdP object, or NULL if there is no default IdP set.
  */
 function auth_saml2_get_default_idp() {
-    global $DB, $saml2auth;
+    global $DB;
 
     $defaultidps = $DB->get_records('auth_saml2_idps', array('activeidp' => 1, 'defaultidp' => 1));
 
@@ -458,18 +477,6 @@ function auth_saml2_get_default_idp() {
     $defaultidp = array_shift($defaultidps);
     if ($defaultidp) {
         $defaultidp->name = empty($defaultidp->displayname) ? $defaultidp->defaultname : $defaultidp->displayname;
-    }
-
-    if (!$defaultidp
-        && isset($saml2auth->metadataentities)
-        && is_array($saml2auth->metadataentities)) {
-        // Set the default IdP to be the first in the list. Used when dual login is disabled.
-        $metadataentities = reset($saml2auth->metadataentities);
-        if (!empty($metadataentities)) {
-            $defaultidp = reset($metadataentities);
-        } else {
-            $defaultidp = null;
-        }
     }
     return $defaultidp;
 }
