@@ -23,6 +23,7 @@
  */
 
 use auth_saml2\admin\saml2_settings;
+use auth_saml2\admin\setting_idpmetadata;
 
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../../locallib.php');
@@ -452,17 +453,16 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $this->assertTrue(is_null($fallbackidp));
 
         // Add two fake IdPs.
-        $metadataurl = 'https://idp.example.org/idp/shibboleth';
-        $DB->insert_record('auth_saml2_idps', array(
-            'metadataurl' => $metadataurl,
-            'entityid'    => 'https://idp1.example.org/idp/shibboleth',
-            'defaultname'        => 'Test IdP 1',
-            'activeidp'   => 1));
-        $DB->insert_record('auth_saml2_idps', array(
-            'metadataurl' => $metadataurl,
-            'entityid'    => 'https://idp2.example.org/idp/shibboleth',
-            'defaultname'        => 'Test IdP 2',
-            'activeidp'   => 1));
+        $idpsettings = new setting_idpmetadata();
+        $dualmetadataxml = file_get_contents(__DIR__ . '/../fixtures/dualmetadata.xml');
+        $idpsettings->validate($dualmetadataxml);
+        // Mark both the idps as active
+        $firsttestidp = $DB->get_record('auth_saml2_idps', ['defaultname' => 'First Test IDP']);
+        $firsttestidp->activeidp = 1;
+        $DB->update_record('auth_saml2_idps', $firsttestidp);
+        $secondtestidp = $DB->get_record('auth_saml2_idps', ['defaultname' => 'Second Test IDP']);
+        $secondtestidp->activeidp = 1;
+        $DB->update_record('auth_saml2_idps', $secondtestidp);
 
         $auth = get_auth_plugin('saml2');
         $saml2auth = new auth_plugin_saml2();
@@ -472,10 +472,10 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $fallbackidp = auth_saml2_get_fallback_idp();
         $this->assertTrue(is_object($fallbackidp));
         $this->assertTrue($fallbackidp->entityid === 'https://idp1.example.org/idp/shibboleth');
-        $this->assertTrue($fallbackidp->defaultname === 'Test IdP 1');
+        $this->assertTrue($fallbackidp->defaultname === 'First Test IDP');
 
         // Update the second idp to be marked as default.
-        $updatedidp = $DB->get_record('auth_saml2_idps', ['defaultname' => 'Test IdP 2']);
+        $updatedidp = $DB->get_record('auth_saml2_idps', ['defaultname' => 'Second Test IDP']);
         $updatedidp->defaultidp = 1;
         $DB->update_record('auth_saml2_idps', $updatedidp);
 
@@ -483,7 +483,7 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $fallbackidp = auth_saml2_get_fallback_idp();
         $this->assertTrue(is_object($fallbackidp));
         $this->assertTrue($fallbackidp->entityid === 'https://idp2.example.org/idp/shibboleth');
-        $this->assertTrue($fallbackidp->defaultname === 'Test IdP 2');
+        $this->assertTrue($fallbackidp->defaultname === 'Second Test IDP');
     }
 }
 
