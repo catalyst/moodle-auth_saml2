@@ -458,9 +458,11 @@ class auth_plugin_saml2 extends auth_plugin_base {
         // Fallback in case we can't get the idp from the url param or our session idp is empty.
         // Set the default IdP to be the first in the list. Used when dual login is disabled.
         $fallbackidp = auth_saml2_get_fallback_idp();
-        if (!is_null($fallbackidp)) {
-            $SESSION->saml2idp = md5(auth_saml2_get_fallback_idp()->entityid);
+        if (is_null($fallbackidp)) {
+            // We should already have checked for $fallbackidp === null in the is_configured() function
+            throw new coding_exception('Fallback idp cannot be null in saml_login function');
         }
+        $SESSION->saml2idp = $fallbackidp->entityid;
         $idpfromparam = optional_param('idp', '', PARAM_TEXT);
         if (!empty($idpfromparam)) {
             $SESSION->saml2idp = $idpfromparam;
@@ -484,7 +486,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
             if (!$idpfound) {
                 $this->error_page(get_string('noidpfound', 'auth_saml2', $idpalias));
             }
-        } else if ($idpfromparam) {
+        } else if (!empty($idpfromparam)) {
             $SESSION->saml2idp = $idpfromparam;
         } else if (!is_null($saml2auth->defaultidp)) {
             $SESSION->saml2idp = md5($saml2auth->defaultidp->entityid);

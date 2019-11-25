@@ -37,8 +37,9 @@ if (!empty($CFG->loginhttps)) {
 $config = [];
 
 // Grab the idp from the request if it's available
-if (isset($_GET['idp'])) {
-    $idp = $_GET['idp'];
+$idpfromparam = optional_param('idp', '', PARAM_TEXT);
+if (!empty($idpfromparam)) {
+    $SESSION->saml2idp = $idpfromparam;
 }
 
 if (!empty($SESSION->saml2idp)) {
