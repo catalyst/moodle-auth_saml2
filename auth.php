@@ -559,14 +559,21 @@ class auth_plugin_saml2 extends auth_plugin_base {
             $this->log(__FUNCTION__ . ' found user '.$user->username);
         }
 
-        // Do we need to update any user fields? Unlike ldap, we can only do
-        // this now. We cannot query the IdP at any time.
-        $this->update_user_profile_fields($user, $attributes, $newuser);
-
         if (!$this->config->anyauth && $user->auth != 'saml2') {
             $this->log(__FUNCTION__ . " user $uid is auth type: $user->auth");
             $this->error_page(get_string('wrongauth', 'auth_saml2', $uid));
         }
+
+        if ($this->config->anyauth && !is_enabled_auth($user->auth) ) {
+            $this->log(__FUNCTION__ . " user $uid's auth type: $user->auth is not enabled");
+            $this->error_page(get_string('anyauthotherdisabled', 'auth_saml2', array(
+                'username' => $uid, 'auth' => $user->auth,
+            )));
+        }
+
+        // Do we need to update any user fields? Unlike ldap, we can only do
+        // this now. We cannot query the IdP at any time.
+        $this->update_user_profile_fields($user, $attributes, $newuser);
 
         // If admin has been set for this IdP we make the user an admin.
         $adminidp = false;

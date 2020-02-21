@@ -26,6 +26,7 @@ $string['alterlogout'] = 'Alternative Logout URL';
 $string['alterlogout_help'] = 'The URL to redirect a user after all internal logout mechanisms are run';
 $string['anyauth'] = 'Allowed any auth type';
 $string['anyauth_help'] = 'Yes: Allow SAML login for all users? No: Only users who have saml2 as their type.';
+$string['anyauthotherdisabled'] = 'You have logged in successfully as \'{$a->username}\' but your auth type of \'{$a->auth}\' is disabled.';
 $string['attemptsignout'] = 'Attempt IdP Signout';
 $string['attemptsignout_help'] = 'This will attempt to communicate with the IdP to send a sign out request';
 $string['auth_saml2description'] = 'Authenticate with a SAML2 IdP';
