@@ -234,7 +234,7 @@ if ($ADMIN->fulltree) {
             get_string('autocreate_help', 'auth_saml2'),
             0, $yesno));
 
-    // Attribute name that contains groups
+    // Attribute name that contains groups.
     $settings->add(new admin_setting_configtext(
             'auth_saml2/groupattr',
             get_string('groupattr', 'auth_saml2'),
@@ -242,7 +242,7 @@ if ($ADMIN->fulltree) {
             '',
             PARAM_TEXT));
 
-    // Restricted groups
+    // Restricted groups.
     $settings->add(new admin_setting_configtext(
             'auth_saml2/restricted_groups',
             get_string('restricted_groups', 'auth_saml2'),
@@ -250,7 +250,7 @@ if ($ADMIN->fulltree) {
             'employee',
             PARAM_TEXT));
 
-    // Allowed groups
+    // Allowed groups.
     $settings->add(new admin_setting_configtext(
             'auth_saml2/allowed_groups',
             get_string('allowed_groups', 'auth_saml2'),

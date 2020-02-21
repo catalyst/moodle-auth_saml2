@@ -60,7 +60,7 @@ $auth = new SimpleSAML\Auth\Simple($saml2auth->spname);
 
 $idps = $saml2auth->metadataentities;
 
-foreach ($idps as $entityid => $info ) {
+foreach ($idps as $entityid => $info) {
 
     $md5 = key($info);
 

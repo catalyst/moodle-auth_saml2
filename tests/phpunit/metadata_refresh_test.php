@@ -45,7 +45,8 @@ class auth_saml2_metadata_refresh_testcase extends advanced_testcase {
         set_config('idpmetadata', 'http://somefakeidpurl.local', 'auth_saml2');
 
         $refreshtask = new metadata_refresh();
-        $this->expectOutputString('IdP metadata refresh is not configured. Enable it in the auth settings or disable this scheduled task' . "\n");
+        $this->expectOutputString('IdP metadata refresh is not configured. '.
+            "Enable it in the auth settings or disable this scheduled task\n");
         self::assertFalse($refreshtask->execute());
     }
 
