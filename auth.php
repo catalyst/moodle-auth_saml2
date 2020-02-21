@@ -400,12 +400,6 @@ class auth_plugin_saml2 extends auth_plugin_base {
             return true;
         }
 
-        // If passive mode always redirect, except if saml=off. It will redirect back to login page.
-        if ($this->config->duallogin == saml2_settings::OPTION_DUAL_LOGIN_PASSIVE) {
-            $this->log(__FUNCTION__ . ' redirecting due to passive mode.');
-            return true;
-        }
-
         // Check whether we've skipped saml already.
         // This is here because loginpage_hook is called again during form
         // submission (all of login.php is processed) and ?saml=off is not
@@ -416,6 +410,13 @@ class auth_plugin_saml2 extends auth_plugin_base {
         if ((isset($SESSION->saml) && $SESSION->saml == 0)) {
             $this->log(__FUNCTION__ . ' skipping due to no sso session');
             return false;
+        }
+
+        // If passive mode always redirect, except if saml=off. It will redirect back to login page.
+        // The second time around saml=0 will be set in the session.
+        if ($this->config->duallogin == saml2_settings::OPTION_DUAL_LOGIN_PASSIVE) {
+            $this->log(__FUNCTION__ . ' redirecting due to passive mode.');
+            return true;
         }
 
         // If ?saml=off even when duallogin is off, then always show the login page.
