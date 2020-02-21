@@ -76,7 +76,9 @@ $config = array(
 
     'enable.http_post' => false,
 
-    'signature.algorithm' => !empty($saml2auth->config->signaturealgorithm) ? $saml2auth->config->signaturealgorithm : ssl_algorithms::get_default_saml_signature_algorithm(),
+    'signature.algorithm' => !empty($saml2auth->config->signaturealgorithm)
+        ? $saml2auth->config->signaturealgorithm
+        : ssl_algorithms::get_default_saml_signature_algorithm(),
 
     'metadata.sign.enable'          => $saml2auth->config->spmetadatasign ? true : false,
     'metadata.sign.certificate'     => $saml2auth->certcrt,

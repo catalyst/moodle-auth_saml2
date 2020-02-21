@@ -77,7 +77,7 @@ EOM;
                 $mform->addElement('html', $idpentity['entityid'].'</td><td>');
                 $mform->setType($fieldkey.'[id]', PARAM_INT);
 
-                // Add the displayname textbox
+                // Add the displayname textbox.
                 $mform->addElement('text', $fieldkey.'[displayname]', '', array('placeholder' => $idpentity['defaultname']));
                 $mform->addElement('html', '</td><td>');
                 $mform->setType($fieldkey.'[displayname]', PARAM_TEXT);

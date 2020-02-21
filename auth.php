@@ -526,7 +526,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
             }
         }
 
-        // Testing user's groups and allow access decided on preferences
+        // Testing user's groups and allow access decided on preferences.
         if (!$this->is_access_allowed_for_member($attributes)) {
             $this->handle_blocked_access();
         }

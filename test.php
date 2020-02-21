@@ -30,25 +30,54 @@ $logout = optional_param('logout', '', PARAM_RAW);
 $idplogout = optional_param('idplogout', '', PARAM_RAW);
 
 if (!empty($idp)) {
-    $SESSION->saml2testidp = $idp;
+    $SESSION->saml2idp = $idp;
+    echo "<p>Setting IdP via param</p>";
+}
+
+if (empty($SESSION->saml2idp)) {
+    $arr = array_reverse($saml2auth->metadataentities);
+    $metadataentities = array_pop($arr);
+    $idpentity = array_pop($metadataentities);
+    $idp = md5($idpentity->entityid);
+
+    // Specify the default IdP to use.
+    $SESSION->saml2idp = $idp;
+    echo '<p>Setting IdP to default</p>';
 }
 
 if (!empty($logout)) {
-    $SESSION->saml2testidp = $idplogout;
+    $SESSION->saml2idp = $idplogout;
 }
 
 $passive = optional_param('passive', '', PARAM_RAW);
 $passivefail = optional_param('passivefail', '', PARAM_RAW);
 $trylogin = optional_param('login', '', PARAM_RAW);
 
+echo '<p>SP name: ' . $saml2auth->spname;
+echo '<p>Which IdP will be used? ' . $SESSION->saml2idp;
+
 $auth = new SimpleSAML\Auth\Simple($saml2auth->spname);
+
+$idps = $saml2auth->metadataentities;
+
+foreach ($idps as $entityid => $info) {
+
+    $md5 = key($info);
+
+    echo '<hr>';
+    echo "<h4>IDP: $entityid</h4>";
+    echo "<p>md5: $md5</p>";
+    echo "<p>check: " . md5($entityid) . "</p>";
+
+}
+
 
 if ($logout) {
     $urlparams = [
         'sesskey' => sesskey(),
         'auth' => $saml2auth->authtype,
     ];
-    $url = new moodle_url('/auth/test_settings.php', $urlparams);
+    $url = new moodle_url('/auth/saml2/test.php', $urlparams);
     $auth->logout(['ReturnTo' => $url->out(false)]);
 }
 
@@ -88,7 +117,6 @@ if ($passive) {
     var_dump($attributes);
     echo 'IdP: ' . $auth->getAuthData('saml:sp:IdP');
     echo '</pre>';
-    echo '<p>You are logged in: <a href="?logout=true&idplogout=' . $auth->getAuthData('saml:sp:IdP') . '">Logout</a></p>';
+    echo '<p>You are logged in: <a href="?logout=true&idplogout=' . md5($auth->getAuthData('saml:sp:IdP')) . '">Logout</a></p>';
 }
 
-unset($SESSION->saml2testidp);
