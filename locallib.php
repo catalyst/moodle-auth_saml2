@@ -286,8 +286,7 @@ function auth_saml2_get_sp_metadata() {
 function auth_saml2_update_sp_metadata() {
     global $saml2auth;
 
-    // Remove the cached metadata so the next call will have the latest metadata.
-    $file = $saml2auth->certdir . $saml2auth->spname . '.xml';
+    $file = $saml2auth->get_file_sp_metadata_file();
     @unlink($file);
 }
 
