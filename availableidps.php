@@ -33,7 +33,7 @@ require_capability('moodle/site:config', context_system::instance());
 
 $heading = get_string('manageidpsheading', 'auth_saml2');
 
-$PAGE->set_url("$CFG->wwwroot/auth/saml2/avilableidps.php");
+$PAGE->set_url("$CFG->wwwroot/auth/saml2/availableidps.php");
 $PAGE->set_course($SITE);
 $PAGE->set_title($SITE->shortname . ': ' . $heading);
 $PAGE->set_heading($SITE->fullname);
