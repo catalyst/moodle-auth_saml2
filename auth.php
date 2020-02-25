@@ -407,7 +407,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         //
         // This isn't needed when duallogin is on because $saml will default to 0
         // and duallogin is not part of the request.
-        if ((isset($SESSION->saml) && $SESSION->saml == 0)) {
+        if ((isset($SESSION->saml) && $SESSION->saml == 0) && $this->config->duallogin == saml2_settings::OPTION_DUAL_LOGIN_NO) {
             $this->log(__FUNCTION__ . ' skipping due to no sso session');
             return false;
         }
