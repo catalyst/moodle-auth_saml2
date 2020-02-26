@@ -276,6 +276,33 @@ Suggested attribute mappings:
 |`Email`|`user.email`|
 
 
+**Auth Proc Filter Hooks**
+
+Other plugins may hook into SAML2 and create custom Auth Proc Filters.
+Auth Proc Filters allows you to do stuff at the IdP after authentication is complete
+and just before you are sent back to the SP
+
+Steps to implement the hook:
+* Create a plugin that will implement the hook (e.g local_hookimplement)
+* Define the hook function 'local_hookimplement_extend_auth_saml2_proc' in plugin's lib.php
+* The function should return array of SimpleSaml Auth Proc Filters.
+
+Example:
+```php
+function local_hookimplement_extend_auth_saml2_proc {
+   // Do your data validation
+
+   return [
+      51 => array(
+         'class' => 'core:AttributeMap',
+         'oid2name'
+      )
+   ]
+}
+```
+The function should return an array of Filters that is to be applied. The index of the array represents the priority for the filters.
+
+
 
 Other SAML plugins
 ------------------
