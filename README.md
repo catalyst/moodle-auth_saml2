@@ -279,28 +279,71 @@ Suggested attribute mappings:
 **Auth Proc Filter Hooks**
 
 Other plugins may hook into SAML2 and create custom Auth Proc Filters.
-Auth Proc Filters allows you to do stuff at the IdP after authentication is complete
-and just before you are sent back to the SP
+Auth Proc Filters allows you to mutate of the attributes passed back from the IdP before Moodle handles them and does the profile field mappings
 
 Steps to implement the hook:
 * Create a plugin that will implement the hook (e.g local_hookimplement)
 * Define the hook function 'local_hookimplement_extend_auth_saml2_proc' in plugin's lib.php
 * The function should return array of SimpleSaml Auth Proc Filters.
 
-Example:
+Examples:
 ```php
-function local_hookimplement_extend_auth_saml2_proc {
-   // Do your data validation
-
+function local_hookimplement_extend_auth_saml2_proc() {
    return [
-      51 => array(
+      52 => array(
          'class' => 'core:AttributeMap',
          'oid2name'
       )
    ]
 }
 ```
-The function should return an array of Filters that is to be applied. The index of the array represents the priority for the filters.
+
+Custom Code
+```php
+function local_hookimplement_extend_auth_saml2_proc() {
+   return [
+      51 => array(
+         'class' => 'core:PHP',
+         'code' => '$attributes = update_attributes($attributes)'
+      )
+   ]
+}
+
+function update_attributes($attributes) {
+   if (isset($attributes["uid"])) {
+      $attributes["uid"] => $attributes["username"];
+   }
+   return $attributes;
+}
+```
+
+Multiple IdP Filter
+```php
+function local_hookimplement_extend_auth_saml2_proc() {
+   return [
+      51 => array(
+         'class' => 'core:PHP',
+         'code' => '$attributes = update_attributes($attributes)'
+      ),
+   ]
+}
+
+function update_attributes($attributes) {
+   global $SESSION, $saml2auth;
+    $idps = $saml2auth->metadataentities;
+    foreach ($idps as $idp) {
+        foreach ($idp as $key => $value) {
+            if ($SESSION->saml2idp == $key) {
+                $alias = $idp[$key]->alias;
+            }
+
+            if ($alias == 'idp_alias') {
+                $attributes["uid"] = $attributes['username'];
+            }
+        }
+    }
+}
+```
 
 
 
