@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->libdir.'/authlib.php');
+require_once($CFG->dirroot.'/login/lib.php');
 require_once(__DIR__.'/locallib.php');
 
 /**
@@ -538,6 +539,22 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         $auth->requireAuth($params);
         $attributes = $auth->getAttributes();
+
+        $this->saml_login_complete($attributes);
+    }
+
+
+    /**
+     * The user has done the SAML handshake now we can log them in
+     *
+     * This is split so we can handle SP and IdP first login flows.
+     */
+    public function saml_login_complete($attributes) {
+
+        // @codingStandardsIgnoreStart
+        global $CFG, $DB, $USER, $SESSION, $saml2auth;
+        // @codingStandardsIgnoreEnd
+
         if ($this->config->attrsimple) {
             $attributes = $this->simplify_attr($attributes);
         }
@@ -610,7 +627,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $adminidp = false;
         foreach ($saml2auth->metadataentities as $idpentities) {
             foreach ($idpentities as $md5idpentityid => $idpentity) {
-                if ($SESSION->saml2idp == $md5idpentityid) {
+
+                if (!empty($SESSION->saml2idp) && $SESSION->saml2idp == $md5idpentityid) {
                     $adminidp = $idpentity->adminidp;
                     break 2;
                 }
@@ -638,11 +656,12 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $USER->site = $CFG->wwwroot;
         set_moodle_cookie($USER->username);
 
-        $urltogo = core_login_get_return_url();
+        $wantsurl = core_login_get_return_url();
         // If we are not on the page we want, then redirect to it.
-        if ( qualified_me() !== $urltogo ) {
-            $this->log(__FUNCTION__ . " redirecting to $urltogo");
-            redirect($urltogo);
+        if ( qualified_me() !== $wantsurl ) {
+            $this->log(__FUNCTION__ . " redirecting to $wantsurl");
+            unset($SESSION->wantsurl);
+            redirect($wantsurl);
             exit;
         } else {
             $this->log(__FUNCTION__ . " continuing onto " . qualified_me() );

@@ -271,6 +271,21 @@ class SP extends Source
     {
         assert(is_string($entityId));
 
+        global $saml2auth;
+        if ($this->idp !== null && $this->idp !== $entityId) {
+            foreach ($saml2auth->metadataentities as $metadataurl => $idpentities) {
+                if ($metadataurl == $entityId) {
+                    foreach ($idpentities as $key => $val) {
+                        if ($key == $this->idp) {
+                            $this->idp = null;
+                        }
+                        break 2;
+
+                    }
+                }
+            }
+        }
+
         if ($this->idp !== null && $this->idp !== $entityId) {
             throw new \SimpleSAML\Error\Exception('Cannot retrieve metadata for IdP '.
                 var_export($entityId, true).' because it isn\'t a valid IdP for this SP.');
@@ -1119,11 +1134,19 @@ class SP extends Source
      */
     public static function handleUnsolicitedAuth($authId, array $state, $redirectTo)
     {
+        global $SESSION, $saml2auth;
+
         assert(is_string($authId));
         assert(is_string($redirectTo));
 
         $session = \SimpleSAML\Session::getSessionFromRequest();
         $session->doLogin($authId, State::getPersistentAuthData($state));
+
+        // Moodle hack to handle IdP unsolicited logins.
+        $wantsurl = (new \moodle_url($redirectTo))->out(false);
+        $SESSION->wantsurl = $wantsurl;
+        $saml2auth->saml_login_complete($state['Attributes']);
+        // Should never get to here.
 
         \SimpleSAML\Utils\HTTP::redirectUntrustedURL($redirectTo);
     }

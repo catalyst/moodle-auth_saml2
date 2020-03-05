@@ -31,6 +31,11 @@ returns to the wantsurl.
 require_once(__DIR__ . '/../../config.php');
 require('setup.php');
 
+$wantsurl = optional_param('wantsurl', '', PARAM_LOCALURL); // Overrides $SESSION->wantsurl if given.
+if ($wantsurl !== '') {
+    $SESSION->wantsurl = (new moodle_url($wantsurl))->out(false);
+}
+
 // Crap for hash anchor handling.
 $saml2auth->saml_login();
 
