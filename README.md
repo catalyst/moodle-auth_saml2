@@ -59,6 +59,10 @@ Features
 * Automatic certificate creation
 * Optionally auto create users
 * Support for multiple identity providers
+* Idp initiated flow / IdP first flow /  IdP unsolicited logins, eg:
+
+http://idp.local/simplesaml/saml2/idp/SSOService.php?spentityid=http://moodle.local/auth/saml2/sp/metadata.php&RelayState=http://moodle.local/course/view.php?id=2
+
 
 Features not yet implemented:
 
