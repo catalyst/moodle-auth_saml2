@@ -62,6 +62,7 @@ $string['emailtakenupdate'] = 'Your email wasn\'t updated, because email address
 $string['errorparsingxml'] = 'Error parsing XML: {$a}';
 $string['exception'] = 'SAML2 exception: {$a}';
 $string['expirydays'] = 'Expiry in Days';
+$string['error'] = 'Login error';
 $string['flaggedresponsetypemessage'] = 'Display custom message';
 $string['flaggedresponsetyperedirect'] = 'Redirect to external URL';
 $string['flagredirecturl'] = 'Redirect URL';
