@@ -274,13 +274,10 @@ class SP extends Source
         global $saml2auth;
         if ($this->idp !== null && $this->idp !== $entityId) {
             foreach ($saml2auth->metadataentities as $metadataurl => $idpentities) {
-                if ($metadataurl == $entityId) {
-                    foreach ($idpentities as $key => $val) {
-                        if ($key == $this->idp) {
-                            $this->idp = null;
-                        }
+                foreach ($idpentities as $key => $val) {
+                    if ($entityId == $val->entityid) {
+                        $this->idp = null;
                         break 2;
-
                     }
                 }
             }
