@@ -124,7 +124,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         return $authprocfilters;
     }
 
-    public function check_filters_priority($priority, $filters) {
+    public static function check_filters_priority($priority, $filters) {
         $uniquekey = false;
         while (!$uniquekey) {
             if (!array_key_exists($priority, $filters)) {
