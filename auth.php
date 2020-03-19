@@ -689,9 +689,10 @@ class auth_plugin_saml2 extends auth_plugin_base {
                 // If set to true - don't update based on data from this call.
                 unset($user->description);
             }
-            user_update_user($user, false, false);
             // Save custom profile fields.
             profile_save_data($user);
+            // Save user and trigger event "user_updated"
+            user_update_user($user, false);
         }
 
         return $update;
