@@ -40,25 +40,8 @@ $path = $saml2auth->certcrt;
 $error = '';
 
 if ($fromform = $mform->get_data()) {
-    $dn = array(
-        'commonName' => substr($fromform->commonname, 0, 64),
-        'countryName' => $fromform->countryname,
-        'emailAddress' => $fromform->email,
-        'localityName' => $fromform->localityname,
-        'organizationName' => $fromform->organizationname,
-        'stateOrProvinceName' => $fromform->stateorprovincename,
-        'organizationalUnitName' => $fromform->organizationalunitname,
-    );
-    $numberofdays = $fromform->expirydays;
-
-    $saml2auth = new auth_plugin_saml2();
-    $error = create_certificates($saml2auth, $dn, $numberofdays);
-
-    // Also refresh the SP metadata as well.
-    $file = $saml2auth->get_file_sp_metadata_file();
-    @unlink($file);
-
-    if (empty($error)) {
+    $error = auth_saml2_process_regenerate_form($fromform);
+    if ($error === '') {
         redirect("$CFG->wwwroot/admin/settings.php?section=authsettingsaml2");
     }
 
