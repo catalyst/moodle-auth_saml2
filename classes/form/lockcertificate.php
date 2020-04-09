@@ -53,6 +53,19 @@ class lockcertificate extends moodleform {
         $html .= html_writer::end_div();
 
         $mform->addElement('html', $html);
+
+        $html  = html_writer::start_div('warning');
+
+        if (get_config('auth_saml2', 'certs_locked') == false) {
+            $html .= $OUTPUT->notification(get_string('certificatelock_unlockedmessage', 'auth_saml2'), 'warning');
+        } else {
+            $html .= $OUTPUT->notification(get_string('certificatelock_lockedmessage', 'auth_saml2'), 'warning');
+        }
+        $html .= html_writer::end_div();
+
+        $mform->addElement('html', $html);
+        $mform->addElement('submit', 'unlockcertsbutton', get_string('certificatelock_unlock', 'auth_saml2'));
+
         $this->add_action_buttons(true, get_string('certificatelock', 'auth_saml2'));
 
     }

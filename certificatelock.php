@@ -43,8 +43,15 @@ if ($data = $form->get_data()) {
     if ($form->is_submitted()) {
 
         $certfiles = array($saml2auth->certpem, $saml2auth->certcrt);
-        foreach ($certfiles as $certfile) {
-            chmod($certfile, 0440);
+        if (isset($data->unlockcertsbutton)) {
+            // Store the unlocked state in config.
+            set_config('certs_locked', '0', 'auth_saml2');
+        } else {
+            foreach ($certfiles as $certfile) {
+                chmod($certfile, 0440);
+            }
+            // Store the locked state in config.
+            set_config('certs_locked', '1', 'auth_saml2');
         }
 
         redirect($settingspage);
