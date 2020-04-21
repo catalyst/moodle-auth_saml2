@@ -619,6 +619,13 @@ class auth_plugin_saml2 extends auth_plugin_base {
                     $this->error_page(get_string('emailtaken', 'auth_saml2', $email));
                 }
 
+                // Issue #412
+                $error = email_is_not_allowed($email);
+                if ($error) {
+                    $this->log(__FUNCTION__ . " '$email' " . $error);
+                    $this->handle_blocked_access();
+                }
+
                 $this->log(__FUNCTION__ . " user '$uid' is not in moodle so autocreating");
                 $user = create_user_record($uid, '', 'saml2');
                 $newuser = true;
