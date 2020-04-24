@@ -20,6 +20,8 @@
  * @copyright Catalyst IT
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Check if we have the saml=on param set. If so, disable guest access and force the user to log in with saml.
  *
@@ -44,4 +46,21 @@ function auth_saml2_after_config() {
         error_log('auth_saml2_afer_config error! ' . $exception->getTraceAsString());
         // @codingStandardsIgnoreEnd
     }
+}
+
+/**
+ * Callback immediately after require_login succeeds.
+ *
+ * This callback requires Moodle 3.7+. On earlier versions this will not run. It also won't run
+ * on pages which don't call require_login, so we use the _before_http_headers() callback too.
+ */
+function auth_saml2_after_require_login() {
+    \auth_saml2\auto_login::process();
+}
+
+/**
+ * Callback before HTTP headers are sent.
+ */
+function auth_saml2_before_http_headers() {
+    \auth_saml2\auto_login::process();
 }

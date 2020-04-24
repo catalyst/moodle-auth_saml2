@@ -46,4 +46,9 @@ abstract class saml2_settings {
 
     const OPTION_FLAGGED_LOGIN_REDIRECT = 2;
 
+    const OPTION_AUTO_LOGIN_NO = 0;
+
+    const OPTION_AUTO_LOGIN_SESSION = 1;
+
+    const OPTION_AUTO_LOGIN_COOKIE = 2;
 }

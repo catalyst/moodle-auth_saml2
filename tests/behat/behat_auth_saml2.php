@@ -333,6 +333,35 @@ EOF;
         $this->getSession()->getDriver()->click('//button');
     }
 
+    /**
+     * Sets a cookie (for use testing the autologin based on cookie).
+     *
+     * @When /^the cookie "([^"]+)" is set to "([^"]+)" +\# auth_saml2$/
+     */
+    public function the_cookie_is_set_to($cookiename, $value) {
+        $this->getSession()->getDriver()->executeScript('document.cookie = "' .
+                addslashes_js($cookiename) . '=' . addslashes_js($value) . '";');
+    }
+
+    /**
+     * Clears a cookie (for use testing the autologin based on cookie).
+     *
+     * @When /^the cookie "([^"]+)" is removed +\# auth_saml2$/
+     */
+    public function the_cookie_is_removed($cookiename) {
+        $this->getSession()->getDriver()->executeScript('document.cookie = "' .
+                addslashes_js($cookiename) . '=; expires=Thu, 01 Jan 1970 00:00:00 GMT";');
+    }
+
+    private function visit_saml2_login_page() {
+        $this->getSession()->visit($this->locate_path('http://simplesamlphp.test:8001/module.php/core/authenticate.php'));
+    }
+
+    private function reset_saml2_session() {
+        $this->visit_saml2_login_page();
+        $this->getSession()->reset();
+    }
+
     private function reset_moodle_session() {
         $this->iGoToTheLoginPageWithAuth_saml('saml=off');
         $this->getSession()->reset();
