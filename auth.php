@@ -363,9 +363,18 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * All the checking happens before the login page in this hook
      */
     public function loginpage_hook() {
+        global $SESSION;
+
         $this->execute_callback('auth_saml2_loginpage_hook');
 
         $this->log(__FUNCTION__ . ' enter');
+
+        // For Behat tests, clear the wantsurl if it has ended up pointing to the fixture. This
+        // happens in older browsers which don't support the Referrer-Policy header used by fixture.
+        if (defined('BEHAT_SITE_RUNNING') && !empty($SESSION->wantsurl) &&
+                strpos($SESSION->wantsurl, '/auth/saml2/tests/fixtures/') !== false) {
+            unset($SESSION->wantsurl);
+        }
 
         // If the plugin has not been configured then do NOT try to use saml2.
         if ($this->is_configured() === false) {

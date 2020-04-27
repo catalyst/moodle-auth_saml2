@@ -28,6 +28,8 @@ use auth_saml2\admin\saml2_settings;
 use auth_saml2\task\metadata_refresh;
 use Behat\Behat\Hook\Scope\AfterStepScope;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
+use Behat\Mink\Exception\ExpectationException;
+use Behat\Gherkin\Node\TableNode;
 
 require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 
@@ -73,7 +75,6 @@ class behat_auth_saml2 extends behat_base {
      */
     public function theAuthenticationPluginIsEnabledAuth_saml($enabled = true) {
         // If using SAML2 functionality, ensure all sessions are reset.
-        $this->reset_saml2_session();
         $this->reset_moodle_session();
 
         if (($enabled == 'disabled') || ($enabled === false)) {
@@ -157,8 +158,6 @@ class behat_auth_saml2 extends behat_base {
         $auth = get_auth_plugin('saml2');
 
         $defaults = array_merge($auth->defaults, [
-            'idpmetadata'         => 'http://simplesamlphp.test:8001/saml2/idp/metadata.php',
-            'idpmetadatarefresh'  => 1,
             'autocreate'          => 1,
             'field_map_idnumber'  => 'uid',
             'field_map_email'     => 'email',
@@ -179,15 +178,6 @@ class behat_auth_saml2 extends behat_base {
 
     private function initialise_saml2() {
         $this->apply_defaults();
-
-        $refreshtask = new metadata_refresh();
-        ob_start();
-        $refreshed = $refreshtask->execute();
-        ob_end_clean();
-        if (!$refreshed) {
-            throw new moodle_exception('Cannot save plugin defaults.');
-        }
-
         require(__DIR__ . '/../../setup.php');
     }
 
@@ -240,23 +230,115 @@ class behat_auth_saml2 extends behat_base {
     }
 
     /**
-     * @Given /^I am already logged in as "([^"]*)" in SAML2 +\# auth_saml2$/
+     * Configures auth_saml2 to use the mock SAML IdP in tests/fixtures/mockidp.
+     *
+     * Also initialises certificates (if not done yet) and turns off secure cookies, in case you
+     * are running Behat over http.
+     *
+     * @Given /^the mock SAML IdP is configured +\# auth_saml2$/
      */
-    public function iAmAlreadyLoggedInAsInSAMLAuth_saml($username) {
-        $this->visit_saml2_login_page();
-        $this->execute('behat_general::click_link', ['example-userpass']);
-        $this->execute('behat_forms::i_set_the_field_to', ['Username', $username]);
-        $this->execute('behat_forms::i_set_the_field_to', ['Password', "{$username}pass"]);
-        $this->execute('behat_forms::press_button', ['Login']);
+    public function the_mock_saml_idp_is_configured() {
+        global $CFG;
+        $cert = file_get_contents(__DIR__ . '/../fixtures/mockidp/mock.crt');
+        $cert = preg_replace('~(-----(BEGIN|END) CERTIFICATE-----)|\n~', '', $cert);
+        $baseurl = $CFG->wwwroot . '/auth/saml2/tests/fixtures/mockidp';
+
+        $metadata = <<<EOF
+<md:EntityDescriptor entityID="{$baseurl}/idpmetadata.php" xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata">
+    <md:IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" WantAuthnRequestsSigned="false">
+        <md:KeyDescriptor>
+            <KeyInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
+                <X509Data><X509Certificate>{$cert}</X509Certificate></X509Data>
+            </KeyInfo>
+        </md:KeyDescriptor>
+        <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+            Location="{$baseurl}/slo.php" />
+        <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</md:NameIDFormat>
+        <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+            Location="{$baseurl}/sso.php" />
+    </md:IDPSSODescriptor>
+</md:EntityDescriptor>
+EOF;
+
+        // Update the config setting using the same method used in the UI.
+        $idpmetadata = new \auth_saml2\admin\setting_idpmetadata();
+        $idpmetadata->set_updatedcallback('auth_saml2_update_idp_metadata');
+        $idpmetadata->write_setting($metadata);
+
+        // Allow insecure cookies for Behat testing.
+        set_config('cookiesecure', '0');
+
+        $auth = get_auth_plugin('saml2');
+        if (!$auth->is_configured()) {
+            require_once(__DIR__ . '/../../setuplib.php');
+            create_certificates($auth);
+        }
     }
 
-    private function visit_saml2_login_page() {
-        $this->getSession()->visit($this->locate_path('http://simplesamlphp.test:8001/module.php/core/authenticate.php'));
+    /**
+     * Confirms a user's login from the IdP, and returns information back to Moodle.
+     *
+     * This step must be used while at the mock IdP 'login' screen.
+     *
+     * @param TableNode $data Table of attributes
+     * @When /^the mock SAML IdP allows ((?:passive )?)login with the following attributes: +\# auth_saml2$/
+     */
+    public function the_mock_saml_idp_allows_login_with_the_following_attributes($passive, TableNode $data) {
+        // Check the correct page is current.
+        $this->find('xpath', '//h1[normalize-space(.)="Mock IdP login"]',
+                new ExpectationException('Not on the IdP login page.', $this->getSession()));
+
+        // Find out if it's in passive mode.
+        $pagepassive = $this->getSession()->getDriver()->find('//h2[normalize-space(.)="Passive mode"]');
+        if ($passive && !$pagepassive) {
+            throw new ExpectationException('Expected passive mode, but not passive.', $this->getSession());
+        } else if (!$passive && $pagepassive) {
+            throw new ExpectationException('Expected not passive mode, but passive.', $this->getSession());
+        }
+
+        // Work out the JSON data.
+        $out = new \stdClass();
+        foreach ($data->getRowsHash() as $key => $value) {
+            $out->{$key} = $value;
+        }
+        $json = json_encode($out);
+
+        // Set the field and press the submit button.
+        $this->getSession()->getDriver()->setValue('//textarea', $json);
+        $this->getSession()->getDriver()->click('//button[@id="login"]');
     }
 
-    private function reset_saml2_session() {
-        $this->visit_saml2_login_page();
-        $this->getSession()->reset();
+    /**
+     * After a passive login attempt, when the IdP confirms that the user is not logged in.
+     *
+     * @Given /^the mock SAML IdP does not allow passive login +\# auth_saml2$/
+     */
+    public function the_mock_saml_idp_does_not_allow_passive_login() {
+        // Check the correct page is current.
+        $this->find('xpath', '//h1[normalize-space(.)="Mock IdP login"]',
+                new ExpectationException('Not on the IdP login page.', $this->getSession()));
+
+        $this->find('xpath', '//h2[normalize-space(.)="Passive mode"]',
+                new ExpectationException('Expected passive mode, but not passive.', $this->getSession()));
+
+        // Press the no-login button.
+        $this->getSession()->getDriver()->click('//button[@id="nologin"]');
+    }
+
+    /**
+     * Confirms logout from the IdP.
+     *
+     * This step must be used while at the mock IdP 'logout' screen.
+     *
+     * @When /^the mock SAML IdP confirms logout +\# auth_saml2$/
+     */
+    public function the_mock_saml_idp_confirms_logout() {
+        // Check the correct page is current.
+        $this->find('xpath', '//h1[normalize-space(.)="Mock IdP logout"]',
+                new ExpectationException('Not on the IdP logout page.', $this->getSession()));
+
+        // Press the submit button.
+        $this->getSession()->getDriver()->click('//button');
     }
 
     private function reset_moodle_session() {
