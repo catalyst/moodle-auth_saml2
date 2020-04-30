@@ -444,5 +444,36 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $this->assertFalse($auth->is_email_taken(strtoupper($user->email), $user->username));
         $this->assertFalse($auth->is_email_taken(ucfirst($user->email), $user->username));
     }
-}
 
+    /**
+     * Test: if locked not generate the cert, if unlocked generate the cert
+     */
+    public function test_no_generate_if_locked() {
+        $this->resetAfterTest();
+
+        $auth = get_auth_plugin('saml2');
+
+        // set config locked
+        set_config('certs_locked', 1, 'auth_saml2');
+
+        // Make sure we have no files
+        $crt = file_exists($auth->certcrt);
+        if ($crt){
+            unlink($auth->certcrt);
+        }
+        $this->assertFalse($crt);
+
+        // Call setup.php and see that it doesnt regenerate.
+        require(dirname(__FILE__) . '/../../setup.php');
+        $crt = file_exists($auth->certcrt);
+        $this->assertFalse($crt);
+
+        // set config unlocked
+        set_config('certs_locked', 0, 'auth_saml2');
+
+        // Call setup.php and see that it regenerate the certificate.
+        require(dirname(__FILE__) . '/../../setup.php');
+        $crt = file_exists($auth->certcrt);
+        $this->assertTrue($crt);
+    }
+}

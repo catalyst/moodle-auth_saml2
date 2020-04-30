@@ -48,6 +48,7 @@ $string['certificatelock_locked'] = 'The certificate is locked';
 $string['certificatelock_lockedmessage'] = 'The certificates are currently locked. To regenerate: unlock here then go and chmod';
 $string['certificatelock_unlockedmessage'] = 'The certificates are not currently locked.';
 $string['certificatelock_unlock'] = 'Unlock certificates';
+$string['certificatelock_regenerate'] = 'Not regenerating certificates because they have been locked!';
 $string['certificatelock_warning'] = 'Warning. You are about to lock the certificates, are you sure you want to do this?';
 $string['certificate'] = 'Regenerate certificate';
 $string['commonname'] = 'Common Name';

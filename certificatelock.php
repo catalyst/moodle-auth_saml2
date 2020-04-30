@@ -44,6 +44,10 @@ if ($data = $form->get_data()) {
 
         $certfiles = array($saml2auth->certpem, $saml2auth->certcrt);
         if (isset($data->unlockcertsbutton)) {
+            //Change the permissions in order to regenerate if unlocked
+            foreach ($certfiles as $certfile) {
+                chmod($certfile, 0660);
+            }
             // Store the unlocked state in config.
             set_config('certs_locked', '0', 'auth_saml2');
         } else {

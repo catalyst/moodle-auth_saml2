@@ -60,7 +60,7 @@ if ($missingcertpem || $missingcertcrt) {
     if (get_config('auth_saml2', 'certs_locked') == false) {
         $error = create_certificates($saml2auth);
     } else {
-        $error = 'Not regenerating certificates because they have been locked!';
+        $error = get_string('certificatelock_regenerate', 'auth_saml2');
     }
 
     if ($error) {

@@ -46,7 +46,7 @@ if ($fromform = $mform->get_data()) {
     if (get_config('auth_saml2', 'certs_locked') == false) {
         $error = auth_saml2_process_regenerate_form($fromform);
     } else {
-        $error = 'Not regenerating certificates because they have been locked!';
+        $error = get_string('certificatelock_regenerate', 'auth_saml2');
     }
 } else {
 
