@@ -217,9 +217,9 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('metadataurl', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
         $table->add_field('entityid', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('activeidp', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, null, null, '0');
-        $table->add_field('defaultidp', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, null, null, '0');
-        $table->add_field('adminidp', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, null, null, '0');
+        $table->add_field('activeidp', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0', null);
+        $table->add_field('defaultidp', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0', null);
+        $table->add_field('adminidp', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0', null);
         $table->add_field('defaultname', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
         $table->add_field('displayname', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
         $table->add_field('logo', XMLDB_TYPE_TEXT, 'big', null, null, null, null);
@@ -275,9 +275,35 @@ function xmldb_auth_saml2_upgrade($oldversion) {
                     $DB->insert_record($tablename, $idpobject);
                 }
             }
+
+            $data = get_config('auth_saml2', 'idpmetadata');
+            if (!empty($data)) {
+                $idpmetadata = new \auth_saml2\admin\setting_idpmetadata();
+                $idpmetadata->write_setting($data);
+            }
         }
 
         upgrade_plugin_savepoint(true, 2019022100, 'auth', 'saml2');
+    }
+
+    if ($oldversion < 2019062600) {
+        // Move private key into new setting.
+        set_config('privatekeypass', get_site_identifier(), 'auth_saml2');
+        upgrade_plugin_savepoint(true, 2019062600, 'auth', 'saml2');
+    }
+
+    if ($oldversion < 2020031800) {
+        $table = new xmldb_table('auth_saml2_idps');
+        $fields = [];
+        $fields[] = new xmldb_field('activeidp', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0', null);
+        $fields[] = new xmldb_field('defaultidp', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0', null);
+        $fields[] = new xmldb_field('adminidp', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0', null);
+
+        foreach ($fields as $field) {
+            $dbman->change_field_default($table, $field);
+        }
+
+        upgrade_plugin_savepoint(true, 2020031800, 'auth', 'saml2');
     }
 
     return true;

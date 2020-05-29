@@ -53,11 +53,6 @@ if (!empty($SESSION->saml2idp)) {
     }
 }
 
-// The testing tool will set the IdP that it uses.
-if (!empty($SESSION->saml2testidp)) {
-    $idp = $SESSION->saml2testidp;
-}
-
 $config[$saml2auth->spname] = [
     'saml:SP',
     'entityID' => "$wwwroot/auth/saml2/sp/metadata.php",
@@ -74,7 +69,7 @@ $config[$saml2auth->spname] = [
         'en' => $CFG->wwwroot,
     ),
     'privatekey' => $saml2auth->spname . '.pem',
-    'privatekey_pass' => get_site_identifier(),
+    'privatekey_pass' => get_config('auth_saml2', 'privatekeypass'),
     'certificate' => $saml2auth->spname . '.crt',
     'sign.logout' => true,
     'redirect.sign' => true,

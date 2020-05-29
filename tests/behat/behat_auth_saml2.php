@@ -150,6 +150,9 @@ class behat_auth_saml2 extends behat_base {
 
         require_once($CFG->dirroot . '/auth/saml2/auth.php');
 
+        // All integration test are over HTTP.
+        set_config('cookiesecure', false);
+
         /** @var auth_plugin_saml2 $auth */
         $auth = get_auth_plugin('saml2');
 
@@ -203,8 +206,36 @@ class behat_auth_saml2 extends behat_base {
             ];
         }
 
+        if ($setting == 'Groups Attribute') {
+            $setting = 'groupattr';
+        }
+
+        if ($setting == 'Restricted Groups') {
+            $setting = 'restricted_groups';
+        }
+
+        if ($setting == 'Allowed Groups') {
+            $setting = 'allowed_groups';
+        }
+
+        if ($setting == 'Account blocking response type') {
+            $setting = 'flagresponsetype';
+            $map = [
+                'display custom message'   => saml2_settings::OPTION_FLAGGED_LOGIN_MESSAGE,
+                'redirect to external url' => saml2_settings::OPTION_FLAGGED_LOGIN_REDIRECT,
+            ];
+        }
+
+        if ($setting == 'Redirect URL') {
+            $setting = 'flagredirecturl';
+        }
+
+        if ($setting == 'Response message') {
+            $setting = 'flagmessage';
+        }
+
         $lowervalue = strtolower($value);
-        $value = in_array($lowervalue, $map) ? $map[$lowervalue] : $value;
+        $value = array_key_exists($lowervalue, $map) ? $map[$lowervalue] : $value;
         set_config($setting, $value, 'auth_saml2');
     }
 

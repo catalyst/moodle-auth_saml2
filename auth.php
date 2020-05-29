@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->libdir.'/authlib.php');
+require_once($CFG->dirroot.'/login/lib.php');
 require_once(__DIR__.'/locallib.php');
 
 /**
@@ -60,6 +61,9 @@ class auth_plugin_saml2 extends auth_plugin_base {
         'logtofile'          => 0,
         'logdir'             => '/tmp/',
         'nameidasattrib'     => 0,
+        'flagresponsetype'   => saml2_settings::OPTION_FLAGGED_LOGIN_MESSAGE,
+        'flagredirecturl'    => '',
+        'flagmessage'        => '' // Set in constructor.
     ];
 
     /**
@@ -68,6 +72,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
     public function __construct() {
         global $CFG, $DB;
         $this->defaults['idpdefaultname'] = get_string('idpnamedefault', 'auth_saml2');
+        $this->defaults['flagmessage'] = get_string('flagmessage_default', 'auth_saml2');
         $this->authtype = 'saml2';
         $mdl = new moodle_url($CFG->wwwroot);
         $this->spname = $mdl->get_host();
@@ -98,6 +103,37 @@ class auth_plugin_saml2 extends auth_plugin_base {
         }
 
         $this->defaultidp = auth_saml2_get_default_idp();
+    }
+
+    public static function saml2_authproc_filters_hook() {
+        $authprocfilters = [];
+        $authprocfilters[50] = array(
+            'class' => 'core:AttributeMap',
+            'oid2name',
+        );
+        $callbacks = get_plugins_with_function('extend_auth_saml2_proc', 'lib.php');
+        foreach ($callbacks as $plugins) {
+            foreach ($plugins as $pluginfunction) {
+                $filters = $pluginfunction();
+                foreach ($filters as $key => $value) {
+                    $key = self::check_filters_priority($key, $authprocfilters);
+                    $authprocfilters[$key] = $value;
+                }
+            }
+        }
+        return $authprocfilters;
+    }
+
+    public static function check_filters_priority($priority, $filters) {
+        $uniquekey = false;
+        while (!$uniquekey) {
+            if (!array_key_exists($priority, $filters)) {
+                $uniquekey = true;
+            } else {
+                $priority++;
+            }
+        }
+        return $priority;
     }
 
     public function get_saml2_directory() {
@@ -197,8 +233,10 @@ class auth_plugin_saml2 extends auth_plugin_base {
                 $idpurl->param('passive', 'off');
 
                 // A default icon.
+                $idpiconurl = null;
+                $idpicon = null;
                 if (!empty($idp->logo)) {
-                    $idpicon = $idp->logo;
+                    $idpiconurl = new moodle_url($idp->logo);
                 } else {
                     $idpicon = new pix_icon('i/user', 'Login');
                 }
@@ -231,6 +269,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
                 $idplist[] = [
                     'url'  => $idpurl,
                     'icon' => $idpicon,
+                    'iconurl' => $idpiconurl,
                     'name' => $idpname,
                 ];
             }
@@ -289,7 +328,9 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $logouturl = new moodle_url('/auth/saml2/logout.php');
 
         $PAGE->set_context(context_system::instance());
-        $PAGE->set_url('/');
+        $PAGE->set_url('/auth/saml2/error.php');
+        $PAGE->set_title(get_string('error', 'auth_saml2'));
+        $PAGE->set_heading(get_string('error', 'auth_saml2'));
         echo $OUTPUT->header();
         echo $OUTPUT->box($msg);
         echo html_writer::link($logouturl, get_string('logout'));
@@ -396,12 +437,6 @@ class auth_plugin_saml2 extends auth_plugin_base {
             return true;
         }
 
-        // If passive mode always redirect, except if saml=off. It will redirect back to login page.
-        if ($this->config->duallogin == saml2_settings::OPTION_DUAL_LOGIN_PASSIVE) {
-            $this->log(__FUNCTION__ . ' redirecting due to passive mode.');
-            return true;
-        }
-
         // Check whether we've skipped saml already.
         // This is here because loginpage_hook is called again during form
         // submission (all of login.php is processed) and ?saml=off is not
@@ -409,9 +444,16 @@ class auth_plugin_saml2 extends auth_plugin_base {
         //
         // This isn't needed when duallogin is on because $saml will default to 0
         // and duallogin is not part of the request.
-        if ((isset($SESSION->saml) && $SESSION->saml == 0)) {
+        if ((isset($SESSION->saml) && $SESSION->saml == 0) && $this->config->duallogin == saml2_settings::OPTION_DUAL_LOGIN_NO) {
             $this->log(__FUNCTION__ . ' skipping due to no sso session');
             return false;
+        }
+
+        // If passive mode always redirect, except if saml=off. It will redirect back to login page.
+        // The second time around saml=0 will be set in the session.
+        if ($this->config->duallogin == saml2_settings::OPTION_DUAL_LOGIN_PASSIVE) {
+            $this->log(__FUNCTION__ . ' redirecting due to passive mode.');
+            return true;
         }
 
         // If ?saml=off even when duallogin is off, then always show the login page.
@@ -497,12 +539,27 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $passive = (bool)optional_param('passive', $passive, PARAM_BOOL);
         $params = ['isPassive' => $passive];
         if ($passive) {
-            $errorurl = optional_param('errorurl', "{$CFG->wwwroot}/login/index.php", PARAM_RAW);
-            $params['ErrorURL'] = $errorurl;
+            $params['ErrorURL'] = "{$CFG->wwwroot}/login/index.php?saml=0";
         }
 
         $auth->requireAuth($params);
         $attributes = $auth->getAttributes();
+
+        $this->saml_login_complete($attributes);
+    }
+
+
+    /**
+     * The user has done the SAML handshake now we can log them in
+     *
+     * This is split so we can handle SP and IdP first login flows.
+     */
+    public function saml_login_complete($attributes) {
+
+        // @codingStandardsIgnoreStart
+        global $CFG, $DB, $USER, $SESSION, $saml2auth;
+        // @codingStandardsIgnoreEnd
+
         if ($this->config->attrsimple) {
             $attributes = $this->simplify_attr($attributes);
         }
@@ -523,9 +580,21 @@ class auth_plugin_saml2 extends auth_plugin_base {
             }
         }
 
+        // Testing user's groups and allow access decided on preferences.
+        if (!$this->is_access_allowed_for_member($attributes)) {
+            $this->handle_blocked_access();
+        }
+
         $newuser = false;
         if (!$user) {
             if ($this->config->autocreate) {
+                $email = $this->get_email_from_attributes($attributes);
+                // If can't have accounts with the same emails, check if email is taken before create a new user.
+                if (empty($CFG->allowaccountssameemail) && $this->is_email_taken($email)) {
+                    $this->log(__FUNCTION__ . " user '$uid' can't be autocreated as email '$email' is taken");
+                    $this->error_page(get_string('emailtaken', 'auth_saml2', $email));
+                }
+
                 $this->log(__FUNCTION__ . " user '$uid' is not in moodle so autocreating");
                 $user = create_user_record($uid, '', 'saml2');
                 $newuser = true;
@@ -543,20 +612,28 @@ class auth_plugin_saml2 extends auth_plugin_base {
             $this->log(__FUNCTION__ . ' found user '.$user->username);
         }
 
-        // Do we need to update any user fields? Unlike ldap, we can only do
-        // this now. We cannot query the IdP at any time.
-        $this->update_user_profile_fields($user, $attributes, $newuser);
-
         if (!$this->config->anyauth && $user->auth != 'saml2') {
             $this->log(__FUNCTION__ . " user $uid is auth type: $user->auth");
             $this->error_page(get_string('wrongauth', 'auth_saml2', $uid));
         }
 
+        if ($this->config->anyauth && !is_enabled_auth($user->auth) ) {
+            $this->log(__FUNCTION__ . " user $uid's auth type: $user->auth is not enabled");
+            $this->error_page(get_string('anyauthotherdisabled', 'auth_saml2', array(
+                'username' => $uid, 'auth' => $user->auth,
+            )));
+        }
+
+        // Do we need to update any user fields? Unlike ldap, we can only do
+        // this now. We cannot query the IdP at any time.
+        $this->update_user_profile_fields($user, $attributes, $newuser);
+
         // If admin has been set for this IdP we make the user an admin.
         $adminidp = false;
         foreach ($saml2auth->metadataentities as $idpentities) {
             foreach ($idpentities as $md5idpentityid => $idpentity) {
-                if ($SESSION->saml2idp == $md5idpentityid) {
+
+                if (!empty($SESSION->saml2idp) && $SESSION->saml2idp == $md5idpentityid) {
                     $adminidp = $idpentity->adminidp;
                     break 2;
                 }
@@ -584,17 +661,92 @@ class auth_plugin_saml2 extends auth_plugin_base {
         $USER->site = $CFG->wwwroot;
         set_moodle_cookie($USER->username);
 
-        $urltogo = core_login_get_return_url();
+        $wantsurl = core_login_get_return_url();
         // If we are not on the page we want, then redirect to it.
-        if ( qualified_me() !== $urltogo ) {
-            $this->log(__FUNCTION__ . " redirecting to $urltogo");
-            redirect($urltogo);
+        if ( qualified_me() !== $wantsurl ) {
+            $this->log(__FUNCTION__ . " redirecting to $wantsurl");
+            unset($SESSION->wantsurl);
+            redirect($wantsurl);
             exit;
         } else {
             $this->log(__FUNCTION__ . " continuing onto " . qualified_me() );
         }
 
         return;
+    }
+
+    /**
+     * Redirect SAML2 login if a flagredirecturl has been configured.
+     *
+     * @throws \moodle_exception
+     */
+    protected function redirect_blocked_access() {
+
+        if (!empty($this->config->flagredirecturl)) {
+            redirect(new moodle_url($this->config->flagredirecturl));
+        } else {
+            $this->log(__FUNCTION__ . ' no redirect URL value set.');
+            // Fallback to flag message if redirect URL not set.
+            $this->error_page($this->config->flagmessage);
+        }
+    }
+
+    /**
+     * Handles blocked access based on configuration.
+     */
+    protected function handle_blocked_access() {
+        switch ($this->config->flagresponsetype) {
+            case saml2_settings::OPTION_FLAGGED_LOGIN_REDIRECT :
+                $this->redirect_blocked_access ();
+                break;
+            case saml2_settings::OPTION_FLAGGED_LOGIN_MESSAGE :
+            default :
+                $this->error_page ( $this->config->flagmessage );
+                break;
+        }
+    }
+
+    /**
+     * Testing user's groups attribute and allow access decided on preferences.
+     *
+     * @param array $attributes A list of attributes from the request
+     * @return bool
+     */
+    public function is_access_allowed_for_member($attributes) {
+
+        // If there is no encumberance attribute configured in Moodle, let them pass.
+        if (empty($this->config->groupattr) ) {
+            return true;
+        }
+
+        // If a user has no encumberance attribute let them into Moodle.
+        if (empty($attributes[$this->config->groupattr])) {
+            return true;
+        }
+
+        $groups = $attributes[$this->config->groupattr];
+
+        $uid = $attributes[$this->config->idpattr][0];
+        $deny  = preg_split("/[\s,]+/", $this->config->restricted_groups, null, PREG_SPLIT_NO_EMPTY);
+        $allow = preg_split("/[\s,]+/", $this->config->allowed_groups, null, PREG_SPLIT_NO_EMPTY);
+
+        // If a user has an encumberance attribute and one of the groups in it match a deny group,
+        // then don't let them in.
+        // We realise that they may not get here if they are in an allow group.
+        if (!empty(array_intersect($deny, $groups))) {
+            $this->log(__FUNCTION__ . " user '$uid' is in restricted group or isn't in allowed. Access denied.");
+            return false;
+        }
+
+        // If a user has an encumberance attribute and one of the groups in it match an allow group,
+        // then let them in.
+        if (empty(array_intersect($allow, $groups))) {
+            $this->log(__FUNCTION__ . " user '$uid' is in restricted group or isn't in allowed. Access denied.");
+            return false;
+        }
+
+        $this->log(__FUNCTION__ . " user '$uid' is in allowed group and isn't in restricted. Access allowed.");
+        return true;
     }
 
     /**
@@ -644,6 +796,20 @@ class auth_plugin_saml2 extends auth_plugin_base {
                         if (array_key_exists($attr, $attributes)) {
                             // Handing an empty array of attributes.
                             if (!empty($attributes[$attr])) {
+
+                                // If can't have accounts with the same emails, check if email is taken before update a new user.
+                                if ($field == 'email' && empty($CFG->allowaccountssameemail)) {
+                                    $email = $attributes[$attr][0];
+                                    if ($this->is_email_taken($email, $user->username)) {
+                                        $this->log(__FUNCTION__ .
+                                            " user '$user->username' email can't be updated as '$email' is taken");
+                                        // Warn user that we are not able to update his email.
+                                        \core\notification::warning(get_string('emailtakenupdate', 'auth_saml2', $email));
+
+                                        continue;
+                                    }
+                                }
+
                                 // Custom profile fields have the prefix profile_field_ and will be saved as profile field data.
                                 $user->$field = $attributes[$attr][0];
                                 $update = true;
@@ -667,6 +833,55 @@ class auth_plugin_saml2 extends auth_plugin_base {
         }
 
         return $update;
+    }
+
+    /**
+     * Get email address from attributes.
+     *
+     * @param array $attributes A list of attributes.
+     *
+     * @return bool
+     */
+    public function get_email_from_attributes(array $attributes) {
+        if (!empty($this->config->field_map_email) && !empty($attributes[$this->config->field_map_email])) {
+            return $attributes[$this->config->field_map_email][0];
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if given email is taken by other user(s).
+     *
+     * @param string | bool $email Email to check.
+     * @param string | null $excludeusername A user name to exclude.
+     *
+     * @return bool
+     */
+    public function is_email_taken($email, $excludeusername = null) {
+        global $CFG, $DB;
+
+        if (!empty($email)) {
+            // Make a case-insensitive query for the given email address.
+            $select = $DB->sql_equal('email', ':email', false) . ' AND mnethostid = :mnethostid AND deleted = :deleted';
+            $params = array(
+                'email' => $email,
+                'mnethostid' => $CFG->mnet_localhost_id,
+                'deleted' => 0
+            );
+
+            if ($excludeusername) {
+                $select .= ' AND username <> :username';
+                $params['username'] = $excludeusername;
+            }
+
+            // If there are other user(s) that already have the same email, display an error.
+            if ($DB->record_exists_select('user', $select, $params)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -761,7 +976,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
      */
     public function get_ssp_version() {
         require('setup.php');
-        $config = new SimpleSAML_Configuration(array(), '');
+        $config = new SimpleSAML\Configuration(array(), '');
         return $config->getVersion();
     }
 

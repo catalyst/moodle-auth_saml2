@@ -210,8 +210,20 @@ class setting_idpmetadata extends admin_setting_configtextarea {
      */
     private function get_idp_xml_path(idp_data $idp) {
         $xml = new DOMDocument();
-        if (!$xml->loadXML($idp->rawxml)) {
-            throw new setting_idpmetadata_exception(get_string('idpmetadata_invalid', 'auth_saml2'));
+
+        libxml_use_internal_errors(true);
+
+        $rawxml = $idp->rawxml;
+
+        if (!$xml->loadXML($rawxml)) {
+            $errors = libxml_get_errors();
+            $lines = explode("\n", $rawxml);
+            $msg = '';
+            foreach ($errors as $error) {
+                $msg .= "<br>Error ({$error->code}) line $error->line char  $error->column: $error->message";
+            }
+
+            throw new setting_idpmetadata_exception(get_string('idpmetadata_invalid', 'auth_saml2') . $msg);
         }
 
         $xpath = new DOMXPath($xml);

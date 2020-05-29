@@ -13,6 +13,7 @@ https://moodle.org/plugins/auth_saml2
 * [Why is it better?](#why-is-it-better)
 * [How does it work?](#how-does-it-work)
 * [Features](#features)
+* [Branches](#branches)
 * [Installation](#installation)
 * [Configuration](#configuration)
 * [Testing](#testing)
@@ -48,9 +49,6 @@ configuration from Moodle configuration. In the future we should be able to
 swap to a different internal SAML implementation and the plugin GUI shouldn't
 need to change at all.
 
-* SimpleSAMLphp version 1.14.10
-
-
 Features
 --------
 
@@ -61,12 +59,25 @@ Features
 * Automatic certificate creation
 * Optionally auto create users
 * Support for multiple identity providers
+* Idp initiated flow / IdP first flow /  IdP unsolicited logins, eg:
+
+http://idp.local/simplesaml/saml2/idp/SSOService.php?spentityid=http://moodle.local/auth/saml2/sp/metadata.php&RelayState=http://moodle.local/course/view.php?id=2
+
 
 Features not yet implemented:
 
 * Enrolment - this should be an enrol plugin and not in an auth plugin
 * Role mapping - not yet implemented
 
+Branches
+--------
+
+| Moodle verion     | Branch      | PHP  | SimpleSAMLphp |
+| ----------------- | ----------- | ---- | ------------- |
+| Moodle 2.7 to 3.4 | 27_34STABLE | 5.5+ | v1.15.4       |
+| Totara up to 11   | 27_34STABLE | 5.5+ | v1.15.4       |
+| Moodle 3.5 to 3.8 | master      | 7.0+ | v1.17.7       |
+| Totara 12+        | master      | 7.0+ | v1.17.7       |
 
 Installation
 ------------
@@ -267,6 +278,76 @@ Suggested attribute mappings:
 |`FirstName`|`user.firstName`|
 |`LastName`|`user.lastName`|
 |`Email`|`user.email`|
+
+
+**Auth Proc Filter Hooks**
+
+Other plugins may hook into SAML2 and create custom Auth Proc Filters.
+Auth Proc Filters allows you to mutate of the attributes passed back from the IdP before Moodle handles them and does the profile field mappings
+
+Steps to implement the hook:
+* Create a plugin that will implement the hook (e.g local_hookimplement)
+* Define the hook function 'local_hookimplement_extend_auth_saml2_proc' in plugin's lib.php
+* The function should return array of SimpleSaml Auth Proc Filters.
+
+Examples:
+```php
+function local_hookimplement_extend_auth_saml2_proc() {
+   return [
+      52 => array(
+         'class' => 'core:AttributeMap',
+         'oid2name'
+      )
+   ]
+}
+```
+
+Custom Code
+```php
+function local_hookimplement_extend_auth_saml2_proc() {
+   return [
+      51 => array(
+         'class' => 'core:PHP',
+         'code' => '$attributes = update_attributes($attributes)'
+      )
+   ]
+}
+
+function update_attributes($attributes) {
+   if (isset($attributes["uid"])) {
+      $attributes["uid"] => $attributes["username"];
+   }
+   return $attributes;
+}
+```
+
+Multiple IdP Filter
+```php
+function local_hookimplement_extend_auth_saml2_proc() {
+   return [
+      51 => array(
+         'class' => 'core:PHP',
+         'code' => '$attributes = update_attributes($attributes)'
+      ),
+   ]
+}
+
+function update_attributes($attributes) {
+   global $SESSION, $saml2auth;
+    $idps = $saml2auth->metadataentities;
+    foreach ($idps as $idp) {
+        foreach ($idp as $key => $value) {
+            if ($SESSION->saml2idp == $key) {
+                $alias = $idp[$key]->alias;
+            }
+
+            if ($alias == 'idp_alias') {
+                $attributes["uid"] = $attributes['username'];
+            }
+        }
+    }
+}
+```
 
 
 

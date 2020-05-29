@@ -56,7 +56,18 @@ class idp_parser {
         return $this->idps;
     }
 
+    /**
+     * Does the field *look* like xml, mostly?
+     */
     public function check_xml($xml) {
+
+        $declaration = '<?xml';
+
+        $xml = trim($xml);
+        if (substr($xml, 0, strlen($declaration)) === $declaration) {
+            return true;
+        }
+
         libxml_use_internal_errors(true);
         if (simplexml_load_string($xml)) {
             return true;
@@ -78,6 +89,11 @@ class idp_parser {
         foreach ($lines as $line) {
             $idpdata = null;
             $scheme = 'http';
+
+            $line = trim($line);
+            if (!$line) {
+                continue;
+            }
 
             // Separate the line base on the scheme http. The scheme added back to the urls.
             $parts = array_map('rtrim', explode($scheme, $line));

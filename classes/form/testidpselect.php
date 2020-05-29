@@ -53,11 +53,11 @@ class testidpselect extends moodleform {
 
         foreach ($idpentityids as $idpentity) {
             if (is_string($idpentity)) {
-                $selectvalues[$idpentity] = $idpentity;
+                $selectvalues[md5($idpentity)] = $idpentity;
             } else {
                 foreach ((array)$idpentity as $subidpentity => $active) {
                     if ($active) {
-                        $selectvalues[$subidpentity] = $subidpentity;
+                        $selectvalues[md5($subidpentity)] = $subidpentity;
                     }
                 }
             }
