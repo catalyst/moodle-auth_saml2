@@ -27,22 +27,22 @@ matrix:
   include:
     # PHP 7.0
     - php: 7.0
-      env: DB=pgsql  MOODLE_BRANCH=MOODLE_35_STABLE
+      env: DB=pgsql  MOODLE_BRANCH=MOODLE_35_STABLE NODE_VERSION=14.2.0
     - php: 7.0
-      env: DB=mysqli MOODLE_BRANCH=MOODLE_36_STABLE
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_36_STABLE NODE_VERSION=8.9.0
     # PHP 7.2
     - php: 7.2
-      env: DB=pgsql MOODLE_BRANCH=MOODLE_37_STABLE
+      env: DB=pgsql MOODLE_BRANCH=MOODLE_37_STABLE NODE_VERSION=14.2.0
     - php: 7.2
-      env: DB=mysqli  MOODLE_BRANCH=master
+      env: DB=mysqli  MOODLE_BRANCH=master NODE_VERSION=14.2.0
 
 before_install:
   - phpenv config-rm xdebug.ini
   - echo "extension = redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - bash tests/idp/simplesamlphp.sh
   - cd ../..
-  - nvm install 8.9;
-  - nvm use 8.9;
+  - nvm install $NODE_VERSION
+  - nvm use $NODE_VERSION
   - composer create-project -n --no-dev --prefer-dist blackboard-open-source/moodle-plugin-ci ci ^2;
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
   - PATH=$(echo "$PATH" | sed -e 's/:\/usr\/local\/lib\/jvm\/openjdk11\/bin//') JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
