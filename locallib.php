@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use auth_saml2\event\cert_regenerated;
+
 defined('MOODLE_INTERNAL') || die();
 
 // @codingStandardsIgnoreStart
@@ -452,7 +454,7 @@ function auth_saml2_get_idps($active = false, $asarray = false) {
         } else {
             $idpentities[$idpentity->metadataurl][$md5entityid] = $idpentity;
         }
-        
+
     }
 
     return $idpentities;
@@ -475,5 +477,45 @@ function auth_saml2_get_default_idp() {
     return $defaultidp;
 }
 
+/**
+ * This helper function processes the regenerate form.
+ * Moved here so we can use it in a unit test.
+ *
+ * @param $fromform
+ * @return void|string
+ */
+function auth_saml2_process_regenerate_form($fromform) {
+    global $CFG, $USER;
+    $dn = array(
+        'commonName' => substr($fromform->commonname, 0, 64),
+        'countryName' => $fromform->countryname,
+        'emailAddress' => $fromform->email,
+        'localityName' => $fromform->localityname,
+        'organizationName' => $fromform->organizationname,
+        'stateOrProvinceName' => $fromform->stateorprovincename,
+        'organizationalUnitName' => $fromform->organizationalunitname,
+    );
+    $numberofdays = $fromform->expirydays;
+
+    $saml2auth = new \auth_plugin_saml2();
+    $error = create_certificates($saml2auth, $dn, $numberofdays);
+
+    if (!$error) {
+        // Successfully regenerated cert so emit the cert_regenerated event.
+        $eventdata = [
+            'reason' => "regenerated in saml settings page",
+            'userid' => $USER->id,
+        ];
+        cert_regenerated::create(['other' => $eventdata])->trigger();
+    }
+
+    // Also refresh the SP metadata as well.
+    $file = $saml2auth->get_file_sp_metadata_file();
+    @unlink($file);
+
+    if ($error) {
+        return $error;
+    }
+}
 // @codingStandardsIgnoreEnd
 
