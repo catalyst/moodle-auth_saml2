@@ -40,11 +40,11 @@ $path = $saml2auth->certcrt;
 $error = '';
 
 if ($fromform = $mform->get_data()) {
-    $error = auth_saml2_process_regenerate_form($fromform);
-    if ($error === '') {
-        redirect("$CFG->wwwroot/admin/settings.php?section=authsettingsaml2");
+    try {
+        auth_saml2_process_regenerate_form($fromform);
+    } catch (saml2_exception $exception) {
+        $error = $exception->getMessage() . $exception->getTraceAsString();
     }
-
 } else {
 
     // Load data from the current certificate.

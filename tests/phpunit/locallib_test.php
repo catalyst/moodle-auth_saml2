@@ -444,5 +444,40 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $this->assertFalse($auth->is_email_taken(strtoupper($user->email), $user->username));
         $this->assertFalse($auth->is_email_taken(ucfirst($user->email), $user->username));
     }
-}
 
+    /**
+     * If locked do not generate the cert, if unlocked then generate the cert.
+     * If locked and we try to generate certs, throw an exception and do not generate the certs.
+     */
+    public function test_no_generate_if_locked() {
+        $this->resetAfterTest();
+        $auth = get_auth_plugin('saml2');
+        set_config('certs_locked', 1, 'auth_saml2');
+
+        // Make sure we have no files.
+        $crt = file_exists($auth->certcrt);
+        if ($crt) {
+            unlink($auth->certcrt);
+        }
+        $this->assertFalse($crt);
+
+        // Call setup.php and see that it doesn't generate a cert.
+        require(dirname(__FILE__) . '/../../setup.php');
+        $crt = file_exists($auth->certcrt);
+        $this->assertFalse($crt);
+
+        // Call the create_certificates function directly to assert that it throws an exception and does not generate a cert.
+        $this->expectException('saml2_exception');
+        create_certificates($auth);
+        $crt = file_exists($auth->certcrt);
+        $this->assertFalse($crt);
+
+        // Set config unlocked.
+        set_config('certs_locked', 0, 'auth_saml2');
+
+        // Call setup.php and see that it generates the certificate.
+        require(dirname(__FILE__) . '/../../setup.php');
+        $crt = file_exists($auth->certcrt);
+        $this->assertTrue($crt);
+    }
+}

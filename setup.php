@@ -57,8 +57,15 @@ if ($missingcertpem || $missingcertcrt) {
     }
     // @codingStandardsIgnoreEnd
     cert_regenerated::create(['other' => ['reason' => $errorstring]])->trigger();
-    $error = create_certificates($saml2auth);
-    if ($error) {
+
+    $error = '';
+    try {
+        create_certificates($saml2auth);
+    } catch (saml2_exception $exception) {
+        $error = $exception->getMessage() . $exception->getTraceAsString();
+    }
+
+    if ($error && !PHPUNIT_TEST) { // Don't clutter the unit test output with this error_log message.
         // @codingStandardsIgnoreStart
         error_log($error);
         // @codingStandardsIgnoreEnd
