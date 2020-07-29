@@ -292,5 +292,21 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2019062600, 'auth', 'saml2');
     }
 
+    if ($oldversion < 2020072900) {
+        // Set default values to '0' (I) for activeidp, defaultidp and adminidp fields.
+        $table = new xmldb_table('auth_saml2_idps');
+
+        $field = new xmldb_field('activeidp', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, 0);
+        $dbman->change_field_default($table, $field);
+
+        $field = new xmldb_field('defaultidp', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, 0);
+        $dbman->change_field_default($table, $field);
+
+        $field = new xmldb_field('adminidp', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, 0);
+        $dbman->change_field_default($table, $field);
+
+        upgrade_plugin_savepoint(true, 2020072900, 'auth', 'saml2');
+    }
+
     return true;
 }
