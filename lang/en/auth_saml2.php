@@ -104,6 +104,12 @@ $string['mdlattr'] = 'Mapping Moodle';
 $string['metadatafetchfailed'] = 'Metadata fetch failed: {$a}';
 $string['metadatafetchfailedstatus'] = 'Metadata fetch failed: Status code {$a}';
 $string['metadatafetchfailedunknown'] = 'Metadata fetch failed: Unknown cURL error';
+$string['multiidp:label:displayname'] = 'Display name';
+$string['multiidp:label:alias'] = 'Alias';
+$string['multiidp:label:active'] = 'Active';
+$string['multiidp:label:defaultidp'] = 'Default IdP';
+$string['multiidp:label:admin'] = 'Admin';
+$string['multiidp:label:whitelist'] = 'Redirected IP addresses';
 $string['multiidpinfo'] = '
 <ul>
 <li>An IdP can only be used if it is set as Active</li>
