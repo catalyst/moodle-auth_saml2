@@ -322,5 +322,19 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2020072900, 'auth', 'saml2');
     }
 
+    if ($oldversion < 2020080300) {
+        // Define field whitelist to be added to auth_saml2_idps.
+        $table = new xmldb_table('auth_saml2_idps');
+        $field = new xmldb_field('whitelist', XMLDB_TYPE_TEXT, null, null, null, null, null, 'alias');
+
+        // Conditionally launch add field whitelist.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Saml2 savepoint reached.
+        upgrade_plugin_savepoint(true, 2020080300, 'auth', 'saml2');
+    }
+
     return true;
 }
