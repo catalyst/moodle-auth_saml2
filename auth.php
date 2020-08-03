@@ -415,6 +415,9 @@ class auth_plugin_saml2 extends auth_plugin_base {
             return false;
         }
 
+        // TODO: redirect check.
+        $this->check_whitelisted_ip_redirect();
+
         // Redirect to the select IdP page if requested so.
         if ($multiidp) {
             $this->log(__FUNCTION__ . ' redirecting due to multiidp=on parameter');
@@ -528,6 +531,9 @@ class auth_plugin_saml2 extends auth_plugin_base {
         } else if (!is_null($saml2auth->defaultidp)) {
             $SESSION->saml2idp = md5($saml2auth->defaultidp->entityid);
         } else if ($saml2auth->multiidp) {
+            // At this stage there is no alias, get-param or default IdP configured.
+            // On a multi-idp system, now check for any whitelisted IP address redirection.
+            $this->check_whitelisted_ip_redirect();
             $idpurl = new moodle_url('/auth/saml2/selectidp.php');
             redirect($idpurl);
         }
@@ -707,6 +713,9 @@ class auth_plugin_saml2 extends auth_plugin_base {
                 $this->error_page ( $this->config->flagmessage );
                 break;
         }
+    }
+
+    protected function check_whitelisted_ip_redirect() {
     }
 
     /**
