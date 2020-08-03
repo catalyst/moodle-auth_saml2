@@ -50,7 +50,6 @@ class selectidp_dropdown extends moodleform {
         $metadataentities = $this->_customdata['metadataentities'];
         $wants = $this->_customdata['wants'];
         $idpname = $this->_customdata['idpname'];
-        $displaytype = $this->_customdata['displaytype'];
 
         $idpentityids = array();
 
