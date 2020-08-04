@@ -23,6 +23,7 @@
  */
 
 use auth_saml2\admin\saml2_settings;
+use auth_saml2\admin\setting_idpmetadata;
 
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../../locallib.php');
@@ -168,6 +169,48 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
             "18. dual: y, param: null, multiidp: true, session: false" => [true, null, true, false, $midp->out()],  // Login normal, dual login on. Multi IdP true.
             "19. dual: y, param: off, multiidp: true, session: false"  => [true, 'off', true, false, false], // Login normal, dual login on. Multi IdP true.
             "20. dual: y, param: on, multiidp: true, session: false"   => [true, 'on', true, false, $midp->out()], // SAML redirect, ?saml=on. Multi IdP true.
+        ];
+    }
+
+    /**
+     * Test test_should_login_redirect
+     *
+     * @dataProvider check_whitelisted_ip_redirect_testcases
+     * @param string $whitelist
+     * @param bool $expected The expected return value
+     */
+    public function test_check_whitelisted_ip_redirect($saml, $whitelist, $expected) {
+        $this->resetAfterTest();
+
+        /** @var auth_plugin_saml2 $auth */
+        $auth = get_auth_plugin('saml2');
+
+        $auth->metadataentities = [
+            md5('idp') => [
+                'entity' => (object)['whitelist' => $whitelist]
+            ]
+        ];
+
+        if ($saml !== null) {
+            $_GET['saml'] = $saml;
+        }
+
+        $result = $auth->should_login_redirect();
+        $this->assertTrue($result === $expected);
+    }
+
+    /**
+     * Dataprovider for the test_check_whitelisted_ip_redirect testcase
+     *
+     * @return array of testcases
+     */
+    public function check_whitelisted_ip_redirect_testcases() {
+        return [
+            'saml off, no ip, no redirect'              => ['off', '', false],
+            'saml off, getremoteaddr(), no redirect'    => ['off', getremoteaddr(), false],
+            'saml not specified, junk, no redirect'     => [null, 'qwer1234!@#$qwer', false],
+            'saml not specified, junk+ip, yes redirect' => [null, 'qwer1234!@#$qwer'."\n".getremoteaddr(), true],
+            'saml not specified, localip, yes redirect' => [null, getremoteaddr()."\n127.0.0.1\n0.0.0.0", true],
         ];
     }
 
