@@ -61,7 +61,6 @@ class availableidps extends moodleform {
 
                 // Add the displayname textbox.
                 $mform->addElement('text', $fieldkey.'[displayname]', get_string('multiidp:label:displayname', 'auth_saml2'), array('placeholder' => $idpentity['defaultname']));
-                //$mform->addElement('html', '</td><td>');
                 $mform->setType($fieldkey.'[displayname]', PARAM_TEXT);
 
                 // Add the alias textbox.
