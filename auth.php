@@ -723,7 +723,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
     /**
      * Checks configuration of the multiple IdP IP whitelist field. If the users IP matches, this will
-     * return the $idpentitiy on true. Or false if not found.
+     * return the $md5idpentityid on true. Or false if not found.
      *
      * This is used in two places, firstly to determine if a saml redirect is to happen.
      * Secondly to determine which IdP to force the redirect to.
