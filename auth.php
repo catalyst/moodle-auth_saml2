@@ -372,7 +372,10 @@ class auth_plugin_saml2 extends auth_plugin_base {
             return;
         }
 
-        if ($this->should_login_redirect()) {
+        $redirect = $this->should_login_redirect();
+        if (is_string($redirect)) {
+            redirect($redirect);
+        } else if ($redirect === true) {
             $this->saml_login();
         } else {
             $this->log(__FUNCTION__ . ' exit');
@@ -384,7 +387,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
     /**
      * Determines if we will redirect to the SAML login.
      *
-     * @return bool If this returns true then we redirect to the SAML login.
+     * @return bool|string If this returns true then we redirect to the SAML login.
      */
     public function should_login_redirect() {
         global $SESSION;
@@ -416,7 +419,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         if ($multiidp) {
             $this->log(__FUNCTION__ . ' redirecting due to multiidp=on parameter');
             $idpurl = new moodle_url('/auth/saml2/selectidp.php');
-            redirect($idpurl);
+            return $idpurl->out();
         }
 
         // Never redirect if has error.

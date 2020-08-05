@@ -87,10 +87,11 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
      * @dataProvider should_login_redirect_testcases
      * @param mixed $duallogin
      * @param bool $param
+     * @param bool $multiidp
      * @param bool $session
      * @param bool $expected The expected return value
      */
-    public function test_should_login_redirect($duallogin, $param, $session, $expected) {
+    public function test_should_login_redirect($duallogin, $param, $multiidp, $session, $expected) {
         global $SESSION;
 
         $this->resetAfterTest();
@@ -116,6 +117,11 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
             }
         }
 
+        // HTML get param optional_param('multiidp', 0, PARAM_BOOL).
+        if ($multiidp === true) {
+            $_GET['multiidp'] = true;
+        }
+
         /** @var auth_plugin_saml2 $auth */
         $auth = get_auth_plugin('saml2');
         $result = $auth->should_login_redirect();
@@ -132,30 +138,36 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
      * @return array of testcases
      */
     public function should_login_redirect_testcases() {
+        $midp = new moodle_url('/auth/saml2/selectidp.php');
         return [
-            "1. dual: y, param: null, session: false" => [true, null, false, false],  // Login normal, dual login on.
-            "2. dual: y, param: off, session: false"  => [true, 'off', false, false], // Login normal, dual login on.
-            "3. dual: y, param: on, session: false"   => [true, 'on', false, true], // SAML redirect, ?saml=on.
+            "1. dual: y, param: null, multiidp: false, session: false" => [true, null, false, false, false],  // Login normal, dual login on.
+            "2. dual: y, param: off, multiidp: false, session: false"  => [true, 'off', false, false, false], // Login normal, dual login on.
+            "3. dual: y, param: on, multiidp: false, session: false"   => [true, 'on', false, false, true], // SAML redirect, ?saml=on.
 
-            "4. dual: n, param: null, session: false" => [false, null, false, false],  // Login normal, $SESSION->saml=0.
-            "5. dual: n, param: off, session: false"  => [false, 'off', false, false], // Login normal, ?saml=off.
-            "6. dual: n, param: on, session: false"   => [false, 'on', false, true], // SAML redirect, ?saml=on.
+            "4. dual: n, param: null, multiidp: false, session: false" => [false, null, false, false, false],  // Login normal, $SESSION->saml=0.
+            "5. dual: n, param: off, multiidp: false, session: false"  => [false, 'off', false, false, false], // Login normal, ?saml=off.
+            "6. dual: n, param: on, multiidp: false, session: false"   => [false, 'on', false, false, true], // SAML redirect, ?saml=on.
 
-            "7. dual: n, param: null, session: true"    => [false, null, true, true], // SAML redirect, $SESSION->saml=1.
-            "8. dual: n, param: off, session: true"     => [false, 'off', true, false], // Login normal, ?saml=off.
-            "9. dual: n, param: on, session: true"      => [false, 'on', true, true], // SAML redirect, ?saml=on.
+            "7. dual: n, param: null, multiidp: false, session: true"  => [false, null, false, true, true], // SAML redirect, $SESSION->saml=1.
+            "8. dual: n, param: off, multiidp: false, session: true"   => [false, 'off', false, true, false], // Login normal, ?saml=off.
+            "9. dual: n, param: on, multiidp: false, session: true"    => [false, 'on', false, true, true], // SAML redirect, ?saml=on.
 
             // For passive mode always redirect, SAML2 will redirect back if not logged in.
-            "10. dual: p, param: null, session: true" => ['passive', null, true, true],
-            "11. dual: p, param: off, session: true"  => ['passive', 'off', true, false], // Except if ?saml=off.
-            "12. dual: p, param: on, session: true"   => ['passive', 'on', true, true],
+            "10. dual: p, param: null, multiidp: false, session: true" => ['passive', null, false, true, true],
+            "11. dual: p, param: off, multiidp: false, session: true"  => ['passive', 'off', false, true, false], // Except if ?saml=off.
+            "12. dual: p, param: on, multiidp: false, session: true"   => ['passive', 'on', false, true, true],
 
-            "13. dual: p, param: null, session: false" => ['passive', null, false, true],
-            "14. dual: p, param: off, session: false"  => ['passive', 'off', false, false], // Except if ?saml=off.
-            "15. dual: p, param: on, session: false"   => ['passive', 'on', false, true],
+            "13. dual: p, param: null, multiidp: false, session: false" => ['passive', null, false, false, true],
+            "14. dual: p, param: off, multiidp: false, session: false"  => ['passive', 'off', false, false, false], // Except if ?saml=off.
+            "15. dual: p, param: on, multiidp: false, session: false"   => ['passive', 'on', false, false, true],
 
-            "16. dual: p, with SAMLerror" => ['passive', 'error', false, false], // Passive redirect back.
-            "17. dual: p using POST"      => ['passive', 'post', false, false], // POSTing.
+            "16. dual: p, with SAMLerror" => ['passive', 'error', false, false, false], // Passive redirect back.
+            "17. dual: p using POST"      => ['passive', 'post', false, false, false], // POSTing.
+
+            // Param multi-idp.
+            "18. dual: y, param: null, multiidp: true, session: false" => [true, null, true, false, $midp->out()],  // Login normal, dual login on. Multi IdP true.
+            "19. dual: y, param: off, multiidp: true, session: false"  => [true, 'off', true, false, false], // Login normal, dual login on. Multi IdP true.
+            "20. dual: y, param: on, multiidp: true, session: false"   => [true, 'on', true, false, $midp->out()], // SAML redirect, ?saml=on. Multi IdP true.
         ];
     }
 
