@@ -179,19 +179,22 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
      * @param string $whitelist
      * @param bool $expected The expected return value
      */
-    public function test_check_whitelisted_ip_redirect($saml, $whitelist, $expected) {
+    public function test_check_whitelisted_ip_redirect($saml, $remoteip, $active, $whitelist, $expected) {
         $this->resetAfterTest();
 
         // Setting an address here as getremoteaddr() will return default 0.0.0.0 which then is ignored by the address_in_subnet
         // function.
-        $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+        $_SERVER['REMOTE_ADDR'] = $remoteip;
 
         /** @var auth_plugin_saml2 $auth */
         $auth = get_auth_plugin('saml2');
 
         $auth->metadataentities = [
             md5('idp') => [
-                'entity' => (object)['whitelist' => $whitelist]
+                'entity' => (object)[
+                        'whitelist' => $whitelist,
+                        'activeidp' => $active
+                ]
             ]
         ];
 
@@ -210,11 +213,12 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
      */
     public function check_whitelisted_ip_redirect_testcases() {
         return [
-            'saml off, no ip, no redirect'              => ['off', '', false],
-            'saml off, getremoteaddr(), no redirect'    => ['off', getremoteaddr(), false],
-            'saml not specified, junk, no redirect'     => [null, 'qwer1234!@#$qwer', false],
-            'saml not specified, junk+ip, yes redirect' => [null, 'qwer1234!@#$qwer,127.0.0.1', true],
-            'saml not specified, localip, yes redirect' => [null, '127.0.0.,1.2.3.4', true],
+            'saml off, no ip, active idp, no redirect'              => ['off', '1.2.3.4', true, '', false],
+            'saml not specified, active idp, junk, no redirect'     => [null, '1.2.3.4', true, 'qwer1234!@#qwer', false],
+            'saml not specified, active idp, junk+ip, yes redirect' => [null, '1.2.3.4', true, "qwer1234!@#qwer\n1.2.3.4", true],
+            'saml not specified, active idp, localip, yes redirect' => [null, '1.2.3.4', true, "127.0.0.\n1.", true],
+            'saml not specified, disabled idp, localip, no redirect' => [null, '1.2.3.4', false, "127.0.0.\n1.", false],
+            'saml not specified, active idp, wrongip, no redirect' => [null, '4.3.2.1', true, "127.0.0.\n1.", false],
         ];
     }
 
