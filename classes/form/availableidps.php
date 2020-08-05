@@ -78,6 +78,7 @@ class availableidps extends moodleform {
 
                 // Add whitelisted IP for redirection to this IdP.
                 $mform->addElement('textarea', $fieldkey.'[whitelist]', get_string('multiidp:label:whitelist', 'auth_saml2'));
+                $mform->addHelpButton($fieldkey.'[whitelist]', 'multiidp:label:whitelist', 'auth_saml2');
                 $mform->setType($fieldkey.'[whitelist]', PARAM_TEXT);
             }
         }
