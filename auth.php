@@ -731,17 +731,14 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * @return bool|string
      */
     protected function check_whitelisted_ip_redirect() {
-        $found = false;
         foreach ($this->metadataentities as $idpentities) {
             foreach ($idpentities as $md5idpentityid => $idpentity) {
-                $list = explode("\n", $idpentity->whitelist);
-                if (in_array(getremoteaddr(), $list)) {
-                    $found = $md5idpentityid;
-                    break 2;
+                if (address_in_subnet(getremoteaddr(), $idpentity->whitelist)) {
+                    return $md5idpentityid;
                 }
             }
         }
-        return $found;
+        return false;
     }
 
     /**

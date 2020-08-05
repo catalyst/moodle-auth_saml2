@@ -182,6 +182,10 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
     public function test_check_whitelisted_ip_redirect($saml, $whitelist, $expected) {
         $this->resetAfterTest();
 
+        // Setting an address here as getremoteaddr() will return default 0.0.0.0 which then is ignored by the address_in_subnet
+        // function.
+        $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+
         /** @var auth_plugin_saml2 $auth */
         $auth = get_auth_plugin('saml2');
 
@@ -209,8 +213,8 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
             'saml off, no ip, no redirect'              => ['off', '', false],
             'saml off, getremoteaddr(), no redirect'    => ['off', getremoteaddr(), false],
             'saml not specified, junk, no redirect'     => [null, 'qwer1234!@#$qwer', false],
-            'saml not specified, junk+ip, yes redirect' => [null, 'qwer1234!@#$qwer'."\n".getremoteaddr(), true],
-            'saml not specified, localip, yes redirect' => [null, getremoteaddr()."\n127.0.0.1\n0.0.0.0", true],
+            'saml not specified, junk+ip, yes redirect' => [null, 'qwer1234!@#$qwer,127.0.0.1', true],
+            'saml not specified, localip, yes redirect' => [null, '127.0.0.,1.2.3.4', true],
         ];
     }
 
