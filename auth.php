@@ -736,6 +736,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
                 if (!$idpentity->activeidp) {
                     continue;
                 }
+                if (\core\ip_utils::is_ip_in_subnet_list(getremoteaddr(), $idpentity->whitelist)) {
                     return $md5idpentityid;
                 }
             }

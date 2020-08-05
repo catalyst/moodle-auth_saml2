@@ -110,7 +110,7 @@ $string['multiidp:label:active'] = 'Active';
 $string['multiidp:label:defaultidp'] = 'Default IdP';
 $string['multiidp:label:admin'] = 'Admin';
 $string['multiidp:label:whitelist'] = 'Redirected IP addresses';
-$string['multiidp:label:whitelist_help'] = 'If set, it will force clients to this IdP. Format: xxx.xxx.xxx.xxx/bitmask. Separate multiple subnets with \',\' (comma).';
+$string['multiidp:label:whitelist_help'] = 'If set, it will force clients to this IdP. Format: xxx.xxx.xxx.xxx/bitmask. Separate multiple subnets on a new line.';
 $string['multiidpinfo'] = '
 <ul>
 <li>An IdP can only be used if it is set as Active</li>
