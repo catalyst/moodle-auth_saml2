@@ -733,7 +733,9 @@ class auth_plugin_saml2 extends auth_plugin_base {
     protected function check_whitelisted_ip_redirect() {
         foreach ($this->metadataentities as $idpentities) {
             foreach ($idpentities as $md5idpentityid => $idpentity) {
-                if (address_in_subnet(getremoteaddr(), $idpentity->whitelist)) {
+                if (!$idpentity->activeidp) {
+                    continue;
+                }
                     return $md5idpentityid;
                 }
             }
