@@ -415,6 +415,11 @@ class auth_plugin_saml2 extends auth_plugin_base {
             return false;
         }
 
+        if ($this->check_whitelisted_ip_redirect()) {
+            $this->log(__FUNCTION__ . ' redirecting due to ip found in idp whitelist');
+            return true;
+        }
+
         // Redirect to the select IdP page if requested so.
         if ($multiidp) {
             $this->log(__FUNCTION__ . ' redirecting due to multiidp=on parameter');
@@ -528,8 +533,15 @@ class auth_plugin_saml2 extends auth_plugin_base {
         } else if (!is_null($saml2auth->defaultidp)) {
             $SESSION->saml2idp = md5($saml2auth->defaultidp->entityid);
         } else if ($saml2auth->multiidp) {
-            $idpurl = new moodle_url('/auth/saml2/selectidp.php');
-            redirect($idpurl);
+            // At this stage there is no alias, get-param or default IdP configured.
+            // On a multi-idp system, now check for any whitelisted IP address redirection.
+            $entitiyid = $this->check_whitelisted_ip_redirect();
+            if ($entitiyid !== null) {
+                $SESSION->saml2idp = $entitiyid;
+            } else {
+                $idpurl = new moodle_url('/auth/saml2/selectidp.php');
+                redirect($idpurl);
+            }
         }
 
         if (isset($_GET['rememberidp']) && $_GET['rememberidp'] == 1) {
@@ -707,6 +719,29 @@ class auth_plugin_saml2 extends auth_plugin_base {
                 $this->error_page ( $this->config->flagmessage );
                 break;
         }
+    }
+
+    /**
+     * Checks configuration of the multiple IdP IP whitelist field. If the users IP matches, this will
+     * return the $md5idpentityid on true. Or false if not found.
+     *
+     * This is used in two places, firstly to determine if a saml redirect is to happen.
+     * Secondly to determine which IdP to force the redirect to.
+     *
+     * @return bool|string
+     */
+    protected function check_whitelisted_ip_redirect() {
+        foreach ($this->metadataentities as $idpentities) {
+            foreach ($idpentities as $md5idpentityid => $idpentity) {
+                if (!$idpentity->activeidp) {
+                    continue;
+                }
+                if (\core\ip_utils::is_ip_in_subnet_list(getremoteaddr(), $idpentity->whitelist)) {
+                    return $md5idpentityid;
+                }
+            }
+        }
+        return false;
     }
 
     /**

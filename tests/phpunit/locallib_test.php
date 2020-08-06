@@ -23,6 +23,7 @@
  */
 
 use auth_saml2\admin\saml2_settings;
+use auth_saml2\admin\setting_idpmetadata;
 
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../../locallib.php');
@@ -168,6 +169,56 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
             "18. dual: y, param: null, multiidp: true, session: false" => [true, null, true, false, $midp->out()],  // Login normal, dual login on. Multi IdP true.
             "19. dual: y, param: off, multiidp: true, session: false"  => [true, 'off', true, false, false], // Login normal, dual login on. Multi IdP true.
             "20. dual: y, param: on, multiidp: true, session: false"   => [true, 'on', true, false, $midp->out()], // SAML redirect, ?saml=on. Multi IdP true.
+        ];
+    }
+
+    /**
+     * Test test_should_login_redirect
+     *
+     * @dataProvider check_whitelisted_ip_redirect_testcases
+     * @param string $whitelist
+     * @param bool $expected The expected return value
+     */
+    public function test_check_whitelisted_ip_redirect($saml, $remoteip, $active, $whitelist, $expected) {
+        $this->resetAfterTest();
+
+        // Setting an address here as getremoteaddr() will return default 0.0.0.0 which then is ignored by the address_in_subnet
+        // function.
+        $_SERVER['REMOTE_ADDR'] = $remoteip;
+
+        /** @var auth_plugin_saml2 $auth */
+        $auth = get_auth_plugin('saml2');
+
+        $auth->metadataentities = [
+            md5('idp') => [
+                'entity' => (object)[
+                        'whitelist' => $whitelist,
+                        'activeidp' => $active
+                ]
+            ]
+        ];
+
+        if ($saml !== null) {
+            $_GET['saml'] = $saml;
+        }
+
+        $result = $auth->should_login_redirect();
+        $this->assertTrue($result === $expected);
+    }
+
+    /**
+     * Dataprovider for the test_check_whitelisted_ip_redirect testcase
+     *
+     * @return array of testcases
+     */
+    public function check_whitelisted_ip_redirect_testcases() {
+        return [
+            'saml off, no ip, active idp, no redirect'              => ['off', '1.2.3.4', true, '', false],
+            'saml not specified, active idp, junk, no redirect'     => [null, '1.2.3.4', true, 'qwer1234!@#qwer', false],
+            'saml not specified, active idp, junk+ip, yes redirect' => [null, '1.2.3.4', true, "qwer1234!@#qwer\n1.2.3.4", true],
+            'saml not specified, active idp, localip, yes redirect' => [null, '1.2.3.4', true, "127.0.0.\n1.", true],
+            'saml not specified, disabled idp, localip, no redirect' => [null, '1.2.3.4', false, "127.0.0.\n1.", false],
+            'saml not specified, active idp, wrongip, no redirect' => [null, '4.3.2.1', true, "127.0.0.\n1.", false],
         ];
     }
 
