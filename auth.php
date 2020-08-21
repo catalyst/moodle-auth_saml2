@@ -762,47 +762,41 @@ class auth_plugin_saml2 extends auth_plugin_base {
     public function is_access_allowed_for_member($attributes) {
 
         // If there is no encumberance attribute configured in Moodle, let them pass.
-        if (empty($this->config->groupattr) ) {
+        if (empty($this->config->grouprules) ) {
             return true;
         }
-
-        // If a user has no encumberance attribute let them into Moodle.
-        if (empty($attributes[$this->config->groupattr])) {
-            return true;
-        }
-
-        $groups = $attributes[$this->config->groupattr];
 
         $uid = $attributes[$this->config->idpattr][0];
-        $deny  = preg_split("/[\s,]+/", $this->config->restricted_groups, null, PREG_SPLIT_NO_EMPTY);
-        $allow = preg_split("/[\s,]+/", $this->config->allowed_groups, null, PREG_SPLIT_NO_EMPTY);
+        $rules = \auth_saml2\group_rule::get_list($this->config->grouprules);
+        $userhasgroups = false;
 
-        $inallowed = array_intersect($allow, $groups);
-        $indenied = array_intersect($deny, $groups);
+        foreach ($rules as $rule) {
+            if (empty($attributes[$rule->get_attribute()])) {
+                continue;
+            }
 
-        // If allowed groups is a priority, then exit earlier if a user is in allowed groups.
-        if (!empty($this->config->allowedgroupspriority)) {
-            if (!empty($inallowed)) {
-                return true;
+            $userhasgroups = true; // At least one encumberance attribute is detected.
+
+            foreach ($attributes[$rule->get_attribute()] as $group) {
+                if ($group == $rule->get_group()) {
+                    if ($rule->is_allowed()) {
+                        $this->log(__FUNCTION__ . " user '$uid' is in allowed group. Access allowed.");
+                        return true;
+                    } else {
+                        $this->log(__FUNCTION__ . " user '$uid' is in restricted group. Access denied.");
+                        return false;
+                    }
+                }
             }
         }
 
-        // If a user has a group attribute and one of the groups in it match a deny group,
-        // then don't let them in.
-        if (!empty($indenied)) {
-            $this->log(__FUNCTION__ . " user '$uid' is in restricted group. Access denied.");
-            return false;
+        // If a user has no encumberance attribute let them into Moodle.
+        if (empty($userhasgroups)) {
+            return true;
         }
 
-        // If a user has a group attribute and one of the groups in it match an allow group,
-        // then let them in.
-        if (empty($inallowed)) {
-            $this->log(__FUNCTION__ . " user '$uid' isn't in allowed. Access denied.");
-            return false;
-        }
-
-        $this->log(__FUNCTION__ . " user '$uid' is in allowed group and isn't in restricted. Access allowed.");
-        return true;
+        $this->log(__FUNCTION__ . " user '$uid' isn't in allowed. Access denied.");
+        return false;
     }
 
     /**

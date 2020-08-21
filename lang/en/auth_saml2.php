@@ -180,15 +180,15 @@ $string['phone1'] = 'Phone';
 $string['phone2'] = 'Mobile phone';
 $string['nameidpolicy'] = 'NameID Policy';
 $string['nameidpolicy_help'] = '';
-$string['groupattr'] = 'Groups Attribute';
-$string['groupattr_help'] = 'Attribute that contains a set of user groups.';
-$string['restricted_groups'] = 'Restricted Groups';
-$string['restricted_groups_help'] = 'Comma delimited list of groups. User will not be allowed to login if one of the groups contains in Groups Attribute.';
-$string['allowed_groups'] = 'Allowed Groups';
-$string['allowed_groups_help'] = 'Comma delimited list of groups. User will be allowed to login if one of the groups contains in Groups Attribute. Restricted Groups will test first unless Allowed Groups Priority is set to Yes.';
-$string['allowedgroupspriority'] = 'Allowed Groups Priority';
-$string['allowedgroupspriority_help'] = 'If set you Yes, then in case when a user is in allowed and restricted groups at the same time, access will be allowed. If set to No, access will be denied in the same case.';
-
+$string['grouprules'] = 'Group rules';
+$string['grouprules_help'] = '<p>A list of rules to be able to control access based on the group attribute value.</p>
+<p>Each line should have one rule in format: {allow or deny} {groups attribute}={value}.</p>
+<p>Higher in the list rule will be applied first.</p>
+Example: <br/>
+allow admins=yes<br>
+deny admins=no<br>
+allow examrole=proctor<br>
+deny library=overdue<br>';
 /*
  * Privacy provider (GDPR)
  */

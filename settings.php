@@ -236,36 +236,13 @@ if ($ADMIN->fulltree) {
             get_string('autocreate_help', 'auth_saml2'),
             0, $yesno));
 
-    // Attribute name that contains groups.
-    $settings->add(new admin_setting_configtext(
-            'auth_saml2/groupattr',
-            get_string('groupattr', 'auth_saml2'),
-            get_string('groupattr_help', 'auth_saml2'),
-            '',
-            PARAM_TEXT));
-
-    // Restricted groups.
-    $settings->add(new admin_setting_configtext(
-            'auth_saml2/restricted_groups',
-            get_string('restricted_groups', 'auth_saml2'),
-            get_string('restricted_groups_help', 'auth_saml2'),
-            'employee',
-            PARAM_TEXT));
-
-    // Allowed groups.
-    $settings->add(new admin_setting_configtext(
-            'auth_saml2/allowed_groups',
-            get_string('allowed_groups', 'auth_saml2'),
-            get_string('allowed_groups_help', 'auth_saml2'),
-            'student',
-            PARAM_TEXT));
-
-    // Priority of the allowed groups.
-    $settings->add(new admin_setting_configselect(
-        'auth_saml2/allowedgroupspriority',
-        get_string('allowedgroupspriority', 'auth_saml2'),
-        get_string('allowedgroupspriority_help', 'auth_saml2'),
-        0, $yesno));
+    // Group access rules.
+    $settings->add(new admin_setting_configtextarea(
+        'auth_saml2/grouprules',
+        get_string('grouprules', 'auth_saml2'),
+        get_string('grouprules_help', 'auth_saml2'),
+        '',
+        PARAM_TEXT));
 
     // Alternative Logout URL.
     $settings->add(new admin_setting_configtext(

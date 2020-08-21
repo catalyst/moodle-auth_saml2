@@ -196,16 +196,8 @@ class behat_auth_saml2 extends behat_base {
             ];
         }
 
-        if ($setting == 'Groups Attribute') {
-            $setting = 'groupattr';
-        }
-
-        if ($setting == 'Restricted Groups') {
-            $setting = 'restricted_groups';
-        }
-
-        if ($setting == 'Allowed Groups') {
-            $setting = 'allowed_groups';
+        if ($setting == 'Group rules') {
+            $setting = 'grouprules';
         }
 
         if ($setting == 'Account blocking response type') {

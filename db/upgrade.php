@@ -336,5 +336,39 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2020080300, 'auth', 'saml2');
     }
 
+    if ($oldversion < 2020082100) {
+        $groupattr = get_config('auth_saml2', 'groupattr');
+        $allowedgroups = get_config('auth_saml2', 'allowed_groups');
+        $restrictedgroups = get_config('auth_saml2', 'restricted_groups');
+
+        if (!empty($groupattr)) {
+            $config = '';
+            $allowconfig = '';
+            $denyconfig = '';
+
+            $deny  = preg_split("/[\s,]+/", $restrictedgroups, null, PREG_SPLIT_NO_EMPTY);
+            $allow = preg_split("/[\s,]+/", $allowedgroups, null, PREG_SPLIT_NO_EMPTY);
+
+            foreach ($allow as $group) {
+                $allowconfig .= "allow $groupattr=$group\n";
+            }
+
+            foreach ($deny as $group) {
+                $denyconfig .= "deny $groupattr=$group\n";
+            }
+
+            if (get_config('auth_saml2', 'allowedgroupspriority')) {
+                $config = $allowconfig . $denyconfig;
+            } else {
+                $config = $denyconfig . $allowconfig;
+            }
+
+            set_config('grouprules', $config, 'auth_saml2');
+        }
+
+        // Saml2 savepoint reached.
+        upgrade_plugin_savepoint(true, 2020082100, 'auth', 'saml2');
+    }
+
     return true;
 }

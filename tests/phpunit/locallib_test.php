@@ -598,41 +598,6 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
     }
 
     /**
-     * Test access allowed if configured, but group attribute is empty.
-     *
-     * @dataProvider is_access_allowed_data_provider
-     * @param $attributes
-     */
-    public function test_is_access_allowed_for_member_groupattr_empty($attributes) {
-        $this->resetAfterTest();
-
-        set_config('idpattr', 'uid', 'auth_saml2');
-        set_config('groupattr', '', 'auth_saml2');
-        set_config('restricted_groups', 'blocked', 'auth_saml2');
-        set_config('allowed_groups', 'allowed', 'auth_saml2');
-
-        $auth = get_auth_plugin('saml2');
-
-        // User don't have groups attribute.
-        $this->assertTrue($auth->is_access_allowed_for_member($attributes[0]));
-
-        // In blocked group.
-        $this->assertTrue($auth->is_access_allowed_for_member($attributes[1]));
-
-        // In allowed group.
-        $this->assertTrue($auth->is_access_allowed_for_member($attributes[2]));
-
-        // In both allowed first.
-        $this->assertTrue($auth->is_access_allowed_for_member($attributes[3]));
-
-        // In both blocked first.
-        $this->assertTrue($auth->is_access_allowed_for_member($attributes[4]));
-
-        // Groups exist, but empty.
-        $this->assertTrue($auth->is_access_allowed_for_member($attributes[5]));
-    }
-
-    /**
      * Test access allowed if configured, but restricted groups attribute is set to empty.
      *
      * @dataProvider is_access_allowed_data_provider
@@ -642,9 +607,7 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $this->resetAfterTest();
 
         set_config('idpattr', 'uid', 'auth_saml2');
-        set_config('groupattr', 'groups', 'auth_saml2');
-        set_config('restricted_groups', '', 'auth_saml2');
-        set_config('allowed_groups', 'allowed', 'auth_saml2');
+        set_config('grouprules', 'allow groups=allowed', 'auth_saml2');
 
         $auth = get_auth_plugin('saml2');
 
@@ -677,10 +640,7 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $this->resetAfterTest();
 
         set_config('idpattr', 'uid', 'auth_saml2');
-        set_config('groupattr', 'groups', 'auth_saml2');
-        set_config('restricted_groups', 'blocked', 'auth_saml2');
-        set_config('allowed_groups', '', 'auth_saml2');
-
+        set_config('grouprules', 'deny groups=blocked', 'auth_saml2');
         $auth = get_auth_plugin('saml2');
 
         // User don't have groups attribute.
@@ -712,9 +672,7 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $this->resetAfterTest();
 
         set_config('idpattr', 'uid', 'auth_saml2');
-        set_config('groupattr', 'groups', 'auth_saml2');
-        set_config('restricted_groups', 'blocked', 'auth_saml2');
-        set_config('allowed_groups', 'allowed', 'auth_saml2');
+        set_config('grouprules', "deny groups=blocked\nallow groups=allowed", 'auth_saml2');
 
         $auth = get_auth_plugin('saml2');
 
@@ -747,10 +705,7 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $this->resetAfterTest();
 
         set_config('idpattr', 'uid', 'auth_saml2');
-        set_config('groupattr', 'groups', 'auth_saml2');
-        set_config('restricted_groups', 'blocked', 'auth_saml2');
-        set_config('allowed_groups', 'allowed', 'auth_saml2');
-        set_config('allowedgroupspriority', 1, 'auth_saml2');
+        set_config('grouprules', "allow groups=allowed\ndeny groups=blocked", 'auth_saml2');
 
         $auth = get_auth_plugin('saml2');
 
