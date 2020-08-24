@@ -7,9 +7,7 @@ Feature: SAML2 flagged accounts login
   Scenario: If my account is blocked and I log in via SAML2 I should not have Moodle access
     Given the authentication plugin saml2 is enabled                                              # auth_saml2
     And the mock SAML IdP is configured                                                           # auth_saml2
-    And the saml2 setting "Groups Attribute" is set to "groups"                                   # auth_saml2
-    And the saml2 setting "Restricted Groups" is set to "block"                                   # auth_saml2
-    And the saml2 setting "Allowed Groups" is set to "allow"                                      # auth_saml2
+    And the saml2 setting "Group rules" is set to "deny groups=block"                             # auth_saml2
     And the saml2 setting "Account blocking response type" is set to "Display custom message"     # auth_saml2
     When I go to the login page                                                                   # auth_saml2
     And I follow "Login via SAML2"
@@ -22,9 +20,7 @@ Feature: SAML2 flagged accounts login
   Scenario: If my account is blocked and redirect page is set, on SAML2 login I should see the redirect page
     Given the authentication plugin saml2 is enabled                                              # auth_saml2
     And the mock SAML IdP is configured                                                           # auth_saml2
-    And the saml2 setting "Groups Attribute" is set to "groups"                                   # auth_saml2
-    And the saml2 setting "Restricted Groups" is set to "block"                                   # auth_saml2
-    And the saml2 setting "Allowed Groups" is set to "allow"                                      # auth_saml2
+    And the saml2 setting "Group rules" is set to "deny groups=block"                             # auth_saml2
     And the saml2 setting "Account blocking response type" is set to "Redirect to external URL"   # auth_saml2
     And the saml2 setting "Redirect URL" is set to "https://en.wikipedia.org"                     # auth_saml2
     When I go to the login page                                                                   # auth_saml2
@@ -38,9 +34,7 @@ Feature: SAML2 flagged accounts login
   Scenario: If my account is blocked and response message is set, on SAML2 login I should see the response message
     Given the authentication plugin saml2 is enabled                                              # auth_saml2
     And the mock SAML IdP is configured                                                           # auth_saml2
-    And the saml2 setting "Groups Attribute" is set to "groups"                                   # auth_saml2
-    And the saml2 setting "Restricted Groups" is set to "block"                                   # auth_saml2
-    And the saml2 setting "Allowed Groups" is set to "allow"                                      # auth_saml2
+    And the saml2 setting "Group rules" is set to "deny groups=block"                             # auth_saml2
     And the saml2 setting "Account blocking response type" is set to "Display custom message"     # auth_saml2
     And the saml2 setting "Response message" is set to "No access"                                # auth_saml2
     When I go to the login page                                                                   # auth_saml2
@@ -53,9 +47,7 @@ Feature: SAML2 flagged accounts login
   Scenario: If my account is blocked, but group restrictions is turned off, I should always be able to log in to Moodle
     Given the authentication plugin saml2 is enabled                                              # auth_saml2
     And the mock SAML IdP is configured                                                           # auth_saml2
-    And the saml2 setting "Groups Attribute" is set to ""                                         # auth_saml2
-    And the saml2 setting "Restricted Groups" is set to "block"                                   # auth_saml2
-    And the saml2 setting "Allowed Groups" is set to "allow"                                      # auth_saml2
+    And the saml2 setting "Group rules" is set to ""                                              # auth_saml2
     And the saml2 setting "Account blocking response type" is set to "Display custom message"     # auth_saml2
     When I go to the login page                                                                   # auth_saml2
     And I follow "Login via SAML2"
@@ -69,9 +61,7 @@ Feature: SAML2 flagged accounts login
   Scenario: If my account is not blocked, I should be able to log into Moodle
     Given the authentication plugin saml2 is enabled                                              # auth_saml2
     And the mock SAML IdP is configured                                                           # auth_saml2
-    And the saml2 setting "Groups Attribute" is set to "groups"                                   # auth_saml2
-    And the saml2 setting "Restricted Groups" is set to "block"                                   # auth_saml2
-    And the saml2 setting "Allowed Groups" is set to "allow"                                      # auth_saml2
+    And the saml2 setting "Group rules" is set to "allow groups=allow"                            # auth_saml2
     And the saml2 setting "Account blocking response type" is set to "Display custom message"     # auth_saml2
     And the saml2 setting "Response message" is set to "No access"                                # auth_saml2
     When I go to the login page                                                                   # auth_saml2
