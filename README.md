@@ -213,6 +213,15 @@ If there is any text before the http scheme then it will be used as the override
 It is not be recommended to use the 'IdP label override' configuration option with
 multiple IdPs.
 
+**Deep linking saml=on URL param**
+For most use cases, this parameter should work on all supported moodle versions. However, to make
+this paramater force a saml login redirect even when users are already logged in as a guest we
+use a moodle hook https://docs.moodle.org/dev/Login_callbacks#after_config that is only available
+in moodle >= 3.8.
+
+To make guest user redirecting work on moodle 3.7 and below, you will need to backport
+the changes from https://tracker.moodle.org/browse/MDL-66340.
+
 **OpenAM**
 
 If you are getting signature issues with OpenAM then you may need to manually
