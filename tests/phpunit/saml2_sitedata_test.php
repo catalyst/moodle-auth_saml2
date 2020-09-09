@@ -42,4 +42,28 @@ class auth_saml2_sitedata_test extends advanced_testcase {
 
         self::assertSame($expected, $actual);
     }
+    public function test_it_emits_an_event_when_saml_certificate_regenerated() {
+        global $CFG, $DB;
+        $this->resetAfterTest();
+        // To test event is emitted to logstore table.
+        $this->preventResetByRollback();
+        set_config('enabled_stores', 'logstore_standard', 'tool_log');
+        set_config('buffersize', 0, 'logstore_standard');
+
+        // The cert files don't exist now so including setup.php here will regenerate them.
+        require($CFG->dirroot . '/auth/saml2/setup.php');
+
+        // Get log records and check for presence of the cert_regenerated event.
+        $logmanger = get_log_manager();
+        $readers = $logmanger->get_readers('\core\log\reader');
+        $reader = reset($readers);
+        $eventarray = $reader->get_events_select("eventname = ?", ['\auth_saml2\event\cert_regenerated'], 'id ASC', 0, 0);
+        self::assertEquals(1, count($eventarray));
+
+        $event = reset($eventarray);
+        $eventdata = $event->get_data();
+        $expecteddata = ['reason' => "= Missing cert pem file! =\n= Missing cert crt file! = \nNow regenerating saml2 certificates..."];
+        self::assertEquals($expecteddata['reason'], $eventdata['other']['reason']);
+        self::assertEquals('\auth_saml2\event\cert_regenerated', $eventdata['eventname']);
+    }
 }

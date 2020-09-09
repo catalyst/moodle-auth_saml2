@@ -36,13 +36,16 @@ require_once("{$CFG->dirroot}/auth/saml2/auth.php");
  * @copyright  Brendan Heywood <brendan@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
- * @param stdObj  $saml2auth config object
+ * @param \auth_plugin_saml2  $saml2auth config object
  * @param array   $dn Certificate Distinguished name details
  * @param integer $numberofdays Certificate expirey period
  */
 function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
     global $SITE;
 
+    if (get_config('auth_saml2', 'certs_locked') == true) {
+        throw new saml2_exception('cert_lock_error', get_string('certificatelock_regenerate', 'auth_saml2'));
+    }
     $signaturealgorithm = ssl_algorithms::get_default_saml_signature_algorithm();
     if (!empty($saml2auth->config->signaturealgorithm)) {
         $signaturealgorithm = $saml2auth->config->signaturealgorithm;
