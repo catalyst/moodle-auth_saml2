@@ -38,10 +38,12 @@ if ($mform->is_cancelled()) {
 
 $path = $saml2auth->certcrt;
 $error = '';
+$success = false;
 
 if ($fromform = $mform->get_data()) {
     try {
         auth_saml2_process_regenerate_form($fromform);
+        $success = true;
     } catch (saml2_exception $exception) {
         $error = $exception->getMessage() . $exception->getTraceAsString();
     }
@@ -73,13 +75,17 @@ if ($fromform = $mform->get_data()) {
 }
 
 echo $OUTPUT->header();
-echo "<h1>Regenerate Private Key and Certificate</h1>";
-echo "<p>Path: $path</p>";
-echo "<h3>Warning: Generating a new certificate will overwrite the current one and you may need to update your IDP.</h3>";
 
-if ($error) {
-    echo $OUTPUT->notification($OUTPUT->error_text($error), 'notifyproblem');
+if ($success) {
+    echo $OUTPUT->notification(get_string('regeneratesuccess', 'auth_saml2'), \core\output\notification::NOTIFY_SUCCESS);
+} else if ($error) {
+    echo $OUTPUT->notification($error, \core\output\notification::NOTIFY_ERROR);
+} else {
+    echo $OUTPUT->notification(get_string('regeneratewarning', 'auth_saml2'), \core\output\notification::NOTIFY_WARNING);
 }
+
+echo html_writer::tag('h1', get_string('regenerateheader', 'auth_saml2'));
+echo html_writer::tag('p', get_string('regeneratepath', 'auth_saml2', $path));
 
 $mform->display(); // Displays the form.
 
