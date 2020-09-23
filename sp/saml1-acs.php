@@ -28,5 +28,5 @@ require('../setup.php');
 // First setup the PATH_INFO because that's how SSP rolls.
 $_SERVER['PATH_INFO'] = '/' . $saml2auth->spname;
 
-require($CFG->dirroot.'/auth/saml2/extlib/simplesamlphp/modules/saml/www/sp/saml1-acs.php');
+require($CFG->dirroot.'/auth/saml2/.extlib/simplesamlphp/modules/saml/www/sp/saml1-acs.php');
 

@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once('extlib/simplesamlphp/vendor/autoload.php');
+require_once('.extlib/simplesamlphp/vendor/autoload.php');
 
 spl_autoload_register(
     function($classname) {
@@ -39,7 +39,7 @@ spl_autoload_register(
                     continue;
                 }
             }
-            $subpath = __DIR__ . '/extlib/' . $subpath;
+            $subpath = __DIR__ . '/.extlib/' . $subpath;
             $filepath = $subpath . implode('/', $classpath) . '.php';
             if (file_exists($filepath)) {
                 require_once($filepath);

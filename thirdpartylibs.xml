@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <libraries>
   <library>
-    <location>extlib/simplesamlphp</location>
+    <location>.extlib/simplesamlphp</location>
     <name>SimpleSamlPHP</name>
     <version>1.17.7</version>
     <license>LGPL</license>
