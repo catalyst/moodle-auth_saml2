@@ -33,7 +33,7 @@ npm install
 npm run build
 ```
 ### Copy into auth_saml2
-Copy the updated simplesaml files into auth/saml/extlib/simplesaml.
+Copy the updated simplesaml files into auth/saml/.extlib/simplesaml.
 Exclude stuff like .gitignore, other hidden system files that shouldnt be needed - also exclude the composer.* files
 enter the simplesaml folder and run the following to fix file permission for Totara:
 ```bash
@@ -42,7 +42,7 @@ find . -type f -exec chmod 644 -- {} +
 Commit the changes directly into the repo.
 
 ### Cherry-pick previous changes.
-Look at the previous history on extlib/simplesaml and cherry-pick our custom changes.
+Look at the previous history on /.extlib/simplesaml and cherry-pick our custom changes.
 
 # Using a published release 
 Sometimes you might get away with using a published release with the following instructions.
@@ -50,7 +50,7 @@ Sometimes you might get away with using a published release with the following i
 Do not copy & paste blindly, this is the general idea only.
 
 ```bash
-cd auth/saml2/extlib
+cd auth/saml2/.extlib
 
 # We will delete stuff and compare later.
 # Ensure everything is commited into git.
