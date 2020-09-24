@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Hook to do sanitycheck
  *
  * @param array &$hookinfo  hookinfo
+ * @return void
  */
-
 function core_hook_sanitycheck(&$hookinfo)
 {
     assert(is_array($hookinfo));
@@ -25,10 +26,10 @@ function core_hook_sanitycheck(&$hookinfo)
         $hookinfo['info'][] = '[core] In config.php technicalcontact_email is set properly';
     }
 
-    if (version_compare(phpversion(), '5.5', '>=')) {
+    if (version_compare(phpversion(), '5.6', '>=')) {
         $hookinfo['info'][] = '[core] You are running a PHP version suitable for SimpleSAMLphp.';
     } else {
-        $hookinfo['errors'][] = '[core] You are running an old PHP installation. '.
+        $hookinfo['errors'][] = '[core] You are running an old PHP installation. ' .
             'Please check the requirements for your SimpleSAMLphp version and upgrade.';
     }
 
@@ -42,7 +43,7 @@ function core_hook_sanitycheck(&$hookinfo)
         if (isset($i['dependencies']) && is_array($i['dependencies'])) {
             foreach ($i['dependencies'] as $dep) {
                 if (!in_array($dep, $availmodules, true)) {
-                    $hookinfo['errors'][] = '[core] Module dependency not met: '.$mi.' requires '.$dep;
+                    $hookinfo['errors'][] = '[core] Module dependency not met: ' . $mi . ' requires ' . $dep;
                 }
             }
         }

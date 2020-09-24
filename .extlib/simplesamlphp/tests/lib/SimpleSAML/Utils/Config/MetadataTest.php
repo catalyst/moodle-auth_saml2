@@ -10,14 +10,15 @@ use SimpleSAML\Utils\Config\Metadata;
  */
 class MetadataTest extends TestCase
 {
-
     /**
      * Test contact configuration parsing and sanitizing.
+     * @return void
      */
     public function testGetContact()
     {
         // test invalid argument
         try {
+            /** @psalm-suppress InvalidArgument   May be removed in 2.0 when codebase is fully typehinted */
             Metadata::getContact('string');
         } catch (\InvalidArgumentException $e) {
             $this->assertEquals('Invalid input parameters', $e->getMessage());
@@ -227,6 +228,7 @@ class MetadataTest extends TestCase
 
     /**
      * Test \SimpleSAML\Utils\Config\Metadata::isHiddenFromDiscovery().
+     * @return void
      */
     public function testIsHiddenFromDiscovery()
     {
@@ -263,12 +265,16 @@ class MetadataTest extends TestCase
     
     /**
      * Test \SimpleSAML\Utils\Config\Metadata::parseNameIdPolicy().
+     * @return void
      */
     public function testParseNameIdPolicy()
     {
         // Test null or unset
         $nameIdPolicy = null;
-        $this->assertEquals(['Format' => \SAML2\Constants::NAMEID_TRANSIENT], Metadata::parseNameIdPolicy($nameIdPolicy));
+        $this->assertEquals(
+            ['Format' => \SAML2\Constants::NAMEID_TRANSIENT, 'AllowCreate' => true],
+            Metadata::parseNameIdPolicy($nameIdPolicy)
+        );
 
         // Test false
         $nameIdPolicy = false;
@@ -276,7 +282,10 @@ class MetadataTest extends TestCase
 
         // Test string
         $nameIdPolicy = 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress';
-        $this->assertEquals(['Format' => 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress'], Metadata::parseNameIdPolicy($nameIdPolicy));
+        $this->assertEquals(
+            ['Format' => 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress', 'AllowCreate' => true],
+            Metadata::parseNameIdPolicy($nameIdPolicy)
+        );
 
         // Test array
         $nameIdPolicy = [

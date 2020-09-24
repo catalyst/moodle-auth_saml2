@@ -9,11 +9,12 @@ Metadata
 
 The metadata for your SP will be available from the federation page on your SimpleSAMLphp installation.
 
-SimpleSAMLphp supports generating metadata with the MDUI and MDRPI metadata extensions.
-See the documentation for those extensions for more details:
+SimpleSAMLphp supports generating metadata with the MDUI and MDRPI metadata extensions
+and with entity attributes. See the documentation for those extensions for more details:
 
   * [MDUI extension](./simplesamlphp-metadata-extensions-ui)
   * [MDRPI extension](./simplesamlphp-metadata-extensions-rpi)
+  * [Attributes extension](./simplesamlphp-metadata-extensions-attributes)
 
 
 Parameters
@@ -120,6 +121,11 @@ Options
 
 :   *Note*: SAML 2 specific.
 
+`AssertionConsumerService`
+:   List of Assertion Consumer Services in the generated metadata. Specified in the array of
+    arrays format as seen in the [Metadata endpoints](./simplesamlphp-metadata-endpoints)
+    documentation.
+
 `attributes`
 :   List of attributes this SP requests from the IdP.
     This list will be added to the generated metadata.
@@ -212,9 +218,9 @@ Options
      When set to `TRUE`, no scoping elements will be sent. This does not comply with the SAML2 specification, but allows
      interoperability with ADFS which [does not support Scoping elements](https://docs.microsoft.com/en-za/azure/active-directory/develop/active-directory-single-sign-on-protocol-reference#scoping).
 
-:   Note that this option also exists in the IdP remote configuration. An
-    entry in the the IdP-remote metadata overrides this the option in the
-    SP configuration.
+:   Note that this option also exists in the IdP remote configuration. An entry
+    in the IdP-remote metadata overrides this the option in the SP
+    configuration.
 
 `discoURL`
 :   Set which IdP discovery service this SP should use.
@@ -409,6 +415,9 @@ Options
     * `urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect`
     * `urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST`
 	* `urn:oasis:names:tc:SAML:2.0:bindings:SOAP`
+
+`SingleLogoutServiceLocation`
+:   The Single Logout Service URL published in the generated metadata.
 
 `url`
 :   A URL to your service provider. Will be added as an OrganizationURL-element in the metadata.

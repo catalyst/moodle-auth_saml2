@@ -2,11 +2,15 @@
 
 namespace SimpleSAML;
 
+use SimpleSAML\HTTP\Router;
+use SimpleSAML\Utils;
+use Symfony\Component\Config\Exception\FileLocatorFileNotFoundException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Helper class for accessing information about modules.
@@ -18,7 +22,6 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
  */
 class Module
 {
-
     /**
      * Index pages: file names to attempt when accessing directories.
      *
@@ -82,8 +85,8 @@ class Module
      */
     public static function getModuleDir($module)
     {
-        $baseDir = dirname(dirname(dirname(__FILE__))).'/modules';
-        $moduleDir = $baseDir.'/'.$module;
+        $baseDir = dirname(dirname(dirname(__FILE__))) . '/modules';
+        $moduleDir = $baseDir . '/' . $module;
 
         return $moduleDir;
     }
@@ -126,11 +129,11 @@ class Module
             $request = Request::createFromGlobals();
         }
 
-        if ($request->getPathInfo() === '/') {
+        if ($request->server->get('PATH_INFO') === '/') {
             throw new Error\NotFound('No PATH_INFO to module.php');
         }
 
-        $url = $request->getPathInfo();
+        $url = $request->server->get('PATH_INFO');
         assert(substr($url, 0, 1) === '/');
 
         /* clear the PATH_INFO option, so that a script can detect whether it is called with anything following the
@@ -151,7 +154,7 @@ class Module
         }
 
         if (!self::isModuleEnabled($module)) {
-            throw new Error\NotFound('The module \''.$module.'\' was either not found, or wasn\'t enabled.');
+            throw new Error\NotFound('The module \'' . $module . '\' was either not found, or wasn\'t enabled.');
         }
 
         /* Make sure that the request isn't suspicious (contains references to current directory or parent directory or
@@ -165,18 +168,39 @@ class Module
         }
 
         $config = Configuration::getInstance();
+
+        // rebuild REQUEST_URI and SCRIPT_NAME just in case we need to. This is needed for server aliases and rewrites
+        $translated_uri = $config->getBasePath() . 'module.php/' . $module . '/' . $url;
+        $request->server->set('REQUEST_URI', $translated_uri);
+        $request->server->set('SCRIPT_NAME', $config->getBasePath() . 'module.php');
+        $request_files = array_filter(
+            $request->files->all(),
+            function ($val) {
+                return !is_null($val);
+            }
+        );
+        $request->initialize(
+            $request->query->all(),
+            $request->request->all(),
+            $request->attributes->all(),
+            $request->cookies->all(),
+            $request_files,
+            $request->server->all(),
+            $request->getContent()
+        );
+
         if ($config->getBoolean('usenewui', false) === true) {
-            $router = new HTTP\Router($module);
+            $router = new Router($module);
             try {
-                return $router->process();
-            } catch (\Symfony\Component\Config\Exception\FileLocatorFileNotFoundException $e) {
+                return $router->process($request);
+            } catch (FileLocatorFileNotFoundException $e) {
                 // no routes configured for this module, fall back to the old system
-            } catch (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e) {
+            } catch (NotFoundHttpException $e) {
                 // this module has been migrated, but the route wasn't found
             }
         }
 
-        $moduleDir = self::getModuleDir($module).'/www/';
+        $moduleDir = self::getModuleDir($module) . '/www/';
 
         // check for '.php/' in the path, the presence of which indicates that another php-script should handle the
         // request
@@ -184,7 +208,7 @@ class Module
             $newURL = substr($url, 0, $phpPos + 4);
             $param = substr($url, $phpPos + 4);
 
-            if (is_file($moduleDir.$newURL)) {
+            if (is_file($moduleDir . $newURL)) {
                 /* $newPath points to a normal file. Point execution to that file, and save the remainder of the path
                  * in PATH_INFO.
                  */
@@ -195,12 +219,12 @@ class Module
             }
         }
 
-        $path = $moduleDir.$url;
+        $path = $moduleDir . $url;
 
         if ($path[strlen($path) - 1] === '/') {
             // path ends with a slash - directory reference. Attempt to find index file in directory
             foreach (self::$indexFiles as $if) {
-                if (file_exists($path.$if)) {
+                if (file_exists($path . $if)) {
                     $path .= $if;
                     break;
                 }
@@ -216,11 +240,11 @@ class Module
 
         if (!file_exists($path)) {
             // file not found
-            Logger::info('Could not find file \''.$path.'\'.');
+            Logger::info('Could not find file \'' . $path . '\'.');
             throw new Error\NotFound('The URL wasn\'t found in the module.');
         }
 
-        if (substr($path, -4) === '.php') {
+        if (mb_strtolower(substr($path, -4), 'UTF-8') === '.php') {
             // PHP file - attempt to run it
 
             /* In some environments, $_SERVER['SCRIPT_NAME'] is already set with $_SERVER['PATH_INFO']. Check for that
@@ -230,7 +254,7 @@ class Module
              */
             $script = "/$module/$url";
             if (strpos($request->getScriptName(), $script) === false) {
-                $request->server->set('SCRIPT_NAME', $request->getScriptName().'/'.$module.'/'.$url);
+                $request->server->set('SCRIPT_NAME', $request->getScriptName() . '/' . $module . '/' . $url);
             }
 
             require($path);
@@ -256,23 +280,37 @@ class Module
                 $contentType = mime_content_type($path);
             } else {
                 // mime_content_type doesn't exist. Return a default MIME type
-                Logger::warning('Unable to determine mime content type of file: '.$path);
+                Logger::warning('Unable to determine mime content type of file: ' . $path);
                 $contentType = 'application/octet-stream';
             }
         }
 
+        $assetConfig = $config->getConfigItem('assets');
+        $cacheConfig = $assetConfig->getConfigItem('caching');
         $response = new BinaryFileResponse($path);
-        $response->setCache(['public' => true, 'max_age' => 86400]);
-        $response->setExpires(new \DateTime(gmdate('D, j M Y H:i:s \G\M\T', time() + 10 * 60)));
-        $response->setLastModified(new \DateTime(gmdate('D, j M Y H:i:s \G\M\T', filemtime($path))));
+        $response->setCache([
+            // "public" allows response caching even if the request was authenticated,
+            // which is exactly what we want for static resources
+            'public' => true,
+            'max_age' => (string)$cacheConfig->getInteger('max_age', 86400)
+        ]);
+        $response->setAutoLastModified();
+        if ($cacheConfig->getBoolean('etag', false)) {
+            $response->setAutoEtag();
+        }
+        $response->isNotModified($request);
         $response->headers->set('Content-Type', $contentType);
-        $response->headers->set('Content-Length', sprintf('%u', filesize($path))); // force file size to an unsigned
         $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_INLINE);
         $response->prepare($request);
         return $response;
     }
 
 
+    /**
+     * @param string $module
+     * @param array $mod_config
+     * @return bool
+     */
     private static function isModuleEnabledWithConf($module, $mod_config)
     {
         if (isset(self::$module_info[$module]['enabled'])) {
@@ -299,19 +337,20 @@ class Module
             throw new \Exception("Invalid module.enable value for the '$module' module.");
         }
 
-        if (assert_options(ASSERT_ACTIVE) &&
-            !file_exists($moduleDir.'/default-enable') &&
-            !file_exists($moduleDir.'/default-disable')
+        if (
+            assert_options(ASSERT_ACTIVE)
+            && !file_exists($moduleDir . '/default-enable')
+            && !file_exists($moduleDir . '/default-disable')
         ) {
-            \SimpleSAML\Logger::error("Missing default-enable or default-disable file for the module $module");
+            Logger::error("Missing default-enable or default-disable file for the module $module");
         }
 
-        if (file_exists($moduleDir.'/enable')) {
+        if (file_exists($moduleDir . '/enable')) {
             self::$module_info[$module]['enabled'] = true;
             return true;
         }
 
-        if (!file_exists($moduleDir.'/disable') && file_exists($moduleDir.'/default-enable')) {
+        if (!file_exists($moduleDir . '/disable') && file_exists($moduleDir . '/default-enable')) {
             self::$module_info[$module]['enabled'] = true;
             return true;
         }
@@ -338,7 +377,7 @@ class Module
 
         $dh = scandir($path);
         if ($dh === false) {
-            throw new \Exception('Unable to open module directory "'.$path.'".');
+            throw new \Exception('Unable to open module directory "' . $path . '".');
         }
 
         foreach ($dh as $f) {
@@ -346,7 +385,7 @@ class Module
                 continue;
             }
 
-            if (!is_dir($path.'/'.$f)) {
+            if (!is_dir($path . '/' . $f)) {
                 continue;
             }
 
@@ -392,13 +431,13 @@ class Module
         } else {
             // should be a module
             // make sure empty types are handled correctly
-            $type = (empty($type)) ? '\\' : '\\'.$type.'\\';
+            $type = (empty($type)) ? '\\' : '\\' . $type . '\\';
 
-            $className = 'SimpleSAML\\Module\\'.$tmp[0].$type.$tmp[1];
+            $className = 'SimpleSAML\\Module\\' . $tmp[0] . $type . $tmp[1];
             if (!class_exists($className)) {
                 // check for the old-style class names
                 $type = str_replace('\\', '_', $type);
-                $oldClassName = 'sspmod_'.$tmp[0].$type.$tmp[1];
+                $oldClassName = 'sspmod_' . $tmp[0] . $type . $tmp[1];
 
                 if (!class_exists($oldClassName)) {
                     throw new \Exception("Could not resolve '$id': no class named '$className' or '$oldClassName'.");
@@ -409,7 +448,8 @@ class Module
 
         if ($subclass !== null && !is_subclass_of($className, $subclass)) {
             throw new \Exception(
-                'Could not resolve \''.$id.'\': The class \''.$className.'\' isn\'t a subclass of \''.$subclass.'\'.'
+                'Could not resolve \'' . $id . '\': The class \'' . $className
+                . '\' isn\'t a subclass of \'' . $subclass . '\'.'
             );
         }
 
@@ -432,7 +472,7 @@ class Module
         assert(is_string($resource));
         assert($resource[0] !== '/');
 
-        $url = Utils\HTTP::getBaseURL().'module.php/'.$resource;
+        $url = Utils\HTTP::getBaseURL() . 'module.php/' . $resource;
         if (!empty($parameters)) {
             $url = Utils\HTTP::addURLParameters($url, $parameters);
         }
@@ -455,7 +495,7 @@ class Module
             return self::$modules[$module]['hooks'];
         }
 
-        $hook_dir = self::getModuleDir($module).'/hooks';
+        $hook_dir = self::getModuleDir($module) . '/hooks';
         if (!is_dir($hook_dir)) {
             return [];
         }
@@ -471,8 +511,8 @@ class Module
                 continue;
             }
             $hook_name = $matches[1];
-            $hook_func = $module.'_hook_'.$hook_name;
-            $hooks[$hook_name] = ['file' => $hook_dir.'/'.$file, 'func' => $hook_func];
+            $hook_func = $module . '_hook_' . $hook_name;
+            $hooks[$hook_name] = ['file' => $hook_dir . '/' . $file, 'func' => $hook_func];
         }
         return $hooks;
     }
@@ -485,6 +525,7 @@ class Module
      *
      * @param string $hook The name of the hook.
      * @param mixed  &$data The data which should be passed to each hook. Will be passed as a reference.
+     * @return void
      *
      * @throws \SimpleSAML\Error\Exception If an invalid hook is found in a module.
      */
@@ -511,7 +552,7 @@ class Module
             require_once(self::$module_info[$module]['hooks'][$hook]['file']);
 
             if (!is_callable(self::$module_info[$module]['hooks'][$hook]['func'])) {
-                throw new \SimpleSAML\Error\Exception('Invalid hook \''.$hook.'\' for module \''.$module.'\'.');
+                throw new Error\Exception('Invalid hook \'' . $hook . '\' for module \'' . $module . '\'.');
             }
 
             $fn = self::$module_info[$module]['hooks'][$hook]['func'];
@@ -531,7 +572,7 @@ class Module
      */
     public static function removeTrailingSlash(Request $request)
     {
-        $pathInfo = $request->getPathInfo();
+        $pathInfo = $request->server->get('PATH_INFO');
         $url = str_replace($pathInfo, rtrim($pathInfo, ' /'), $request->getRequestUri());
         return new RedirectResponse($url, 308);
     }

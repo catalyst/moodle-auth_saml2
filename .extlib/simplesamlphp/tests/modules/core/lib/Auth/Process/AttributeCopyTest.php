@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
  */
 class AttributeCopyTest extends TestCase
 {
-
     /**
      * Helper function to run the filter with a given configuration.
      *
@@ -24,8 +23,10 @@ class AttributeCopyTest extends TestCase
         return $request;
     }
 
+
     /**
      * Test the most basic functionality.
+     * @return void
      */
     public function testBasic()
     {
@@ -42,8 +43,10 @@ class AttributeCopyTest extends TestCase
         $this->assertEquals($attributes['testnew'], ['AAP']);
     }
 
+
     /**
      * Test the most basic functionality.
+     * @return void
      */
     public function testArray()
     {
@@ -62,8 +65,10 @@ class AttributeCopyTest extends TestCase
         $this->assertEquals($attributes['new2'], ['AAP']);
     }
 
+
     /**
      * Test that existing attributes are left unmodified.
+     * @return void
      */
     public function testExistingNotModified()
     {
@@ -87,8 +92,10 @@ class AttributeCopyTest extends TestCase
         $this->assertEquals($attributes['original2'], ['original_value2']);
     }
 
+
     /**
      * Test copying multiple attributes
+     * @return void
      */
     public function testCopyMultiple()
     {
@@ -107,8 +114,10 @@ class AttributeCopyTest extends TestCase
         $this->assertEquals($attributes['new2'], ['val2.1', 'val2.2']);
     }
 
+
     /**
      * Test behaviour when target attribute exists (should be replaced).
+     * @return void
      */
     public function testCopyClash()
     {
@@ -126,13 +135,14 @@ class AttributeCopyTest extends TestCase
         $this->assertEquals($attributes['new1'], ['testvalue1']);
     }
 
+
     /**
      * Test wrong attribute name
-     *
-     * @expectedException Exception
+     * @return void
      */
     public function testWrongAttributeName()
     {
+        $this->expectException(\Exception::class);
         $config = [
             ['value2'],
         ];
@@ -144,13 +154,14 @@ class AttributeCopyTest extends TestCase
         self::processFilter($config, $request);
     }
 
+
     /**
      * Test wrong attribute value
-     *
-     * @expectedException Exception
+     * @return void
      */
     public function testWrongAttributeValue()
     {
+        $this->expectException(\Exception::class);
         $config = [
             'test' => 100,
         ];

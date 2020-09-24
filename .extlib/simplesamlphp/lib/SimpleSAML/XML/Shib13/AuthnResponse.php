@@ -5,23 +5,25 @@
  *
  * @author Andreas Åkre Solberg, UNINETT AS. <andreas.solberg@uninett.no>
  * @package SimpleSAMLphp
+ * @deprecated This class will be removed in a future release
  */
 
 namespace SimpleSAML\XML\Shib13;
 
 use DOMDocument;
 use DOMNode;
+use DOMXpath;
 use SAML2\DOMDocumentFactory;
-use SAML2\Utils;
-use SimpleSAML\Utils\Config;
-use SimpleSAML\Utils\Random;
-use SimpleSAML\Utils\Time;
+use SimpleSAML\Configuration;
+use SimpleSAML\Error;
+use SimpleSAML\Metadata\MetaDataStorageHandler;
+use SimpleSAML\Utils;
 use SimpleSAML\XML\Validator;
 
 class AuthnResponse
 {
     /**
-     * @var \SimpleSAML\XML\Validator This variable contains an XML validator for this message.
+     * @var \SimpleSAML\XML\Validator|null This variable contains an XML validator for this message.
      */
     private $validator = null;
 
@@ -32,14 +34,18 @@ class AuthnResponse
     private $messageValidated = false;
 
 
+    /** @var string */
     const SHIB_PROTOCOL_NS = 'urn:oasis:names:tc:SAML:1.0:protocol';
+
+
+    /** @var string */
     const SHIB_ASSERT_NS = 'urn:oasis:names:tc:SAML:1.0:assertion';
 
 
     /**
-     * @var \DOMDocument The DOMDocument which represents this message.
+     * @var \DOMDocument|null The DOMDocument which represents this message.
      */
-    private $dom;
+    private $dom = null;
 
     /**
      * @var string|null The relaystate which is associated with this response.
@@ -51,6 +57,7 @@ class AuthnResponse
      * Set whether this message was validated externally.
      *
      * @param bool $messageValidated  TRUE if the message is already validated, FALSE if not.
+     * @return void
      */
     public function setMessageValidated($messageValidated)
     {
@@ -60,6 +67,11 @@ class AuthnResponse
     }
 
 
+    /**
+     * @param string $xml
+     * @throws \Exception
+     * @return void
+     */
     public function setXML($xml)
     {
         assert(is_string($xml));
@@ -71,16 +83,30 @@ class AuthnResponse
         }
     }
 
+
+    /**
+     * @param string|null $relayState
+     * @return void
+     */
     public function setRelayState($relayState)
     {
         $this->relayState = $relayState;
     }
 
+
+    /**
+     * @return string|null
+     */
     public function getRelayState()
     {
         return $this->relayState;
     }
 
+
+    /**
+     * @throws \SimpleSAML\Error\Exception
+     * @return bool
+     */
     public function validate()
     {
         assert($this->dom instanceof DOMDocument);
@@ -97,7 +123,7 @@ class AuthnResponse
         $issuer = $this->getIssuer();
 
         // Get the metadata of the issuer
-        $metadata = \SimpleSAML\Metadata\MetaDataStorageHandler::getMetadataHandler();
+        $metadata = MetaDataStorageHandler::getMetadataHandler();
         $md = $metadata->getMetaDataConfig($issuer, 'shib13-idp-remote');
 
         $publicKeys = $md->getPublicKeys('signing');
@@ -117,10 +143,10 @@ class AuthnResponse
             $this->validator->validateFingerprint($certFingerprints);
         } elseif ($md->hasValue('caFile')) {
             // Validate against CA
-            $this->validator->validateCA(Config::getCertPath($md->getString('caFile')));
+            $this->validator->validateCA(Utils\Config::getCertPath($md->getString('caFile')));
         } else {
-            throw new \SimpleSAML\Error\Exception(
-                'Missing certificate in Shibboleth 1.3 IdP Remote metadata for identity provider ['.$issuer.'].'
+            throw new Error\Exception(
+                'Missing certificate in Shibboleth 1.3 IdP Remote metadata for identity provider [' . $issuer . '].'
             );
         }
 
@@ -131,7 +157,7 @@ class AuthnResponse
     /**
      * Checks if the given node is validated by the signature on this response.
      *
-     * @param \DOMElement $node Node to be validated.
+     * @param \DOMElement|\SimpleXMLElement $node Node to be validated.
      * @return bool TRUE if the node is validated or FALSE if not.
      */
     private function isNodeValidated($node)
@@ -150,7 +176,7 @@ class AuthnResponse
             $node = dom_import_simplexml($node);
         }
 
-        assert($node instanceof \DOMNode);
+        assert($node instanceof DOMNode);
 
         return $this->validator->isNodeValidated($node);
     }
@@ -167,20 +193,21 @@ class AuthnResponse
     private function doXPathQuery($query, $node = null)
     {
         assert(is_string($query));
-        assert($this->dom instanceof \DOMDocument);
+        assert($this->dom instanceof DOMDocument);
 
         if ($node === null) {
             $node = $this->dom->documentElement;
         }
 
-        assert($node instanceof \DOMNode);
+        assert($node instanceof DOMNode);
 
-        $xPath = new \DOMXpath($this->dom);
+        $xPath = new DOMXpath($this->dom);
         $xPath->registerNamespace('shibp', self::SHIB_PROTOCOL_NS);
         $xPath->registerNamespace('shib', self::SHIB_ASSERT_NS);
 
         return $xPath->query($query, $node);
     }
+
 
     /**
      * Retrieve the session index of this response.
@@ -201,13 +228,17 @@ class AuthnResponse
     }
 
     
+    /**
+     * @throws \Exception
+     * @return array
+     */
     public function getAttributes()
     {
-        $metadata = \SimpleSAML\Metadata\MetaDataStorageHandler::getMetadataHandler();
+        $metadata = MetaDataStorageHandler::getMetadataHandler();
         $md = $metadata->getMetaData($this->getIssuer(), 'shib13-idp-remote');
         $base64 = isset($md['base64attributes']) ? $md['base64attributes'] : false;
 
-        if (!($this->dom instanceof \DOMDocument)) {
+        if (!($this->dom instanceof DOMDocument)) {
             return [];
         }
 
@@ -229,7 +260,7 @@ class AuthnResponse
 
                 if ($start && $end) {
                     if (!self::checkDateConditions($start, $end)) {
-                        error_log('Date check failed ... (from '.$start.' to '.$end.')');
+                        error_log('Date check failed ... (from ' . $start . ' to ' . $end . ')');
                         continue;
                     }
                 }
@@ -239,18 +270,22 @@ class AuthnResponse
                 'shib:AttributeStatement/shib:Attribute/shib:AttributeValue',
                 $assertion
             );
-            /** @var \DOMElement $attribute */
+
             foreach ($attribute_nodes as $attribute) {
+                /** @var \DOMElement $attribute */
+
                 $value = $attribute->textContent;
-                $name = $attribute->parentNode->getAttribute('AttributeName');
+                /** @var \DOMElement $parentNode */
+                $parentNode = $attribute->parentNode;
+                $name = $parentNode->getAttribute('AttributeName');
 
                 if ($attribute->hasAttribute('Scope')) {
-                    $scopePart = '@'.$attribute->getAttribute('Scope');
+                    $scopePart = '@' . $attribute->getAttribute('Scope');
                 } else {
                     $scopePart = '';
                 }
 
-                if (!is_string($name)) {
+                if (empty($name)) {
                     throw new \Exception('Shib13 Attribute node without an AttributeName.');
                 }
 
@@ -261,10 +296,10 @@ class AuthnResponse
                 if ($base64) {
                     $encodedvalues = explode('_', $value);
                     foreach ($encodedvalues as $v) {
-                        $attributes[$name][] = base64_decode($v).$scopePart;
+                        $attributes[$name][] = base64_decode($v) . $scopePart;
                     }
                 } else {
-                    $attributes[$name][] = $value.$scopePart;
+                    $attributes[$name][] = $value . $scopePart;
                 }
             }
         }
@@ -273,6 +308,10 @@ class AuthnResponse
     }
 
     
+    /**
+     * @throws \Exception
+     * @return string
+     */
     public function getIssuer()
     {
         $query = '/shibp:Response/shib:Assertion/@Issuer';
@@ -285,6 +324,10 @@ class AuthnResponse
         }
     }
 
+
+    /**
+     * @return array
+     */
     public function getNameID()
     {
         $nameID = [];
@@ -310,7 +353,7 @@ class AuthnResponse
      * @param array|null $attributes The attributes which should be included in the response.
      * @return string The response.
      */
-    public function generate(\SimpleSAML\Configuration $idp, \SimpleSAML\Configuration $sp, $shire, $attributes)
+    public function generate(Configuration $idp, Configuration $sp, $shire, $attributes)
     {
         assert(is_string($shire));
         assert($attributes === null || is_array($attributes));
@@ -323,16 +366,16 @@ class AuthnResponse
             $scopedAttributes = [];
         }
 
-        $id = Random::generateID();
+        $id = Utils\Random::generateID();
         
-        $issueInstant = Time::generateTimestamp();
+        $issueInstant = Utils\Time::generateTimestamp();
         
         // 30 seconds timeskew back in time to allow differing clocks
-        $notBefore = Time::generateTimestamp(time() - 30);
+        $notBefore = Utils\Time::generateTimestamp(time() - 30);
         
         
-        $assertionExpire = Time::generateTimestamp(time() + 300); // 5 minutes
-        $assertionid = Random::generateID();
+        $assertionExpire = Utils\Time::generateTimestamp(time() + 300); // 5 minutes
+        $assertionid = Utils\Random::generateID();
 
         $spEntityId = $sp->getString('entityid');
 
@@ -340,20 +383,20 @@ class AuthnResponse
         $base64 = $sp->getBoolean('base64attributes', false);
 
         $namequalifier = $sp->getString('NameQualifier', $spEntityId);
-        $nameid = Random::generateID();
+        $nameid = Utils\Random::generateID();
         $subjectNode =
-            '<Subject>'.
-            '<NameIdentifier'.
-            ' Format="urn:mace:shibboleth:1.0:nameIdentifier"'.
-            ' NameQualifier="'.htmlspecialchars($namequalifier).'"'.
-            '>'.
-            htmlspecialchars($nameid).
-            '</NameIdentifier>'.
-            '<SubjectConfirmation>'.
-            '<ConfirmationMethod>'.
-            'urn:oasis:names:tc:SAML:1.0:cm:bearer'.
-            '</ConfirmationMethod>'.
-            '</SubjectConfirmation>'.
+            '<Subject>' .
+            '<NameIdentifier' .
+            ' Format="urn:mace:shibboleth:1.0:nameIdentifier"' .
+            ' NameQualifier="' . htmlspecialchars($namequalifier) . '"' .
+            '>' .
+            htmlspecialchars($nameid) .
+            '</NameIdentifier>' .
+            '<SubjectConfirmation>' .
+            '<ConfirmationMethod>' .
+            'urn:oasis:names:tc:SAML:1.0:cm:bearer' .
+            '</ConfirmationMethod>' .
+            '</SubjectConfirmation>' .
             '</Subject>';
 
         $encodedattributes = '';
@@ -375,25 +418,25 @@ class AuthnResponse
         $response = '<Response xmlns="urn:oasis:names:tc:SAML:1.0:protocol"
     xmlns:saml="urn:oasis:names:tc:SAML:1.0:assertion"
     xmlns:samlp="urn:oasis:names:tc:SAML:1.0:protocol" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" IssueInstant="'.$issueInstant.'"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" IssueInstant="' . $issueInstant . '"
     MajorVersion="1" MinorVersion="1"
-    Recipient="'.htmlspecialchars($shire).'" ResponseID="'.$id.'">
+    Recipient="' . htmlspecialchars($shire) . '" ResponseID="' . $id . '">
     <Status>
         <StatusCode Value="samlp:Success" />
     </Status>
     <Assertion xmlns="urn:oasis:names:tc:SAML:1.0:assertion"
-        AssertionID="'.$assertionid.'" IssueInstant="'.$issueInstant.'"
-        Issuer="'.htmlspecialchars($idp->getString('entityid')).'" MajorVersion="1" MinorVersion="1">
-        <Conditions NotBefore="'.$notBefore.'" NotOnOrAfter="'.$assertionExpire.'">
+        AssertionID="' . $assertionid . '" IssueInstant="' . $issueInstant . '"
+        Issuer="' . htmlspecialchars($idp->getString('entityid')) . '" MajorVersion="1" MinorVersion="1">
+        <Conditions NotBefore="' . $notBefore . '" NotOnOrAfter="' . $assertionExpire . '">
             <AudienceRestrictionCondition>
-                <Audience>'.htmlspecialchars($audience).'</Audience>
+                <Audience>' . htmlspecialchars($audience) . '</Audience>
             </AudienceRestrictionCondition>
         </Conditions>
-        <AuthenticationStatement AuthenticationInstant="'.$issueInstant.'"
-            AuthenticationMethod="urn:oasis:names:tc:SAML:1.0:am:unspecified">'.
-            $subjectNode.'
+        <AuthenticationStatement AuthenticationInstant="' . $issueInstant . '"
+            AuthenticationMethod="urn:oasis:names:tc:SAML:1.0:am:unspecified">' .
+            $subjectNode . '
         </AuthenticationStatement>
-        '.$encodedattributes.'
+        ' . $encodedattributes . '
     </Assertion>
 </Response>';
 
@@ -423,7 +466,7 @@ class AuthnResponse
             $scoped = false;
         }
 
-        $attr = '<Attribute AttributeName="'.htmlspecialchars($name).
+        $attr = '<Attribute AttributeName="' . htmlspecialchars($name) .
             '" AttributeNamespace="urn:mace:shibboleth:1.0:attributeNamespace:uri">';
         foreach ($values as $value) {
             $scopePart = '';
@@ -431,7 +474,7 @@ class AuthnResponse
                 $tmp = explode('@', $value, 2);
                 if (count($tmp) === 2) {
                     $value = $tmp[0];
-                    $scopePart = ' Scope="'.htmlspecialchars($tmp[1]).'"';
+                    $scopePart = ' Scope="' . htmlspecialchars($tmp[1]) . '"';
                 }
             }
 
@@ -439,7 +482,7 @@ class AuthnResponse
                 $value = base64_encode($value);
             }
 
-            $attr .= '<AttributeValue'.$scopePart.'>'.htmlspecialchars($value).'</AttributeValue>';
+            $attr .= '<AttributeValue' . $scopePart . '>' . htmlspecialchars($value) . '</AttributeValue>';
         }
         $attr .= '</Attribute>';
 
@@ -468,14 +511,14 @@ class AuthnResponse
         $currentTime = time();
 
         if (!empty($start)) {
-            $startTime = Utils::xsDateTimeToTimestamp($start);
+            $startTime = \SAML2\Utils::xsDateTimeToTimestamp($start);
             // allow for a 10 minute difference in time
             if (($startTime < 0) || (($startTime - 600) > $currentTime)) {
                 return false;
             }
         }
         if (!empty($end)) {
-            $endTime = Utils::xsDateTimeToTimestamp($end);
+            $endTime = \SAML2\Utils::xsDateTimeToTimestamp($end);
             if (($endTime < 0) || ($endTime <= $currentTime)) {
                 return false;
             }

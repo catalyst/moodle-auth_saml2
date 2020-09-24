@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
  */
 class AttributeAddTest extends TestCase
 {
-
     /**
      * Helper function to run the filter with a given configuration.
      *
@@ -24,8 +23,10 @@ class AttributeAddTest extends TestCase
         return $request;
     }
 
+
     /**
      * Test the most basic functionality.
+     * @return void
      */
     public function testBasic()
     {
@@ -41,8 +42,10 @@ class AttributeAddTest extends TestCase
         $this->assertEquals($attributes['test'], ['value1', 'value2']);
     }
 
+
     /**
      * Test that existing attributes are left unmodified.
+     * @return void
      */
     public function testExistingNotModified()
     {
@@ -65,8 +68,10 @@ class AttributeAddTest extends TestCase
         $this->assertEquals($attributes['original2'], ['original_value2']);
     }
 
+
     /**
      * Test single string as attribute value.
+     * @return void
      */
     public function testStringValue()
     {
@@ -82,8 +87,10 @@ class AttributeAddTest extends TestCase
         $this->assertEquals($attributes['test'], ['value']);
     }
 
+
     /**
      * Test adding multiple attributes in one config.
+     * @return void
      */
     public function testAddMultiple()
     {
@@ -102,8 +109,10 @@ class AttributeAddTest extends TestCase
         $this->assertEquals($attributes['test2'], ['value2']);
     }
 
+
     /**
      * Test behavior when appending attribute values.
+     * @return void
      */
     public function testAppend()
     {
@@ -120,8 +129,10 @@ class AttributeAddTest extends TestCase
         $this->assertEquals($attributes['test'], ['value1', 'value2']);
     }
 
+
     /**
      * Test replacing attribute values.
+     * @return void
      */
     public function testReplace()
     {
@@ -139,13 +150,14 @@ class AttributeAddTest extends TestCase
         $this->assertEquals($attributes['test'], ['value2']);
     }
 
+
     /**
      * Test wrong usage generates exceptions
-     *
-     * @expectedException Exception
+     * @return void
      */
     public function testWrongFlag()
     {
+        $this->expectException(\Exception::class);
         $config = [
             '%nonsense',
             'test' => ['value2'],
@@ -158,13 +170,14 @@ class AttributeAddTest extends TestCase
         self::processFilter($config, $request);
     }
 
+
     /**
      * Test wrong attribute value
-     *
-     * @expectedException Exception
+     * @return void
      */
     public function testWrongAttributeValue()
     {
+        $this->expectException(\Exception::class);
         $config = [
             '%replace',
             'test' => [true],

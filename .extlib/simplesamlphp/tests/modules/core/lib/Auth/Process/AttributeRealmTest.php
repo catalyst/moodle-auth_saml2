@@ -6,10 +6,10 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Test for the core:AttributeRealm filter.
+ * @deprecated Remove in 2.0
  */
 class AttributeRealmTest extends TestCase
 {
-
     /**
      * Helper function to run the filter with a given configuration.
      *
@@ -24,8 +24,10 @@ class AttributeRealmTest extends TestCase
         return $request;
     }
 
+
     /**
      * Test the most basic functionality.
+     * @return void
      */
     public function testBasic()
     {
@@ -41,13 +43,14 @@ class AttributeRealmTest extends TestCase
         $this->assertEquals($attributes['realm'], ['example.org']);
     }
 
+
     /**
      * Test no userid set
-     *
-     * @expectedException Exception
+     * @return void
      */
     public function testNoUserID()
     {
+        $this->expectException(\Exception::class);
         $config = [
         ];
         $request = [
@@ -56,8 +59,10 @@ class AttributeRealmTest extends TestCase
         self::processFilter($config, $request);
     }
 
+
     /**
      * Test with configuration.
+     * @return void
      */
     public function testAttributeNameConfig()
     {
@@ -78,8 +83,10 @@ class AttributeRealmTest extends TestCase
         $this->assertEquals($attributes['schacHomeOrganization'], ['example.org']);
     }
 
+
     /**
      * When target attribute exists it will be overwritten
+     * @return void
      */
     public function testTargetAttributeOverwritten()
     {
@@ -100,8 +107,10 @@ class AttributeRealmTest extends TestCase
         $this->assertEquals($attributes['schacHomeOrganization'], ['example.org']);
     }
 
+
     /**
      * When source attribute has no "@" no realm is added
+     * @return void
      */
     public function testNoAtisNoOp()
     {
@@ -117,8 +126,10 @@ class AttributeRealmTest extends TestCase
         $this->assertArrayNotHasKey('realm', $attributes);
     }
 
+
     /**
      * When source attribute has more than one "@" no realm is added
+     * @return void
      */
     public function testMultiAtisNoOp()
     {

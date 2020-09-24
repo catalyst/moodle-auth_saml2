@@ -2,6 +2,8 @@
 
 namespace SimpleSAML\Test\Auth;
 
+use SimpleSAML\Auth;
+
 /**
  * Tests for \SimpleSAML\Auth\Simple
  *
@@ -10,10 +12,11 @@ class SimpleTest extends \SimpleSAML\Test\Utils\ClearStateTestCase
 {
     /**
      * @test
+     * @return void
      */
     public function testGetProcessedURL()
     {
-        $class = new \ReflectionClass('\SimpleSAML\Auth\Simple');
+        $class = new \ReflectionClass(Auth\Simple::class);
         $method = $class->getMethod('getProcessedURL');
         $method->setAccessible(true);
 

@@ -17,21 +17,22 @@ namespace SimpleSAML\Module\core\Auth\Process;
  *         ),
  *
  */
-
 class AttributeCopy extends \SimpleSAML\Auth\ProcessingFilter
 {
     /**
      * Assosiative array with the mappings of attribute names.
+     * @var array
      */
     private $map = [];
+
 
     /**
      * Initialize this filter, parse configuration
      *
-     * @param array $config  Configuration information about this filter.
+     * @param array &$config  Configuration information about this filter.
      * @param mixed $reserved  For future use.
      */
-    public function __construct($config, $reserved)
+    public function __construct(&$config, $reserved)
     {
         parent::__construct($config, $reserved);
 
@@ -39,21 +40,23 @@ class AttributeCopy extends \SimpleSAML\Auth\ProcessingFilter
 
         foreach ($config as $source => $destination) {
             if (!is_string($source)) {
-                throw new \Exception('Invalid source attribute name: '.var_export($source, true));
+                throw new \Exception('Invalid source attribute name: ' . var_export($source, true));
             }
 
             if (!is_string($destination) && !is_array($destination)) {
-                throw new \Exception('Invalid destination attribute name: '.var_export($destination, true));
+                throw new \Exception('Invalid destination attribute name: ' . var_export($destination, true));
             }
 
             $this->map[$source] = $destination;
         }
     }
 
+
     /**
      * Apply filter to rename attributes.
      *
      * @param array &$request  The current request
+     * @return void
      */
     public function process(&$request)
     {

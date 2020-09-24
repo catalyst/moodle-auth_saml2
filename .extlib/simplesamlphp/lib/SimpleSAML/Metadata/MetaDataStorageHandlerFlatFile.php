@@ -2,6 +2,8 @@
 
 namespace SimpleSAML\Metadata;
 
+use SimpleSAML\Configuration;
+
 /**
  * This file defines a flat file metadata source.
  * Instantiation of session handler objects should be done through
@@ -19,7 +21,7 @@ class MetaDataStorageHandlerFlatFile extends MetaDataStorageSource
      *
      * @var string
      */
-    private $directory;
+    private $directory = '/';
 
 
     /**
@@ -44,11 +46,11 @@ class MetaDataStorageHandlerFlatFile extends MetaDataStorageSource
         assert(is_array($config));
 
         // get the configuration
-        $globalConfig = \SimpleSAML\Configuration::getInstance();
+        $globalConfig = Configuration::getInstance();
 
         // find the path to the directory we should search for metadata in
         if (array_key_exists('directory', $config)) {
-            $this->directory = $config['directory'];
+            $this->directory = $config['directory'] ?: 'metadata/';
         } else {
             $this->directory = $globalConfig->getString('metadatadir', 'metadata/');
         }
@@ -56,7 +58,10 @@ class MetaDataStorageHandlerFlatFile extends MetaDataStorageSource
         /* Resolve this directory relative to the SimpleSAMLphp directory (unless it is
          * an absolute path).
          */
-        $this->directory = $globalConfig->resolvePath($this->directory).'/';
+
+        /** @var string $base */
+        $base = $globalConfig->resolvePath($this->directory);
+        $this->directory = $base . '/';
     }
 
 
@@ -66,13 +71,13 @@ class MetaDataStorageHandlerFlatFile extends MetaDataStorageSource
      *
      * @param string $set The set of metadata we are loading.
      *
-     * @return array An associative array with the metadata, or null if we are unable to load metadata from the given
-     *     file.
+     * @return array|null An associative array with the metadata,
+     *     or null if we are unable to load metadata from the given file.
      * @throws \Exception If the metadata set cannot be loaded.
      */
     private function load($set)
     {
-        $metadatasetfile = $this->directory.$set.'.php';
+        $metadatasetfile = $this->directory . $set . '.php';
 
         if (!file_exists($metadatasetfile)) {
             return null;
@@ -83,7 +88,7 @@ class MetaDataStorageHandlerFlatFile extends MetaDataStorageSource
         include($metadatasetfile);
 
         if (!is_array($metadata)) {
-            throw new \Exception('Could not load metadata set ['.$set.'] from file: '.$metadatasetfile);
+            throw new \Exception('Could not load metadata set [' . $set . '] from file: ' . $metadatasetfile);
         }
 
         return $metadata;
@@ -105,6 +110,7 @@ class MetaDataStorageHandlerFlatFile extends MetaDataStorageSource
             return $this->cachedMetadata[$set];
         }
 
+        /** @var array|null $metadataSet */
         $metadataSet = $this->load($set);
         if ($metadataSet === null) {
             $metadataSet = [];
@@ -116,7 +122,6 @@ class MetaDataStorageHandlerFlatFile extends MetaDataStorageSource
         }
 
         $this->cachedMetadata[$set] = $metadataSet;
-
         return $metadataSet;
     }
 }

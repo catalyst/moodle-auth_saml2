@@ -38,7 +38,7 @@ class Stats
     private static function createOutput(\SimpleSAML\Configuration $config)
     {
         $cls = $config->getString('class');
-        $cls = \SimpleSAML\Module::resolveClass($cls, 'Stats\Output', '\SimpleSAML\Stats\Output');
+        $cls = Module::resolveClass($cls, 'Stats\Output', '\SimpleSAML\Stats\Output');
 
         $output = new $cls($config);
         return $output;
@@ -47,12 +47,14 @@ class Stats
 
     /**
      * Initialize the outputs.
+     *
+     * @return void
      */
     private static function initOutputs()
     {
 
-        $config = \SimpleSAML\Configuration::getInstance();
-        $outputCfgs = $config->getConfigList('statistics.out', []);
+        $config = Configuration::getInstance();
+        $outputCfgs = $config->getConfigList('statistics.out');
 
         self::$outputs = [];
         foreach ($outputCfgs as $cfg) {
@@ -83,7 +85,7 @@ class Stats
 
         if (empty(self::$outputs)) {
             // not enabled
-            return;
+            return false;
         }
 
         $data['op'] = $event;

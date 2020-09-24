@@ -9,6 +9,7 @@ class ModuleTest extends TestCase
 {
     /**
      * Test for SimpleSAML\Module::isModuleEnabled().
+     * @return void
      */
     public function testIsModuleEnabled()
     {
@@ -19,12 +20,13 @@ class ModuleTest extends TestCase
 
     /**
      * Test for SimpleSAML\Module::getModuleDir().
+     * @return void
      */
     public function testGetModuleDir()
     {
         // test for the most basic functionality
         $this->assertEquals(
-            dirname(dirname(dirname(dirname(__FILE__)))).'/modules/module',
+            dirname(dirname(dirname(dirname(__FILE__)))) . '/modules/module',
             Module::getModuleDir('module')
         );
     }
@@ -32,6 +34,7 @@ class ModuleTest extends TestCase
 
     /**
      * Test for SimpleSAML\Module::getModuleURL().
+     * @return void
      */
     public function testGetModuleURL()
     {
@@ -54,6 +57,7 @@ class ModuleTest extends TestCase
 
     /**
      * Test for SimpleSAML\Module::getModules().
+     * @return void
      */
     public function testGetModules()
     {
@@ -65,11 +69,11 @@ class ModuleTest extends TestCase
      * Test for SimpleSAML\Module::resolveClass(). It will make sure that an exception is thrown if we are not asking
      * for a class inside a module (that is, there is no colon separating the name of the module and the name of the
      * class).
-     *
-     * @expectedException \Exception
+     * @return void
      */
     public function testResolveClassNoModule()
     {
+        $this->expectException(\Exception::class);
         Module::resolveClass('nomodule', '');
     }
 
@@ -77,11 +81,11 @@ class ModuleTest extends TestCase
     /**
      * Test for SimpleSAML\Module::resolveClass(). It will make sure that an exception is thrown if the class we are
      * asking for cannot be found.
-     *
-     * @expectedException \Exception
+     * @return void
      */
     public function testResolveClassNotFound()
     {
+        $this->expectException(\Exception::class);
         Module::resolveClass('core:Missing', '');
     }
 
@@ -89,17 +93,18 @@ class ModuleTest extends TestCase
     /**
      * Test for SimpleSAML\Module::resolveClass(). It will make sure that an exception is thrown if the class we are
      * asking for can be resolved, but does not extend a given class.
-     *
-     * @expectedException \Exception
+     * @return void
      */
     public function testResolveClassNotSubclass()
     {
+        $this->expectException(\Exception::class);
         Module::resolveClass('core:PHP', 'Auth_Process', '\Exception');
     }
 
 
     /**
      * Test for SimpleSAML\Module::resolveClass(). It covers all the valid use cases.
+     * @return void
      */
     public function tesstResolveClass()
     {

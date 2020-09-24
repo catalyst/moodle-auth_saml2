@@ -1,4 +1,10 @@
 <?php
+
+namespace SimpleSAML\Test\XML;
+
+use PHPUnit\Framework\TestCase;
+use SimpleSAML\XML\Parser;
+
 /*
  * This file is part of the sgomezsimplesamlphp.
  *
@@ -7,12 +13,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
-namespace SimpleSAML\Test\XML;
-
-use PHPUnit\Framework\TestCase;
-use SimpleSAML\XML\Parser;
-
 class ParserTest extends TestCase
 {
     const XMLDOC = <<< XML
@@ -25,15 +25,21 @@ XML;
     /** @var Parser */
     private $xml;
 
+
+    /**
+     * @return void
+     */
     protected function setUp()
     {
         $this->xml = new Parser(static::XMLDOC);
     }
 
+
     /**
      * @covers \SimpleSAML\XML\Parser::getValue
      * @covers \SimpleSAML\XML\Parser::__construct
      * @test
+     * @return void
      */
     public function getValue()
     {
@@ -44,10 +50,12 @@ XML;
         );
     }
 
+
     /**
      * @covers \SimpleSAML\XML\Parser::getValue
      * @covers \SimpleSAML\XML\Parser::__construct
      * @test
+     * @return void
      */
     public function getEmptyValue()
     {
@@ -59,22 +67,24 @@ XML;
     }
 
 
-
     /**
      * @covers \SimpleSAML\XML\Parser::getValue
      * @covers \SimpleSAML\XML\Parser::__construct
-     * @expectedException \Exception
      * @test
+     * @return void
      */
     public function getValueException()
     {
+        $this->expectException(\Exception::class);
         $this->xml->getValue('/Root/Foo', true);
     }
+
 
     /**
      * @covers \SimpleSAML\XML\Parser::getValueDefault
      * @covers \SimpleSAML\XML\Parser::__construct
      * @test
+     * @return void
      */
     public function getDefaultValue()
     {
@@ -90,6 +100,7 @@ XML;
      * @covers \SimpleSAML\XML\Parser::getValueAlternatives
      * @covers \SimpleSAML\XML\Parser::__construct
      * @test
+     * @return void
      */
     public function getValueAlternatives()
     {
@@ -107,10 +118,12 @@ XML;
         );
     }
 
+
     /**
      * @covers \SimpleSAML\XML\Parser::getValueAlternatives
      * @covers \SimpleSAML\XML\Parser::__construct
      * @test
+     * @return void
      */
     public function getEmptyValueAlternatives()
     {
@@ -128,20 +141,22 @@ XML;
         );
     }
 
+
     /**
      * @covers \SimpleSAML\XML\Parser::getValueAlternatives
      * @covers \SimpleSAML\XML\Parser::__construct
-     * @expectedException \Exception
      * @test
+     * @return void
      */
     public function getValueAlternativesException()
     {
-        $this
-            ->xml
-            ->getValueAlternatives([
+        $this->expectException(\Exception::class);
+        $this->xml->getValueAlternatives(
+            [
                 '/Root/Foo',
                 '/Root/Bar'
-            ], true)
-        ;
+            ],
+            true
+        );
     }
 }

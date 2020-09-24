@@ -13,15 +13,17 @@ namespace SimpleSAML\Module\core\Auth\Process;
 
 class AttributeRealm extends \SimpleSAML\Auth\ProcessingFilter
 {
+    /** @var string */
     private $attributename = 'realm';
+
 
     /**
      * Initialize this filter.
      *
-     * @param array $config  Configuration information about this filter.
+     * @param array &$config  Configuration information about this filter.
      * @param mixed $reserved  For future use.
      */
-    public function __construct($config, $reserved)
+    public function __construct(&$config, $reserved)
     {
         parent::__construct($config, $reserved);
         assert(is_array($config));
@@ -31,12 +33,14 @@ class AttributeRealm extends \SimpleSAML\Auth\ProcessingFilter
         }
     }
 
+
     /**
      * Apply filter to add or replace attributes.
      *
      * Add or replace existing attributes with the configured values.
      *
      * @param array &$request  The current request
+     * @return void
      */
     public function process(&$request)
     {
@@ -44,8 +48,8 @@ class AttributeRealm extends \SimpleSAML\Auth\ProcessingFilter
         assert(array_key_exists('Attributes', $request));
 
         if (!array_key_exists('UserID', $request)) {
-            throw new \Exception('core:AttributeRealm: Missing UserID for this user. Please'.
-                ' check the \'userid.attribute\' option in the metadata against the'.
+            throw new \Exception('core:AttributeRealm: Missing UserID for this user. Please' .
+                ' check the \'userid.attribute\' option in the metadata against the' .
                 ' attributes provided by the authentication source.');
         }
         $userID = $request['UserID'];

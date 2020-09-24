@@ -6,37 +6,68 @@
  *
  * @author Andreas Åkre Solberg, UNINETT AS. <andreas.solberg@uninett.no>
  * @package SimpleSAMLphp
+ * @deprecated This class will be removed in a future release
  */
 
 namespace SimpleSAML\XML\Shib13;
 
+use SimpleSAML\Metadata\MetaDataStorageHandler;
+
 class AuthnRequest
 {
+    /** @var string|null */
     private $issuer = null;
+
+    /** @var string|null */
     private $relayState = null;
 
+
+    /**
+     * @param string|null $relayState
+     * @return void
+     */
     public function setRelayState($relayState)
     {
         $this->relayState = $relayState;
     }
     
+
+    /**
+     * @return string|null
+     */
     public function getRelayState()
     {
         return $this->relayState;
     }
     
+
+    /**
+     * @param string|null $issuer
+     * @return void
+     */
     public function setIssuer($issuer)
     {
         $this->issuer = $issuer;
     }
+
+
+    /**
+     * @return string|null
+     */
     public function getIssuer()
     {
         return $this->issuer;
     }
 
+
+    /**
+     * @param string $destination
+     * @param string $shire
+     * @return string
+     */
     public function createRedirect($destination, $shire)
     {
-        $metadata = \SimpleSAML\Metadata\MetaDataStorageHandler::getMetadataHandler();
+        $metadata = MetaDataStorageHandler::getMetadataHandler();
         $idpmetadata = $metadata->getMetaDataConfig($destination, 'shib13-idp-remote');
 
         $desturl = $idpmetadata->getDefaultEndpoint(
@@ -46,11 +77,13 @@ class AuthnRequest
         $desturl = $desturl['Location'];
 
         $target = $this->getRelayState();
-        
-        $url = $desturl.'?'.
-            'providerId='.urlencode($this->getIssuer()).
-            '&shire='.urlencode($shire).
-            (isset($target) ? '&target='.urlencode($target) : '');
+        $issuer = $this->getIssuer();
+        assert($issuer !== null);
+
+        $url = $desturl . '?' .
+            'providerId=' . urlencode($issuer) .
+            '&shire=' . urlencode($shire) .
+            (isset($target) ? '&target=' . urlencode($target) : '');
         return $url;
     }
 }

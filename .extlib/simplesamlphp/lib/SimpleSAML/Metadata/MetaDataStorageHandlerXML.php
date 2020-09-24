@@ -2,6 +2,8 @@
 
 namespace SimpleSAML\Metadata;
 
+use SimpleSAML\Configuration;
+
 /**
  * This class implements a metadata source which loads metadata from XML files.
  * The XML files should be in the SAML 2.0 metadata format.
@@ -12,7 +14,6 @@ namespace SimpleSAML\Metadata;
 
 class MetaDataStorageHandlerXML extends MetaDataStorageSource
 {
-
     /**
      * This variable contains an associative array with the parsed metadata.
      *
@@ -30,14 +31,14 @@ class MetaDataStorageHandlerXML extends MetaDataStorageSource
      *
      * @param array $config The configuration for this instance of the XML metadata source.
      *
-     * @throws Exception If neither the 'file' or 'url' options are defined in the configuration.
+     * @throws \Exception If neither the 'file' or 'url' options are defined in the configuration.
      */
     protected function __construct($config)
     {
         $src = $srcXml = null;
         if (array_key_exists('file', $config)) {
             // get the configuration
-            $globalConfig = \SimpleSAML\Configuration::getInstance();
+            $globalConfig = Configuration::getInstance();
             $src = $globalConfig->resolvePath($config['file']);
         } elseif (array_key_exists('url', $config)) {
             $src = $config['url'];

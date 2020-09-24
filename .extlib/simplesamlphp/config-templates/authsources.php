@@ -57,13 +57,14 @@ $config = [
         'dsn' => 'pgsql:host=sql.example.org;port=5432;dbname=simplesaml',
         'username' => 'simplesaml',
         'password' => 'secretpassword',
-        'query' => 'SELECT uid, givenName, email, eduPersonPrincipalName FROM users WHERE uid = :username AND password = SHA2(CONCAT((SELECT salt FROM users WHERE uid = :username), :password), 256);',
+        'query' => 'SELECT uid, givenName, email, eduPersonPrincipalName FROM users WHERE uid = :username ' .
+            'AND password = SHA2(CONCAT((SELECT salt FROM users WHERE uid = :username), :password), 256);',
     ],
     */
 
     /*
     'example-static' => [
-        'exampleauth:Static',
+        'exampleauth:StaticSource',
         'uid' => ['testuser'],
         'eduPersonAffiliation' => ['member', 'employee'],
         'cn' => ['Test User'],
@@ -149,17 +150,16 @@ $config = [
     */
 
     /*
-    // Twitter OAuth Authentication API.
+    // LinkedIn OAuth Authentication API.
     // Register your application to get an API key here:
-    //  http://twitter.com/oauth_clients
-    'twitter' => [
-        'authtwitter:Twitter',
+    //  https://www.linkedin.com/secure/developer
+    // Attributes definition:
+    //  https://developer.linkedin.com/docs/fields
+    'linkedin' => [
+        'authlinkedin:LinkedIn',
         'key' => 'xxxxxxxxxxxxxxxx',
         'secret' => 'xxxxxxxxxxxxxxxx',
-
-        // Forces the user to enter their credentials to ensure the correct users account is authorized.
-        // Details: https://dev.twitter.com/docs/api/1/get/oauth/authenticate
-        'force_login' => false,
+        'attributes' => 'id,first-name,last-name,headline,summary,specialties,picture-url,email-address',
     ],
     */
 

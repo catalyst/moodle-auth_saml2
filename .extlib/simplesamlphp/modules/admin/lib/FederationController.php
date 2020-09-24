@@ -2,14 +2,24 @@
 
 namespace SimpleSAML\Module\admin;
 
+use SimpleSAML\Auth;
+use SimpleSAML\Configuration;
+use SimpleSAML\HTTP\RunnableResponse;
 use SimpleSAML\Locale\Translate;
+use SimpleSAML\Logger;
 use SimpleSAML\Metadata\MetaDataStorageHandler;
 use SimpleSAML\Metadata\SAMLBuilder;
+use SimpleSAML\Metadata\SAMLParser;
+use SimpleSAML\Metadata\Signer;
 use SimpleSAML\Module;
 use SimpleSAML\Module\adfs\IdP\ADFS as ADFS_IdP;
 use SimpleSAML\Module\saml\IdP\SAML1 as SAML1_IdP;
 use SimpleSAML\Module\saml\IdP\SAML2 as SAML2_IdP;
-use SimpleSAML\Utils\Auth;
+use SimpleSAML\Utils;
+use SimpleSAML\XHTML\Template;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 /**
  * Controller class for the admin module.
@@ -36,7 +46,7 @@ class FederationController
      *
      * @param \SimpleSAML\Configuration $config The configuration to use.
      */
-    public function __construct(\SimpleSAML\Configuration $config)
+    public function __construct(Configuration $config)
     {
         $this->config = $config;
         $this->menu = new Menu();
@@ -49,11 +59,11 @@ class FederationController
      *
      * @return \SimpleSAML\XHTML\Template
      * @throws \SimpleSAML\Error\Exception
-     * @throws \SimpleSAML_Error_Exception
+     * @throws \SimpleSAML\Error\Exception
      */
     public function main()
     {
-        Auth::requireAdmin();
+        Utils\Auth::requireAdmin();
 
         // initialize basic metadata array
         $hostedSPs = $this->getHostedSP();
@@ -61,19 +71,19 @@ class FederationController
         $entries = [
             'hosted' => array_merge($hostedSPs, $hostedIdPs),
             'remote' => [
-                'saml20-idp-remote' => !empty($hostedSPs) ? $this->mdHandler->getList('saml20-idp-remote') : [],
-                'shib13-idp-remote' => !empty($hostedSPs) ? $this->mdHandler->getList('shib13-idp-remote') : [],
+                'saml20-idp-remote' => !empty($hostedSPs) ? $this->mdHandler->getList('saml20-idp-remote', true) : [],
+                'shib13-idp-remote' => !empty($hostedSPs) ? $this->mdHandler->getList('shib13-idp-remote', true) : [],
                 'saml20-sp-remote' => $this->config->getBoolean('enable.saml20-idp', false) === true
-                    ? $this->mdHandler->getList('saml20-sp-remote') : [],
+                    ? $this->mdHandler->getList('saml20-sp-remote', true) : [],
                 'shib13-sp-remote' => $this->config->getBoolean('enable.shib13-idp', false) === true
-                    ? $this->mdHandler->getList('shib13-sp-remote') : [],
+                    ? $this->mdHandler->getList('shib13-sp-remote', true) : [],
                 'adfs-sp-remote' => ($this->config->getBoolean('enable.adfs-idp', false) === true) &&
-                    Module::isModuleEnabled('adfs') ? $this->mdHandler->getList('adfs-sp-remote') : [],
+                    Module::isModuleEnabled('adfs') ? $this->mdHandler->getList('adfs-sp-remote', true) : [],
             ],
         ];
 
         // initialize template and language
-        $t = new \SimpleSAML\XHTML\Template($this->config, 'admin:federation.twig');
+        $t = new Template($this->config, 'admin:federation.twig');
         $language = $t->getTranslator()->getLanguage()->getLanguage();
         $defaultLang = $this->config->getString('language.default', 'en');
 
@@ -108,7 +118,8 @@ class FederationController
                     } elseif (isset($entity[$old]['en'])) {
                         $entries['remote'][$key][$entityid][$new] = $entity[$old]['en'];
                     } elseif (isset($entries['remote'][$key][$entityid][$old])) {
-                        $entries['remote'][$key][$entityid][$new] = $entries['remote'][$key][$entityid][$old];
+                        $old_entry = $entries['remote'][$key][$entityid][$old];
+                        $entries['remote'][$key][$entityid][$new] = is_array($old_entry) ? $entityid : $old_entry;
                     }
                 }
             }
@@ -117,7 +128,7 @@ class FederationController
         $t->data = [
             'links' => [
                 [
-                    'href' => Module::getModuleURL('admin/metadata-converter'),
+                    'href' => Module::getModuleURL('admin/federation/metadata-converter'),
                     'text' => Translate::noop('XML to SimpleSAMLphp metadata converter'),
                 ]
             ],
@@ -136,7 +147,7 @@ class FederationController
                 'adfs-idp-remote' => Translate::noop('ADFS IdP metadata'),
                 'adfs-idp-hosted' => Translate::noop('ADFS IdP metadata'),
             ],
-            'logouturl' => Auth::getAdminLogoutURL(),
+            'logouturl' => Utils\Auth::getAdminLogoutURL(),
         ];
 
         Module::callHooks('federationpage', $t);
@@ -162,7 +173,7 @@ class FederationController
                 $saml2entities = [];
                 if (count($idps) > 1) {
                     foreach ($idps as $index => $idp) {
-                        $idp['url'] = Module::getModuleURL('saml/2/idp/metadata/'.$idp['auth']);
+                        $idp['url'] = Module::getModuleURL('saml/2/idp/metadata/' . $idp['auth']);
                         $idp['metadata-set'] = 'saml20-idp-hosted';
                         $idp['metadata-index'] = $index;
                         $idp['metadata_array'] = SAML2_IdP::getHostedMetadata($idp['entityid']);
@@ -170,11 +181,10 @@ class FederationController
                     }
                 } else {
                     $saml2entities['saml20-idp'] = $this->mdHandler->getMetaDataCurrent('saml20-idp-hosted');
-                    $saml2entities['saml20-idp']['url'] = \SimpleSAML\Utils\HTTP::getBaseURL().'saml2/idp/metadata.php';
-                    $saml2entities['saml20-idp']['metadata_array'] =
-                        SAML2_IdP::getHostedMetadata(
-                            $this->mdHandler->getMetaDataCurrentEntityID('saml20-idp-hosted')
-                        );
+                    $saml2entities['saml20-idp']['url'] = Utils\HTTP::getBaseURL() . 'saml2/idp/metadata.php';
+                    $saml2entities['saml20-idp']['metadata_array'] = SAML2_IdP::getHostedMetadata(
+                        $this->mdHandler->getMetaDataCurrentEntityID('saml20-idp-hosted')
+                    );
                 }
 
                 foreach ($saml2entities as $index => $entity) {
@@ -185,7 +195,7 @@ class FederationController
                         $builder->addContact($contact['contactType'], $contact);
                     }
 
-                    $entity['metadata'] = \SimpleSAML\Metadata\Signer::sign(
+                    $entity['metadata'] = Signer::sign(
                         $builder->getEntityDescriptorText(),
                         $entity['metadata_array'],
                         'SAML 2 IdP'
@@ -193,7 +203,7 @@ class FederationController
                     $entities[$index] = $entity;
                 }
             } catch (\Exception $e) {
-                \SimpleSAML\Logger::error('Federation: Error loading saml20-idp: '.$e->getMessage());
+                Logger::error('Federation: Error loading saml20-idp: ' . $e->getMessage());
             }
         }
 
@@ -204,7 +214,7 @@ class FederationController
                 $shib13entities = [];
                 if (count($idps) > 1) {
                     foreach ($idps as $index => $idp) {
-                        $idp['url'] = Module::getModuleURL('saml/1.1/idp/metadata/'.$idp['auth']);
+                        $idp['url'] = Module::getModuleURL('saml/1.1/idp/metadata/' . $idp['auth']);
                         $idp['metadata-set'] = 'shib13-idp-hosted';
                         $idp['metadata-index'] = $index;
                         $idp['metadata_array'] = SAML1_IdP::getHostedMetadata($idp['entityid']);
@@ -212,14 +222,12 @@ class FederationController
                     }
                 } else {
                     $shib13entities['shib13-idp'] = $this->mdHandler->getMetaDataCurrent('shib13-idp-hosted');
-                    $shib13entities['shib13-idp']['url'] = \SimpleSAML\Utils\HTTP::getBaseURL().
-                        'shib13/idp/metadata.php';
-                    $shib13entities['shib13-idp']['metadata_array'] =
-                        SAML1_IdP::getHostedMetadata(
-                            $this->mdHandler->getMetaDataCurrentEntityID('shib13-idp-hosted')
-                        );
+                    $shib13entities['shib13-idp']['url'] = Utils\HTTP::getBaseURL() . 'shib13/idp/metadata.php';
+                    $shib13entities['shib13-idp']['metadata_array'] = SAML1_IdP::getHostedMetadata(
+                        $this->mdHandler->getMetaDataCurrentEntityID('shib13-idp-hosted')
+                    );
                 }
-                
+
                 foreach ($shib13entities as $index => $entity) {
                     $builder = new SAMLBuilder($entity['entityid']);
                     $builder->addMetadataIdP11($entity['metadata_array']);
@@ -228,7 +236,7 @@ class FederationController
                         $builder->addContact($contact['contactType'], $contact);
                     }
 
-                    $entity['metadata'] = \SimpleSAML\Metadata\Signer::sign(
+                    $entity['metadata'] = Signer::sign(
                         $builder->getEntityDescriptorText(),
                         $entity['metadata_array'],
                         'SAML 2 SP'
@@ -236,7 +244,7 @@ class FederationController
                     $entities[$index] = $entity;
                 }
             } catch (\Exception $e) {
-                \SimpleSAML\Logger::error('Federation: Error loading shib13-idp: '.$e->getMessage());
+                Logger::error('Federation: Error loading shib13-idp: ' . $e->getMessage());
             }
         }
 
@@ -247,7 +255,7 @@ class FederationController
                 $adfsentities = [];
                 if (count($idps) > 1) {
                     foreach ($idps as $index => $idp) {
-                        $idp['url'] = Module::getModuleURL('adfs/idp/metadata/'.$idp['auth']);
+                        $idp['url'] = Module::getModuleURL('adfs/idp/metadata/' . $idp['auth']);
                         $idp['metadata-set'] = 'adfs-idp-hosted';
                         $idp['metadata-index'] = $index;
                         $idp['metadata_array'] = ADFS_IdP::getHostedMetadata($idp['entityid']);
@@ -256,10 +264,9 @@ class FederationController
                 } else {
                     $adfsentities['adfs-idp'] = $this->mdHandler->getMetaDataCurrent('adfs-idp-hosted');
                     $adfsentities['adfs-idp']['url'] = Module::getModuleURL('adfs/idp/metadata.php');
-                    $adfsentities['adfs-idp']['metadata_array'] =
-                        ADFS_IdP::getHostedMetadata(
-                            $this->mdHandler->getMetaDataCurrentEntityID('adfs-idp-hosted')
-                        );
+                    $adfsentities['adfs-idp']['metadata_array'] = ADFS_IdP::getHostedMetadata(
+                        $this->mdHandler->getMetaDataCurrentEntityID('adfs-idp-hosted')
+                    );
                 }
 
                 foreach ($adfsentities as $index => $entity) {
@@ -270,7 +277,7 @@ class FederationController
                         $builder->addContact($contact['contactType'], $contact);
                     }
 
-                    $entity['metadata'] = \SimpleSAML\Metadata\Signer::sign(
+                    $entity['metadata'] = Signer::sign(
                         $builder->getEntityDescriptorText(),
                         $entity['metadata_array'],
                         'ADFS IdP'
@@ -278,7 +285,7 @@ class FederationController
                     $entities[$index] = $entity;
                 }
             } catch (\Exception $e) {
-                \SimpleSAML\Logger::error('Federation: Error loading adfs-idp: '.$e->getMessage());
+                Logger::error('Federation: Error loading adfs-idp: ' . $e->getMessage());
             }
         }
 
@@ -287,7 +294,7 @@ class FederationController
             $entities[$index]['type'] = $entity['metadata-set'];
             foreach ($entity['metadata_array']['keys'] as $kidx => $key) {
                 $key['url'] = Module::getModuleURL(
-                    'admin/cert',
+                    'admin/federation/cert',
                     [
                         'set' => $entity['metadata-set'],
                         'idp' => $entity['metadata-index'],
@@ -324,13 +331,17 @@ class FederationController
         $entities = [];
 
         /** @var \SimpleSAML\Module\saml\Auth\Source\SP $source */
-        foreach (\SimpleSAML\Auth\Source::getSourcesOfType('saml:SP') as $source) {
+        foreach (Auth\Source::getSourcesOfType('saml:SP') as $source) {
             $metadata = $source->getHostedMetadata();
-            $certificates = $metadata['keys'];
-            if (count($metadata['keys']) === 1) {
-                $cert = array_pop($metadata['keys']);
-                $metadata['certData'] = $cert['X509Certificate'];
-                unset($metadata['keys']);
+            if (isset($metadata['keys'])) {
+                $certificates = $metadata['keys'];
+                if (count($metadata['keys']) === 1) {
+                    $cert = array_pop($metadata['keys']);
+                    $metadata['certData'] = $cert['X509Certificate'];
+                    unset($metadata['keys']);
+                }
+            } else {
+                $certificates = [];
             }
 
             // get the name
@@ -355,7 +366,7 @@ class FederationController
             }
 
             // sign the metadata if enabled
-            $xml = \SimpleSAML\Metadata\Signer::sign($xml, $source->getMetadata()->toArray(), 'SAML 2 SP');
+            $xml = Signer::sign($xml, $source->getMetadata()->toArray(), 'SAML 2 SP');
 
             $entities[] = [
                 'authid' => $source->getAuthId(),
@@ -370,5 +381,138 @@ class FederationController
         }
 
         return $entities;
+    }
+
+    /**
+     * Metadata converter
+     *
+     * @param Request $request The current request.
+     *
+     * @return \SimpleSAML\XHTML\Template
+     */
+    public function metadataConverter(Request $request)
+    {
+        Utils\Auth::requireAdmin();
+
+        if ($xmlfile = $request->files->get('xmlfile')) {
+            $xmldata = trim(file_get_contents($xmlfile));
+        } elseif ($xmldata = $request->request->get('xmldata')) {
+            $xmldata = trim($xmldata);
+        }
+
+        if (!empty($xmldata)) {
+            Utils\XML::checkSAMLMessage($xmldata, 'saml-meta');
+            $entities = SAMLParser::parseDescriptorsString($xmldata);
+
+            // get all metadata for the entities
+            foreach ($entities as &$entity) {
+                $entity = [
+                    'shib13-sp-remote'  => $entity->getMetadata1xSP(),
+                    'shib13-idp-remote' => $entity->getMetadata1xIdP(),
+                    'saml20-sp-remote'  => $entity->getMetadata20SP(),
+                    'saml20-idp-remote' => $entity->getMetadata20IdP(),
+                ];
+            }
+
+            // transpose from $entities[entityid][type] to $output[type][entityid]
+            $output = Utils\Arrays::transpose($entities);
+
+            // merge all metadata of each type to a single string which should be added to the corresponding file
+            foreach ($output as $type => &$entities) {
+                $text = '';
+                foreach ($entities as $entityId => $entityMetadata) {
+                    if ($entityMetadata === null) {
+                        continue;
+                    }
+
+                    /**
+                     * remove the entityDescriptor element because it is unused,
+                     * and only makes the output harder to read
+                     */
+                    unset($entityMetadata['entityDescriptor']);
+
+                    $text .= '$metadata[' . var_export($entityId, true) . '] = '
+                        . var_export($entityMetadata, true) . ";\n";
+                }
+                $entities = $text;
+            }
+        } else {
+            $xmldata = '';
+            $output = [];
+        }
+
+        $t = new Template($this->config, 'admin:metadata_converter.twig');
+        $t->data = [
+            'logouturl' => Utils\Auth::getAdminLogoutURL(),
+            'xmldata' => $xmldata,
+            'output' => $output,
+        ];
+
+        $this->menu->addOption('logout', $t->data['logouturl'], Translate::noop('Log out'));
+        return $this->menu->insert($t);
+    }
+
+    /**
+     * Download a certificate for a given entity.
+     *
+     * @param Request $request The current request.
+     *
+     * @return Response PEM-encoded certificate.
+     */
+    public function downloadCert(Request $request)
+    {
+        Utils\Auth::requireAdmin();
+
+        $set = $request->get('set');
+        $prefix = $request->get('prefix');
+
+        if ($set === 'saml20-sp-hosted') {
+            $sourceID = $request->get('source');
+            /**
+             * The second argument ensures non-nullable return-value
+             * @var \SimpleSAML\Module\saml\Auth\Source\SP $source
+             */
+            $source = \SimpleSAML\Auth\Source::getById($sourceID, Module\saml\Auth\Source\SP::class);
+            $mdconfig = $source->getMetadata();
+        } else {
+            $entityID = $request->get('entity');
+            $mdconfig = $this->mdHandler->getMetaDataConfig($entityID, $set);
+        }
+
+        /** @var array $certInfo  Second param ensures non-nullable return-value */
+        $certInfo = Utils\Crypto::loadPublicKey($mdconfig, true, $prefix);
+
+        $response = new Response($certInfo['PEM']);
+        $disposition = $response->headers->makeDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            'cert.pem'
+        );
+
+        $response->headers->set('Content-Disposition', $disposition);
+        $response->headers->set('Content-Type', 'application/x-pem-file');
+
+        return $response;
+    }
+
+    /**
+     * Show remote entity metadata
+     *
+     * @param Request $request The current request.
+     *
+     * @return Response
+     */
+    public function showRemoteEntity(Request $request)
+    {
+        Utils\Auth::requireAdmin();
+
+        $entityId = $request->get('entityid');
+        $set = $request->get('set');
+
+        $metadata = $this->mdHandler->getMetaData($entityId, $set);
+
+        $t = new Template($this->config, 'admin:show_metadata.twig');
+        $t->data['entityid'] = $entityId;
+        $t->data['metadata'] = var_export($metadata, true);
+        return $t;
     }
 }

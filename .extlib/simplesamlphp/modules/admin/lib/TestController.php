@@ -2,9 +2,16 @@
 
 namespace SimpleSAML\Module\admin;
 
+use SAML2\Constants;
+use SAML2\XML\saml\NameID;
+use SimpleSAML\Auth;
+use SimpleSAML\Configuration;
 use SimpleSAML\HTTP\RunnableResponse;
 use SimpleSAML\Locale\Translate;
-use SimpleSAML\Utils\HTTP;
+use SimpleSAML\Module;
+use SimpleSAML\Session;
+use SimpleSAML\Utils;
+use SimpleSAML\XHTML\Template;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -34,7 +41,7 @@ class TestController
      * @param \SimpleSAML\Configuration $config The configuration to use.
      * @param \SimpleSAML\Session $session The current user session.
      */
-    public function __construct(\SimpleSAML\Configuration $config, \SimpleSAML\Session $session)
+    public function __construct(Configuration $config, Session $session)
     {
         $this->config = $config;
         $this->session = $session;
@@ -45,29 +52,31 @@ class TestController
     /**
      * Display the list of available authsources.
      *
+     * @param string|null $as
      * @return \SimpleSAML\XHTML\Template
      */
     public function main(Request $request, $as)
     {
-        \SimpleSAML\Utils\Auth::requireAdmin();
+        Utils\Auth::requireAdmin();
         if (is_null($as)) {
-            $t = new \SimpleSAML\XHTML\Template($this->config, 'admin:authsource_list.twig');
+            $t = new Template($this->config, 'admin:authsource_list.twig');
             $t->data = [
-                'sources' => \SimpleSAML\Auth\Source::getSources(),
+                'sources' => Auth\Source::getSources(),
             ];
         } else {
-            $authsource = new \SimpleSAML\Auth\Simple($as);
+            $authsource = new Auth\Simple($as);
             if (!is_null($request->query->get('logout'))) {
-                $authsource->logout($this->config->getBasePath().'logout.php');
-            } elseif (!is_null($request->query->get(\SimpleSAML\Auth\State::EXCEPTION_PARAM))) {
+                $authsource->logout($this->config->getBasePath() . 'logout.php');
+            } elseif (!is_null($request->query->get(Auth\State::EXCEPTION_PARAM))) {
                 // This is just a simple example of an error
-                $state = \SimpleSAML\Auth\State::loadExceptionState();
-                assert(array_key_exists(\SimpleSAML\Auth\State::EXCEPTION_DATA, $state));
-                throw $state[\SimpleSAML\Auth\State::EXCEPTION_DATA];
+                /** @var array $state */
+                $state = Auth\State::loadExceptionState();
+                assert(array_key_exists(Auth\State::EXCEPTION_DATA, $state));
+                throw $state[Auth\State::EXCEPTION_DATA];
             }
 
             if (!$authsource->isAuthenticated()) {
-                $url = \SimpleSAML\Module::getModuleURL('admin/test/' .$as, []);
+                $url = Module::getModuleURL('admin/test/' . $as, []);
                 $params = [
                     'ErrorURL' => $url,
                     'ReturnTo' => $url,
@@ -77,15 +86,17 @@ class TestController
 
             $attributes = $authsource->getAttributes();
             $authData = $authsource->getAuthDataArray();
-            $nameId = !is_null($authsource->getAuthData('saml:sp:NameID')) ? $authsource->getAuthData('saml:sp:NameID') : false;
+            $nameId = !is_null($authsource->getAuthData('saml:sp:NameID'))
+                ? $authsource->getAuthData('saml:sp:NameID')
+                : false;
 
-            $t = new \SimpleSAML\XHTML\Template($this->config, 'admin:status.twig', 'attributes');
+            $t = new Template($this->config, 'admin:status.twig', 'attributes');
             $t->data = [
                 'attributes' => $attributes,
                 'attributesHtml' => $this->getAttributesHTML($t, $attributes, ''),
                 'authData' => $authData,
                 'nameid' => $nameId,
-                'logouturl' => \SimpleSAML\Utils\HTTP::getSelfURLNoQuery().'?as='.urlencode($as).'&logout',
+                'logouturl' => Utils\HTTP::getSelfURLNoQuery() . '?as=' . urlencode($as) . '&logout',
             ];
 
             if ($nameId !== false) {
@@ -93,24 +104,34 @@ class TestController
             }
         }
 
-        \SimpleSAML\Module::callHooks('configpage', $t);
-        $this->menu->addOption('logout', \SimpleSAML\Utils\Auth::getAdminLogoutURL(), Translate::noop('Log out'));
+        Module::callHooks('configpage', $t);
+        $this->menu->addOption('logout', Utils\Auth::getAdminLogoutURL(), Translate::noop('Log out'));
         return $this->menu->insert($t);
     }
 
 
-    private function getNameIDHTML(\SimpleSAML\XHTML\Template $t, \SAML2\XML\saml\NameID $nameId)
+    /**
+     * @param \SimpleSAML\XHTML\Template $t
+     * @param \SAML2\XML\saml\NameID $nameId
+     * @return string
+     */
+    private function getNameIDHTML(Template $t, NameID $nameId)
     {
+        $translator = $t->getTranslator();
         $result = '';
         if ($nameId->getValue() === null) {
-            $list = ["NameID" => [$t->t('{status:subject_notset}')]];
-            $result .= "<p>NameID: <span class=\"notset\">".$t->t('{status:subject_notset}')."</span></p>";
+            $list = ["NameID" => [$translator->t('{status:subject_notset}')]];
+            /** @var string $notset */
+            $notset = $translator->t('{status:subject_notset}');
+            $result .= "<p>NameID: <span class=\"notset\">" . $notset . "</span></p>";
         } else {
             $list = [
                 "NameId" => [$nameId->getValue()],
             ];
             if ($nameId->getFormat() !== null) {
-                $list[$t->t('{status:subject_format}')] = [$nameId->getFormat()];
+                /** @var string $format */
+                $format = $translator->t('{status:subject_format}');
+                $list[$format] = [$nameId->getFormat()];
             }
             if ($nameId->getNameQualifier() !== null) {
                 $list['NameQualifier'] = [$nameId->getNameQualifier()];
@@ -122,53 +143,61 @@ class TestController
                 $list['SPProvidedID'] = [$nameId->getSPProvidedID()];
             }
         }
-        return $result.$this->getAttributesHTML($t, $list, '');
+        return $result . $this->getAttributesHTML($t, $list, '');
     }
 
 
-    private function getAttributesHTML(\SimpleSAML\XHTML\Template $t, $attributes, $nameParent)
+    /**
+     * @param \SimpleSAML\XHTML\Template $t
+     * @param array $attributes
+     * @param string $nameParent
+     * @return string
+     */
+    private function getAttributesHTML(Template $t, $attributes, $nameParent)
     {
         $alternate = ['pure-table-odd', 'pure-table-even'];
         $i = 0;
-        $parentStr = (strlen($nameParent) > 0) ? strtolower($nameParent).'_' : '';
-        $str = (strlen($nameParent) > 0) ? '<table class="pure-table pure-table-attributes" summary="attribute overview">' :
-            '<table id="table_with_attributes" class="pure-table pure-table-attributes" summary="attribute overview">';
+        $parentStr = (strlen($nameParent) > 0) ? strtolower($nameParent) . '_' : '';
+        $str = (strlen($nameParent) > 0)
+            ? '<table class="pure-table pure-table-attributes" summary="attribute overview">'
+            : '<table id="table_with_attributes" class="pure-table pure-table-attributes"'
+            . ' summary="attribute overview">';
         foreach ($attributes as $name => $value) {
             $nameraw = $name;
             $trans = $t->getTranslator();
-            $name = $trans->getAttributeTranslation($parentStr.$nameraw);
+            $name = $trans->getAttributeTranslation($parentStr . $nameraw);
             if (preg_match('/^child_/', $nameraw)) {
                 $parentName = preg_replace('/^child_/', '', $nameraw);
                 foreach ($value as $child) {
-                    $str .= '<tr class="odd"><td colspan="2" style="padding: 2em">'.
-                        $this->getAttributesHTML($t, $child, $parentName).'</td></tr>';
+                    $str .= '<tr class="odd"><td colspan="2" style="padding: 2em">' .
+                        $this->getAttributesHTML($t, $child, $parentName) . '</td></tr>';
                 }
             } else {
                 if (sizeof($value) > 1) {
-                    $str .= '<tr class="'.$alternate[($i++ % 2)].'"><td class="attrname">';
+                    $str .= '<tr class="' . $alternate[($i++ % 2)] . '"><td class="attrname">';
                     if ($nameraw !== $name) {
-                        $str .= htmlspecialchars($name).'<br/>';
+                        $str .= htmlspecialchars($name) . '<br/>';
                     }
-                    $str .= '<code>'.htmlspecialchars($nameraw).'</code>';
+                    $str .= '<code>' . htmlspecialchars($nameraw) . '</code>';
                     $str .= '</td><td class="attrvalue"><ul>';
                     foreach ($value as $listitem) {
                         if ($nameraw === 'jpegPhoto') {
-                            $str .= '<li><img src="data:image/jpeg;base64,'.htmlspecialchars($listitem).'" /></li>';
+                            $str .= '<li><img src="data:image/jpeg;base64,' . htmlspecialchars($listitem) . '" /></li>';
                         } else {
-                            $str .= '<li>'.$this->present_assoc($listitem).'</li>';
+                            $str .= '<li>' . $this->presentAssoc($listitem) . '</li>';
                         }
                     }
                     $str .= '</ul></td></tr>';
                 } elseif (isset($value[0])) {
-                    $str .= '<tr class="'.$alternate[($i++ % 2)].'"><td class="attrname">';
+                    $str .= '<tr class="' . $alternate[($i++ % 2)] . '"><td class="attrname">';
                     if ($nameraw !== $name) {
-                        $str .= htmlspecialchars($name).'<br/>';
+                        $str .= htmlspecialchars($name) . '<br/>';
                     }
-                    $str .= '<code>'.htmlspecialchars($nameraw).'</code>';
+                    $str .= '<code>' . htmlspecialchars($nameraw) . '</code>';
                     $str .= '</td>';
                     if ($nameraw === 'jpegPhoto') {
-                        $str .= '<td class="attrvalue"><img src="data:image/jpeg;base64,'.htmlspecialchars($value[0]).
-                            '" /></td></tr>';
+                        $str .= '<td class="attrvalue"><img src="data:image/jpeg;base64,' . htmlspecialchars($value[0])
+                            . '" /></td></tr>';
                     } elseif (is_a($value[0], 'DOMNodeList')) {
                         // try to see if we have a NameID here
                         /** @var \DOMNodeList $value [0] */
@@ -176,18 +205,18 @@ class TestController
                         for ($idx = 0; $idx < $n; $idx++) {
                             $elem = $value[0]->item($idx);
                             /* @var \DOMElement $elem */
-                            if (!($elem->localName === 'NameID' && $elem->namespaceURI === \SAML2\Constants::NS_SAML)) {
+                            if (!($elem->localName === 'NameID' && $elem->namespaceURI === Constants::NS_SAML)) {
                                 continue;
                             }
-                            $str .= $this->present_eptid($trans, new \SAML2\XML\saml\NameID($elem));
+                            $str .= $this->presentEptid($trans, new NameID($elem));
                             break; // we only support one NameID here
                         }
                         $str .= '</td></tr>';
                     } elseif (is_a($value[0], '\SAML2\XML\saml\NameID')) {
-                        $str .= $this->present_eptid($trans, $value[0]);
+                        $str .= $this->presentEptid($trans, $value[0]);
                         $str .= '</td></tr>';
                     } else {
-                        $str .= '<td class="attrvalue">'.htmlspecialchars($value[0]).'</td></tr>';
+                        $str .= '<td class="attrvalue">' . htmlspecialchars($value[0]) . '</td></tr>';
                     }
                 }
             }
@@ -197,12 +226,17 @@ class TestController
         return $str;
     }
 
-    private function present_list($attr)
+
+    /**
+     * @param array|string $attr
+     * @return string
+     */
+    private function presentList($attr)
     {
         if (is_array($attr) && count($attr) > 1) {
             $str = '<ul>';
             foreach ($attr as $value) {
-                $str .= '<li>'.htmlspecialchars($attr).'</li>';
+                $str .= '<li>' . htmlspecialchars(strval($attr)) . '</li>';
             }
             $str .= '</ul>';
             return $str;
@@ -211,12 +245,17 @@ class TestController
         }
     }
 
-    private function present_assoc($attr)
+
+    /**
+     * @param array|string $attr
+     * @return string
+     */
+    private function presentAssoc($attr)
     {
         if (is_array($attr)) {
             $str = '<dl>';
             foreach ($attr as $key => $value) {
-                $str .= "\n".'<dt>'.htmlspecialchars($key).'</dt><dd>'.$this->present_list($value).'</dd>';
+                $str .= "\n" . '<dt>' . htmlspecialchars($key) . '</dt><dd>' . $this->presentList($value) . '</dd>';
             }
             $str .= '</dl>';
             return $str;
@@ -225,13 +264,21 @@ class TestController
         }
     }
 
-    private function present_eptid(\SimpleSAML\Locale\Translate $t, \SAML2\XML\saml\NameID $nameID)
+
+    /**
+     * @param \SimpleSAML\Locale\Translate $t
+     * @param \SAML2\XML\saml\NameID $nameID
+     * @return string
+     */
+    private function presentEptid(Translate $t, NameID $nameID)
     {
         $eptid = [
             'NameID' => [$nameID->getValue()],
         ];
         if ($nameID->getFormat() !== null) {
-            $eptid[$t->t('{status:subject_format}')] = [$nameID->getFormat()];
+            /** @var string $format */
+            $format = $t->t('{status:subject_format}');
+            $eptid[$format] = [$nameID->getFormat()];
         }
         if ($nameID->getNameQualifier() !== null) {
             $eptid['NameQualifier'] = [$nameID->getNameQualifier()];
@@ -242,6 +289,6 @@ class TestController
         if ($nameID->getSPProvidedID() !== null) {
             $eptid['SPProvidedID'] = [$nameID->getSPProvidedID()];
         }
-        return '<td class="attrvalue">'.$this->present_assoc($eptid);
+        return '<td class="attrvalue">' . $this->presentAssoc($eptid);
     }
 }

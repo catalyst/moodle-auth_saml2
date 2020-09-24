@@ -7,6 +7,15 @@
 {% endblock %}
 
 {% block content %}
+    {%- if not isProduction %}
+
+    <div class="message-box warning">
+      {% trans %}You are now accessing a pre-production system. This authentication setup
+      {#- #} is for testing and pre-production verification only. If someone sent you
+      {#- #} a link that pointed you here, and you are not <i>a tester</i> you
+      {#- #} probably got the wrong link, and should <b>not be here</b>.{% endtrans %}
+    </div>
+    {% endif -%}
     {% if errorcode -%}
     <div class="pure-g">
         <div class="pure-u-1">
@@ -53,8 +62,8 @@
 
                 <div class="pure-control-group">
                     <label for="password">{{ 'Password'|trans}}</label>
-                    <input id="password" type="password" tabindex="2" name="password" class="edge"
-                    {%- if forceUsername or username %} autofocus {% endif %} />
+                    <input id="password" type="password" tabindex="2" name="password" class="edge" autocomplete="current-password"
+                    {%- if forceUsername or username %} autofocus {% endif %} >
 
                 {% if rememberMeEnabled -%}
                 </div>
@@ -105,7 +114,7 @@
 
             <button class="pure-button pure-button-red pure-input-1-2 pure-input-sm-1-1 right" id="submit_button"
                     type="submit" tabindex="6" data-processing="{% trans %}Processing...{% endtrans %}">
-              {% trans %}Log in{% endtrans %}
+              {% trans %}Login{% endtrans %}
             </button>
         </form>
     </div><!--center-->

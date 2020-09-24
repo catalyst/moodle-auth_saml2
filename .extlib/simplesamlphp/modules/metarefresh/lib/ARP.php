@@ -6,7 +6,6 @@ namespace SimpleSAML\Module\metarefresh;
  * @author Andreas Åkre Solberg <andreas.solberg@uninett.no>
  * @package SimpleSAMLphp
  */
-
 class ARP
 {
     /**
@@ -17,7 +16,7 @@ class ARP
     /**
      * @var array
      */
-    private $attributes;
+    private $attributes = [];
 
     /**
      * @var string
@@ -37,7 +36,7 @@ class ARP
      * @param string $prefix
      * @param string $suffix
      */
-    public function __construct($metadata, $attributemap_filename, $prefix, $suffix)
+    public function __construct(array $metadata, $attributemap_filename, $prefix, $suffix)
     {
         $this->metadata = $metadata;
         $this->prefix = $prefix;
@@ -136,7 +135,7 @@ MSG;
      *
      * @return string
      */
-    private function getEntryXMLcontent($entry)
+    private function getEntryXMLcontent(array $entry)
     {
         if (!array_key_exists('attributes', $entry)) {
             return '';

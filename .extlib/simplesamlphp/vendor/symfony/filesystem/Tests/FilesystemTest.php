@@ -801,7 +801,7 @@ class FilesystemTest extends FilesystemTestCase
         $file = $this->workspace.\DIRECTORY_SEPARATOR.'file';
         $link = $this->workspace.\DIRECTORY_SEPARATOR.'link';
 
-        // $file does not exists right now: creating "broken" links is a wanted feature
+        // $file does not exist right now: creating "broken" links is a wanted feature
         $this->filesystem->symlink($file, $link);
 
         $this->assertTrue(is_link($link));
@@ -1111,10 +1111,14 @@ class FilesystemTest extends FilesystemTestCase
             ['/../aa/bb/cc', '/aa/dd/..', 'bb/cc/'],
             ['/../../aa/../bb/cc', '/aa/dd/..', '../bb/cc/'],
             ['C:/aa/bb/cc', 'C:/aa/dd/..', 'bb/cc/'],
+            ['C:/aa/bb/cc', 'c:/aa/dd/..', 'bb/cc/'],
             ['c:/aa/../bb/cc', 'c:/aa/dd/..', '../bb/cc/'],
             ['C:/aa/bb/../../cc', 'C:/aa/../dd/..', 'cc/'],
             ['C:/../aa/bb/cc', 'C:/aa/dd/..', 'bb/cc/'],
             ['C:/../../aa/../bb/cc', 'C:/aa/dd/..', '../bb/cc/'],
+            ['D:/', 'C:/aa/../bb/cc', 'D:/'],
+            ['D:/aa/bb', 'C:/aa', 'D:/aa/bb/'],
+            ['D:/../../aa/../bb/cc', 'C:/aa/dd/..', 'D:/bb/cc/'],
         ];
 
         if ('\\' === \DIRECTORY_SEPARATOR) {

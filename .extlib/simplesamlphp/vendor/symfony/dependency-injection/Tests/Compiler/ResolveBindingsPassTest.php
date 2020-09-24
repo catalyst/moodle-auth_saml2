@@ -18,7 +18,6 @@ use Symfony\Component\DependencyInjection\Compiler\DefinitionErrorExceptionPass;
 use Symfony\Component\DependencyInjection\Compiler\ResolveBindingsPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
-use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\Tests\Fixtures\CaseSensitiveClass;
 use Symfony\Component\DependencyInjection\Tests\Fixtures\NamedArgumentsDummy;
@@ -66,7 +65,7 @@ class ResolveBindingsPassTest extends TestCase
     public function testMissingParent()
     {
         $this->expectException('Symfony\Component\DependencyInjection\Exception\InvalidArgumentException');
-        $this->expectExceptionMessageRegExp('/Unused binding "\$quz" in service [\s\S]+/');
+        $this->expectExceptionMessageMatches('/Unused binding "\$quz" in service [\s\S]+/');
 
         $container = new ContainerBuilder();
 

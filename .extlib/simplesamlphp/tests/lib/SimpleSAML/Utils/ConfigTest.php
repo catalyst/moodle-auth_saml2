@@ -2,6 +2,7 @@
 
 namespace SimpleSAML\Test\Utils;
 
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use SimpleSAML\Utils\Config;
 
@@ -10,9 +11,9 @@ use SimpleSAML\Utils\Config;
  */
 class ConfigTest extends TestCase
 {
-
     /**
      * Test default config dir with not environment variable
+     * @return void
      */
     public function testDefaultConfigDir()
     {
@@ -20,16 +21,17 @@ class ConfigTest extends TestCase
         putenv('SIMPLESAMLPHP_CONFIG_DIR');
         $configDir = Config::getConfigDir();
 
-        $this->assertEquals($configDir, dirname(dirname(dirname(dirname(__DIR__)))).'/config');
+        $this->assertEquals($configDir, dirname(dirname(dirname(dirname(__DIR__)))) . '/config');
     }
 
 
     /**
      * Test valid dir specified by env var overrides default config dir
+     * @return void
      */
     public function testEnvVariableConfigDir()
     {
-        putenv('SIMPLESAMLPHP_CONFIG_DIR='.__DIR__);
+        putenv('SIMPLESAMLPHP_CONFIG_DIR=' . __DIR__);
         $configDir = Config::getConfigDir();
 
         $this->assertEquals($configDir, __DIR__);
@@ -37,22 +39,25 @@ class ConfigTest extends TestCase
 
     /**
      * Test valid dir specified by env redirect var overrides default config dir
+     * @return void
      */
     public function testEnvRedirectVariableConfigDir()
     {
-        putenv('REDIRECT_SIMPLESAMLPHP_CONFIG_DIR='.__DIR__);
+        putenv('REDIRECT_SIMPLESAMLPHP_CONFIG_DIR=' . __DIR__);
         $configDir = Config::getConfigDir();
 
         $this->assertEquals($configDir, __DIR__);
     }
 
+
     /**
      * Test which directory takes precedence
+     * @return void
      */
     public function testEnvRedirectPriorityVariableConfigDir()
     {
-        putenv('SIMPLESAMLPHP_CONFIG_DIR='.dirname(__DIR__));
-        putenv('REDIRECT_SIMPLESAMLPHP_CONFIG_DIR='.__DIR__);
+        putenv('SIMPLESAMLPHP_CONFIG_DIR=' . dirname(__DIR__));
+        putenv('REDIRECT_SIMPLESAMLPHP_CONFIG_DIR=' . __DIR__);
         $configDir = Config::getConfigDir();
 
         $this->assertEquals($configDir, dirname(__DIR__));
@@ -61,17 +66,18 @@ class ConfigTest extends TestCase
 
     /**
      * Test invalid dir specified by env var results in a thrown exception
+     * @return void
      */
     public function testInvalidEnvVariableConfigDirThrowsException()
     {
         // I used a random hash to ensure this test directory is always invalid
-        $invalidDir = __DIR__.'/e9826ad19cbc4f5bf20c0913ffcd2ce6';
-        putenv('SIMPLESAMLPHP_CONFIG_DIR='.$invalidDir);
+        $invalidDir = __DIR__ . '/e9826ad19cbc4f5bf20c0913ffcd2ce6';
+        putenv('SIMPLESAMLPHP_CONFIG_DIR=' . $invalidDir);
 
-        $this->setExpectedException(
-            'InvalidArgumentException',
-            'Config directory specified by environment variable SIMPLESAMLPHP_CONFIG_DIR is not a directory.  '.
-            'Given: "'.$invalidDir.'"'
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            'Config directory specified by environment variable SIMPLESAMLPHP_CONFIG_DIR is not a directory.  ' .
+            'Given: "' . $invalidDir . '"'
         );
 
         Config::getConfigDir();

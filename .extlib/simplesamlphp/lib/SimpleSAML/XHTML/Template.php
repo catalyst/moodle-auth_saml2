@@ -1,7 +1,5 @@
 <?php
 
-namespace SimpleSAML\XHTML;
-
 /**
  * A minimalistic XHTML PHP based template system implemented for SimpleSAMLphp.
  *
@@ -9,10 +7,21 @@ namespace SimpleSAML\XHTML;
  * @package SimpleSAMLphp
  */
 
-use JaimePerez\TwigConfigurableI18n\Twig\Environment as Twig_Environment;
-use JaimePerez\TwigConfigurableI18n\Twig\Extensions\Extension\I18n as Twig_Extensions_Extension_I18n;
-use Symfony\Component\HttpFoundation\Response;
+namespace SimpleSAML\XHTML;
+
+use SimpleSAML\Configuration;
+use SimpleSAML\Locale\Language;
 use SimpleSAML\Locale\Localization;
+use SimpleSAML\Locale\Translate;
+use SimpleSAML\Logger;
+use SimpleSAML\Module;
+use SimpleSAML\TwigConfigurableI18n\Twig\Environment as Twig_Environment;
+use SimpleSAML\TwigConfigurableI18n\Twig\Extensions\Extension\I18n as Twig_Extensions_Extension_I18n;
+use SimpleSAML\Utils;
+use Symfony\Component\HttpFoundation\Response;
+use Twig\Loader\FilesystemLoader;
+use Twig\TwigFilter;
+use Twig\TwigFunction;
 
 class Template extends Response
 {
@@ -54,9 +63,10 @@ class Template extends Response
     /**
      * The twig environment.
      *
-     * @var false|Twig_Environment
+     * @var \Twig\Environment
+     * @psalm-suppress PropertyNotSetInConstructor  Remove this annotation in 2.0
      */
-    private $twig = false;
+    private $twig;
 
     /**
      * The template name.
@@ -67,6 +77,8 @@ class Template extends Response
 
     /**
      * Current module, if any.
+     *
+     * @var string
      */
     private $module;
 
@@ -75,7 +87,7 @@ class Template extends Response
      *
      * @var bool
      */
-    private $useNewUI;
+    private $useNewUI = false;
 
 
     /**
@@ -85,9 +97,9 @@ class Template extends Response
      * the 'theme.controller' configuration option to a class that implements the
      * \SimpleSAML\XHTML\TemplateControllerInterface interface to use it.
      *
-     * @var \SimpleSAML\XHTML\TemplateControllerInterface
+     * @var \SimpleSAML\XHTML\TemplateControllerInterface|null
      */
-    private $controller;
+    private $controller = null;
 
 
     /**
@@ -99,7 +111,7 @@ class Template extends Response
      *
      * @var array
      */
-    private $theme;
+    private $theme = ['module' => null, 'name' => 'default'];
 
     /**
      * Constructor
@@ -108,7 +120,7 @@ class Template extends Response
      * @param string                   $template Which template file to load
      * @param string|null              $defaultDictionary The default dictionary where tags will come from.
      */
-    public function __construct(\SimpleSAML\Configuration $configuration, $template, $defaultDictionary = null)
+    public function __construct(Configuration $configuration, $template, $defaultDictionary = null)
     {
         $this->configuration = $configuration;
         $this->template = $template;
@@ -124,8 +136,8 @@ class Template extends Response
         );
 
         // initialize internationalization system
-        $this->translator = new \SimpleSAML\Locale\Translate($configuration, $defaultDictionary);
-        $this->localization = new \SimpleSAML\Locale\Localization($configuration);
+        $this->translator = new Translate($configuration, $defaultDictionary);
+        $this->localization = new Localization($configuration);
 
         // check if we are supposed to use the new UI
         $this->useNewUI = $this->configuration->getBoolean('usenewui', false);
@@ -133,14 +145,19 @@ class Template extends Response
         if ($this->useNewUI) {
             // check if we need to attach a theme controller
             $controller = $this->configuration->getString('theme.controller', false);
-            if ($controller && class_exists($controller) &&
-                in_array('SimpleSAML\XHTML\TemplateControllerInterface', class_implements($controller))
+            if (
+                $controller
+                && class_exists($controller)
+                && in_array(TemplateControllerInterface::class, class_implements($controller))
             ) {
+                /** @var \SimpleSAML\XHTML\TemplateControllerInterface $this->controller */
                 $this->controller = new $controller();
             }
 
             $this->twig = $this->setupTwig();
         }
+
+        $this->charset = 'UTF-8';
         parent::__construct();
     }
 
@@ -148,24 +165,34 @@ class Template extends Response
     /**
      * Return the URL of an asset, including a cache-buster parameter that depends on the last modification time of
      * the original file.
-     *
      * @param string $asset
+     * @param string|null $module
      * @return string
      */
-    public function asset($asset)
+    public function asset($asset, $module = null)
     {
-        $file = $this->configuration->getBaseDir().'www/assets/'.$asset;
+        $baseDir = $this->configuration->getBaseDir();
+        if (is_null($module)) {
+            $file = $baseDir . 'www/assets/' . $asset;
+            $basePath =  $this->configuration->getBasePath();
+            $path = $basePath . 'assets/' . $asset;
+        } else {
+            $file = $baseDir . 'modules/' . $module . '/www/assets/' . $asset;
+            $path = Module::getModuleUrl($module . '/assets/' . $asset);
+        }
+
         if (!file_exists($file)) {
             // don't be too harsh if an asset is missing, just pretend it's there...
-            return $this->configuration->getBasePath().'assets/'.$asset;
+            return $path;
         }
 
         $tag = $this->configuration->getVersion();
         if ($tag === 'master') {
-            $tag = filemtime($file);
+            $tag = strval(filemtime($file));
         }
         $tag = substr(hash('md5', $tag), 0, 5);
-        return $this->configuration->getBasePath().'assets/'.$asset.'?tag='.$tag;
+
+        return $path . '?tag=' . $tag;
     }
 
 
@@ -200,8 +227,8 @@ class Template extends Response
             $templateName = substr($templateName, 0, $tplpos);
         }
 
-        if ($this->useNewUI || $this->theme['module'] !== null) {
-            return $templateName.'.twig';
+        if ($this->useNewUI) {
+            return $templateName . '.twig';
         }
         return $templateName;
     }
@@ -211,7 +238,7 @@ class Template extends Response
      * Set up the places where twig can look for templates.
      *
      * @return TemplateLoader The twig template loader or false if the template does not exist.
-     * @throws \Twig_Error_Loader In case a failure occurs.
+     * @throws \Twig\Error\LoaderError In case a failure occurs.
      */
     private function setupTwigTemplatepaths()
     {
@@ -219,11 +246,13 @@ class Template extends Response
 
         // get namespace if any
         list($namespace, $filename) = $this->findModuleAndTemplateName($filename);
-        $this->twig_template = ($namespace !== null) ? '@'.$namespace.'/'.$filename : $filename;
+        $this->twig_template = ($namespace !== null) ? '@' . $namespace . '/' . $filename : $filename;
         $loader = new TemplateLoader();
         $templateDirs = $this->findThemeTemplateDirs();
         if ($this->module && $this->module != 'core') {
-            $templateDirs[] = [$this->module => TemplateLoader::getModuleTemplateDir($this->module)];
+            $modDir = TemplateLoader::getModuleTemplateDir($this->module);
+            $templateDirs[] = [$this->module => $modDir];
+            $templateDirs[] = ['__parent__' => $modDir];
         }
         if ($this->theme['module']) {
             try {
@@ -239,7 +268,7 @@ class Template extends Response
 
         // default, themeless templates are checked last
         $templateDirs[] = [
-            \Twig_Loader_Filesystem::MAIN_NAMESPACE => $this->configuration->resolvePath('templates')
+            FilesystemLoader::MAIN_NAMESPACE => $this->configuration->resolvePath('templates')
         ];
         foreach ($templateDirs as $entry) {
             $loader->addPath($entry[key($entry)], key($entry));
@@ -250,16 +279,20 @@ class Template extends Response
 
     /**
      * Setup twig.
+     * @return \Twig\Environment
+     * @throws \Exception if the template does not exist
      */
     private function setupTwig()
     {
         $auto_reload = $this->configuration->getBoolean('template.auto_reload', true);
         $cache = $this->configuration->getString('template.cache', false);
+
         // set up template paths
         $loader = $this->setupTwigTemplatepaths();
+
         // abort if twig template does not exist
         if (!$loader->exists($this->twig_template)) {
-            return false;
+            throw new \Exception('Template-file \"' . $this->getTemplateName() . '\" does not exist.');
         }
 
         // load extra i18n domains
@@ -274,12 +307,14 @@ class Template extends Response
         $options = [
             'cache' => $cache,
             'auto_reload' => $auto_reload,
-            'translation_function' => ['\SimpleSAML\Locale\Translate', 'translateSingularGettext'],
-            'translation_function_plural' => ['\SimpleSAML\Locale\Translate', 'translatePluralGettext'],
+            'translation_function' => [Translate::class, 'translateSingularGettext'],
+            'translation_function_plural' => [Translate::class, 'translatePluralGettext'],
         ];
 
         $twig = new Twig_Environment($loader, $options);
         $twig->addExtension(new Twig_Extensions_Extension_I18n());
+
+        $twig->addFunction(new TwigFunction('moduleURL', [Module::class, 'getModuleURL']));
 
         // initialize some basic context
         $langParam = $this->configuration->getString('language.parameter.name', 'language');
@@ -297,20 +332,21 @@ class Template extends Response
         $twig->addGlobal('queryParams', $queryParams);
         $twig->addGlobal('templateId', str_replace('.twig', '', $this->normalizeTemplateName($this->template)));
         $twig->addGlobal('isProduction', $this->configuration->getBoolean('production', true));
+        $twig->addGlobal('baseurlpath', ltrim($this->configuration->getBasePath(), '/'));
 
         // add a filter for translations out of arrays
         $twig->addFilter(
-            new \Twig_SimpleFilter(
+            new TwigFilter(
                 'translateFromArray',
-                ['\SimpleSAML\Locale\Translate', 'translateFromArray'],
+                [Translate::class, 'translateFromArray'],
                 ['needs_context' => true]
             )
         );
 
         // add an asset() function
-        $twig->addFunction(new \Twig_SimpleFunction('asset', [$this, 'asset']));
+        $twig->addFunction(new TwigFunction('asset', [$this, 'asset']));
 
-        if ($this->controller) {
+        if ($this->controller !== null) {
             $this->controller->setUpTwig($twig);
         }
 
@@ -324,31 +360,31 @@ class Template extends Response
      */
     private function findThemeTemplateDirs()
     {
-        if ($this->theme['module'] === null) {
+        if (!isset($this->theme['module'])) {
             // no module involved
             return [];
         }
 
         // setup directories & namespaces
-        $themeDir = \SimpleSAML\Module::getModuleDir($this->theme['module']).'/themes/'.$this->theme['name'];
+        $themeDir = Module::getModuleDir($this->theme['module']) . '/themes/' . $this->theme['name'];
         $subdirs = scandir($themeDir);
         if (empty($subdirs)) {
             // no subdirectories in the theme directory, nothing to do here
             // this is probably wrong, log a message
-            \SimpleSAML\Logger::warning('Empty theme directory for theme "'.$this->theme['name'].'".');
+            Logger::warning('Empty theme directory for theme "' . $this->theme['name'] . '".');
             return [];
         }
 
         $themeTemplateDirs = [];
         foreach ($subdirs as $entry) {
             // discard anything that's not a directory. Expression is negated to profit from lazy evaluation
-            if (!($entry !== '.' && $entry !== '..' && is_dir($themeDir.'/'.$entry))) {
+            if (!($entry !== '.' && $entry !== '..' && is_dir($themeDir . '/' . $entry))) {
                 continue;
             }
 
             // set correct name for the default namespace
-            $ns = ($entry === 'default') ? \Twig_Loader_Filesystem::MAIN_NAMESPACE : $entry;
-            $themeTemplateDirs[] = [$ns => $themeDir.'/'.$entry];
+            $ns = ($entry === 'default') ? FilesystemLoader::MAIN_NAMESPACE : $entry;
+            $themeTemplateDirs[] = [$ns => $themeDir . '/' . $entry];
         }
         return $themeTemplateDirs;
     }
@@ -357,20 +393,21 @@ class Template extends Response
     /**
      * Get the template directory of a module, if it exists.
      *
+     * @param string $module
      * @return string The templates directory of a module
      *
      * @throws \InvalidArgumentException If the module is not enabled or it has no templates directory.
      */
     private function getModuleTemplateDir($module)
     {
-        if (!\SimpleSAML\Module::isModuleEnabled($module)) {
-            throw new \InvalidArgumentException('The module \''.$module.'\' is not enabled.');
+        if (!Module::isModuleEnabled($module)) {
+            throw new \InvalidArgumentException('The module \'' . $module . '\' is not enabled.');
         }
-        $moduledir = \SimpleSAML\Module::getModuleDir($module);
+        $moduledir = Module::getModuleDir($module);
         // check if module has a /templates dir, if so, append
-        $templatedir = $moduledir.'/templates';
+        $templatedir = $moduledir . '/templates';
         if (!is_dir($templatedir)) {
-            throw new \InvalidArgumentException('The module \''.$module.'\' has no templates directory.');
+            throw new \InvalidArgumentException('The module \'' . $module . '\' has no templates directory.');
         }
         return $templatedir;
     }
@@ -382,13 +419,13 @@ class Template extends Response
      * Note that the module must be installed, enabled, and contain a "templates" directory.
      *
      * @param string $module The module where we need to search for templates.
-     *
      * @throws \InvalidArgumentException If the module is not enabled or it has no templates directory.
+     * @return void
      */
     public function addTemplatesFromModule($module)
     {
         $dir = TemplateLoader::getModuleTemplateDir($module);
-        /** @var \Twig_Loader_Filesystem $loader */
+        /** @var \Twig\Loader\FilesystemLoader $loader */
         $loader = $this->twig->getLoader();
         $loader->addPath($dir, $module);
     }
@@ -398,7 +435,7 @@ class Template extends Response
      * Generate an array for its use in the language bar, indexed by the ISO 639-2 codes of the languages available,
      * containing their localized names and the URL that should be used in order to change to that language.
      *
-     * @return array The array containing information of all available languages.
+     * @return array|null The array containing information of all available languages.
      */
     private function generateLanguageBar()
     {
@@ -413,7 +450,7 @@ class Template extends Response
                 $langname = $this->translator->getLanguage()->getLanguageLocalizedName($lang);
                 $url = false;
                 if (!$current) {
-                    $url = htmlspecialchars(\SimpleSAML\Utils\HTTP::addURLParameters(
+                    $url = htmlspecialchars(Utils\HTTP::addURLParameters(
                         '',
                         [$parameterName => $lang]
                     ));
@@ -430,6 +467,7 @@ class Template extends Response
 
     /**
      * Set some default context
+     * @return void
      */
     private function twigDefaultContext()
     {
@@ -497,12 +535,13 @@ class Template extends Response
      * This method is a remnant of the old templating system, where templates where shown manually instead of
      * returning a response.
      *
+     * @return void
      * @deprecated Do not use this method, use Twig + send() instead. Will be removed in 2.0
      */
     public function show()
     {
-        if ($this->twig !== false) {
-            echo $this->getContents();            
+        if ($this->useNewUI) {
+            echo $this->getContents();
         } else {
             require($this->findTemplatePath($this->template));
         }
@@ -533,14 +572,16 @@ class Template extends Response
      * template file in the given module.
      *
      * @param string $template The relative path from the theme directory to the template file.
+     * @param bool $throw_exception
      *
-     * @return string The absolute path to the template file.
+     * @return string|null The absolute path to the template file.
      *
      * @throws \Exception If the template file couldn't be found.
      */
     private function findTemplatePath($template, $throw_exception = true)
     {
         assert(is_string($template));
+        $extensions = ['.tpl.php', '.php'];
 
         list($templateModule, $templateName) = $this->findModuleAndTemplateName($template);
         $templateModule = ($templateModule !== null) ? $templateModule : 'default';
@@ -549,44 +590,52 @@ class Template extends Response
         if ($this->theme['module'] !== null) {
             // .../module/<themeModule>/themes/<themeName>/<templateModule>/<templateName>
 
-            $filename = \SimpleSAML\Module::getModuleDir($this->theme['module']).
-                '/themes/'.$this->theme['name'].'/'.$templateModule.'/'.$templateName;
+            $filename = Module::getModuleDir($this->theme['module']) .
+                '/themes/' . $this->theme['name'] . '/' . $templateModule . '/' . $templateName;
         } elseif ($templateModule !== 'default') {
             // .../module/<templateModule>/templates/<templateName>
-            $filename = \SimpleSAML\Module::getModuleDir($templateModule).'/templates/'.$templateName;
+            $filename = Module::getModuleDir($templateModule) . '/templates/' . $templateName;
         } else {
             // .../templates/<theme>/<templateName>
-            $filename = $this->configuration->getPathValue('templatedir', 'templates/').$templateName;
+            $base = $this->configuration->getPathValue('templatedir', 'templates/') ?: 'templates/';
+            $filename = $base . $templateName;
         }
 
-        if (file_exists($filename)) {
-            return $filename;
+        $filename = $this->normalizeTemplateName($filename);
+        foreach ($extensions as $extension) {
+            if (file_exists($filename . $extension)) {
+                return $filename . $extension;
+            }
         }
 
         // not found in current theme
-        \SimpleSAML\Logger::debug(
-            $_SERVER['PHP_SELF'].' - Template: Could not find template file ['.$template.'] at ['.
-            $filename.'] - now trying the base template'
+        Logger::debug(
+            $_SERVER['PHP_SELF'] . ' - Template: Could not find template file [' . $template . '] at [' .
+            $filename . '] - now trying the base template'
         );
 
         // try default theme
         if ($templateModule !== 'default') {
             // .../module/<templateModule>/templates/<templateName>
-            $filename = \SimpleSAML\Module::getModuleDir($templateModule).'/templates/'.$templateName;
+            $filename = Module::getModuleDir($templateModule) . '/templates/' . $templateName;
         } else {
             // .../templates/<templateName>
-            $filename = $this->configuration->getPathValue('templatedir', 'templates/').'/'.$templateName;
+            $base = $this->configuration->getPathValue('templatedir', 'templates/') ?: 'templates/';
+            $filename = $base . '/' . $templateName;
         }
 
-        if (file_exists($filename)) {
-            return $filename;
+        $filename = $this->normalizeTemplateName($filename);
+        foreach ($extensions as $extension) {
+            if (file_exists($filename . $extension)) {
+                return $filename . $extension;
+            }
         }
 
         // not found in default template
         if ($throw_exception) {
             // log error and throw exception
-            $error = 'Template: Could not find template file ['.$template.'] at ['.$filename.']';
-            \SimpleSAML\Logger::critical($_SERVER['PHP_SELF'].' - '.$error);
+            $error = 'Template: Could not find template file [' . $template . '] at [' . $filename . ']';
+            Logger::critical($_SERVER['PHP_SELF'] . ' - ' . $error);
 
             throw new \Exception($error);
         } else {
@@ -621,7 +670,7 @@ class Template extends Response
     /**
      * Get the current instance of Twig in use.
      *
-     * @return false|Twig_Environment The Twig instance in use, or false if Twig is not used.
+     * @return \Twig\Environment The Twig instance in use, or null if Twig is not used.
      */
     public function getTwig()
     {
@@ -635,7 +684,7 @@ class Template extends Response
 
 
     /**
-     * @param $name
+     * @param string $name
      *
      * @return string
      * @deprecated This method will be removed in SSP 2.0. Please use \SimpleSAML\Locale\Language::getLanguage()
@@ -659,8 +708,9 @@ class Template extends Response
 
 
     /**
-     * @param      $language
+     * @param string $language
      * @param bool $setLanguageCookie
+     * @return void
      *
      * @deprecated This method will be removed in SSP 2.0. Please use \SimpleSAML\Locale\Language::setLanguage()
      * instead.
@@ -678,24 +728,27 @@ class Template extends Response
      */
     public static function getLanguageCookie()
     {
-        return \SimpleSAML\Locale\Language::getLanguageCookie();
+        return Language::getLanguageCookie();
     }
 
 
     /**
-     * @param $language
+     * @param string $language
+     * @return void
      *
      * @deprecated This method will be removed in SSP 2.0. Please use \SimpleSAML\Locale\Language::setLanguageCookie()
      * instead.
      */
     public static function setLanguageCookie($language)
     {
-        \SimpleSAML\Locale\Language::setLanguageCookie($language);
+        Language::setLanguageCookie($language);
     }
 
 
     /**
      * Wraps Language->getLanguageList
+     *
+     * @return array
      */
     private function getLanguageList()
     {
@@ -704,9 +757,9 @@ class Template extends Response
 
 
     /**
-     * @param $tag
+     * @param string $tag
      *
-     * @return array
+     * @return array|null
      * @deprecated This method will be removed in SSP 2.0. Please use \SimpleSAML\Locale\Translate::getTag() instead.
      */
     public function getTag($tag)
@@ -720,6 +773,9 @@ class Template extends Response
      *
      * @deprecated This method will be removed in SSP 2.0. Please use
      * \SimpleSAML\Locale\Translate::getPreferredTranslation() instead.
+     *
+     * @param array $translations
+     * @return string
      */
     public function getTranslation($translations)
     {
@@ -731,6 +787,9 @@ class Template extends Response
      * Includes a file relative to the template base directory.
      * This function can be used to include headers and footers etc.
      *
+     * @deprecated This function will be removed in SSP 2.0. Use Twig-templates instead
+     * @param string $file
+     * @return void
      */
     private function includeAtTemplateBase($file)
     {
@@ -748,6 +807,10 @@ class Template extends Response
      * @see \SimpleSAML\Locale\Translate::includeInlineTranslation()
      * @deprecated This method will be removed in SSP 2.0. Please use
      * \SimpleSAML\Locale\Translate::includeInlineTranslation() instead.
+     *
+     * @param string $tag
+     * @param string $translation
+     * @return void
      */
     public function includeInlineTranslation($tag, $translation)
     {
@@ -758,6 +821,7 @@ class Template extends Response
     /**
      * @param string $file
      * @param \SimpleSAML\Configuration|null $otherConfig
+     * @return void
      *
      * @deprecated This method will be removed in SSP 2.0. Please use
      * \SimpleSAML\Locale\Translate::includeLanguageFile() instead.
@@ -770,6 +834,8 @@ class Template extends Response
 
     /**
      * Wrap Language->isLanguageRTL
+     *
+     * @return bool
      */
     private function isLanguageRTL()
     {
@@ -802,6 +868,9 @@ class Template extends Response
      *
      * @see \SimpleSAML\Locale\Translate::noop()
      * @deprecated This method will be removed in SSP 2.0. Please use \SimpleSAML\Locale\Translate::noop() instead.
+     *
+     * @param string $tag
+     * @return string
      */
     public static function noop($tag)
     {
@@ -814,6 +883,13 @@ class Template extends Response
      *
      * @see \SimpleSAML\Locale\Translate::t()
      * @deprecated This method will be removed in SSP 2.0. Please use \SimpleSAML\Locale\Translate::t() instead.
+     *
+     * @param string $tag
+     * @param array $replacements
+     * @param bool $fallbackdefault
+     * @param array $oldreplacements
+     * @param bool $striptags
+     * @return string|null
      */
     public function t(
         $tag,

@@ -12,7 +12,6 @@ use SimpleSAML\Module\core\Controller;
 use SimpleSAML\Session;
 use SimpleSAML\Test\Utils\ClearStateTestCase;
 use SimpleSAML\XHTML\Template;
-
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -26,7 +25,6 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class ControllerTest extends ClearStateTestCase
 {
-
     /** @var array */
     protected $authSources;
 
@@ -42,6 +40,7 @@ class ControllerTest extends ClearStateTestCase
 
     /**
      * Set up for each test.
+     * @return void
      */
     protected function setUp()
     {
@@ -73,18 +72,24 @@ class ControllerTest extends ClearStateTestCase
     /**
      * Test that authentication is started immediately if we hit the login endpoint and there's only one non-admin
      * source configured.
+     * @return void
      */
     public function testAutomaticLoginWhenOnlyOneSource()
     {
         $asConfig = Configuration::loadFromArray($this->authSources);
         Configuration::setPreLoadedConfig($asConfig, 'authsources.php');
+
         $request = new Request();
         $session = Session::getSessionFromRequest();
         $factory = new AuthenticationFactory($this->config, $session);
+
         $c = new Controller($this->config, $session, $factory);
+        /** @var \SimpleSAML\HTTP\RunnableResponse $response */
         $response = $c->login($request);
+
         $this->assertInstanceOf(RunnableResponse::class, $response);
         list($object, $method) = $response->getCallable();
+
         $this->assertInstanceOf(Simple::class, $object);
         $this->assertEquals('login', $method);
         $arguments = $response->getArguments();
@@ -95,6 +100,7 @@ class ControllerTest extends ClearStateTestCase
 
     /**
      * Test that the user can choose what auth source to use when there are multiple defined (admin excluded).
+     * @return void
      */
     public function testMultipleAuthSources()
     {
@@ -110,12 +116,16 @@ class ControllerTest extends ClearStateTestCase
                 ]
             )
         );
+
         Configuration::setPreLoadedConfig($asConfig, 'authsources.php');
         $request = new Request();
         $session = Session::getSessionFromRequest();
         $factory = new AuthenticationFactory($this->config, $session);
+
         $c = new Controller($this->config, $session, $factory);
+        /** @var \SimpleSAML\XHTML\Template $response */
         $response = $c->login($request);
+
         $this->assertInstanceOf(Template::class, $response);
         $this->assertEquals('core:login.twig', $response->getTemplateName());
         $this->assertArrayHasKey('sources', $response->data);
@@ -126,6 +136,7 @@ class ControllerTest extends ClearStateTestCase
 
     /**
      * Test that specifying an invalid auth source while trying to login raises an exception.
+     * @return void
      */
     public function testLoginWithInvalidAuthSource()
     {
@@ -135,7 +146,7 @@ class ControllerTest extends ClearStateTestCase
         $session = Session::getSessionFromRequest();
         $factory = new AuthenticationFactory($this->config, $session);
         $c = new Controller($this->config, $session, $factory);
-        $this->setExpectedException(Exception::class);
+        $this->expectException(Exception::class);
         $c->login($request, 'invalid-auth-source');
     }
 
@@ -143,15 +154,17 @@ class ControllerTest extends ClearStateTestCase
     /**
      * Test that we get redirected to /account/authsource when accessing the login endpoint while being already
      * authenticated.
+     * @return void
      */
     public function testLoginWhenAlreadyAuthenticated()
     {
         $asConfig = Configuration::loadFromArray($this->authSources);
         Configuration::setPreLoadedConfig($asConfig, 'authsources.php');
-        $request = new Request();
+
         $session = Session::getSessionFromRequest();
         $session->setConfiguration($this->config);
         $class = new \ReflectionClass($session);
+
         $authData = $class->getProperty('authData');
         $authData->setAccessible(true);
         $authData->setValue($session, [
@@ -160,11 +173,15 @@ class ControllerTest extends ClearStateTestCase
                 'Attributes' => ['uid' => ['test']],
                 'Authority' => 'example-userpass',
                 'AuthnInstant' => time(),
-                'Expire' => time() + 8 * 60* 60
+                'Expire' => time() + 8 * 60 * 60
             ]
         ]);
+
         $factory = new AuthenticationFactory($this->config, $session);
         $c = new Controller($this->config, $session, $factory);
+
+        $request = new Request();
+        /** @var \Symfony\Component\HttpFoundation\RedirectResponse $response */
         $response = $c->login($request);
         $this->assertInstanceOf(RedirectResponse::class, $response);
         $this->assertEquals(
@@ -176,6 +193,7 @@ class ControllerTest extends ClearStateTestCase
 
     /**
      * Test that triggering the logout controller actually proceeds to log out from the specified source.
+     * @return void
      */
     public function testLogout()
     {
@@ -196,6 +214,7 @@ class ControllerTest extends ClearStateTestCase
     /**
      * Test that accessing the "account" endpoint without being authenticated gets you redirected to the "login"
      * endpoint.
+     * @return void
      */
     public function testNotAuthenticated()
     {
@@ -216,6 +235,7 @@ class ControllerTest extends ClearStateTestCase
 
     /**
      * Test that we are presented with a regular page if we are authenticated and try to access the "account" endpoint.
+     * @return void
      */
     public function testAuthenticated()
     {
@@ -231,7 +251,7 @@ class ControllerTest extends ClearStateTestCase
                 'Attributes' => ['uid' => ['test']],
                 'Authority' => 'example-userpass',
                 'AuthnInstant' => time(),
-                'Expire' => time() + 8 * 60* 60
+                'Expire' => time() + 8 * 60 * 60
             ]
         ]);
         $factory = new AuthenticationFactory($this->config, $session);

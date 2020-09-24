@@ -2,17 +2,16 @@
 
 namespace SimpleSAML\Test\Module\core\Auth\Process;
 
-// Alias the PHPUnit 6.0 ancestor if available, else fall back to legacy ancestor
-if (class_exists('\PHPUnit\Framework\TestCase', true) and !class_exists('\PHPUnit_Framework_TestCase', true)) {
-    class_alias('\PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase', true);
-}
+use SimpleSAML\Utils\HttpAdapter;
 
 /**
  * Test for the core:CardinalitySingle filter.
  */
-class CardinalitySingleTest extends \PHPUnit_Framework_TestCase
+class CardinalitySingleTest extends \PHPUnit\Framework\TestCase
 {
+    /** @var \SimpleSAML\Utils\HttpAdapter|\PHPUnit_Framework_MockObject_MockObject */
     private $http;
+
 
     /**
      * Helper function to run the filter with a given configuration.
@@ -25,21 +24,31 @@ class CardinalitySingleTest extends \PHPUnit_Framework_TestCase
     {
         $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
         $_SERVER['REQUEST_METHOD'] = 'GET';
-        $filter = new \SimpleSAML\Module\core\Auth\Process\CardinalitySingle($config, null, $this->http);
+
+        /** @var \SimpleSAML\Utils\HttpAdapter $http */
+        $http = $this->http;
+
+        $filter = new \SimpleSAML\Module\core\Auth\Process\CardinalitySingle($config, null, $http);
         $filter->process($request);
         return $request;
     }
 
+
+    /**
+     * @return void
+     */
     protected function setUp()
     {
         \SimpleSAML\Configuration::loadFromArray([], '[ARRAY]', 'simplesaml');
-        $this->http = $this->getMockBuilder('SimpleSAML\Utils\HTTPAdapter')
+        $this->http = $this->getMockBuilder(HttpAdapter::class)
                            ->setMethods(['redirectTrustedURL'])
                            ->getMock();
     }
 
+
     /**
      * Test singleValued
+     * @return void
      */
     public function testSingleValuedUnchanged()
     {
@@ -57,8 +66,10 @@ class CardinalitySingleTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedData, $attributes, "Assertion values should not have changed");
     }
 
+
     /**
      * Test first value extraction
+     * @return void
      */
     public function testFirstValue()
     {
@@ -76,6 +87,10 @@ class CardinalitySingleTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedData, $attributes, "Only first value should be returned");
     }
 
+
+    /**
+     * @return void
+     */
     public function testFirstValueUnchanged()
     {
         $config = [
@@ -92,8 +107,10 @@ class CardinalitySingleTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedData, $attributes, "Assertion values should not have changed");
     }
 
+
     /**
      * Test flattening
+     * @return void
      */
     public function testFlatten()
     {
@@ -112,6 +129,10 @@ class CardinalitySingleTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedData, $attributes, "Flattened string should be returned");
     }
 
+
+    /**
+     * @return void
+     */
     public function testFlattenUnchanged()
     {
         $config = [
@@ -129,8 +150,10 @@ class CardinalitySingleTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedData, $attributes, "Assertion values should not have changed");
     }
 
+
     /**
      * Test abort
+     * @return void
      */
     public function testAbort()
     {
@@ -143,6 +166,7 @@ class CardinalitySingleTest extends \PHPUnit_Framework_TestCase
             ],
         ];
 
+        /** @psalm-suppress UndefinedMethod */
         $this->http->expects($this->once())
                    ->method('redirectTrustedURL');
 

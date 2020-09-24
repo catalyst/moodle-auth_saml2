@@ -31,6 +31,7 @@ class RunnableResponse extends Response
     {
         $this->arguments = $args;
         $this->callable = $callable;
+        $this->charset = 'UTF-8';
         parent::__construct();
     }
 
@@ -60,9 +61,9 @@ class RunnableResponse extends Response
     /**
      * "Send" this response by actually running the callable.
      *
-     * @return mixed
+     * @return self
      */
-    public function send()
+    public function sendContent()
     {
         return call_user_func_array($this->callable, $this->arguments);
     }

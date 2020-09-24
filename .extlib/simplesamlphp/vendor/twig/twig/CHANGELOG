@@ -1,3 +1,12 @@
+* 1.42.5 (2020-02-11)
+
+ * Fix implementation of case-insensitivity for method names
+
+* 1.42.4 (2019-11-11)
+
+ * optimized "block('foo') ?? 'bar"
+ * added supported for exponential numbers
+
 * 1.42.3 (2019-08-24)
 
  * fixed the "split" filter when the delimiter is "0"

@@ -18,6 +18,7 @@ module.exports = environment => {
     return {
         entry: {
             bundle: './src/js/bundle',
+            logout: './src/js/logout/main',
             stylesheet: './src/js/style'
         },
         output: {
@@ -83,13 +84,15 @@ module.exports = environment => {
                 filename: localConfig['css_filename'],
                 ignoreOrder: true
             }),
-            new CopyWebpackPlugin([
-                {
-                    from: path.resolve(__dirname + '/node_modules/font-awesome/fonts/*'),
-                    to: 'fonts/',
-                    flatten: true
-                }
-            ])
+            new CopyWebpackPlugin({
+                patterns: [
+                    {
+                        from: path.resolve(__dirname + '/node_modules/font-awesome/fonts/*'),
+                        to: 'fonts/',
+                        flatten: true
+                    }
+                ],
+            }),
         ]
     }
 };
