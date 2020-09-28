@@ -288,6 +288,20 @@ class SP extends \SimpleSAML\Auth\Source
     {
         assert(is_string($entityId));
 
+        global $saml2auth;
+        if ($this->idp !== null && $this->idp !== $entityId) {
+            foreach ($saml2auth->metadataentities as $metadataurl => $idpentities) {
+                if ($metadataurl == $entityId) {
+                    foreach ($idpentities as $key => $val) {
+                        if ($key == $this->idp) {
+                            $this->idp = null;
+                        }
+                        break 2;
+
+                    }
+                }
+            }
+        }
         if ($this->idp !== null && $this->idp !== $entityId) {
             throw new Error\Exception('Cannot retrieve metadata for IdP ' .
                 var_export($entityId, true) . ' because it isn\'t a valid IdP for this SP.');
@@ -464,6 +478,7 @@ class SP extends \SimpleSAML\Auth\Source
      */
     private function startSSO1(Configuration $idpMetadata, array $state)
     {
+        global $CFG;
         $idpEntityId = $idpMetadata->getString('entityid');
 
         $state['saml:idp'] = $idpEntityId;
@@ -473,7 +488,9 @@ class SP extends \SimpleSAML\Auth\Source
 
         $id = Auth\State::saveState($state, 'saml:sp:sso');
         $ar->setRelayState($id);
+        $shire = $CFG->wwwroot . '/auth/saml2/sp/saml1-acs.php/' . $this->authId;
 
+        /* MOODLE CHANGE;
         $useArtifact = $idpMetadata->getBoolean('saml1.useartifact', null);
         if ($useArtifact === null) {
             $useArtifact = $this->metadata->getBoolean('saml1.useartifact', false);
@@ -484,6 +501,7 @@ class SP extends \SimpleSAML\Auth\Source
         } else {
             $shire = Module::getModuleURL('saml/sp/saml1-acs.php/' . $this->authId);
         }
+        */
 
         $url = $ar->createRedirect($idpEntityId, $shire);
 
@@ -511,7 +529,10 @@ class SP extends \SimpleSAML\Auth\Source
 
         $ar = Module\saml\Message::buildAuthnRequest($this->metadata, $idpMetadata);
 
-        $ar->setAssertionConsumerServiceURL(Module::getModuleURL('saml/sp/saml2-acs.php/' . $this->authId));
+         // auth_saml2 modification
+        $baseurl = \SimpleSAML\Module::getModuleURL('saml/sp/saml2-acs.php/' . $this->authId);
+        $baseurl = str_replace('module.php/saml/sp/', '', $baseurl);
+        $ar->setAssertionConsumerServiceURL($baseurl);
 
         if (isset($state['\SimpleSAML\Auth\Source.ReturnURL'])) {
             $ar->setRelayState($state['\SimpleSAML\Auth\Source.ReturnURL']);
@@ -682,6 +703,12 @@ class SP extends \SimpleSAML\Auth\Source
         $ar->setDestination($dst['Location']);
 
         $b = Binding::getBinding($dst['Binding']);
+
+        // This is a Moodle hack. Both moodle and SSPHP rely on automatic
+        // destructors to cleanup the $DB var and the SSPHP session but
+        // this order is not guaranteed, so we force session saving here.
+        $session = \SimpleSAML\Session::getSessionFromRequest();
+        $session->save();
 
         $this->sendSAML2AuthnRequest($state, $b, $ar);
 
@@ -1181,11 +1208,18 @@ class SP extends \SimpleSAML\Auth\Source
      */
     public static function handleUnsolicitedAuth($authId, array $state, $redirectTo)
     {
+        global $SESSION, $saml2auth;
         assert(is_string($authId));
         assert(is_string($redirectTo));
 
         $session = Session::getSessionFromRequest();
         $session->doLogin($authId, Auth\State::getPersistentAuthData($state));
+
+        // Moodle hack to handle IdP unsolicited logins.
+        $wantsurl = (new \moodle_url($redirectTo))->out(false);
+        $SESSION->wantsurl = $wantsurl;
+        $saml2auth->saml_login_complete($state['Attributes']);
+        // Should never get to here.
 
         Utils\HTTP::redirectUntrustedURL($redirectTo);
     }
