@@ -2,6 +2,9 @@
 
 namespace SimpleSAML;
 
+use PDO;
+use PDOException;
+
 /**
  * This file implements functions to read and write to a group of database servers.
  *
@@ -77,7 +80,7 @@ class Database
     {
         $driverOptions = $config->getArray('database.driver_options', []);
         if ($config->getBoolean('database.persistent', true)) {
-            $driverOptions = [\PDO::ATTR_PERSISTENT => true];
+            $driverOptions = [PDO::ATTR_PERSISTENT => true];
         }
 
         // connect to the master
@@ -144,12 +147,12 @@ class Database
     private function connect($dsn, $username, $password, $options)
     {
         try {
-            $db = new \PDO($dsn, $username, $password, $options);
-            $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            $db = new PDO($dsn, $username, $password, $options);
+            $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
             return $db;
-        } catch (\PDOException $e) {
-            throw new \Exception("Database error: ".$e->getMessage());
+        } catch (PDOException $e) {
+            throw new \Exception("Database error: " . $e->getMessage());
         }
     }
 
@@ -180,7 +183,7 @@ class Database
      */
     public function applyPrefix($table)
     {
-        return $this->tablePrefix.$table;
+        return $this->tablePrefix . $table;
     }
 
 
@@ -192,7 +195,7 @@ class Database
      * @param array  $params Parameters
      *
      * @throws \Exception If an error happens while trying to execute the query.
-     * @return bool|\PDOStatement object
+     * @return \PDOStatement object
      */
     private function query($db, $stmt, $params)
     {
@@ -205,18 +208,18 @@ class Database
 
             foreach ($params as $param => $value) {
                 if (is_array($value)) {
-                    $query->bindValue(":$param", $value[0], ($value[1]) ? $value[1] : \PDO::PARAM_STR);
+                    $query->bindValue(":$param", $value[0], ($value[1]) ? $value[1] : PDO::PARAM_STR);
                 } else {
-                    $query->bindValue(":$param", $value, \PDO::PARAM_STR);
+                    $query->bindValue(":$param", $value, PDO::PARAM_STR);
                 }
             }
 
             $query->execute();
 
             return $query;
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             $this->lastError = $db->errorInfo();
-            throw new \Exception("Database error: ".$e->getMessage());
+            throw new \Exception("Database error: " . $e->getMessage());
         }
     }
 
@@ -237,9 +240,9 @@ class Database
 
         try {
             return $db->exec($stmt);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             $this->lastError = $db->errorInfo();
-            throw new \Exception("Database error: ".$e->getMessage());
+            throw new \Exception("Database error: " . $e->getMessage());
         }
     }
 
@@ -250,7 +253,7 @@ class Database
      * @param string $stmt Prepared SQL statement
      * @param array  $params Parameters
      *
-     * @return int The number of rows affected by the query.
+     * @return int|false The number of rows affected by the query or false on error.
      */
     public function write($stmt, $params = [])
     {
@@ -258,7 +261,7 @@ class Database
 
         if (is_array($params)) {
             $obj = $this->query($db, $stmt, $params);
-            return $obj->rowCount();
+            return ($obj === false) ? $obj : $obj->rowCount();
         } else {
             return $this->exec($db, $stmt);
         }
@@ -271,7 +274,7 @@ class Database
      * @param string $stmt Prepared SQL statement
      * @param array  $params Parameters
      *
-     * @return \PDOStatement|bool object
+     * @return \PDOStatement object
      */
     public function read($stmt, $params = [])
     {

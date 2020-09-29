@@ -2,6 +2,9 @@
 
 namespace SimpleSAML\Module\saml\Auth\Process;
 
+use SAML2\Constants;
+use SimpleSAML\Error;
+
 /**
  * Authentication processing filter to create an attribute from a NameID.
  *
@@ -38,13 +41,13 @@ class NameIDAttribute extends \SimpleSAML\Auth\ProcessingFilter
         assert(is_array($config));
 
         if (isset($config['attribute'])) {
-            $this->attribute = (string) $config['attribute'];
+            $this->attribute = strval($config['attribute']);
         } else {
             $this->attribute = 'nameid';
         }
 
         if (isset($config['format'])) {
-            $format = (string) $config['format'];
+            $format = strval($config['format']);
         } else {
             $format = '%I!%S!%V';
         }
@@ -88,7 +91,7 @@ class NameIDAttribute extends \SimpleSAML\Auth\ProcessingFilter
                     $ret[] = '%';
                     break;
                 default:
-                    throw new \SimpleSAML\Error\Exception('NameIDAttribute: Invalid replacement: "%'.$replacement.'"');
+                    throw new Error\Exception('NameIDAttribute: Invalid replacement: "%' . $replacement . '"');
             }
 
             $pos = $next + 2;
@@ -103,6 +106,7 @@ class NameIDAttribute extends \SimpleSAML\Auth\ProcessingFilter
      * Convert NameID to attribute.
      *
      * @param array &$state The request state.
+     * @return void
      */
     public function process(&$state)
     {
@@ -116,15 +120,15 @@ class NameIDAttribute extends \SimpleSAML\Auth\ProcessingFilter
 
         $rep = $state['saml:sp:NameID'];
         assert(!is_null($rep->getValue()));
-        $rep->{'%'} = '%';
-        if ($rep->getFormat() !== null) {
-            $rep->setFormat(\SAML2\Constants::NAMEID_UNSPECIFIED);
+
+        if ($rep->getFormat() === null) {
+            $rep->setFormat(Constants::NAMEID_UNSPECIFIED);
         }
-        if ($rep->getNameQualifier() !== null) {
-            $rep->setNameQualifier($state['Source']['entityid']);
+        if ($rep->getSPNameQualifier() === null) {
+            $rep->setSPNameQualifier($state['Source']['entityid']);
         }
-        if ($rep->getSPNameQualifier() !== null) {
-            $rep->setSPNameQualifier($state['Destination']['entityid']);
+        if ($rep->getNameQualifier() === null) {
+            $rep->setNameQualifier($state['Destination']['entityid']);
         }
 
         $value = '';
@@ -132,8 +136,10 @@ class NameIDAttribute extends \SimpleSAML\Auth\ProcessingFilter
         foreach ($this->format as $element) {
             if ($isString) {
                 $value .= $element;
+            } elseif ($element === '%') {
+                $value .= '%';
             } else {
-                $value .= call_user_func([$rep, 'get'.$element]);
+                $value .= call_user_func([$rep, 'get' . $element]);
             }
             $isString = !$isString;
         }

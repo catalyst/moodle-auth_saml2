@@ -2,17 +2,17 @@
 
 namespace SimpleSAML\Test\Module\core\Auth\Process;
 
-// Alias the PHPUnit 6.0 ancestor if available, else fall back to legacy ancestor
-if (class_exists('\PHPUnit\Framework\TestCase', true) and !class_exists('\PHPUnit_Framework_TestCase', true)) {
-    class_alias('\PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase', true);
-}
+use SimpleSAML\Error\Exception as SspException;
+use SimpleSAML\Utils\HttpAdapter;
 
 /**
  * Test for the core:Cardinality filter.
  */
-class CardinalityTest extends \PHPUnit_Framework_TestCase
+class CardinalityTest extends \PHPUnit\Framework\TestCase
 {
+    /** @var \SimpleSAML\Utils\HttpAdapter|\PHPUnit_Framework_MockObject_MockObject */
     private $http;
+
 
     /**
      * Helper function to run the filter with a given configuration.
@@ -25,21 +25,31 @@ class CardinalityTest extends \PHPUnit_Framework_TestCase
     {
         $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
         $_SERVER['REQUEST_METHOD'] = 'GET';
-        $filter = new \SimpleSAML\Module\core\Auth\Process\Cardinality($config, null, $this->http);
+
+        /** @var \SimpleSAML\Utils\HttpAdapter $http */
+        $http = $this->http;
+
+        $filter = new \SimpleSAML\Module\core\Auth\Process\Cardinality($config, null, $http);
         $filter->process($request);
         return $request;
     }
 
+
+    /**
+     * @return void
+     */
     protected function setUp()
     {
         \SimpleSAML\Configuration::loadFromArray([], '[ARRAY]', 'simplesaml');
-        $this->http = $this->getMockBuilder('SimpleSAML\Utils\HTTPAdapter')
+        $this->http = $this->getMockBuilder(HttpAdapter::class)
                            ->setMethods(['redirectTrustedURL'])
                            ->getMock();
     }
 
-    /*
+
+    /**
      * Test where a minimum is set but no maximum
+     * @return void
      */
     public function testMinNoMax()
     {
@@ -57,8 +67,10 @@ class CardinalityTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedData, $attributes, "Assertion values should not have changed");
     }
 
-    /*
+
+    /**
      * Test where a maximum is set but no minimum
+     * @return void
      */
     public function testMaxNoMin()
     {
@@ -76,8 +88,10 @@ class CardinalityTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedData, $attributes, "Assertion values should not have changed");
     }
 
-    /*
+
+    /**
      * Test in bounds within a maximum an minimum
+     * @return void
      */
     public function testMaxMin()
     {
@@ -95,8 +109,10 @@ class CardinalityTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedData, $attributes, "Assertion values should not have changed");
     }
 
+
     /**
      * Test maximum is out of bounds results in redirect
+     * @return void
      */
     public function testMaxOutOfBounds()
     {
@@ -109,14 +125,17 @@ class CardinalityTest extends \PHPUnit_Framework_TestCase
             ],
         ];
 
+        /** @psalm-suppress UndefinedMethod   It's a mock-object */
         $this->http->expects($this->once())
                    ->method('redirectTrustedURL');
 
         $this->processFilter($config, $request);
     }
 
+
     /**
      * Test minimum is out of bounds results in redirect
+     * @return void
      */
     public function testMinOutOfBounds()
     {
@@ -129,14 +148,17 @@ class CardinalityTest extends \PHPUnit_Framework_TestCase
             ],
         ];
 
+        /** @psalm-suppress UndefinedMethod   It's a mock-object */
         $this->http->expects($this->once())
                    ->method('redirectTrustedURL');
 
         $this->processFilter($config, $request);
     }
 
+
     /**
      * Test missing attribute results in redirect
+     * @return void
      */
     public function testMissingAttribute()
     {
@@ -147,23 +169,27 @@ class CardinalityTest extends \PHPUnit_Framework_TestCase
             'Attributes' => [],
         ];
 
+        /** @psalm-suppress UndefinedMethod   It's a mock-object */
         $this->http->expects($this->once())
                    ->method('redirectTrustedURL');
 
         $this->processFilter($config, $request);
     }
 
+
     /*
      * Configuration errors
      */
 
+
     /**
      * Test invalid minimum values
-     * @expectedException \SimpleSAML\Error\Exception
-     * @expectedExceptionMessageRegExp /Minimum/
+     * @return void
      */
     public function testMinInvalid()
     {
+        $this->expectException(SspException::class);
+        $this->expectExceptionMessageRegExp('/Minimum/');
         $config = [
             'mail' => ['min' => false],
         ];
@@ -175,13 +201,15 @@ class CardinalityTest extends \PHPUnit_Framework_TestCase
         $this->processFilter($config, $request);
     }
 
+
     /**
      * Test invalid minimum values
-     * @expectedException \SimpleSAML\Error\Exception
-     * @expectedExceptionMessageRegExp /Minimum/
+     * @return void
      */
     public function testMinNegative()
     {
+        $this->expectException(SspException::class);
+        $this->expectExceptionMessageRegExp('/Minimum/');
         $config = [
             'mail' => ['min' => -1],
         ];
@@ -193,13 +221,15 @@ class CardinalityTest extends \PHPUnit_Framework_TestCase
         $this->processFilter($config, $request);
     }
 
+
     /**
      * Test invalid maximum values
-     * @expectedException \SimpleSAML\Error\Exception
-     * @expectedExceptionMessageRegExp /Maximum/
+     * @return void
      */
     public function testMaxInvalid()
     {
+        $this->expectException(SspException::class);
+        $this->expectExceptionMessageRegExp('/Maximum/');
         $config = [
             'mail' => ['max' => false],
         ];
@@ -211,13 +241,15 @@ class CardinalityTest extends \PHPUnit_Framework_TestCase
         $this->processFilter($config, $request);
     }
 
+
     /**
      * Test maximum < minimum
-     * @expectedException \SimpleSAML\Error\Exception
-     * @expectedExceptionMessageRegExp /less than/
+     * @return void
      */
     public function testMinGreaterThanMax()
     {
+        $this->expectException(SspException::class);
+        $this->expectExceptionMessageRegExp('/less than/');
         $config = [
             'mail' => ['min' => 2, 'max' => 1],
         ];
@@ -229,13 +261,15 @@ class CardinalityTest extends \PHPUnit_Framework_TestCase
         $this->processFilter($config, $request);
     }
 
+
     /**
      * Test invalid attribute name
-     * @expectedException \SimpleSAML\Error\Exception
-     * @expectedExceptionMessageRegExp /Invalid attribute/
+     * @return void
      */
     public function testInvalidAttributeName()
     {
+        $this->expectException(SspException::class);
+        $this->expectExceptionMessageRegExp('/Invalid attribute/');
         $config = [
             ['min' => 2, 'max' => 1],
         ];

@@ -3,6 +3,7 @@
 require_once('../../_include.php');
 
 use SAML2\Constants;
+use SimpleSAML\Module;
 use SimpleSAML\Utils\Auth as Auth;
 use SimpleSAML\Utils\Crypto as Crypto;
 use SimpleSAML\Utils\HTTP as HTTP;
@@ -112,7 +113,7 @@ try {
         // Artifact sending enabled
         $metaArray['ArtifactResolutionService'][] = [
             'index'    => 0,
-            'Location' => HTTP::getBaseURL().'saml2/idp/ArtifactResolutionService.php',
+            'Location' => HTTP::getBaseURL() . 'saml2/idp/ArtifactResolutionService.php',
             'Binding'  => Constants::BINDING_SOAP,
         ];
     }
@@ -122,7 +123,7 @@ try {
         array_unshift($metaArray['SingleSignOnService'], [
             'hoksso:ProtocolBinding' => Constants::BINDING_HTTP_REDIRECT,
             'Binding'                => Constants::BINDING_HOK_SSO,
-            'Location'               => HTTP::getBaseURL().'saml2/idp/SSOService.php'
+            'Location'               => HTTP::getBaseURL() . 'saml2/idp/SSOService.php'
         ]);
     }
 
@@ -130,7 +131,7 @@ try {
         $metaArray['SingleSignOnService'][] = [
             'index' => 0,
             'Binding'  => Constants::BINDING_SOAP,
-            'Location' => HTTP::getBaseURL().'saml2/idp/SSOService.php',
+            'Location' => HTTP::getBaseURL() . 'saml2/idp/SSOService.php',
         ];
     }
 
@@ -147,7 +148,9 @@ try {
         );
 
         if (!$idpmeta->hasValue('OrganizationURL')) {
-            throw new \SimpleSAML\Error\Exception('If OrganizationName is set, OrganizationURL must also be set.');
+            throw new \SimpleSAML\Error\Exception(
+                'If OrganizationName is set, OrganizationURL must also be set.'
+            );
         }
         $metaArray['OrganizationURL'] = $idpmeta->getLocalizedString('OrganizationURL');
     }
@@ -206,22 +209,20 @@ try {
 
     $metaxml = $metaBuilder->getEntityDescriptorText();
 
-    $metaflat = '$metadata['.var_export($idpentityid, true).'] = '.var_export($metaArray, true).';';
+    $metaflat = '$metadata[' . var_export($idpentityid, true) . '] = ' . var_export($metaArray, true) . ';';
 
     // sign the metadata if enabled
     $metaxml = \SimpleSAML\Metadata\Signer::sign($metaxml, $idpmeta->toArray(), 'SAML 2 IdP');
 
     if (array_key_exists('output', $_GET) && $_GET['output'] == 'xhtml') {
-        $defaultidp = $config->getString('default-saml20-idp', null);
-
-        $t = new \SimpleSAML\XHTML\Template($config, 'metadata.php', 'admin');
+        $t = new \SimpleSAML\XHTML\Template($config, 'metadata.tpl.php', 'admin');
 
         $t->data['clipboard.js'] = true;
         $t->data['available_certs'] = $availableCerts;
         $certdata = [];
         foreach (array_keys($availableCerts) as $availableCert) {
             $certdata[$availableCert]['name'] = $availableCert;
-            $certdata[$availableCert]['url'] = SimpleSAML\Module::getModuleURL('saml/idp/certs.php').'/'.$availableCert;
+            $certdata[$availableCert]['url'] = Module::getModuleURL('saml/idp/certs.php') . '/' . $availableCert;
             $certdata[$availableCert]['comment'] = (
                 $availableCerts[$availableCert]['certFingerprint'][0] === 'afe71c28ef740bc87425be13a2263d37971da1f9' ?
                 'This is the default certificate. Generate a new certificate if this is a production system.' :
@@ -234,7 +235,6 @@ try {
         $t->data['metaurl'] = HTTP::getSelfURLNoQuery();
         $t->data['metadata'] = htmlspecialchars($metaxml);
         $t->data['metadataflat'] = htmlspecialchars($metaflat);
-        $t->data['defaultidp'] = $defaultidp;
         $t->show();
     } else {
         header('Content-Type: application/xml');

@@ -2,6 +2,9 @@
 
 namespace SimpleSAML\Module\core\Auth\Source;
 
+use SimpleSAML\Configuration;
+use SimpleSAML\Error;
+
 /**
  * Authentication source which verifies the password against
  * the 'auth.adminpassword' configuration option.
@@ -28,6 +31,7 @@ class AdminPassword extends \SimpleSAML\Module\core\Auth\UserPassBase
         $this->setForcedUsername("admin");
     }
 
+
     /**
      * Attempt to log in using the given username and password.
      *
@@ -46,19 +50,19 @@ class AdminPassword extends \SimpleSAML\Module\core\Auth\UserPassBase
         assert(is_string($username));
         assert(is_string($password));
 
-        $config = \SimpleSAML\Configuration::getInstance();
+        $config = Configuration::getInstance();
         $adminPassword = $config->getString('auth.adminpassword', '123');
         if ($adminPassword === '123') {
             // We require that the user changes the password
-            throw new \SimpleSAML\Error\Error('NOTSET');
+            throw new Error\Error('NOTSET');
         }
 
         if ($username !== "admin") {
-            throw new \SimpleSAML\Error\Error('WRONGUSERPASS');
+            throw new Error\Error('WRONGUSERPASS');
         }
 
         if (!\SimpleSAML\Utils\Crypto::pwValid($adminPassword, $password)) {
-            throw new \SimpleSAML\Error\Error('WRONGUSERPASS');
+            throw new Error\Error('WRONGUSERPASS');
         }
         return ['user' => ['admin']];
     }

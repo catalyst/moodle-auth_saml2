@@ -46,7 +46,7 @@ class LoaderResolverTest extends TestCase
     {
         return [
             ['ini_with_wrong_ext.xml', 'ini', IniFileLoader::class],
-            ['xml_with_wrong_ext.pcp', 'xml', XmlFileLoader::class],
+            ['xml_with_wrong_ext.php', 'xml', XmlFileLoader::class],
             ['php_with_wrong_ext.yml', 'php', PhpFileLoader::class],
             ['yaml_with_wrong_ext.ini', 'yaml', YamlFileLoader::class],
         ];

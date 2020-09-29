@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
  */
 class AttributeAlterTest extends TestCase
 {
-
     /**
      * Helper function to run the filter with a given configuration.
      *
@@ -24,8 +23,10 @@ class AttributeAlterTest extends TestCase
         return $request;
     }
 
+
     /**
      * Test the most basic functionality.
+     * @return void
      */
     public function testBasic()
     {
@@ -47,8 +48,10 @@ class AttributeAlterTest extends TestCase
         $this->assertEquals($attributes['test'], ['somethingisright']);
     }
 
+
     /**
      * Test the most basic functionality.
+     * @return void
      */
     public function testWithTarget()
     {
@@ -73,8 +76,10 @@ class AttributeAlterTest extends TestCase
         $this->assertEquals($attributes['test2'], ['right']);
     }
 
+
     /**
      * Module is a no op if subject attribute is not present.
+     * @return void
      */
     public function testNomatch()
     {
@@ -100,8 +105,10 @@ class AttributeAlterTest extends TestCase
         );
     }
 
+
     /**
      * Test replacing attribute value.
+     * @return void
      */
     public function testReplaceMatch()
     {
@@ -121,8 +128,10 @@ class AttributeAlterTest extends TestCase
         $this->assertEquals($attributes['source'], ['right']);
     }
 
+
     /**
      * Test replacing attribute value.
+     * @return void
      */
     public function testReplaceMatchWithTarget()
     {
@@ -144,8 +153,10 @@ class AttributeAlterTest extends TestCase
         $this->assertEquals($attributes['test'], ['right']);
     }
 
+
     /**
      * Test replacing attribute values.
+     * @return void
      */
     public function testReplaceNoMatch()
     {
@@ -167,10 +178,12 @@ class AttributeAlterTest extends TestCase
         $this->assertEquals($attributes['test'], ['right']);
     }
 
+
     /**
      * Test removing attribute values.
      * Note that removing a value does not renumber the attributes array.
      * Also ensure unrelated attributes are not touched.
+     * @return void
      */
     public function testRemoveMatch()
     {
@@ -191,8 +204,10 @@ class AttributeAlterTest extends TestCase
         $this->assertEquals($attributes['eduPersonAffiliation'], [0 => 'member', 2 => 'staff']);
     }
 
+
     /**
      * Test removing attribute values, resulting in an empty attribute.
+     * @return void
      */
     public function testRemoveMatchAll()
     {
@@ -212,13 +227,14 @@ class AttributeAlterTest extends TestCase
         $this->assertArrayNotHasKey('eduPersonAffiliation', $attributes);
     }
 
+
     /**
      * Test for exception with illegal config.
-     *
-     * @expectedException Exception
+     * @return void
      */
     public function testWrongConfig()
     {
+        $this->expectException(\Exception::class);
         $config = [
             'subject' => 'eduPersonAffiliation',
             'pattern' => '/^emper/',
@@ -232,13 +248,14 @@ class AttributeAlterTest extends TestCase
         self::processFilter($config, $request);
     }
 
+
     /**
      * Test for exception with illegal config.
-     *
-     * @expectedException Exception
+     * @return void
      */
     public function testIncompleteConfig()
     {
+        $this->expectException(\Exception::class);
         $config = [
             'subject' => 'eduPersonAffiliation',
         ];
@@ -250,13 +267,14 @@ class AttributeAlterTest extends TestCase
         self::processFilter($config, $request);
     }
 
+
     /**
      * Test for exception with illegal config.
-     *
-     * @expectedException Exception
+     * @return void
      */
     public function testIncompleteConfig2()
     {
+        $this->expectException(\Exception::class);
         $config = [
             'subject' => 'test',
             'pattern' => '/wrong/',
@@ -270,13 +288,14 @@ class AttributeAlterTest extends TestCase
         self::processFilter($config, $request);
     }
 
+
     /**
      * Test for exception with illegal config.
-     *
-     * @expectedException Exception
+     * @return void
      */
     public function testIncompleteConfig3()
     {
+        $this->expectException(\Exception::class);
         $config = [
             'subject' => 'test',
             'pattern' => '/wrong/',
@@ -292,13 +311,14 @@ class AttributeAlterTest extends TestCase
         self::processFilter($config, $request);
     }
 
+
     /**
      * Test for exception with illegal config.
-     *
-     * @expectedException Exception
+     * @return void
      */
     public function testIncompleteConfig4()
     {
+        $this->expectException(\Exception::class);
         $config = [
             'subject' => 'test',
             'pattern' => '/wrong/',
@@ -317,11 +337,11 @@ class AttributeAlterTest extends TestCase
 
     /**
      * Test for exception with illegal config.
-     *
-     * @expectedException Exception
+     * @return void
      */
     public function testIncompleteConfig5()
     {
+        $this->expectException(\Exception::class);
         $config = [
             'subject' => 'test',
             'pattern' => '/wrong/',

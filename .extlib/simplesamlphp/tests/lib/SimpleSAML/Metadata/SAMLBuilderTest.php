@@ -13,6 +13,7 @@ class SAMLBuilderTest extends TestCase
 {
     /**
      * Test the requested attributes are valued correctly.
+     * @return void
      */
     public function testAttributes()
     {
@@ -36,6 +37,7 @@ class SAMLBuilderTest extends TestCase
         $samlBuilder->addMetadata($set, $metadata);
 
         $spDesc = $samlBuilder->getEntityDescriptor();
+        /** @var \DOMNodeList $acs */
         $acs = $spDesc->getElementsByTagName("AttributeConsumingService");
         $this->assertEquals(1, $acs->length);
         $attributes = $acs->item(0)->getElementsByTagName("RequestedAttribute");
@@ -65,6 +67,7 @@ class SAMLBuilderTest extends TestCase
         $samlBuilder->addMetadata($set, $metadata);
 
         $spDesc = $samlBuilder->getEntityDescriptor();
+        /** @var \DOMNodeList $acs */
         $acs = $spDesc->getElementsByTagName("AttributeConsumingService");
         $this->assertEquals(1, $acs->length);
         $attributes = $acs->item(0)->getElementsByTagName("RequestedAttribute");
@@ -96,6 +99,7 @@ class SAMLBuilderTest extends TestCase
         $samlBuilder->addMetadata($set, $metadata);
 
         $spDesc = $samlBuilder->getEntityDescriptor();
+        /** @var \DOMNodeList $acs */
         $acs = $spDesc->getElementsByTagName("AttributeConsumingService");
         $this->assertEquals(1, $acs->length);
         $attributes = $acs->item(0)->getElementsByTagName("RequestedAttribute");
@@ -125,6 +129,7 @@ class SAMLBuilderTest extends TestCase
         $samlBuilder->addMetadata($set, $metadata);
 
         $spDesc = $samlBuilder->getEntityDescriptor();
+        /** @var \DOMNodeList $acs */
         $acs = $spDesc->getElementsByTagName("AttributeConsumingService");
         $this->assertEquals(1, $acs->length);
         $attributes = $acs->item(0)->getElementsByTagName("RequestedAttribute");
@@ -139,8 +144,10 @@ class SAMLBuilderTest extends TestCase
         }
     }
 
+
     /**
      * Test the working of the isDefault config option
+     * @return void
      */
     public function testAttributeConsumingServiceDefault()
     {
@@ -161,6 +168,7 @@ class SAMLBuilderTest extends TestCase
         $samlBuilder->addMetadata($set, $metadata);
 
         $spDesc = $samlBuilder->getEntityDescriptor();
+        /** @var \DOMNodeList $acs */
         $acs = $spDesc->getElementsByTagName("AttributeConsumingService");
         $acs1 = $acs->item(0);
         $this->assertFalse($acs1->hasAttribute("isDefault"));
@@ -171,6 +179,7 @@ class SAMLBuilderTest extends TestCase
         $samlBuilder->addMetadata($set, $metadata);
         $spDesc = $samlBuilder->getEntityDescriptor();
         $acs = $spDesc->getElementsByTagName("AttributeConsumingService");
+        /** @var \DOMElement $acs1 */
         $acs1 = $acs->item(0);
         $this->assertTrue($acs1->hasAttribute("isDefault"));
         $this->assertEquals("true", $acs1->getAttribute("isDefault"));
@@ -181,13 +190,16 @@ class SAMLBuilderTest extends TestCase
         $samlBuilder->addMetadata($set, $metadata);
         $spDesc = $samlBuilder->getEntityDescriptor();
         $acs = $spDesc->getElementsByTagName("AttributeConsumingService");
+        /** @var \DOMElement $acs1 */
         $acs1 = $acs->item(0);
         $this->assertTrue($acs1->hasAttribute("isDefault"));
         $this->assertEquals("false", $acs1->getAttribute("isDefault"));
     }
 
+
     /**
      * Test the index option is used correctly.
+     * @return void
      */
     public function testAttributeConsumingServiceIndex()
     {
@@ -209,6 +221,7 @@ class SAMLBuilderTest extends TestCase
 
         $spDesc = $samlBuilder->getEntityDescriptor();
         $acs = $spDesc->getElementsByTagName("AttributeConsumingService");
+        /** @var \DOMElement $acs1 */
         $acs1 = $acs->item(0);
         $this->assertTrue($acs1->hasAttribute("index"));
         $this->assertEquals("0", $acs1->getAttribute("index"));
@@ -220,13 +233,16 @@ class SAMLBuilderTest extends TestCase
 
         $spDesc = $samlBuilder->getEntityDescriptor();
         $acs = $spDesc->getElementsByTagName("AttributeConsumingService");
+        /** @var \DOMElement $acs1 */
         $acs1 = $acs->item(0);
         $this->assertTrue($acs1->hasAttribute("index"));
         $this->assertEquals("15", $acs1->getAttribute("index"));
     }
 
+
     /**
      * Test the required protocolSupportEnumeration in AttributeAuthorityDescriptor
+     * @return void
      */
     public function testProtocolSupportEnumeration()
     {
@@ -267,8 +283,9 @@ class SAMLBuilderTest extends TestCase
         $samlBuilder->addMetadata($set, $metadata);
         $entityDescriptorXml = $samlBuilder->getEntityDescriptorText();
 
+        $protocols = implode(' ', $metadata['protocols']);
         $this->assertRegExp(
-            '/<md:AttributeAuthorityDescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:1.1:protocol urn:oasis:names:tc:SAML:2.0:protocol">/',
+            '/<md:AttributeAuthorityDescriptor protocolSupportEnumeration="' . $protocols . '">/',
             $entityDescriptorXml
         );
     }

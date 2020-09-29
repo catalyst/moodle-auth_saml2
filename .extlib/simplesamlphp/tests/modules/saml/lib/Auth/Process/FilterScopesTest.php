@@ -1,19 +1,18 @@
 <?php
+
+namespace SimpleSAML\Test\Module\saml\Auth\Process;
+
+use PHPUnit\Framework\TestCase;
+
 /**
  * Test for the saml:FilterScopes filter.
  *
  * @author Jaime Pérez Crespo, UNINETT AS <jaime.perez@uninett.no>
  * @package SimpleSAMLphp
  */
-
-namespace SimpleSAML\Test\Module\saml\Auth\Process;
-
-use PHPUnit\Framework\TestCase;
-
 class FilterScopesTest extends TestCase
 {
-
-    /*
+    /**
      * Helper function to run the filter with a given configuration.
      *
      * @param array $config  The filter configuration.
@@ -30,6 +29,7 @@ class FilterScopesTest extends TestCase
 
     /**
      * Test valid scopes.
+     * @return void
      */
     public function testValidScopes()
     {
@@ -91,6 +91,7 @@ class FilterScopesTest extends TestCase
 
     /**
      * Test invalid scopes.
+     * @return void
      */
     public function testInvalidScopes()
     {

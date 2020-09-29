@@ -3,8 +3,8 @@
 namespace SimpleSAML\HTTP;
 
 use SimpleSAML\Configuration;
+use SimpleSAML\Module\ControllerResolver;
 use SimpleSAML\Session;
-
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -20,29 +20,29 @@ use Symfony\Component\Routing\RequestContext;
  */
 class Router
 {
-
+    /** @var \Symfony\Component\HttpKernel\Controller\ArgumentResolver */
     protected $arguments;
 
-    /** @var \SimpleSAML\Configuration */
-    protected $config;
+    /** @var \SimpleSAML\Configuration|null */
+    protected $config = null;
 
-    /** @var RequestContext */
+    /** @var \Symfony\Component\Routing\RequestContext */
     protected $context;
 
-    /** @var EventDispatcher */
+    /** @var \Symfony\Component\EventDispatcher\EventDispatcher */
     protected $dispatcher;
 
-    /** @var Request */
-    protected $request;
+    /** @var \Symfony\Component\HttpFoundation\Request|null */
+    protected $request = null;
 
     /** @var \SimpleSAML\Module\ControllerResolver */
     protected $resolver;
 
-    /** @var \SimpleSAML\Session */
-    protected $session;
+    /** @var \SimpleSAML\Session|null */
+    protected $session = null;
 
-    /** @var RequestStack */
-    protected $stack;
+    /** @var \Symfony\Component\HttpFoundation\RequestStack|null */
+    protected $stack = null;
 
 
     /**
@@ -54,7 +54,7 @@ class Router
     {
         $this->arguments = new ArgumentResolver();
         $this->context = new RequestContext();
-        $this->resolver = new \SimpleSAML\Module\ControllerResolver($module);
+        $this->resolver = new ControllerResolver($module);
         $this->dispatcher = new EventDispatcher();
     }
 
@@ -64,9 +64,10 @@ class Router
      *
      * If no specific arguments are given, the default instances will be used (configuration, session, etc).
      *
-     * @param Request|null $request The request to process. Defaults to the current one.
+     * @param \Symfony\Component\HttpFoundation\Request|null $request
+     *     The request to process. Defaults to the current one.
      *
-     * @return Response A response suitable for the given request.
+     * @return \Symfony\Component\HttpFoundation\Response A response suitable for the given request.
      *
      * @throws \Exception If an error occurs.
      */
@@ -78,10 +79,13 @@ class Router
         if ($this->session === null) {
             $this->setSession(Session::getSessionFromRequest());
         }
-        $this->request = $request;
+
         if ($request === null) {
             $this->request = Request::createFromGlobals();
+        } else {
+            $this->request = $request;
         }
+
         $stack = new RequestStack();
         $stack->push($this->request);
         $this->context->fromRequest($this->request);
@@ -93,10 +97,14 @@ class Router
     /**
      * Send a given response to the browser.
      *
-     * @param Response $response The response to send.
+     * @param \Symfony\Component\HttpFoundation\Response $response The response to send.
+     * @return void
      */
     public function send(Response $response)
     {
+        if ($this->request === null) {
+            throw new \Exception("No request found to respond to");
+        }
         $response->prepare($this->request);
         $response->send();
     }
@@ -106,6 +114,7 @@ class Router
      * Set the configuration to use by the controller.
      *
      * @param \SimpleSAML\Configuration $config
+     * @return void
      */
     public function setConfiguration(Configuration $config)
     {
@@ -118,6 +127,7 @@ class Router
      * Set the session to use by the controller.
      *
      * @param \SimpleSAML\Session $session
+     * @return void
      */
     public function setSession(Session $session)
     {

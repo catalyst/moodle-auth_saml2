@@ -23,8 +23,10 @@ class TargetedIDTest extends TestCase
         return $request;
     }
 
+
 //    /**
 //     * Test the most basic functionality
+//     * @return void
 //     */
 //    public function testBasic()
 //    {
@@ -39,9 +41,11 @@ class TargetedIDTest extends TestCase
 //        $this->assertRegExp('/^[0-9a-f]{40}$/', $attributes['eduPersonTargetedID'][0]);
 //    }
 //
+//
 //    /**
 //     * Test with src and dst entityIds.
 //     * Make sure to overwrite any present eduPersonTargetedId
+//     * @return void
 //     */
 //    public function testWithSrcDst()
 //    {
@@ -66,8 +70,10 @@ class TargetedIDTest extends TestCase
 //        $this->assertRegExp('/^[0-9a-f]{40}$/', $attributes['eduPersonTargetedID'][0]);
 //    }
 //
+//
 //    /**
 //     * Test with nameId config option set.
+//     * @return void
 //     */
 //    public function testNameIdGeneration()
 //    {
@@ -90,13 +96,17 @@ class TargetedIDTest extends TestCase
 //        $attributes = $result['Attributes'];
 //        $this->assertArrayHasKey('eduPersonTargetedID', $attributes);
 //        $this->assertRegExp(
-//            '#^<saml:NameID xmlns:saml="urn:oasis:names:tc:SAML:2\.0:assertion" NameQualifier="urn:example:src:id" SPNameQualifier="joe" Format="urn:oasis:names:tc:SAML:2\.0:nameid-format:persistent">[0-9a-f]{40}</saml:NameID>$#',
+//            '#^<saml:NameID xmlns:saml="urn:oasis:names:tc:SAML:2\.0:assertion" NameQualifier="urn:example:src:id"' .
+//            ' SPNameQualifier="joe"' .
+//            ' Format="urn:oasis:names:tc:SAML:2\.0:nameid-format:persistent">[0-9a-f]{40}</saml:NameID>$#',
 //            $attributes['eduPersonTargetedID'][0]
 //        );
 //    }
 //
+//
 //    /**
 //     * Test that Id is the same for subsequent invocations with same input.
+//     * @return void
 //     */
 //    public function testIdIsPersistent()
 //    {
@@ -126,8 +136,10 @@ class TargetedIDTest extends TestCase
 //        }
 //    }
 //
+//
 //    /**
 //     * Test that Id is different for two different usernames and two different sp's
+//     * @return void
 //     */
 //    public function testIdIsUnique()
 //    {
@@ -160,13 +172,14 @@ class TargetedIDTest extends TestCase
 //        $this->assertNotEquals($tid2, $tid3);
 //    }
 
+
     /**
      * Test no userid set
-     *
-     * @expectedException Exception
+     * @return void
      */
     public function testNoUserID()
     {
+        $this->expectException(\Exception::class);
         $config = [];
         $request = [
             'Attributes' => [],
@@ -174,13 +187,14 @@ class TargetedIDTest extends TestCase
         self::processFilter($config, $request);
     }
 
+
     /**
      * Test with specified attribute not set
-     *
-     * @expectedException Exception
+     * @return void
      */
     public function testAttributeNotExists()
     {
+        $this->expectException(\Exception::class);
         $config = [
             'attributename' => 'uid',
         ];
@@ -192,13 +206,14 @@ class TargetedIDTest extends TestCase
         self::processFilter($config, $request);
     }
 
+
     /**
      * Test with configuration error 1
-     *
-     * @expectedException Exception
+     * @return void
      */
     public function testConfigInvalidAttributeName()
     {
+        $this->expectException(\Exception::class);
         $config = [
             'attributename' => 5,
         ];
@@ -210,13 +225,14 @@ class TargetedIDTest extends TestCase
         self::processFilter($config, $request);
     }
 
+
     /**
      * Test with configuration error 2
-     *
-     * @expectedException Exception
+     * @return void
      */
     public function testConfigInvalidNameId()
     {
+        $this->expectException(\Exception::class);
         $config = [
             'nameId' => 'persistent',
         ];

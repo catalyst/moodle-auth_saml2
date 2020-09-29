@@ -24,6 +24,9 @@ class AttributeMapTest extends TestCase
     }
 
 
+    /**
+     * @return void
+     */
     public function testBasic()
     {
         $config = [
@@ -44,6 +47,10 @@ class AttributeMapTest extends TestCase
         $this->assertEquals($expected, $result);
     }
 
+
+    /**
+     * @return void
+     */
     public function testDuplicate()
     {
         $config = [
@@ -66,6 +73,10 @@ class AttributeMapTest extends TestCase
         $this->assertEquals($expected, $result);
     }
 
+
+    /**
+     * @return void
+     */
     public function testMultiple()
     {
         $config = [
@@ -87,6 +98,10 @@ class AttributeMapTest extends TestCase
         $this->assertEquals($expected, $result);
     }
 
+
+    /**
+     * @return void
+     */
     public function testMultipleDuplicate()
     {
         $config = [
@@ -110,6 +125,10 @@ class AttributeMapTest extends TestCase
         $this->assertEquals($expected, $result);
     }
 
+
+    /**
+     * @return void
+     */
     public function testCircular()
     {
         $config = [
@@ -133,6 +152,10 @@ class AttributeMapTest extends TestCase
         $this->assertEquals($expected, $result);
     }
 
+
+    /**
+     * @return void
+     */
     public function testMissingMap()
     {
         $config = [
@@ -155,6 +178,10 @@ class AttributeMapTest extends TestCase
         $this->assertEquals($expected, $result);
     }
 
+
+    /**
+     * @return void
+     */
     public function testInvalidOriginalAttributeType()
     {
         $config = [
@@ -166,10 +193,14 @@ class AttributeMapTest extends TestCase
             ],
         ];
 
-        $this->setExpectedException('\Exception');
+        $this->expectException(\Exception::class);
         self::processFilter($config, $request);
     }
 
+
+    /**
+     * @return void
+     */
     public function testInvalidMappedAttributeType()
     {
         $config = [
@@ -181,10 +212,14 @@ class AttributeMapTest extends TestCase
             ],
         ];
 
-        $this->setExpectedException('\Exception');
+        $this->expectException(\Exception::class);
         self::processFilter($config, $request);
     }
 
+
+    /**
+     * @return void
+     */
     public function testMissingMapFile()
     {
         $config = [
@@ -196,10 +231,14 @@ class AttributeMapTest extends TestCase
             ],
         ];
 
-        $this->setExpectedException('\Exception');
+        $this->expectException(\Exception::class);
         self::processFilter($config, $request);
     }
 
+
+    /**
+     * @return void
+     */
     public function testOverwrite()
     {
         $config = [
@@ -221,6 +260,10 @@ class AttributeMapTest extends TestCase
         $this->assertEquals($expected, $result);
     }
 
+
+    /**
+     * @return void
+     */
     public function testOverwriteReversed()
     {
         $config = [

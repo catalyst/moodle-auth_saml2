@@ -20,7 +20,16 @@ use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesser;
  */
 class MimeTypeTest extends TestCase
 {
-    protected $path;
+    public function testGuessWithLeadingDash()
+    {
+        $cwd = getcwd();
+        chdir(__DIR__.'/../Fixtures');
+        try {
+            $this->assertEquals('image/gif', MimeTypeGuesser::getInstance()->guess('-test'));
+        } finally {
+            chdir($cwd);
+        }
+    }
 
     public function testGuessImageWithoutExtension()
     {
@@ -49,6 +58,20 @@ class MimeTypeTest extends TestCase
     public function testGuessFileWithUnknownExtension()
     {
         $this->assertEquals('application/octet-stream', MimeTypeGuesser::getInstance()->guess(__DIR__.'/../Fixtures/.unknownextension'));
+    }
+
+    /**
+     * @requires PHP 7.0
+     */
+    public function testGuessWithDuplicatedFileType()
+    {
+        if ('application/zip' === MimeTypeGuesser::getInstance()->guess(__DIR__.'/../Fixtures/test.docx')) {
+            $this->addToAssertionCount(1);
+
+            return;
+        }
+
+        $this->assertSame('application/vnd.openxmlformats-officedocument.wordprocessingml.document', MimeTypeGuesser::getInstance()->guess(__DIR__.'/../Fixtures/test.docx'));
     }
 
     public function testGuessWithIncorrectPath()

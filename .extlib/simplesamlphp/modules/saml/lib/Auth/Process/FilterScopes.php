@@ -3,6 +3,7 @@
 namespace SimpleSAML\Module\saml\Auth\Process;
 
 use SimpleSAML\Logger;
+use SimpleSAML\Utils;
 
 /**
  * Filter to remove attribute values which are not properly scoped.
@@ -15,7 +16,7 @@ use SimpleSAML\Logger;
 class FilterScopes extends \SimpleSAML\Auth\ProcessingFilter
 {
     /**
-     * Stores any pre-configured scoped attributes which come from the filter configuration.
+     * @var array Stores any pre-configured scoped attributes which come from the filter configuration.
      */
     private $scopedAttributes = [
         'eduPersonScopedAffiliation',
@@ -44,6 +45,7 @@ class FilterScopes extends \SimpleSAML\Auth\ProcessingFilter
      * This method applies the filter, removing any values
      *
      * @param array &$request the current request
+     * @return void
      */
     public function process(&$request)
     {
@@ -58,40 +60,42 @@ class FilterScopes extends \SimpleSAML\Auth\ProcessingFilter
             $validScopes = $src['scope'];
         }
 
-        foreach ($this->scopedAttributes as $attribute) {
-            if (!isset($request['Attributes'][$attribute])) {
-                continue;
-            }
+        $ep = Utils\Config\Metadata::getDefaultEndpoint($request['Source']['SingleSignOnService']);
+        if ($ep !== null) {
+            foreach ($this->scopedAttributes as $attribute) {
+                if (!isset($request['Attributes'][$attribute])) {
+                    continue;
+                }
 
-            $values = $request['Attributes'][$attribute];
-            $newValues = [];
-            foreach ($values as $value) {
-                $ep = \SimpleSAML\Utils\Config\Metadata::getDefaultEndpoint($request['Source']['SingleSignOnService']);
-                $loc = $ep['Location'];
-                $host = parse_url($loc, PHP_URL_HOST);
-                if ($host === null) {
-                    $host = '';
+                $values = $request['Attributes'][$attribute];
+                $newValues = [];
+                foreach ($values as $value) {
+                    $loc = $ep['Location'];
+                    $host = parse_url($loc, PHP_URL_HOST);
+                    if ($host === null) {
+                        $host = '';
+                    }
+                    $value_a = explode('@', $value, 2);
+                    if (count($value_a) < 2) {
+                        $newValues[] = $value;
+                        continue; // there's no scope
+                    }
+                    $scope = $value_a[1];
+                    if (in_array($scope, $validScopes, true)) {
+                        $newValues[] = $value;
+                    } elseif (strpos($host, $scope) === strlen($host) - strlen($scope)) {
+                        $newValues[] = $value;
+                    } else {
+                        Logger::warning("Removing value '$value' for attribute '$attribute'. Undeclared scope.");
+                    }
                 }
-                $value_a = explode('@', $value, 2);
-                if (count($value_a) < 2) {
-                    $newValues[] = $value;
-                    continue; // there's no scope
-                }
-                $scope = $value_a[1];
-                if (in_array($scope, $validScopes, true)) {
-                    $newValues[] = $value;
-                } elseif (strpos($host, $scope) === strlen($host) - strlen($scope)) {
-                    $newValues[] = $value;
+
+                if (empty($newValues)) {
+                    Logger::warning("No suitable values for attribute '$attribute', removing it.");
+                    unset($request['Attributes'][$attribute]); // remove empty attributes
                 } else {
-                    Logger::warning("Removing value '$value' for attribute '$attribute'. Undeclared scope.");
+                    $request['Attributes'][$attribute] = $newValues;
                 }
-            }
-
-            if (empty($newValues)) {
-                Logger::warning("No suitable values for attribute '$attribute', removing it.");
-                unset($request['Attributes'][$attribute]); // remove empty attributes
-            } else {
-                $request['Attributes'][$attribute] = $newValues;
             }
         }
     }

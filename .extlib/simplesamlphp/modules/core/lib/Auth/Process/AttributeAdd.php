@@ -10,28 +10,30 @@ namespace SimpleSAML\Module\core\Auth\Process;
  * @author Olav Morken, UNINETT AS.
  * @package SimpleSAMLphp
  */
-
 class AttributeAdd extends \SimpleSAML\Auth\ProcessingFilter
 {
     /**
      * Flag which indicates wheter this filter should append new values or replace old values.
+     * @var bool
      */
     private $replace = false;
 
     /**
      * Attributes which should be added/appended.
      *
-     * Assiciative array of arrays.
+     * Associative array of arrays.
+     * @var array
      */
     private $attributes = [];
+
 
     /**
      * Initialize this filter.
      *
-     * @param array $config  Configuration information about this filter.
+     * @param array &$config  Configuration information about this filter.
      * @param mixed $reserved  For future use.
      */
-    public function __construct($config, $reserved)
+    public function __construct(&$config, $reserved)
     {
         parent::__construct($config, $reserved);
 
@@ -42,7 +44,7 @@ class AttributeAdd extends \SimpleSAML\Auth\ProcessingFilter
                 if ($values === '%replace') {
                     $this->replace = true;
                 } else {
-                    throw new \Exception('Unknown flag: '.var_export($values, true));
+                    throw new \Exception('Unknown flag: ' . var_export($values, true));
                 }
                 continue;
             }
@@ -52,7 +54,9 @@ class AttributeAdd extends \SimpleSAML\Auth\ProcessingFilter
             }
             foreach ($values as $value) {
                 if (!is_string($value)) {
-                    throw new \Exception('Invalid value for attribute '.$name.': '.var_export($values, true));
+                    throw new \Exception(
+                        'Invalid value for attribute ' . $name . ': ' . var_export($values, true)
+                    );
                 }
             }
 
@@ -60,12 +64,14 @@ class AttributeAdd extends \SimpleSAML\Auth\ProcessingFilter
         }
     }
 
+
     /**
      * Apply filter to add or replace attributes.
      *
      * Add or replace existing attributes with the configured values.
      *
      * @param array &$request  The current request
+     * @return void
      */
     public function process(&$request)
     {

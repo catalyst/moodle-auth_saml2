@@ -2,6 +2,12 @@
 
 namespace SimpleSAML\Module\core\Auth;
 
+use SimpleSAML\Auth;
+use SimpleSAML\Error;
+use SimpleSAML\Logger;
+use SimpleSAML\Module;
+use SimpleSAML\Utils;
+
 /**
  * Helper class for username/password/organization authentication.
  *
@@ -13,7 +19,6 @@ namespace SimpleSAML\Module\core\Auth;
  * @author Olav Morken, UNINETT AS.
  * @package SimpleSAMLphp
  */
-
 abstract class UserPassOrgBase extends \SimpleSAML\Auth\Source
 {
     /**
@@ -40,6 +45,8 @@ abstract class UserPassOrgBase extends \SimpleSAML\Auth\Source
      *  'none': Force the user to select the correct organization from the dropdown box.
      *  'allow': Allow the user to enter the organization as part of the username.
      *  'force': Remove the dropdown box.
+     *
+     * @var string
      */
     private $usernameOrgMethod;
 
@@ -47,6 +54,7 @@ abstract class UserPassOrgBase extends \SimpleSAML\Auth\Source
      * Storage for authsource config option remember.username.enabled
      * loginuserpass.php and loginuserpassorg.php pages/templates use this option to
      * present users with a checkbox to save their username for the next login request.
+     *
      * @var bool
      */
     protected $rememberUsernameEnabled = false;
@@ -55,6 +63,7 @@ abstract class UserPassOrgBase extends \SimpleSAML\Auth\Source
      * Storage for authsource config option remember.username.checked
      * loginuserpass.php and loginuserpassorg.php pages/templates use this option
      * to default the remember username checkbox to checked or not.
+     *
      * @var bool
      */
     protected $rememberUsernameChecked = false;
@@ -63,6 +72,7 @@ abstract class UserPassOrgBase extends \SimpleSAML\Auth\Source
      * Storage for authsource config option remember.organization.enabled
      * loginuserpassorg.php page/template use this option to present users
      * with a checkbox to save their organization choice for the next login request.
+     *
      * @var bool
      */
     protected $rememberOrganizationEnabled = false;
@@ -71,6 +81,7 @@ abstract class UserPassOrgBase extends \SimpleSAML\Auth\Source
      * Storage for authsource config option remember.organization.checked
      * loginuserpassorg.php page/template use this option to
      * default the remember organization checkbox to checked or not.
+     *
      * @var bool
      */
     protected $rememberOrganizationChecked = false;
@@ -127,6 +138,7 @@ abstract class UserPassOrgBase extends \SimpleSAML\Auth\Source
      * If unconfigured, the default is 'none'.
      *
      * @param string $usernameOrgMethod  The method which should be used.
+     * @return void
      */
     protected function setUsernameOrgMethod($usernameOrgMethod)
     {
@@ -151,6 +163,7 @@ abstract class UserPassOrgBase extends \SimpleSAML\Auth\Source
         return $this->usernameOrgMethod;
     }
 
+
     /**
      * Getter for the authsource config option remember.username.enabled
      * @return bool
@@ -159,6 +172,7 @@ abstract class UserPassOrgBase extends \SimpleSAML\Auth\Source
     {
         return $this->rememberUsernameEnabled;
     }
+
 
     /**
      * Getter for the authsource config option remember.username.checked
@@ -169,6 +183,7 @@ abstract class UserPassOrgBase extends \SimpleSAML\Auth\Source
         return $this->rememberUsernameChecked;
     }
 
+
     /**
      * Getter for the authsource config option remember.organization.enabled
      * @return bool
@@ -177,6 +192,7 @@ abstract class UserPassOrgBase extends \SimpleSAML\Auth\Source
     {
         return $this->rememberOrganizationEnabled;
     }
+
 
     /**
      * Getter for the authsource config option remember.organization.checked
@@ -187,6 +203,7 @@ abstract class UserPassOrgBase extends \SimpleSAML\Auth\Source
         return $this->rememberOrganizationChecked;
     }
 
+
     /**
      * Initialize login.
      *
@@ -194,6 +211,7 @@ abstract class UserPassOrgBase extends \SimpleSAML\Auth\Source
      * login page.
      *
      * @param array &$state  Information about the current authentication.
+     * @return void
      */
     public function authenticate(&$state)
     {
@@ -202,11 +220,11 @@ abstract class UserPassOrgBase extends \SimpleSAML\Auth\Source
         // We are going to need the authId in order to retrieve this authentication source later
         $state[self::AUTHID] = $this->authId;
 
-        $id = \SimpleSAML\Auth\State::saveState($state, self::STAGEID);
+        $id = Auth\State::saveState($state, self::STAGEID);
 
-        $url = \SimpleSAML\Module::getModuleURL('core/loginuserpassorg.php');
+        $url = Module::getModuleURL('core/loginuserpassorg.php');
         $params = ['AuthState' => $id];
-        \SimpleSAML\Utils\HTTP::redirectTrustedURL($url, $params);
+        Utils\HTTP::redirectTrustedURL($url, $params);
     }
 
 
@@ -251,6 +269,7 @@ abstract class UserPassOrgBase extends \SimpleSAML\Auth\Source
      * @param string $username  The username the user wrote.
      * @param string $password  The password the user wrote.
      * @param string $organization  The id of the organization the user chose.
+     * @return void
      */
     public static function handleLogin($authStateId, $username, $password, $organization)
     {
@@ -260,13 +279,16 @@ abstract class UserPassOrgBase extends \SimpleSAML\Auth\Source
         assert(is_string($organization));
 
         /* Retrieve the authentication state. */
-        $state = \SimpleSAML\Auth\State::loadState($authStateId, self::STAGEID);
+        /** @var array $state */
+        $state = Auth\State::loadState($authStateId, self::STAGEID);
 
         /* Find authentication source. */
         assert(array_key_exists(self::AUTHID, $state));
-        $source = \SimpleSAML\Auth\Source::getById($state[self::AUTHID]);
+
+        /** @var \SimpleSAML\Module\core\Auth\UserPassOrgBase|null $source */
+        $source = Auth\Source::getById($state[self::AUTHID]);
         if ($source === null) {
-            throw new \Exception('Could not find authentication source with id '.$state[self::AUTHID]);
+            throw new \Exception('Could not find authentication source with id ' . $state[self::AUTHID]);
         }
 
         $orgMethod = $source->getUsernameOrgMethod();
@@ -278,20 +300,30 @@ abstract class UserPassOrgBase extends \SimpleSAML\Auth\Source
             } else {
                 if ($orgMethod === 'force') {
                     /* The organization should be a part of the username, but isn't. */
-                    throw new \SimpleSAML\Error\Error('WRONGUSERPASS');
+                    throw new Error\Error('WRONGUSERPASS');
                 }
             }
         }
 
         /* Attempt to log in. */
-        $attributes = $source->login($username, $password, $organization);
+        try {
+            $attributes = $source->login($username, $password, $organization);
+        } catch (\Exception $e) {
+            Logger::stats('Unsuccessful login attempt from ' . $_SERVER['REMOTE_ADDR'] . '.');
+            throw $e;
+        }
+
+        Logger::stats(
+            'User \'' . $username . '\' at \'' . $organization
+            . '\' successfully authenticated from ' . $_SERVER['REMOTE_ADDR']
+        );
 
         // Add the selected Org to the state
         $state[self::ORGID] = $organization;
         $state['PersistentAuthData'][] = self::ORGID;
 
         $state['Attributes'] = $attributes;
-        \SimpleSAML\Auth\Source::completeAuth($state);
+        Auth\Source::completeAuth($state);
     }
 
 
@@ -301,7 +333,7 @@ abstract class UserPassOrgBase extends \SimpleSAML\Auth\Source
      * This function is used by the login form to get the available organizations.
      *
      * @param string $authStateId  The identifier of the authentication state.
-     * @return array|NULL  Array of organizations. NULL if the user must enter the
+     * @return array|null  Array of organizations. NULL if the user must enter the
      *         organization as part of the username.
      */
     public static function listOrganizations($authStateId)
@@ -309,13 +341,16 @@ abstract class UserPassOrgBase extends \SimpleSAML\Auth\Source
         assert(is_string($authStateId));
 
         /* Retrieve the authentication state. */
-        $state = \SimpleSAML\Auth\State::loadState($authStateId, self::STAGEID);
+        /** @var array $state */
+        $state = Auth\State::loadState($authStateId, self::STAGEID);
 
         /* Find authentication source. */
         assert(array_key_exists(self::AUTHID, $state));
-        $source = \SimpleSAML\Auth\Source::getById($state[self::AUTHID]);
+
+        /** @var \SimpleSAML\Module\core\Auth\UserPassOrgBase|null $source */
+        $source = Auth\Source::getById($state[self::AUTHID]);
         if ($source === null) {
-            throw new \Exception('Could not find authentication source with id '.$state[self::AUTHID]);
+            throw new \Exception('Could not find authentication source with id ' . $state[self::AUTHID]);
         }
 
         $orgMethod = $source->getUsernameOrgMethod();

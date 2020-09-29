@@ -2,9 +2,12 @@
 
 namespace SimpleSAML\IdP;
 
+use SimpleSAML\Auth;
 use SimpleSAML\Configuration;
+use SimpleSAML\Error;
+use SimpleSAML\IdP;
 use SimpleSAML\Module;
-use SimpleSAML\Utils\HTTP;
+use SimpleSAML\Utils;
 use SimpleSAML\XHTML\Template;
 
 /**
@@ -27,7 +30,7 @@ class IFrameLogoutHandler implements LogoutHandlerInterface
      *
      * @param \SimpleSAML\IdP $idp The IdP to log out from.
      */
-    public function __construct(\SimpleSAML\IdP $idp)
+    public function __construct(IdP $idp)
     {
         $this->idp = $idp;
     }
@@ -37,6 +40,7 @@ class IFrameLogoutHandler implements LogoutHandlerInterface
      *
      * @param array &$state The logout state.
      * @param string|null $assocId The SP we are logging out from.
+     * @return void
      */
     public function startLogout(array &$state, $assocId)
     {
@@ -49,7 +53,7 @@ class IFrameLogoutHandler implements LogoutHandlerInterface
         }
 
         foreach ($associations as $id => &$association) {
-            $idp = \SimpleSAML\IdP::getByState($association);
+            $idp = IdP::getByState($association);
             $association['core:Logout-IFrame:Name'] = $idp->getSPName($id);
             $association['core:Logout-IFrame:State'] = 'onhold';
         }
@@ -67,14 +71,14 @@ class IFrameLogoutHandler implements LogoutHandlerInterface
         }
 
         $params = [
-            'id' => \SimpleSAML\Auth\State::saveState($state, 'core:Logout-IFrame'),
+            'id' => Auth\State::saveState($state, 'core:Logout-IFrame'),
         ];
         if (isset($state['core:Logout-IFrame:InitType'])) {
             $params['type'] = $state['core:Logout-IFrame:InitType'];
         }
 
         $url = Module::getModuleURL('core/idp/logout-iframe.php', $params);
-        HTTP::redirectTrustedURL($url);
+        Utils\HTTP::redirectTrustedURL($url);
     }
 
 
@@ -86,8 +90,9 @@ class IFrameLogoutHandler implements LogoutHandlerInterface
      * @param string $assocId The association that is terminated.
      * @param string|null $relayState The RelayState from the start of the logout.
      * @param \SimpleSAML\Error\Exception|null $error The error that occurred during session termination (if any).
+     * @return void
      */
-    public function onResponse($assocId, $relayState, \SimpleSAML\Error\Exception $error = null)
+    public function onResponse($assocId, $relayState, Error\Exception $error = null)
     {
         assert(is_string($assocId));
 

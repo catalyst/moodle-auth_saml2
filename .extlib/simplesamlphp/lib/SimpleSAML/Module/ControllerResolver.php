@@ -7,7 +7,6 @@ use SimpleSAML\Configuration;
 use SimpleSAML\Error\Exception;
 use SimpleSAML\Module;
 use SimpleSAML\Session;
-
 use Symfony\Component\Config\Exception\FileLocatorFileNotFoundException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -33,7 +32,6 @@ use Symfony\Component\Routing\RouteCollection;
  */
 class ControllerResolver extends SymfonyControllerResolver implements ArgumentResolverInterface
 {
-
     /** @var ArgumentMetadataFactory */
     protected $argFactory;
 
@@ -44,9 +42,9 @@ class ControllerResolver extends SymfonyControllerResolver implements ArgumentRe
     protected $module;
 
     /** @var array */
-    protected $params;
+    protected $params = [];
 
-    /** @var RouteCollection */
+    /** @var RouteCollection|null */
     protected $routes;
 
 
@@ -76,7 +74,7 @@ class ControllerResolver extends SymfonyControllerResolver implements ArgumentRe
                 ['url' => '.*/$']
             );
             $this->routes->add('trailing-slash', $redirect);
-            $this->routes->addPrefix('/'.$this->module);
+            $this->routes->addPrefix('/' . $this->module);
         } catch (FileLocatorFileNotFoundException $e) {
         }
     }
@@ -137,7 +135,7 @@ class ControllerResolver extends SymfonyControllerResolver implements ArgumentRe
 
         /** @var ArgumentMetadata $argMeta */
         foreach ($metadata as $argMeta) {
-            if ($argMeta->getType() === 'Symfony\Component\HttpFoundation\Request') {
+            if ($argMeta->getType() === Request::class) {
                 // add request argument
                 $args[] = $request;
                 continue;
@@ -161,7 +159,7 @@ class ControllerResolver extends SymfonyControllerResolver implements ArgumentRe
                 $args[] = null;
             }
 
-            throw new Exception('Missing value for argument '.$argName.'. This is probably a bug.');
+            throw new Exception('Missing value for argument ' . $argName . '. This is probably a bug.');
         }
 
         return $args;
@@ -172,6 +170,7 @@ class ControllerResolver extends SymfonyControllerResolver implements ArgumentRe
      * Set the configuration to use by the controllers.
      *
      * @param \SimpleSAML\Configuration $config
+     * @return void
      */
     public function setConfiguration(Configuration $config)
     {
@@ -184,6 +183,7 @@ class ControllerResolver extends SymfonyControllerResolver implements ArgumentRe
      * Set the session to use by the controllers.
      *
      * @param \SimpleSAML\Session $session
+     * @return void
      */
     public function setSession(Session $session)
     {

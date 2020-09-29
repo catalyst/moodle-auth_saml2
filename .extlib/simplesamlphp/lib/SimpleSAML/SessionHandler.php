@@ -16,8 +16,6 @@ namespace SimpleSAML;
 
 abstract class SessionHandler
 {
-
-
     /**
      * This static variable contains a reference to the current
      * instance of the session handler. This variable will be NULL if
@@ -25,7 +23,7 @@ abstract class SessionHandler
      *
      * @var \SimpleSAML\SessionHandler
      */
-    protected static $sessionHandler = null;
+    protected static $sessionHandler;
 
 
     /**
@@ -34,6 +32,8 @@ abstract class SessionHandler
      * to this function.
      *
      * @return \SimpleSAML\SessionHandler The current session handler.
+     *
+     * @throws \Exception If we cannot instantiate the session handler.
      */
     public static function getSessionHandler()
     {
@@ -126,6 +126,10 @@ abstract class SessionHandler
      * selected in the 'store.type' configuration directive. If no
      * session handler is selected, then we will fall back to the default
      * PHP session handler.
+     *
+     * @return void
+     *
+     * @throws \Exception If we cannot instantiate the session handler.
      */
     private static function createSessionHandler()
     {

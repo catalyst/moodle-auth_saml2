@@ -12,6 +12,7 @@ class ArraysTest extends TestCase
 {
     /**
      * Test the arrayize() function.
+     * @return void
      */
     public function testArrayize()
     {
@@ -39,10 +40,12 @@ class ArraysTest extends TestCase
 
     /**
      * Test the transpose() function.
+     * @return void
      */
     public function testTranspose()
     {
         // check not array
+        /** @psalm-suppress InvalidArgument   Can be removed as soon as the codebase is fully typehinted */
         $this->assertFalse(Arrays::transpose('string'));
 
         // check bad arrays

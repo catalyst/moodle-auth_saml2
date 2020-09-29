@@ -24,6 +24,7 @@ foreach ($sets as $setkey => $set) {
         # Get global black/whitelists
         $blacklist = $mconfig->getArray('blacklist', []);
         $whitelist = $mconfig->getArray('whitelist', []);
+        $attributewhitelist = $mconfig->getArray('attributewhitelist', []);
 
         // get global type filters
         $available_types = [
@@ -57,7 +58,16 @@ foreach ($sets as $setkey => $set) {
                 $source['whitelist'] = $whitelist;
             }
 
-            \SimpleSAML\Logger::debug('[metarefresh]: In set ['.$setkey.'] loading source ['.$source['src'].']');
+            # Merge global and src specific attributewhitelists, cannot use array_unique on multi-dim.
+            if (isset($source['attributewhitelist'])) {
+                $source['attributewhitelist'] = array_merge($source['attributewhitelist'], $attributewhitelist);
+            } else {
+                $source['attributewhitelist'] = $attributewhitelist;
+            }
+
+            \SimpleSAML\Logger::debug(
+                '[metarefresh]: In set [' . $setkey . '] loading source [' . $source['src'] . ']'
+            );
             $metaloader->loadSource($source);
         }
 

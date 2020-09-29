@@ -4,8 +4,11 @@ namespace SimpleSAML\Test\Module\core\Auth;
 
 use SimpleSAML\Module\core\Auth\UserPassOrgBase;
 
-class UserPassOrgBaseTest extends \PHPUnit_Framework_TestCase
+class UserPassOrgBaseTest extends \PHPUnit\Framework\TestCase
 {
+    /**
+     * @return void
+     */
     public function testRememberOrganizationEnabled()
     {
         $config = [
@@ -25,6 +28,7 @@ class UserPassOrgBaseTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
+        /** @var \SimpleSAML\Module\core\Auth\UserPassOrgBase $mockUserPassOrgBase */
         $mockUserPassOrgBase = $this->getMockBuilder(\SimpleSAML\Module\core\Auth\UserPassOrgBase::class)
             ->setConstructorArgs([['AuthId' => 'my-org'], &$config])
             ->setMethods([])

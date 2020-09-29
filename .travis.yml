@@ -33,7 +33,7 @@ matrix:
       env: DB=pgsql MOODLE_BRANCH=MOODLE_37_STABLE NODE_VERSION=14.2.0
     - php: 7.2
       env: DB=pgsql MOODLE_BRANCH=MOODLE_38_STABLE NODE_VERSION=14.2.0
-    - php: 7.2
+    - php: 7.4
       env: DB=pgsql MOODLE_BRANCH=MOODLE_39_STABLE NODE_VERSION=14.2.0
     - php: 7.2
       env: DB=mysqli MOODLE_BRANCH=MOODLE_39_STABLE NODE_VERSION=14.2.0
