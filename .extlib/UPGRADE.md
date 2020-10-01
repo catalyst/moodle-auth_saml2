@@ -82,3 +82,59 @@ git diff HEAD
 git add simplesamlphp
 git commit -m 'Issue #XXX - Backporting modifications for auth_saml2' # Customise the message!
 ```
+
+# Testing locally
+1> Set up IDP locally as suggested here: https://simplesamlphp.org/docs/stable/simplesamlphp-idp
+
+**IDP Settings:**
+config.php - double check 'baseurlpath' is set correctly
+authsources.php - fields mapping can be as below:
+```
+$config = [
+    'example-userpass' => [
+        'exampleauth:UserPass',
+        'student:studentpass' => [
+            'uid' => ['student'],
+            'email'=> ['student@yahoo.com'],
+            'firstname' => ['StudFname'],
+            'lastname' => ['StudLname'],
+            'eduPersonAffiliation' => ['member', 'student'],
+        ],
+        'employee:employeepass' => [
+            'uid' => ['employee'],
+            'email'=> ['emp@yahoo.com'],
+            'firstname' => ['EmpFname'],
+            'lastname' => ['EmpLname'],
+            'eduPersonAffiliation' => ['member', 'employee'],
+        ],
+    ],
+];
+```
+2> Add below rules to nginx
+```
+    # deny dot-files
+    location ~ /\. {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+```
+3> Once upgrade is done and cherry-pick commits are applied, integrate with moodle
+**Settings to check on moodle**
+
+ - /admin/settings.php?section=httpsecurity
+    cookiesecure = false
+
+ - /admin/settings.php?section=authsettingsaml2
+    auth_saml2 | autocreate = Yes
+
+    Under Data mapping - map few fields
+    Firstname
+    Lastname
+    Email
+
+4> Fix whatever is not working after step 3.
+5> Good to have commits in order as below:
+- Library upgrade with version tag
+- Library patches/cherry-picked/manually applied changes
+- doc changes - README, Travis, version.php, any other
