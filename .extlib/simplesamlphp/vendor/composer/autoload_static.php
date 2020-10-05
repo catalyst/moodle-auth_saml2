@@ -78,7 +78,6 @@ class ComposerStaticInitcecba5b45983fc2b8de9ece2f750c80c
         array (
             'Psr\\Log\\' => 8,
             'Psr\\Container\\' => 14,
-            'PHPMailer\\PHPMailer\\' => 20,
         ),
         'G' => 
         array (
@@ -279,10 +278,6 @@ class ComposerStaticInitcecba5b45983fc2b8de9ece2f750c80c
         'Psr\\Container\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/container/src',
-        ),
-        'PHPMailer\\PHPMailer\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
         ),
         'Gettext\\Languages\\' => 
         array (
