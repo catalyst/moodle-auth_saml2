@@ -32,7 +32,7 @@ class setting_idpmetadata_test extends advanced_testcase {
     /** @var setting_idpmetadata */
     private static $config;
 
-    protected function setUp() {
+    protected function setUp():void {
         parent::setUp();
         self::$config = new setting_idpmetadata();
     }
@@ -154,7 +154,7 @@ class setting_idpmetadata_test extends advanced_testcase {
      * @static
      * @return void
      */
-    public static function tearDownAfterClass() {  // @codingStandardsIgnoreLine - ignore case of function.
+    public static function tearDownAfterClass():void {  // @codingStandardsIgnoreLine - ignore case of function.
         parent::tearDownAfterClass();
         if (self::$config) {
             self::$config = null;
