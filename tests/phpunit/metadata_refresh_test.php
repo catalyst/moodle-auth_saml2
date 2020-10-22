@@ -36,7 +36,7 @@ defined('MOODLE_INTERNAL') || die();
  */
 class auth_saml2_metadata_refresh_testcase extends advanced_testcase {
 
-    public function setUp() {
+    public function setUp():void {
         $this->resetAfterTest(true);
     }
 
