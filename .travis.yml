@@ -44,7 +44,7 @@ before_install:
   - cd ../..
   - nvm install $NODE_VERSION
   - nvm use $NODE_VERSION
-  - composer create-project -n --no-dev --prefer-dist blackboard-open-source/moodle-plugin-ci ci ^2;
+  - composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^3;
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
   - PATH=$(echo "$PATH" | sed -e 's/:\/usr\/local\/lib\/jvm\/openjdk11\/bin//') JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
 
