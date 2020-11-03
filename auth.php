@@ -961,6 +961,14 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         // Do not attempt to log out of the IdP.
         if (!$this->config->attemptsignout) {
+
+            $alterlogout = $this->config->alterlogout;
+            if (!empty($alterlogout)) {
+                // If we don't sign out of the IdP we still want to honor the
+                // alternate logout page
+                $this->log(__FUNCTION__ . " Do SSP alternate URL logout $alterlogout");
+                redirect(new moodle_url($alterlogout));
+            }
             return;
         }
 
