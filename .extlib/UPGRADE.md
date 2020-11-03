@@ -23,7 +23,8 @@ php composer-setup.php
 php -r "unlink('composer-setup.php');"
 ```
 ### Remove any dependencies we don't want.
-Hopefully you don't need to do this, but in the 1.17 build we removed symfony/polyfill-php70 from composer.lock.
+Remove symfony/config/Tests/Fixtures as PHPLint fails due to unexpected end of file error in Fixtures/ParseError.php.
+In 1.17 build, we removed symfony/polyfill-php70 from composer.lock.
 
 ### Install the external dependencies (excluding dev)
 Make sure you run the install with "--no-dev" as below.
