@@ -37,7 +37,7 @@ Why is it better?
 * Minimal configuration needed, in most cases just copy the IdP metadata in
   and then give the SP metadata to your IdP admin and that's it.
 * Fast! - 3 redirects instead of 7
-* Supports back channel Single Logout which most big organisations require (unlike OneLogin)
+* Supports Single Logout via the HTTP-Redirect binding which many organisations require
 
 
 How does it work?

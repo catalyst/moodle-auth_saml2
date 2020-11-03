@@ -63,17 +63,13 @@ function auth_saml2_get_sp_metadata() {
 
     $slosvcdefault = array(
         SAML2\Constants::BINDING_HTTP_REDIRECT,
-        SAML2\Constants::BINDING_SOAP,
+        // SAML2\Constants::BINDING_SOAP, // TODO untested.
     );
 
     $slob = $spconfig->getArray('SingleLogoutServiceBinding', $slosvcdefault);
     $slol = "$CFG->wwwroot/auth/saml2/sp/saml2-logout.php/{$sourceId}";
 
     foreach ($slob as $binding) {
-        if ($binding == SAML2\Constants::BINDING_SOAP && !($store instanceof SimpleSAML_Store_SQL)) {
-            /* We cannot properly support SOAP logout. */
-            continue;
-        }
         $metaArray20['SingleLogoutService'][] = array(
             'Binding' => $binding,
             'Location' => $slol,
