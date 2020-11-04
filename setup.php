@@ -24,7 +24,9 @@
 
 use auth_saml2\event\cert_regenerated;
 
+// @codingStandardsIgnoreStart
 require_once(__DIR__ . '/../../config.php');
+// @codingStandardsIgnoreEnd
 require_once(__DIR__ . '/setuplib.php');
 
 global $CFG, $saml2auth;
@@ -46,7 +48,7 @@ $saml2auth->get_saml2_directory(); // It will create it if needed.
 $missingcertpem = !file_exists($saml2auth->certpem);
 $missingcertcrt = !file_exists($saml2auth->certcrt);
 if ($missingcertpem || $missingcertcrt) {
-    // Could not find one or both certificates. Log an error
+    // Could not find one or both certificates. Log an error.
     $errorstring = "";
     $missingcertpem ? $errorstring .= "= Missing cert pem file! =\n" : null;
     $missingcertcrt ? $errorstring .= "= Missing cert crt file! = \n" : null;
