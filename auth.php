@@ -965,7 +965,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
             $alterlogout = $this->config->alterlogout;
             if (!empty($alterlogout)) {
                 // If we don't sign out of the IdP we still want to honor the
-                // alternate logout page
+                // alternate logout page.
                 $this->log(__FUNCTION__ . " Do SSP alternate URL logout $alterlogout");
                 redirect(new moodle_url($alterlogout));
             }
@@ -1117,7 +1117,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
     /**
      * Called from SimpleSamlphp after a LogoutResponse from the IdP
      */
-    static function auth_saml2_after_logout_from_idp_front_channel() {
+    static public function auth_saml2_after_logout_from_idp_front_channel() {
         global $saml2config;
 
         // The SP session will be cleaned up but we need to remove the
@@ -1136,7 +1136,7 @@ function auth_saml2_after_logout_from_sp($state) {
     $cookiename = $saml2config['session.cookie.name'];
     $sessid = $_COOKIE[$cookiename];
 
-    // In SSP should do this for us but remove stored SP session data:
+    // In SSP should do this for us but remove stored SP session data.
     $storeclass = $saml2config['store.type'];
     $store = new $storeclass;
     $store->delete('session', $sessid);

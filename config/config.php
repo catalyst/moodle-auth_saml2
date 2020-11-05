@@ -54,7 +54,7 @@ $config = array(
     'errorreporting'    => false,
     'debug.validatexml' => false,
     'secretsalt'        => $saml2auth->config->privatekeypass,
-    'technicalcontact_name'  => !empty($CFG->supportname)  ? $CFG->supportname : get_string('administrator'),
+    'technicalcontact_name'  => !empty($CFG->supportname) ? $CFG->supportname : get_string('administrator'),
     'technicalcontact_email' => !empty($CFG->supportemail) ? $CFG->supportemail : $CFG->noreplyaddress,
     'timezone' => class_exists('core_date') ? core_date::get_server_timezone() : null,
 
@@ -91,7 +91,7 @@ $config = array(
 
     'authproc.sp' => auth_plugin_saml2::saml2_authproc_filters_hook(),
 
-    // TODO setting for redirect.sign
+    // TODO setting for redirect.sign.
 );
 
 // Save this in a global for later.
