@@ -136,6 +136,7 @@ $string['passivemode'] = 'Passive mode';
 $string['pluginname'] = 'SAML2';
 $string['privatekeypass'] = 'Private certificate key password';
 $string['privatekeypass_help'] = 'This is used for signing the local Moodle certificate, changing this will invalidate the current certificate.';
+$string['regenerateheading'] = 'Regenerate Private Key and Certificate';
 $string['regenerate_submit'] = 'Regenerate';
 $string['rememberidp'] = 'Remember login service';
 $string['required'] = 'This field is required';

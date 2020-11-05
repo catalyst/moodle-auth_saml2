@@ -519,3 +519,33 @@ function auth_saml2_process_regenerate_form($fromform) {
 }
 // @codingStandardsIgnoreEnd
 
+/**
+ * Common shared admin nav
+ */
+function auth_saml2_admin_nav($title, $url) {
+    global $PAGE, $SITE;
+
+    require_login();
+    require_capability('moodle/site:config', context_system::instance());
+
+    $PAGE->set_context(context_system::instance());
+    $PAGE->set_url($url);
+    $PAGE->set_course($SITE);
+
+    $PAGE->navbar->add(get_string('administrationsite'),
+            new moodle_url('/admin/search.php'));
+
+    $PAGE->navbar->add(get_string('plugins', 'admin'));
+
+    $PAGE->navbar->add(get_string('authentication', 'admin'),
+            new moodle_url('/admin/settings.php?section=manageauths'));
+
+    $PAGE->navbar->add(get_string('pluginname', 'auth_saml2'),
+            new moodle_url('/admin/settings.php', array('section' => 'authsettingsaml2')));
+
+    $PAGE->navbar->add($title, new moodle_url($url));
+
+    $PAGE->set_heading(get_string('pluginname', 'auth_saml2') . ': ' . $title);
+    $PAGE->set_title(get_string('pluginname', 'auth_saml2') . ': ' . $title);
+}
+
