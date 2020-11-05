@@ -54,9 +54,8 @@ $config = array(
     'errorreporting'    => false,
     'debug.validatexml' => false,
     'secretsalt'        => $saml2auth->config->privatekeypass,
-    'technicalcontact_name'  => $CFG->supportname,
-    'technicalcontact_email' => $CFG->supportemail ? $CFG->supportemail : $CFG->noreplyaddress,
-    // TODO \core_user::get_support_user().
+    'technicalcontact_name'  => !empty($CFG->supportname)  ? $CFG->supportname : get_string('administrator'),
+    'technicalcontact_email' => !empty($CFG->supportemail) ? $CFG->supportemail : $CFG->noreplyaddress,
     'timezone' => class_exists('core_date') ? core_date::get_server_timezone() : null,
 
     'session.duration'          => (int)$CFG->sessiontimeout,

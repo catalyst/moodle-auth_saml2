@@ -197,7 +197,8 @@ issues lies. Some common issues are:
 Gotchas
 -------
 
-**Multiple IdPs**
+### Multiple IdPs ###
+
 When using multiple IdPs the system will force enable the dual login setting. This is so
 that a list of possible identity providers will be presented to the user when logging in.
 
@@ -214,7 +215,8 @@ If there is any text before the http scheme then it will be used as the override
 It is not be recommended to use the 'IdP label override' configuration option with
 multiple IdPs.
 
-**Deep linking saml=on URL param**
+### Deep linking saml=on URL param ###
+
 For most use cases, this parameter should work on all supported moodle versions. However, to make
 this paramater force a saml login redirect even when users are already logged in as a guest we
 use a moodle hook https://docs.moodle.org/dev/Login_callbacks#after_config that is only available
@@ -223,7 +225,7 @@ in moodle >= 3.8.
 To make guest user redirecting work on moodle 3.7 and below, you will need to backport
 the changes from https://tracker.moodle.org/browse/MDL-66340.
 
-**OpenAM**
+### OpenAM ###
 
 If you are getting signature issues with OpenAM then you may need to manually
 yank out the contents of the ds:X509Certificate element into a file and then
@@ -239,19 +241,22 @@ $ keytool -import -trustcacerts -alias moodle.edu -file moodle.edu.crt -keystore
 
 Then follow the prompts and restart OpenAM.
 
-**Certificate Locking**
+### Certificate Locking ###
 
-It is only possible to unlock the certificates via the command line.
+It is possible to lock the certificates in the admin UI which prevents inadvertant
+overwriting of them. They can also be unlocked in the UI. If you really want to
+protect them then chown the files so that your webserver user cannot modify them at all.
+
 These certificates are located in the $CFG->dataroot/saml2 directory.
 
-To unlock the certificates please restore the write permissions to the required files.
+To manually unlock the certificates please restore the write permissions to the required files.
 ```bash
 $ cd $CFG->dataroot/saml2
 $ chmod 0660 site.example.crt
 $ chmod 0660 site.example.pem
 ```
 
-**OpenSSL errors during certificate regeneration**
+### OpenSSL errors during certificate regeneration ###
 
 Some environments, particularly Windows-based, may not provide an OpenSSL
 configuration file at the default location, producing errors like the
@@ -268,7 +273,7 @@ of [`openssl.cnf`](https://www.openssl.org/docs/manmaster/man5/config.html)
 within your environment.
 
 
-**OKTA configuration**
+### OKTA configuration ###
 
 Okta has some weird names for settings which are confusing, this may help decipher them:
 
@@ -290,7 +295,7 @@ Suggested attribute mappings:
 |`Email`|`user.email`|
 
 
-**Auth Proc Filter Hooks**
+### Auth Proc Filter Hooks ###
 
 Other plugins may hook into SAML2 and create custom Auth Proc Filters.
 Auth Proc Filters allows you to mutate of the attributes passed back from the IdP before Moodle handles them and does the profile field mappings
@@ -373,7 +378,7 @@ dependencies to manage.
 
 Here is a quick run down of the alternatives:
 
-**Core:**
+### Moodle Core ###
 
 * /auth/shibboleth - This requires a separately installed and configured
   Shibbolleth install
@@ -384,7 +389,12 @@ more latency due to extra redirects. Latency on potentially slow mobile
 networks is by far the biggest bottle neck for login speed and the biggest
 complaint by end users in our experience.
 
-**Plugins that require SimpleSamlPHP**
+* /auth/oauth2
+
+OAuth2 has direct support in Moodle
+
+
+### Plugins that require SimpleSamlPHP ###
 
 These are all forks of each other, and unfortunately have diverged quite early
 or have no common git history making it difficult to cross port features or
@@ -396,7 +406,7 @@ fixes between them.
 
 * https://github.com/piersharding/moodle-auth_saml
 
-**Plugins which embed a SAML client lib:**
+### Plugins which embed a SAML client lib ###
 
 These are generally much easier to manage and configure as they are standalone.
 
