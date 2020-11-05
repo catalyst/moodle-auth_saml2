@@ -24,7 +24,9 @@
 
 use auth_saml2\ssl_algorithms;
 
+// @codingStandardsIgnoreStart
 require_once(__DIR__ . '/../../config.php');
+// @codingStandardsIgnoreEnd
 require_once(__DIR__ . '/_autoload.php');
 
 global $CFG;
