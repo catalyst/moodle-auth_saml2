@@ -26,7 +26,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-global $CFG, $saml2auth;
+global $CFG, $saml2auth, $saml2config;
 
 // Check for https login.
 $wwwroot = $CFG->wwwroot;
@@ -54,7 +54,7 @@ $config = array(
     'errorreporting'    => false,
     'debug.validatexml' => false,
     'secretsalt'        => $saml2auth->config->privatekeypass,
-    'technicalcontact_name'  => !empty($CFG->supportname)  ? $CFG->supportname : get_string('administrator'),
+    'technicalcontact_name'  => !empty($CFG->supportname) ? $CFG->supportname : get_string('administrator'),
     'technicalcontact_email' => !empty($CFG->supportemail) ? $CFG->supportemail : $CFG->noreplyaddress,
     'timezone' => class_exists('core_date') ? core_date::get_server_timezone() : null,
 
@@ -91,8 +91,9 @@ $config = array(
 
     'authproc.sp' => auth_plugin_saml2::saml2_authproc_filters_hook(),
 
-    // TODO setting for signature.algorithm (ADFS 3 requires http://www.w3.org/2001/04/xmldsig-more#rsa-sha256)
-    // TODO setting for redirect.sign
-    // TODO More options for post-processing of the UID - essentially we need a safer version of SSPHP's authproc.
-    // A basic plugin system would be ideal as requirements here can vary wildly.
+    // TODO setting for redirect.sign.
 );
+
+// Save this in a global for later.
+$saml2config = $config;
+
