@@ -23,7 +23,9 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+// @codingStandardsIgnoreStart
 require_once(__DIR__ . '/../../config.php');
+// @codingStandardsIgnoreEnd
 require_once(__DIR__ . '/locallib.php');
 
 global $DB;
