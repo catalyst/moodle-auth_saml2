@@ -160,5 +160,6 @@ class setting_idpmetadata_test extends advanced_testcase {
         if (self::$config) {
             self::$config = null;
         }
+        libxml_clear_errors();
     }
 }
