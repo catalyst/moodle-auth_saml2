@@ -183,6 +183,10 @@ class setting_idpmetadata extends admin_setting_configtextarea {
      * @return idp_data[]
      */
     public function get_idps_data($value) {
+        global $CFG;
+
+        require_once($CFG->libdir.'/filelib.php');
+
         $parser = new idp_parser();
         $idps = $parser->parse($value);
 
@@ -192,7 +196,7 @@ class setting_idpmetadata extends admin_setting_configtextarea {
                 continue;
             }
 
-            $rawxml = @file_get_contents($idp->idpurl);
+            $rawxml = \download_file_content($idp->idpurl);
             if ($rawxml === false) {
                 throw new setting_idpmetadata_exception(
                     get_string('idpmetadata_badurl', 'auth_saml2', $idp->idpurl)

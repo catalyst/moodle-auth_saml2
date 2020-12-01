@@ -27,7 +27,7 @@ namespace auth_saml2;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once(__DIR__ . '/../extlib/simplesamlphp/lib/SimpleSAML/Store.php');
+require_once(__DIR__ . '/../.extlib/simplesamlphp/lib/SimpleSAML/Store.php');
 
 /**
  * Redis store simpleSAMLphp class for auth/saml2.

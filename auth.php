@@ -968,12 +968,21 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         // Do not attempt to log out of the IdP.
         if (!$this->config->attemptsignout) {
+
+            $alterlogout = $this->config->alterlogout;
+            if (!empty($alterlogout)) {
+                // If we don't sign out of the IdP we still want to honor the
+                // alternate logout page.
+                $this->log(__FUNCTION__ . " Do SSP alternate URL logout $alterlogout");
+                redirect(new moodle_url($alterlogout));
+            }
             return;
         }
 
         require('setup.php');
 
-        // Woah there, we lost the session data, lets restore the IdP.
+        // We just loaded the SP session which replaces the Moodle so we lost
+        // the session data, lets temporarily restore the IdP.
         $SESSION->saml2idp = $idp;
         $auth = new \SimpleSAML\Auth\Simple($this->spname);
 
@@ -985,7 +994,10 @@ class auth_plugin_saml2 extends auth_plugin_base {
                 $this->log(__FUNCTION__ . " Do SSP alternate URL logout $alterlogout");
                 $redirect = $alterlogout;
             }
-            $auth->logout($redirect);
+            $auth->logout([
+                'ReturnTo' => $redirect,
+                'ReturnCallback' => 'auth_saml2_after_logout_from_sp',
+            ]);
         }
     }
 
@@ -1108,5 +1120,34 @@ class auth_plugin_saml2 extends auth_plugin_base {
             }
         }
     }
+
+    /**
+     * Called from SimpleSamlphp after a LogoutResponse from the IdP
+     */
+    static public function auth_saml2_after_logout_from_idp_front_channel() {
+        global $saml2config;
+
+        // The SP session will be cleaned up but we need to remove the
+        // Moodle session here.
+        \core\session\manager::terminate_current();
+    }
+
+}
+
+/**
+ * Called from SimpleSamlphp after a LogoutRequest from the SP
+ */
+function auth_saml2_after_logout_from_sp($state) {
+    global $saml2config;
+
+    $cookiename = $saml2config['session.cookie.name'];
+    $sessid = $_COOKIE[$cookiename];
+
+    // In SSP should do this for us but remove stored SP session data.
+    $storeclass = $saml2config['store.type'];
+    $store = new $storeclass;
+    $store->delete('session', $sessid);
+
+    redirect(new moodle_url($state['ReturnTo']));
 }
 

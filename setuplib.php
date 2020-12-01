@@ -24,7 +24,9 @@
 
 use auth_saml2\ssl_algorithms;
 
+// @codingStandardsIgnoreStart
 require_once(__DIR__ . '/../../config.php');
+// @codingStandardsIgnoreEnd
 require_once(__DIR__ . '/_autoload.php');
 
 global $CFG;
@@ -123,7 +125,7 @@ function pretty_print($arr) {
     if (is_object($arr)) {
         $arr = (array) $arr;
     }
-    $retstr = '<table class="generaltable">';
+    $retstr = '<table class="generaltable table-sm w-auto">';
     $retstr .= '<tr><th class="header">Key</th><th class="header">Value</th></tr>';
     if (is_array($arr)) {
         foreach ($arr as $key => $val) {
@@ -133,7 +135,8 @@ function pretty_print($arr) {
             if (is_array($val)) {
                 $retstr .= '<tr><td>' . $key . '</td><td>' . pretty_print($val) . '</td></tr>';
             } else {
-                if (strpos($key, 'valid') !== false && ($val * 1) === $val) {
+                if (strpos($key, 'valid') !== false
+                    && is_int($val)) {
                     $val = userdate($val) . " ($val)";
                 }
                 $retstr .= '<tr><td>' . $key . '</td><td>' . ($val == '' ? '""' : $val) . '</td></tr>';

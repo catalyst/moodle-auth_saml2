@@ -141,6 +141,7 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
     public function should_login_redirect_testcases() {
         $midp = new moodle_url('/auth/saml2/selectidp.php');
         return [
+            // @codingStandardsIgnoreStart
             "1. dual: y, param: null, multiidp: false, session: false" => [true, null, false, false, false],  // Login normal, dual login on.
             "2. dual: y, param: off, multiidp: false, session: false"  => [true, 'off', false, false, false], // Login normal, dual login on.
             "3. dual: y, param: on, multiidp: false, session: false"   => [true, 'on', false, false, true], // SAML redirect, ?saml=on.
@@ -169,6 +170,7 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
             "18. dual: y, param: null, multiidp: true, session: false" => [true, null, true, false, $midp->out()],  // Login normal, dual login on. Multi IdP true.
             "19. dual: y, param: off, multiidp: true, session: false"  => [true, 'off', true, false, false], // Login normal, dual login on. Multi IdP true.
             "20. dual: y, param: on, multiidp: true, session: false"   => [true, 'on', true, false, $midp->out()], // SAML redirect, ?saml=on. Multi IdP true.
+            // @codingStandardsIgnoreEnd
         ];
     }
 

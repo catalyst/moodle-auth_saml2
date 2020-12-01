@@ -25,7 +25,9 @@
 
 use auth_saml2\admin\saml2_settings;
 
+// @codingStandardsIgnoreStart
 require_once(__DIR__ . '/../../config.php');
+// @codingStandardsIgnoreEnd
 require('setup.php');
 
 $site = get_site();

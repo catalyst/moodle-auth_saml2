@@ -62,7 +62,9 @@ class auth_saml2_sitedata_test extends advanced_testcase {
 
         $event = reset($eventarray);
         $eventdata = $event->get_data();
-        $expecteddata = ['reason' => "= Missing cert pem file! =\n= Missing cert crt file! = \nNow regenerating saml2 certificates..."];
+        $expecteddata = [
+            'reason' => "= Missing cert pem file! =\n= Missing cert crt file! = \nNow regenerating saml2 certificates..."
+        ];
         self::assertEquals($expecteddata['reason'], $eventdata['other']['reason']);
         self::assertEquals('\auth_saml2\event\cert_regenerated', $eventdata['eventname']);
     }

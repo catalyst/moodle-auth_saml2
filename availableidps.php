@@ -28,23 +28,12 @@ require_once(__DIR__ . '/locallib.php');
 
 global $DB;
 
-require_login();
-require_capability('moodle/site:config', context_system::instance());
-
 $heading = get_string('manageidpsheading', 'auth_saml2');
 
-$PAGE->set_url("$CFG->wwwroot/auth/saml2/availableidps.php");
-$PAGE->set_course($SITE);
-$PAGE->set_title($SITE->shortname . ': ' . $heading);
-$PAGE->set_heading($SITE->fullname);
 $PAGE->set_pagelayout('standard');
 
-$PAGE->navbar->add(get_string('administrationsite'));
-$PAGE->navbar->add(get_string('plugins', 'admin'));
-$PAGE->navbar->add(get_string('authentication', 'admin'));
-$PAGE->navbar->add(get_string('pluginname', 'auth_saml2'),
-        new moodle_url('/admin/settings.php', array('section' => 'authsettingsaml2')));
-$PAGE->navbar->add($heading);
+auth_saml2_admin_nav($heading,
+    "/auth/saml2/availableidps.php");
 
 $PAGE->requires->css('/auth/saml2/styles.css');
 

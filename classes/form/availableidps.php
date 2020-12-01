@@ -60,7 +60,8 @@ class availableidps extends moodleform {
                 $mform->setType($fieldkey.'[id]', PARAM_INT);
 
                 // Add the displayname textbox.
-                $mform->addElement('text', $fieldkey.'[displayname]', get_string('multiidp:label:displayname', 'auth_saml2'), array('placeholder' => $idpentity['defaultname']));
+                $mform->addElement('text', $fieldkey.'[displayname]',
+                        get_string('multiidp:label:displayname', 'auth_saml2'), array('placeholder' => $idpentity['defaultname']));
                 $mform->setType($fieldkey.'[displayname]', PARAM_TEXT);
 
                 // Add the alias textbox.
@@ -68,13 +69,16 @@ class availableidps extends moodleform {
                 $mform->setType($fieldkey.'[alias]', PARAM_TEXT);
 
                 // Add the activeidp checkbox.
-                $mform->addElement('advcheckbox', $fieldkey.'[activeidp]', get_string('multiidp:label:active', 'auth_saml2'), '', array(), array(false, true));
+                $mform->addElement('advcheckbox', $fieldkey.'[activeidp]',
+                        get_string('multiidp:label:active', 'auth_saml2'), '', array(), array(false, true));
 
                 // Add the defaultidp checkbox.
-                $mform->addElement('advcheckbox', $fieldkey.'[defaultidp]', get_string('multiidp:label:defaultidp', 'auth_saml2'), '', array(), array(false, true));
+                $mform->addElement('advcheckbox', $fieldkey.'[defaultidp]',
+                        get_string('multiidp:label:defaultidp', 'auth_saml2'), '', array(), array(false, true));
 
                 // Add the adminidp checkbox.
-                $mform->addElement('advcheckbox', $fieldkey.'[adminidp]', get_string('multiidp:label:admin', 'auth_saml2'), '', array(), array(false, true));
+                $mform->addElement('advcheckbox', $fieldkey.'[adminidp]',
+                        get_string('multiidp:label:admin', 'auth_saml2'), '', array(), array(false, true));
 
                 // Add whitelisted IP for redirection to this IdP.
                 $mform->addElement('textarea', $fieldkey.'[whitelist]', get_string('multiidp:label:whitelist', 'auth_saml2'));

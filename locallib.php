@@ -63,17 +63,13 @@ function auth_saml2_get_sp_metadata() {
 
     $slosvcdefault = array(
         SAML2\Constants::BINDING_HTTP_REDIRECT,
-        SAML2\Constants::BINDING_SOAP,
+        // SAML2\Constants::BINDING_SOAP, // TODO untested.
     );
 
     $slob = $spconfig->getArray('SingleLogoutServiceBinding', $slosvcdefault);
     $slol = "$CFG->wwwroot/auth/saml2/sp/saml2-logout.php/{$sourceId}";
 
     foreach ($slob as $binding) {
-        if ($binding == SAML2\Constants::BINDING_SOAP && !($store instanceof SimpleSAML_Store_SQL)) {
-            /* We cannot properly support SOAP logout. */
-            continue;
-        }
         $metaArray20['SingleLogoutService'][] = array(
             'Binding' => $binding,
             'Location' => $slol,
@@ -518,4 +514,34 @@ function auth_saml2_process_regenerate_form($fromform) {
     }
 }
 // @codingStandardsIgnoreEnd
+
+/**
+ * Common shared admin nav
+ */
+function auth_saml2_admin_nav($title, $url) {
+    global $PAGE, $SITE;
+
+    require_login();
+    require_capability('moodle/site:config', context_system::instance());
+
+    $PAGE->set_context(context_system::instance());
+    $PAGE->set_url($url);
+    $PAGE->set_course($SITE);
+
+    $PAGE->navbar->add(get_string('administrationsite'),
+            new moodle_url('/admin/search.php'));
+
+    $PAGE->navbar->add(get_string('plugins', 'admin'));
+
+    $PAGE->navbar->add(get_string('authentication', 'admin'),
+            new moodle_url('/admin/settings.php?section=manageauths'));
+
+    $PAGE->navbar->add(get_string('pluginname', 'auth_saml2'),
+            new moodle_url('/admin/settings.php', array('section' => 'authsettingsaml2')));
+
+    $PAGE->navbar->add($title, new moodle_url($url));
+
+    $PAGE->set_heading(get_string('pluginname', 'auth_saml2') . ': ' . $title);
+    $PAGE->set_title(get_string('pluginname', 'auth_saml2') . ': ' . $title);
+}
 
