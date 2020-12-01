@@ -619,7 +619,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
                     $this->error_page(get_string('emailtaken', 'auth_saml2', $email));
                 }
 
-                // Issue #412
+                // Honor the core allowemailaddresses setting #412.
                 $error = email_is_not_allowed($email);
                 if ($error) {
                     $this->log(__FUNCTION__ . " '$email' " . $error);
