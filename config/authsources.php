@@ -40,13 +40,15 @@ $config = [];
 $arr = array_reverse($saml2auth->metadataentities);
 $metadataentities = array_pop($arr);
 $idpentity = array_pop($metadataentities);
-$idp = md5($idpentity->entityid);
+
+// This must always be a valid saml entityId.
+$idpentityid = $idpentity->entityid;
 
 if (!empty($SESSION->saml2idp)) {
     foreach ($saml2auth->metadataentities as $idpentities) {
         foreach ($idpentities as $md5entityid => $idpentity) {
             if ($SESSION->saml2idp === $md5entityid) {
-                $idp = $idpentity->entityid;
+                $idpentityid = $idpentity->entityid;
                 break 2;
             }
         }
@@ -57,7 +59,7 @@ $config[$saml2auth->spname] = [
     'saml:SP',
     'entityID' => "$wwwroot/auth/saml2/sp/metadata.php",
     'discoURL' => !empty($CFG->auth_saml2_disco_url) ? $CFG->auth_saml2_disco_url : null,
-    'idp' => empty($CFG->auth_saml2_disco_url) ? $idp : null,
+    'idp' => empty($CFG->auth_saml2_disco_url) ? $idpentityid : null,
     'NameIDPolicy' => $saml2auth->config->nameidpolicy,
     'OrganizationName' => array(
         'en' => $SITE->shortname,
