@@ -291,19 +291,18 @@ class SP extends \SimpleSAML\Auth\Source
         assert(is_string($entityId));
 
         global $saml2auth;
-        if ($this->idp !== null && $this->idp !== $entityId) {
-            foreach ($saml2auth->metadataentities as $metadataurl => $idpentities) {
-                if ($metadataurl == $entityId) {
-                    foreach ($idpentities as $key => $val) {
-                        if ($key == $this->idp) {
-                            $this->idp = null;
-                        }
-                        break 2;
-
-                    }
+        // Moodle customization. If we have multiple IdP's configured
+        // then accept requests from the other IdP's even if they are
+        // not the default IdP.
+        foreach ($saml2auth->metadataentities as $metadataurl => $idpentities) {
+            foreach ($idpentities as $key => $entity) {
+                if ($entity->entityid == $entityId) {
+                    $this->idp = null;
+                    break 2;
                 }
             }
         }
+
         if ($this->idp !== null && $this->idp !== $entityId) {
             throw new Error\Exception('Cannot retrieve metadata for IdP ' .
                 var_export($entityId, true) . ' because it isn\'t a valid IdP for this SP.');
