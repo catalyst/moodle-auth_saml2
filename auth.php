@@ -255,15 +255,15 @@ class auth_plugin_saml2 extends auth_plugin_base {
                     $idpname = $metadata->idpname;
                 }
 
+                // Try to use the <mdui:DisplayName> if it exists.
+                if (!empty($idp->name)) {
+                    $idpname = $idp->name;
+                }
+
                 // Has the IdP label override been set in the admin configuration?
                 // This is best used with a single IdP. Multiple IdP overrides are different.
                 if (!empty($conf->idpname)) {
                     $idpname = $conf->idpname;
-                }
-
-                // Try to use the <mdui:DisplayName> if it exists.
-                if (!empty($idp->name)) {
-                    $idpname = $idp->name;
                 }
 
                 $idplist[] = [
