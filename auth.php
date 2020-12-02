@@ -363,16 +363,28 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * All the checking happens before the login page in this hook
      */
     public function loginpage_hook() {
+        global $SESSION;
+
         $this->execute_callback('auth_saml2_loginpage_hook');
 
         $this->log(__FUNCTION__ . ' enter');
+
+        // For Behat tests, clear the wantsurl if it has ended up pointing to the fixture. This
+        // happens in older browsers which don't support the Referrer-Policy header used by fixture.
+        if (defined('BEHAT_SITE_RUNNING') && !empty($SESSION->wantsurl) &&
+                strpos($SESSION->wantsurl, '/auth/saml2/tests/fixtures/') !== false) {
+            unset($SESSION->wantsurl);
+        }
 
         // If the plugin has not been configured then do NOT try to use saml2.
         if ($this->is_configured() === false) {
             return;
         }
 
-        if ($this->should_login_redirect()) {
+        $redirect = $this->should_login_redirect();
+        if (is_string($redirect)) {
+            redirect($redirect);
+        } else if ($redirect === true) {
             $this->saml_login();
         } else {
             $this->log(__FUNCTION__ . ' exit');
@@ -384,7 +396,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
     /**
      * Determines if we will redirect to the SAML login.
      *
-     * @return bool If this returns true then we redirect to the SAML login.
+     * @return bool|string If this returns true then we redirect to the SAML login.
      */
     public function should_login_redirect() {
         global $SESSION;
@@ -412,11 +424,16 @@ class auth_plugin_saml2 extends auth_plugin_base {
             return false;
         }
 
+        if ($this->check_whitelisted_ip_redirect()) {
+            $this->log(__FUNCTION__ . ' redirecting due to ip found in idp whitelist');
+            return true;
+        }
+
         // Redirect to the select IdP page if requested so.
         if ($multiidp) {
             $this->log(__FUNCTION__ . ' redirecting due to multiidp=on parameter');
             $idpurl = new moodle_url('/auth/saml2/selectidp.php');
-            redirect($idpurl);
+            return $idpurl->out();
         }
 
         // Never redirect if has error.
@@ -525,8 +542,15 @@ class auth_plugin_saml2 extends auth_plugin_base {
         } else if (!is_null($saml2auth->defaultidp)) {
             $SESSION->saml2idp = md5($saml2auth->defaultidp->entityid);
         } else if ($saml2auth->multiidp) {
-            $idpurl = new moodle_url('/auth/saml2/selectidp.php');
-            redirect($idpurl);
+            // At this stage there is no alias, get-param or default IdP configured.
+            // On a multi-idp system, now check for any whitelisted IP address redirection.
+            $entitiyid = $this->check_whitelisted_ip_redirect();
+            if ($entitiyid !== null) {
+                $SESSION->saml2idp = $entitiyid;
+            } else {
+                $idpurl = new moodle_url('/auth/saml2/selectidp.php');
+                redirect($idpurl);
+            }
         }
 
         if (isset($_GET['rememberidp']) && $_GET['rememberidp'] == 1) {
@@ -707,6 +731,29 @@ class auth_plugin_saml2 extends auth_plugin_base {
     }
 
     /**
+     * Checks configuration of the multiple IdP IP whitelist field. If the users IP matches, this will
+     * return the $md5idpentityid on true. Or false if not found.
+     *
+     * This is used in two places, firstly to determine if a saml redirect is to happen.
+     * Secondly to determine which IdP to force the redirect to.
+     *
+     * @return bool|string
+     */
+    protected function check_whitelisted_ip_redirect() {
+        foreach ($this->metadataentities as $idpentities) {
+            foreach ($idpentities as $md5idpentityid => $idpentity) {
+                if (!$idpentity->activeidp) {
+                    continue;
+                }
+                if (\core\ip_utils::is_ip_in_subnet_list(getremoteaddr(), $idpentity->whitelist)) {
+                    return $md5idpentityid;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Testing user's groups attribute and allow access decided on preferences.
      *
      * @param array $attributes A list of attributes from the request
@@ -715,38 +762,41 @@ class auth_plugin_saml2 extends auth_plugin_base {
     public function is_access_allowed_for_member($attributes) {
 
         // If there is no encumberance attribute configured in Moodle, let them pass.
-        if (empty($this->config->groupattr) ) {
+        if (empty($this->config->grouprules) ) {
             return true;
+        }
+
+        $uid = $attributes[$this->config->idpattr][0];
+        $rules = \auth_saml2\group_rule::get_list($this->config->grouprules);
+        $userhasgroups = false;
+
+        foreach ($rules as $rule) {
+            if (empty($attributes[$rule->get_attribute()])) {
+                continue;
+            }
+
+            $userhasgroups = true; // At least one encumberance attribute is detected.
+
+            foreach ($attributes[$rule->get_attribute()] as $group) {
+                if ($group == $rule->get_group()) {
+                    if ($rule->is_allowed()) {
+                        $this->log(__FUNCTION__ . " user '$uid' is in allowed group. Access allowed.");
+                        return true;
+                    } else {
+                        $this->log(__FUNCTION__ . " user '$uid' is in restricted group. Access denied.");
+                        return false;
+                    }
+                }
+            }
         }
 
         // If a user has no encumberance attribute let them into Moodle.
-        if (empty($attributes[$this->config->groupattr])) {
+        if (empty($userhasgroups)) {
             return true;
         }
 
-        $groups = $attributes[$this->config->groupattr];
-
-        $uid = $attributes[$this->config->idpattr][0];
-        $deny  = preg_split("/[\s,]+/", $this->config->restricted_groups, null, PREG_SPLIT_NO_EMPTY);
-        $allow = preg_split("/[\s,]+/", $this->config->allowed_groups, null, PREG_SPLIT_NO_EMPTY);
-
-        // If a user has an encumberance attribute and one of the groups in it match a deny group,
-        // then don't let them in.
-        // We realise that they may not get here if they are in an allow group.
-        if (!empty(array_intersect($deny, $groups))) {
-            $this->log(__FUNCTION__ . " user '$uid' is in restricted group or isn't in allowed. Access denied.");
-            return false;
-        }
-
-        // If a user has an encumberance attribute and one of the groups in it match an allow group,
-        // then let them in.
-        if (empty(array_intersect($allow, $groups))) {
-            $this->log(__FUNCTION__ . " user '$uid' is in restricted group or isn't in allowed. Access denied.");
-            return false;
-        }
-
-        $this->log(__FUNCTION__ . " user '$uid' is in allowed group and isn't in restricted. Access allowed.");
-        return true;
+        $this->log(__FUNCTION__ . " user '$uid' isn't in allowed. Access denied.");
+        return false;
     }
 
     /**
@@ -911,12 +961,21 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         // Do not attempt to log out of the IdP.
         if (!$this->config->attemptsignout) {
+
+            $alterlogout = $this->config->alterlogout;
+            if (!empty($alterlogout)) {
+                // If we don't sign out of the IdP we still want to honor the
+                // alternate logout page.
+                $this->log(__FUNCTION__ . " Do SSP alternate URL logout $alterlogout");
+                redirect(new moodle_url($alterlogout));
+            }
             return;
         }
 
         require('setup.php');
 
-        // Woah there, we lost the session data, lets restore the IdP.
+        // We just loaded the SP session which replaces the Moodle so we lost
+        // the session data, lets temporarily restore the IdP.
         $SESSION->saml2idp = $idp;
         $auth = new \SimpleSAML\Auth\Simple($this->spname);
 
@@ -928,7 +987,10 @@ class auth_plugin_saml2 extends auth_plugin_base {
                 $this->log(__FUNCTION__ . " Do SSP alternate URL logout $alterlogout");
                 $redirect = $alterlogout;
             }
-            $auth->logout($redirect);
+            $auth->logout([
+                'ReturnTo' => $redirect,
+                'ReturnCallback' => 'auth_saml2_after_logout_from_sp',
+            ]);
         }
     }
 
@@ -1051,5 +1113,34 @@ class auth_plugin_saml2 extends auth_plugin_base {
             }
         }
     }
+
+    /**
+     * Called from SimpleSamlphp after a LogoutResponse from the IdP
+     */
+    static public function auth_saml2_after_logout_from_idp_front_channel() {
+        global $saml2config;
+
+        // The SP session will be cleaned up but we need to remove the
+        // Moodle session here.
+        \core\session\manager::terminate_current();
+    }
+
+}
+
+/**
+ * Called from SimpleSamlphp after a LogoutRequest from the SP
+ */
+function auth_saml2_after_logout_from_sp($state) {
+    global $saml2config;
+
+    $cookiename = $saml2config['session.cookie.name'];
+    $sessid = $_COOKIE[$cookiename];
+
+    // In SSP should do this for us but remove stored SP session data.
+    $storeclass = $saml2config['store.type'];
+    $store = new $storeclass;
+    $store->delete('session', $sessid);
+
+    redirect(new moodle_url($state['ReturnTo']));
 }
 

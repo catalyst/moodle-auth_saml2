@@ -27,8 +27,11 @@ require('setup.php');
 
 require_login();
 require_capability('moodle/site:config', context_system::instance());
-$PAGE->set_url("$CFG->wwwroot/auth/saml2/regenerate.php");
-$PAGE->set_course($SITE);
+$heading = get_string('regenerateheading', 'auth_saml2');
+
+$here = "$CFG->wwwroot/auth/saml2/regenerate.php";
+
+auth_saml2_admin_nav($heading, $here);
 
 $mform = new \auth_saml2\form\regenerate();
 
@@ -38,67 +41,56 @@ if ($mform->is_cancelled()) {
 
 $path = $saml2auth->certcrt;
 $error = '';
+$success = false;
 
 if ($fromform = $mform->get_data()) {
-    $dn = array(
-        'commonName' => substr($fromform->commonname, 0, 64),
-        'countryName' => $fromform->countryname,
-        'emailAddress' => $fromform->email,
-        'localityName' => $fromform->localityname,
-        'organizationName' => $fromform->organizationname,
-        'stateOrProvinceName' => $fromform->stateorprovincename,
-        'organizationalUnitName' => $fromform->organizationalunitname,
-    );
-    $numberofdays = $fromform->expirydays;
-
-    $saml2auth = new auth_plugin_saml2();
-    $error = create_certificates($saml2auth, $dn, $numberofdays);
-
-    // Also refresh the SP metadata as well.
-    $file = $saml2auth->get_file_sp_metadata_file();
-    @unlink($file);
-
-    if (empty($error)) {
-        redirect("$CFG->wwwroot/admin/settings.php?section=authsettingsaml2");
+    try {
+        auth_saml2_process_regenerate_form($fromform);
+        redirect(new moodle_url('/auth/saml2/cert.php'), get_string('success'), null, \core\output\notification::NOTIFY_SUCCESS);
+    } catch (saml2_exception $exception) {
+        $error = $exception->getMessage() . $exception->getTraceAsString();
     }
-
-} else {
-
-    // Load data from the current certificate.
-    $data = openssl_x509_parse(file_get_contents($path));
-
-    // Calculate date expirey interval.
-    $date1 = date("Y-m-d\TH:i:s\Z", str_replace ('Z', '', $data['validFrom_time_t']));
-    $date2 = date("Y-m-d\TH:i:s\Z", str_replace ('Z', '', $data['validTo_time_t']));
-    $datetime1 = new DateTime($date1);
-    $datetime2 = new DateTime($date2);
-    $interval = $datetime1->diff($datetime2);
-    $expirydays = $interval->format('%a');
-
-    $toform = array (
-        "email" => $data['subject']['emailAddress'],
-        "expirydays" => $expirydays,
-        "commonname" => substr($data['subject']['CN'], 0, 64),
-        "countryname" => $data['subject']['C'],
-        "localityname" => $data['subject']['L'],
-        "organizationname" => $data['subject']['O'],
-        "stateorprovincename" => $data['subject']['ST'],
-        "organizationalunitname" => $data['subject']['OU'],
-    );
-    $mform->set_data($toform); // Load current data into form.
-
 }
 
 echo $OUTPUT->header();
-echo "<h1>Regenerate Private Key and Certificate</h1>";
+echo $OUTPUT->heading($heading);
 echo "<p>Path: $path</p>";
-echo "<h3>Warning: Generating a new certificate will overwrite the current one and you may need to update your IDP.</h3>";
 
-if ($error) {
-    echo $OUTPUT->notification($OUTPUT->error_text($error), 'notifyproblem');
+// Load data from the current certificate.
+$data = openssl_x509_parse(file_get_contents($path));
+
+// Calculate date expirey interval.
+$date1 = date("Y-m-d\TH:i:s\Z", str_replace ('Z', '', $data['validFrom_time_t']));
+$date2 = date("Y-m-d\TH:i:s\Z", str_replace ('Z', '', $data['validTo_time_t']));
+$datetime1 = new DateTime($date1);
+$datetime2 = new DateTime($date2);
+$interval = $datetime1->diff($datetime2);
+$expirydays = $interval->format('%a');
+
+$toform = array (
+    "email" => $data['subject']['emailAddress'],
+    "expirydays" => $expirydays,
+    "commonname" => substr($data['subject']['CN'], 0, 64),
+    "countryname"       => $data['subject']['C'],
+    "localityname"      => $data['subject']['L'],
+    "organizationname"  => $data['subject']['O'],
+    "stateorprovincename"    => $data['subject']['ST'],
+    "organizationalunitname" => $data['subject']['OU'],
+);
+$mform->set_data($toform); // Load current data into form.
+
+if ($success) {
+    echo $OUTPUT->notification(get_string('regeneratesuccess', 'auth_saml2'), \core\output\notification::NOTIFY_SUCCESS);
+} else if ($error) {
+    echo $OUTPUT->notification($error, \core\output\notification::NOTIFY_ERROR);
+} else {
+    echo $OUTPUT->notification(get_string('regeneratewarning', 'auth_saml2'), \core\output\notification::NOTIFY_WARNING);
 }
 
-$mform->display(); // Displays the form.
+echo html_writer::tag('h1', get_string('regenerateheader', 'auth_saml2'));
+echo html_writer::tag('p', get_string('regeneratepath', 'auth_saml2', $path));
+
+$mform->display();
 
 echo $OUTPUT->footer();
 

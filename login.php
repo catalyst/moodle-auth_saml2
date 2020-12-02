@@ -28,7 +28,9 @@ the user is redirected to here which forces SAML auth and then
 returns to the wantsurl.
 */
 
+// @codingStandardsIgnoreStart
 require_once(__DIR__ . '/../../config.php');
+// @codingStandardsIgnoreEnd
 require('setup.php');
 
 $wantsurl = optional_param('wantsurl', '', PARAM_LOCALURL); // Overrides $SESSION->wantsurl if given.

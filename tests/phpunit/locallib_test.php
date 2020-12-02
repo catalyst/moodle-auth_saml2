@@ -23,6 +23,7 @@
  */
 
 use auth_saml2\admin\saml2_settings;
+use auth_saml2\admin\setting_idpmetadata;
 
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../../locallib.php');
@@ -87,10 +88,11 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
      * @dataProvider should_login_redirect_testcases
      * @param mixed $duallogin
      * @param bool $param
+     * @param bool $multiidp
      * @param bool $session
      * @param bool $expected The expected return value
      */
-    public function test_should_login_redirect($duallogin, $param, $session, $expected) {
+    public function test_should_login_redirect($duallogin, $param, $multiidp, $session, $expected) {
         global $SESSION;
 
         $this->resetAfterTest();
@@ -116,6 +118,11 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
             }
         }
 
+        // HTML get param optional_param('multiidp', 0, PARAM_BOOL).
+        if ($multiidp === true) {
+            $_GET['multiidp'] = true;
+        }
+
         /** @var auth_plugin_saml2 $auth */
         $auth = get_auth_plugin('saml2');
         $result = $auth->should_login_redirect();
@@ -132,30 +139,88 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
      * @return array of testcases
      */
     public function should_login_redirect_testcases() {
+        $midp = new moodle_url('/auth/saml2/selectidp.php');
         return [
-            "1. dual: y, param: null, session: false" => [true, null, false, false],  // Login normal, dual login on.
-            "2. dual: y, param: off, session: false"  => [true, 'off', false, false], // Login normal, dual login on.
-            "3. dual: y, param: on, session: false"   => [true, 'on', false, true], // SAML redirect, ?saml=on.
+            // @codingStandardsIgnoreStart
+            "1. dual: y, param: null, multiidp: false, session: false" => [true, null, false, false, false],  // Login normal, dual login on.
+            "2. dual: y, param: off, multiidp: false, session: false"  => [true, 'off', false, false, false], // Login normal, dual login on.
+            "3. dual: y, param: on, multiidp: false, session: false"   => [true, 'on', false, false, true], // SAML redirect, ?saml=on.
 
-            "4. dual: n, param: null, session: false" => [false, null, false, false],  // Login normal, $SESSION->saml=0.
-            "5. dual: n, param: off, session: false"  => [false, 'off', false, false], // Login normal, ?saml=off.
-            "6. dual: n, param: on, session: false"   => [false, 'on', false, true], // SAML redirect, ?saml=on.
+            "4. dual: n, param: null, multiidp: false, session: false" => [false, null, false, false, false],  // Login normal, $SESSION->saml=0.
+            "5. dual: n, param: off, multiidp: false, session: false"  => [false, 'off', false, false, false], // Login normal, ?saml=off.
+            "6. dual: n, param: on, multiidp: false, session: false"   => [false, 'on', false, false, true], // SAML redirect, ?saml=on.
 
-            "7. dual: n, param: null, session: true"    => [false, null, true, true], // SAML redirect, $SESSION->saml=1.
-            "8. dual: n, param: off, session: true"     => [false, 'off', true, false], // Login normal, ?saml=off.
-            "9. dual: n, param: on, session: true"      => [false, 'on', true, true], // SAML redirect, ?saml=on.
+            "7. dual: n, param: null, multiidp: false, session: true"  => [false, null, false, true, true], // SAML redirect, $SESSION->saml=1.
+            "8. dual: n, param: off, multiidp: false, session: true"   => [false, 'off', false, true, false], // Login normal, ?saml=off.
+            "9. dual: n, param: on, multiidp: false, session: true"    => [false, 'on', false, true, true], // SAML redirect, ?saml=on.
 
             // For passive mode always redirect, SAML2 will redirect back if not logged in.
-            "10. dual: p, param: null, session: true" => ['passive', null, true, true],
-            "11. dual: p, param: off, session: true"  => ['passive', 'off', true, false], // Except if ?saml=off.
-            "12. dual: p, param: on, session: true"   => ['passive', 'on', true, true],
+            "10. dual: p, param: null, multiidp: false, session: true" => ['passive', null, false, true, true],
+            "11. dual: p, param: off, multiidp: false, session: true"  => ['passive', 'off', false, true, false], // Except if ?saml=off.
+            "12. dual: p, param: on, multiidp: false, session: true"   => ['passive', 'on', false, true, true],
 
-            "13. dual: p, param: null, session: false" => ['passive', null, false, true],
-            "14. dual: p, param: off, session: false"  => ['passive', 'off', false, false], // Except if ?saml=off.
-            "15. dual: p, param: on, session: false"   => ['passive', 'on', false, true],
+            "13. dual: p, param: null, multiidp: false, session: false" => ['passive', null, false, false, true],
+            "14. dual: p, param: off, multiidp: false, session: false"  => ['passive', 'off', false, false, false], // Except if ?saml=off.
+            "15. dual: p, param: on, multiidp: false, session: false"   => ['passive', 'on', false, false, true],
 
-            "16. dual: p, with SAMLerror" => ['passive', 'error', false, false], // Passive redirect back.
-            "17. dual: p using POST"      => ['passive', 'post', false, false], // POSTing.
+            "16. dual: p, with SAMLerror" => ['passive', 'error', false, false, false], // Passive redirect back.
+            "17. dual: p using POST"      => ['passive', 'post', false, false, false], // POSTing.
+
+            // Param multi-idp.
+            "18. dual: y, param: null, multiidp: true, session: false" => [true, null, true, false, $midp->out()],  // Login normal, dual login on. Multi IdP true.
+            "19. dual: y, param: off, multiidp: true, session: false"  => [true, 'off', true, false, false], // Login normal, dual login on. Multi IdP true.
+            "20. dual: y, param: on, multiidp: true, session: false"   => [true, 'on', true, false, $midp->out()], // SAML redirect, ?saml=on. Multi IdP true.
+            // @codingStandardsIgnoreEnd
+        ];
+    }
+
+    /**
+     * Test test_should_login_redirect
+     *
+     * @dataProvider check_whitelisted_ip_redirect_testcases
+     * @param string $whitelist
+     * @param bool $expected The expected return value
+     */
+    public function test_check_whitelisted_ip_redirect($saml, $remoteip, $active, $whitelist, $expected) {
+        $this->resetAfterTest();
+
+        // Setting an address here as getremoteaddr() will return default 0.0.0.0 which then is ignored by the address_in_subnet
+        // function.
+        $_SERVER['REMOTE_ADDR'] = $remoteip;
+
+        /** @var auth_plugin_saml2 $auth */
+        $auth = get_auth_plugin('saml2');
+
+        $auth->metadataentities = [
+            md5('idp') => [
+                'entity' => (object)[
+                        'whitelist' => $whitelist,
+                        'activeidp' => $active
+                ]
+            ]
+        ];
+
+        if ($saml !== null) {
+            $_GET['saml'] = $saml;
+        }
+
+        $result = $auth->should_login_redirect();
+        $this->assertTrue($result === $expected);
+    }
+
+    /**
+     * Dataprovider for the test_check_whitelisted_ip_redirect testcase
+     *
+     * @return array of testcases
+     */
+    public function check_whitelisted_ip_redirect_testcases() {
+        return [
+            'saml off, no ip, active idp, no redirect'              => ['off', '1.2.3.4', true, '', false],
+            'saml not specified, active idp, junk, no redirect'     => [null, '1.2.3.4', true, 'qwer1234!@#qwer', false],
+            'saml not specified, active idp, junk+ip, yes redirect' => [null, '1.2.3.4', true, "qwer1234!@#qwer\n1.2.3.4", true],
+            'saml not specified, active idp, localip, yes redirect' => [null, '1.2.3.4', true, "127.0.0.\n1.", true],
+            'saml not specified, disabled idp, localip, no redirect' => [null, '1.2.3.4', false, "127.0.0.\n1.", false],
+            'saml not specified, active idp, wrongip, no redirect' => [null, '4.3.2.1', true, "127.0.0.\n1.", false],
         ];
     }
 
@@ -444,5 +509,224 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $this->assertFalse($auth->is_email_taken(strtoupper($user->email), $user->username));
         $this->assertFalse($auth->is_email_taken(ucfirst($user->email), $user->username));
     }
-}
 
+    /**
+     * If locked do not generate the cert, if unlocked then generate the cert.
+     * If locked and we try to generate certs, throw an exception and do not generate the certs.
+     */
+    public function test_no_generate_if_locked() {
+        $this->resetAfterTest();
+        $auth = get_auth_plugin('saml2');
+        set_config('certs_locked', 1, 'auth_saml2');
+
+        // Make sure we have no files.
+        $crt = file_exists($auth->certcrt);
+        if ($crt) {
+            unlink($auth->certcrt);
+        }
+        $this->assertFalse($crt);
+
+        // Call setup.php and see that it doesn't generate a cert.
+        require(dirname(__FILE__) . '/../../setup.php');
+        $crt = file_exists($auth->certcrt);
+        $this->assertFalse($crt);
+
+        // Call the create_certificates function directly to assert that it throws an exception and does not generate a cert.
+        $this->expectException('saml2_exception');
+        create_certificates($auth);
+        $crt = file_exists($auth->certcrt);
+        $this->assertFalse($crt);
+
+        // Set config unlocked.
+        set_config('certs_locked', 0, 'auth_saml2');
+
+        // Call setup.php and see that it generates the certificate.
+        require(dirname(__FILE__) . '/../../setup.php');
+        $crt = file_exists($auth->certcrt);
+        $this->assertTrue($crt);
+    }
+
+    /**
+     * Data provided with the test attributes for is_access_allowed_for_member method.
+     * @return array
+     */
+    public function is_access_allowed_data_provider() {
+        return [
+            '' => [[
+                ['uid' => 'test'], // User don't have groups attribute.
+                ['uid' => 'test', 'groups' => ['blocked']], // In blocked group.
+                ['uid' => 'test', 'groups' => ['allowed']],  // In allowed group.
+                ['uid' => 'test', 'groups' => ['allowed', 'blocked']], // In both allowed first.
+                ['uid' => 'test', 'groups' => ['blocked', 'allowed']], // In both blocked first.
+                ['uid' => 'test', 'groups' => []],  // Groups exists, but empty.
+            ]]
+        ];
+    }
+
+    /**
+     * Test access allowed if required attributes are not configured.
+     *
+     * @dataProvider is_access_allowed_data_provider
+     * @param $attributes
+     */
+    public function test_is_access_allowed_for_member_not_configured($attributes) {
+        $this->resetAfterTest();
+
+        set_config('idpattr', 'uid', 'auth_saml2');
+
+        // User don't have groups attribute.
+        $auth = get_auth_plugin('saml2');
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[0]));
+
+        // In blocked group.
+        $auth = get_auth_plugin('saml2');
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[1]));
+
+        // In allowed group.
+        $auth = get_auth_plugin('saml2');
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[2]));
+
+        // In both allowed first.
+        $auth = get_auth_plugin('saml2');
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[3]));
+
+        // In both blocked first.
+        $auth = get_auth_plugin('saml2');
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[4]));
+
+        // Groups exists, but empty.
+        $auth = get_auth_plugin('saml2');
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[5]));
+    }
+
+    /**
+     * Test access allowed if configured, but restricted groups attribute is set to empty.
+     *
+     * @dataProvider is_access_allowed_data_provider
+     * @param $attributes
+     */
+    public function test_is_access_allowed_for_member_blocked_empty($attributes) {
+        $this->resetAfterTest();
+
+        set_config('idpattr', 'uid', 'auth_saml2');
+        set_config('grouprules', 'allow groups=allowed', 'auth_saml2');
+
+        $auth = get_auth_plugin('saml2');
+
+        // User don't have groups attribute.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[0]));
+
+        // In blocked group.
+        $this->assertFalse($auth->is_access_allowed_for_member($attributes[1]));
+
+        // In allowed group.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[2]));
+
+        // In both allowed first.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[3]));
+
+        // In both blocked first.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[4]));
+
+        // Groups exist, but empty.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[5]));
+    }
+
+    /**
+     * Test access allowed if configured, but allowed groups attribute is set to empty.
+     *
+     * @dataProvider is_access_allowed_data_provider
+     * @param $attributes
+     */
+    public function test_is_access_allowed_for_member_allowed_empty($attributes) {
+        $this->resetAfterTest();
+
+        set_config('idpattr', 'uid', 'auth_saml2');
+        set_config('grouprules', 'deny groups=blocked', 'auth_saml2');
+        $auth = get_auth_plugin('saml2');
+
+        // User don't have groups attribute.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[0]));
+
+        // In blocked group.
+        $this->assertFalse($auth->is_access_allowed_for_member($attributes[1]));
+
+        // In allowed group.
+        $this->assertFalse($auth->is_access_allowed_for_member($attributes[2]));
+
+        // In both allowed first.
+        $this->assertFalse($auth->is_access_allowed_for_member($attributes[3]));
+
+        // In both blocked first.
+        $this->assertFalse($auth->is_access_allowed_for_member($attributes[4]));
+
+        // Groups exist, but empty.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[5]));
+    }
+
+    /**
+     * Test access allowed if fully configured.
+     *
+     * @dataProvider is_access_allowed_data_provider
+     * @param $attributes
+     */
+    public function test_is_access_allowed_for_member_allowed_and_blocked($attributes) {
+        $this->resetAfterTest();
+
+        set_config('idpattr', 'uid', 'auth_saml2');
+        set_config('grouprules', "deny groups=blocked\nallow groups=allowed", 'auth_saml2');
+
+        $auth = get_auth_plugin('saml2');
+
+        // User don't have groups attribute.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[0]));
+
+        // In blocked group.
+        $this->assertFalse($auth->is_access_allowed_for_member($attributes[1]));
+
+        // In allowed group.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[2]));
+
+        // In both allowed first.
+        $this->assertFalse($auth->is_access_allowed_for_member($attributes[3]));
+
+        // In both blocked first.
+        $this->assertFalse($auth->is_access_allowed_for_member($attributes[4]));
+
+        // Groups exist, but empty.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[5]));
+    }
+
+    /**
+     * Test access allowed if fully configured and allowed priority is set to yes.
+     *
+     * @dataProvider is_access_allowed_data_provider
+     * @param $attributes
+     */
+    public function test_is_access_allowed_for_member_allowed_and_blocked_with_allowed_priority($attributes) {
+        $this->resetAfterTest();
+
+        set_config('idpattr', 'uid', 'auth_saml2');
+        set_config('grouprules', "allow groups=allowed\ndeny groups=blocked", 'auth_saml2');
+
+        $auth = get_auth_plugin('saml2');
+
+        // User don't have groups attribute.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[0]));
+
+        // In blocked group.
+        $this->assertFalse($auth->is_access_allowed_for_member($attributes[1]));
+
+        // In allowed group.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[2]));
+
+        // In both allowed first.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[3]));
+
+        // In both blocked first.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[4]));
+
+        // Groups exist, but empty.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[5]));
+    }
+}

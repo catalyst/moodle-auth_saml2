@@ -30,7 +30,7 @@ $string['anyauthotherdisabled'] = 'You have logged in successfully as \'{$a->use
 $string['attemptsignout'] = 'Attempt IdP Signout';
 $string['attemptsignout_help'] = 'This will attempt to communicate with the IdP to send a sign out request';
 $string['auth_saml2description'] = 'Authenticate with a SAML2 IdP';
-$string['auth_saml2blockredirectdescription'] = 'Redirect or display message to SAML2 logins based on based on configured group restrictions';
+$string['auth_saml2blockredirectdescription'] = 'Redirect or display message to SAML2 logins based on configured group restrictions';
 $string['autocreate'] = 'Auto create users';
 $string['autocreate_help'] = 'If users are in the IdP but not in moodle create a moodle account.';
 $string['availableidps'] = 'Select available IdPs';
@@ -45,7 +45,10 @@ $string['certificate_help'] = 'Regenerate the Private Key and Certificate used b
 $string['certificatelock_help'] = 'Locking the certificates will prevent them from being overwritten once generated.';
 $string['certificatelock'] = 'Lock certificate';
 $string['certificatelock_locked'] = 'The certificate is locked';
-$string['certificatelock_warning'] = 'Warning. You are about to lock the certificates, are you sure you want to do this?';
+$string['certificatelock_lockedmessage'] = 'The certificates are currently locked.';
+$string['certificatelock_unlock'] = 'Unlock certificates';
+$string['certificatelock_regenerate'] = 'Not regenerating certificates because they have been locked!';
+$string['certificatelock_warning'] = 'Warning. You are about to lock the certificates, are you sure you want to do this? <br> The certificates are not currently locked';
 $string['certificate'] = 'Regenerate certificate';
 $string['commonname'] = 'Common Name';
 $string['countryname'] = 'Country';
@@ -101,6 +104,13 @@ $string['mdlattr'] = 'Mapping Moodle';
 $string['metadatafetchfailed'] = 'Metadata fetch failed: {$a}';
 $string['metadatafetchfailedstatus'] = 'Metadata fetch failed: Status code {$a}';
 $string['metadatafetchfailedunknown'] = 'Metadata fetch failed: Unknown cURL error';
+$string['multiidp:label:displayname'] = 'Display name';
+$string['multiidp:label:alias'] = 'Alias';
+$string['multiidp:label:active'] = 'Active';
+$string['multiidp:label:defaultidp'] = 'Default IdP';
+$string['multiidp:label:admin'] = 'Admin';
+$string['multiidp:label:whitelist'] = 'Redirected IP addresses';
+$string['multiidp:label:whitelist_help'] = 'If set, it will force clients to this IdP. Format: xxx.xxx.xxx.xxx/bitmask. Separate multiple subnets on a new line.';
 $string['multiidpinfo'] = '
 <ul>
 <li>An IdP can only be used if it is set as Active</li>
@@ -126,6 +136,7 @@ $string['passivemode'] = 'Passive mode';
 $string['pluginname'] = 'SAML2';
 $string['privatekeypass'] = 'Private certificate key password';
 $string['privatekeypass_help'] = 'This is used for signing the local Moodle certificate, changing this will invalidate the current certificate.';
+$string['regenerateheading'] = 'Regenerate Private Key and Certificate';
 $string['regenerate_submit'] = 'Regenerate';
 $string['rememberidp'] = 'Remember login service';
 $string['required'] = 'This field is required';
@@ -170,13 +181,15 @@ $string['phone1'] = 'Phone';
 $string['phone2'] = 'Mobile phone';
 $string['nameidpolicy'] = 'NameID Policy';
 $string['nameidpolicy_help'] = '';
-$string['groupattr'] = 'Groups Attribute';
-$string['groupattr_help'] = 'Attribute that contains a set of user groups.';
-$string['restricted_groups'] = 'Restricted Groups';
-$string['restricted_groups_help'] = 'Comma delimited list of groups. User will not be allowed to login if one of the groups contains in Groups Attribute.';
-$string['allowed_groups'] = 'Allowed Groups';
-$string['allowed_groups_help'] = 'Comma delimited list of groups. User will be allowed to login if one of the groups contains in Groups Attribute. Restricted Groups will test first.';
-
+$string['grouprules'] = 'Group rules';
+$string['grouprules_help'] = '<p>A list of rules to be able to control access based on the group attribute value.</p>
+<p>Each line should have one rule in format: {allow or deny} {groups attribute}={value}.</p>
+<p>Higher in the list rule will be applied first.</p>
+Example: <br/>
+allow admins=yes<br>
+deny admins=no<br>
+allow examrole=proctor<br>
+deny library=overdue<br>';
 /*
  * Privacy provider (GDPR)
  */
@@ -192,3 +205,8 @@ $string['sha512'] = 'SHA512';
 $string['signaturealgorithm'] = 'Signing Algorithm';
 $string['signaturealgorithm_help'] = 'This is the algorithm that will be used to sign SAML requests. Warning: The SHA1 Algorithm is only provided for backwards compatibility, unless you absolutely must use it it is recommended to avoid it and use at least SHA256 instead.';
 $string['selectloginservice'] = 'Select a login service';
+$string['regenerateheader'] = 'Regenerate Private Key and Certificate';
+$string['regeneratewarning'] = 'Warning! Generating a new certificate will overwrite the current one and you may need to update your IDP';
+$string['regeneratepath'] = 'Certificate path path: {$a}';
+$string['regenerateheader'] = 'Regenerate Private Key and Certificate';
+$string['regeneratesuccess'] = 'Private Key and Certificate successfully regenerated';

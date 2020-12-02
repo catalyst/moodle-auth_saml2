@@ -24,7 +24,9 @@
 
 use auth_saml2\ssl_algorithms;
 
+// @codingStandardsIgnoreStart
 require_once(__DIR__ . '/../../config.php');
+// @codingStandardsIgnoreEnd
 require_once(__DIR__ . '/_autoload.php');
 
 global $CFG;
@@ -36,13 +38,16 @@ require_once("{$CFG->dirroot}/auth/saml2/auth.php");
  * @copyright  Brendan Heywood <brendan@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
- * @param stdObj  $saml2auth config object
+ * @param \auth_plugin_saml2  $saml2auth config object
  * @param array   $dn Certificate Distinguished name details
  * @param integer $numberofdays Certificate expirey period
  */
 function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
     global $SITE;
 
+    if (get_config('auth_saml2', 'certs_locked') == true) {
+        throw new saml2_exception('cert_lock_error', get_string('certificatelock_regenerate', 'auth_saml2'));
+    }
     $signaturealgorithm = ssl_algorithms::get_default_saml_signature_algorithm();
     if (!empty($saml2auth->config->signaturealgorithm)) {
         $signaturealgorithm = $saml2auth->config->signaturealgorithm;
@@ -120,7 +125,7 @@ function pretty_print($arr) {
     if (is_object($arr)) {
         $arr = (array) $arr;
     }
-    $retstr = '<table class="generaltable">';
+    $retstr = '<table class="generaltable table-sm w-auto">';
     $retstr .= '<tr><th class="header">Key</th><th class="header">Value</th></tr>';
     if (is_array($arr)) {
         foreach ($arr as $key => $val) {
@@ -130,7 +135,8 @@ function pretty_print($arr) {
             if (is_array($val)) {
                 $retstr .= '<tr><td>' . $key . '</td><td>' . pretty_print($val) . '</td></tr>';
             } else {
-                if (strpos($key, 'valid') !== false && ($val * 1) === $val) {
+                if (strpos($key, 'valid') !== false
+                    && is_int($val)) {
                     $val = userdate($val) . " ($val)";
                 }
                 $retstr .= '<tr><td>' . $key . '</td><td>' . ($val == '' ? '""' : $val) . '</td></tr>';

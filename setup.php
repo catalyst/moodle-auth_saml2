@@ -22,7 +22,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use auth_saml2\event\cert_regenerated;
+
+// @codingStandardsIgnoreStart
 require_once(__DIR__ . '/../../config.php');
+// @codingStandardsIgnoreEnd
 require_once(__DIR__ . '/setuplib.php');
 
 global $CFG, $saml2auth;
@@ -41,9 +45,29 @@ $saml2auth = new auth_plugin_saml2();
 // cert/key pair just-in-time. If for some reason you do want to use existing
 // files then just copy them over the files in /sitedata/saml2/.
 $saml2auth->get_saml2_directory(); // It will create it if needed.
-if (!file_exists($saml2auth->certpem) || !file_exists($saml2auth->certcrt)) {
-    $error = create_certificates($saml2auth);
-    if ($error) {
+$missingcertpem = !file_exists($saml2auth->certpem);
+$missingcertcrt = !file_exists($saml2auth->certcrt);
+if ($missingcertpem || $missingcertcrt) {
+    // Could not find one or both certificates. Log an error.
+    $errorstring = "";
+    $missingcertpem ? $errorstring .= "= Missing cert pem file! =\n" : null;
+    $missingcertcrt ? $errorstring .= "= Missing cert crt file! = \n" : null;
+    $errorstring .= "Now regenerating saml2 certificates...";
+    // @codingStandardsIgnoreStart
+    if (!PHPUNIT_TEST) { // Don't clutter the unit test output with this error_log message.
+        error_log($errorstring);
+    }
+    // @codingStandardsIgnoreEnd
+    cert_regenerated::create(['other' => ['reason' => $errorstring]])->trigger();
+
+    $error = '';
+    try {
+        create_certificates($saml2auth);
+    } catch (saml2_exception $exception) {
+        $error = $exception->getMessage() . $exception->getTraceAsString();
+    }
+
+    if ($error && !PHPUNIT_TEST) { // Don't clutter the unit test output with this error_log message.
         // @codingStandardsIgnoreStart
         error_log($error);
         // @codingStandardsIgnoreEnd

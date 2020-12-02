@@ -22,11 +22,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+// @codingStandardsIgnoreStart
 require_once(__DIR__ . '/../../../config.php');
+// @codingStandardsIgnoreEnd
 require('../setup.php');
 
 // First setup the PATH_INFO because that's how SSP rolls.
 $_SERVER['PATH_INFO'] = '/' . $saml2auth->spname;
 
-require($CFG->dirroot.'/auth/saml2/extlib/simplesamlphp/modules/saml/www/sp/saml1-acs.php');
+require($CFG->dirroot.'/auth/saml2/.extlib/simplesamlphp/modules/saml/www/sp/saml1-acs.php');
 

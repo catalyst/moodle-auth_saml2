@@ -23,7 +23,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+// @codingStandardsIgnoreStart
 require_once(__DIR__ . '/../../../config.php');
+// @codingStandardsIgnoreEnd
 require_once('../setup.php');
 
 // Tell SSP that we are on 443 if we are terminating SSL elsewhere.
@@ -31,4 +33,4 @@ if (!empty($CFG->sslproxy)) {
     $_SERVER['SERVER_PORT'] = '443';
 }
 
-require($CFG->dirroot.'/auth/saml2/extlib/simplesamlphp/www/module.php');
+require($CFG->dirroot.'/auth/saml2/.extlib/simplesamlphp/www/module.php');

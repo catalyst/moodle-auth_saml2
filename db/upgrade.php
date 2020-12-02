@@ -306,5 +306,69 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2020031800, 'auth', 'saml2');
     }
 
+    if ($oldversion < 2020072900) {
+        // Set default values to '0' (I) for activeidp, defaultidp and adminidp fields.
+        $table = new xmldb_table('auth_saml2_idps');
+
+        $field = new xmldb_field('activeidp', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, 0);
+        $dbman->change_field_default($table, $field);
+
+        $field = new xmldb_field('defaultidp', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, 0);
+        $dbman->change_field_default($table, $field);
+
+        $field = new xmldb_field('adminidp', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, 0);
+        $dbman->change_field_default($table, $field);
+
+        upgrade_plugin_savepoint(true, 2020072900, 'auth', 'saml2');
+    }
+
+    if ($oldversion < 2020080300) {
+        // Define field whitelist to be added to auth_saml2_idps.
+        $table = new xmldb_table('auth_saml2_idps');
+        $field = new xmldb_field('whitelist', XMLDB_TYPE_TEXT, null, null, null, null, null, 'alias');
+
+        // Conditionally launch add field whitelist.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Saml2 savepoint reached.
+        upgrade_plugin_savepoint(true, 2020080300, 'auth', 'saml2');
+    }
+
+    if ($oldversion < 2020082100) {
+        $groupattr = get_config('auth_saml2', 'groupattr');
+        $allowedgroups = get_config('auth_saml2', 'allowed_groups');
+        $restrictedgroups = get_config('auth_saml2', 'restricted_groups');
+
+        if (!empty($groupattr)) {
+            $config = '';
+            $allowconfig = '';
+            $denyconfig = '';
+
+            $deny  = preg_split("/[\s,]+/", $restrictedgroups, null, PREG_SPLIT_NO_EMPTY);
+            $allow = preg_split("/[\s,]+/", $allowedgroups, null, PREG_SPLIT_NO_EMPTY);
+
+            foreach ($allow as $group) {
+                $allowconfig .= "allow $groupattr=$group\n";
+            }
+
+            foreach ($deny as $group) {
+                $denyconfig .= "deny $groupattr=$group\n";
+            }
+
+            if (get_config('auth_saml2', 'allowedgroupspriority')) {
+                $config = $allowconfig . $denyconfig;
+            } else {
+                $config = $denyconfig . $allowconfig;
+            }
+
+            set_config('grouprules', $config, 'auth_saml2');
+        }
+
+        // Saml2 savepoint reached.
+        upgrade_plugin_savepoint(true, 2020082100, 'auth', 'saml2');
+    }
+
     return true;
 }

@@ -25,12 +25,16 @@
 
 use auth_saml2\admin\saml2_settings;
 
+// @codingStandardsIgnoreStart
 require_once(__DIR__ . '/../../config.php');
+// @codingStandardsIgnoreEnd
 require('setup.php');
 
 $site = get_site();
 $loginsite = get_string("loginsite");
 
+$PAGE->set_context(context_system::instance());
+$PAGE->set_url(new moodle_url('/auth/saml2/selectidp.php'));
 $PAGE->set_title("$site->fullname: $loginsite");
 $PAGE->set_heading("$site->fullname");
 $PAGE->navbar->add($loginsite);
@@ -50,7 +54,8 @@ $data = [
     'wants' => $wants,
     'idpname' => $idpname
 ];
-$action = new moodle_url('/auth/saml2/selectidp.php', array('parentidp' => $parentidp));
+
+$action = new moodle_url('/auth/saml2/selectidp.php');
 
 $displaytype = $saml2auth->config->multiidpdisplay;
 

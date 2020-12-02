@@ -50,58 +50,41 @@ class availableidps extends moodleform {
         $metadataentities = $this->_customdata['metadataentities'];
 
         foreach ($metadataentities as $metadataurl => $idpentities) {
-            $mform->addElement('header', $metadataurl.'header', $metadataurl);
 
-            // Start the table.
-            $starttable = <<< EOM
-<table>
-    <thead>
-        <tr>
-            <th>IdP Entity</th>
-            <th>Display name</th>
-            <th>Alias</th>
-            <th>Active</th>
-            <th>Default</th>
-            <th>Admin</th>
-        </tr>
-    </thead>
-<tbody>
-EOM;
-            $mform->addElement('html', $starttable);
             foreach ($idpentities as $idpentityid => $idpentity) {
                 $fieldkey = 'metadataentities['.$metadataurl.']['.$idpentityid.']';
 
                 // Add the start of the row, entiyid, name, etc.
-                $mform->addElement('html', '<tr><td>');
+                $mform->addElement('header',  $idpentityid.'header', $idpentity['entityid']);
                 $mform->addElement('hidden', $fieldkey.'[id]');
-                $mform->addElement('html', $idpentity['entityid'].'</td><td>');
                 $mform->setType($fieldkey.'[id]', PARAM_INT);
 
                 // Add the displayname textbox.
-                $mform->addElement('text', $fieldkey.'[displayname]', '', array('placeholder' => $idpentity['defaultname']));
-                $mform->addElement('html', '</td><td>');
+                $mform->addElement('text', $fieldkey.'[displayname]',
+                        get_string('multiidp:label:displayname', 'auth_saml2'), array('placeholder' => $idpentity['defaultname']));
                 $mform->setType($fieldkey.'[displayname]', PARAM_TEXT);
 
                 // Add the alias textbox.
-                $mform->addElement('text', $fieldkey.'[alias]', '');
-                $mform->addElement('html', '</td><td>');
+                $mform->addElement('text', $fieldkey.'[alias]', get_string('multiidp:label:alias', 'auth_saml2'));
                 $mform->setType($fieldkey.'[alias]', PARAM_TEXT);
 
                 // Add the activeidp checkbox.
-                $mform->addElement('advcheckbox', $fieldkey.'[activeidp]', '', '', array(), array(false, true));
-                $mform->addElement('html', '</td><td>');
+                $mform->addElement('advcheckbox', $fieldkey.'[activeidp]',
+                        get_string('multiidp:label:active', 'auth_saml2'), '', array(), array(false, true));
 
                 // Add the defaultidp checkbox.
-                $mform->addElement('advcheckbox', $fieldkey.'[defaultidp]', '', '', array(), array(false, true));
-                $mform->addElement('html', '</td><td>');
+                $mform->addElement('advcheckbox', $fieldkey.'[defaultidp]',
+                        get_string('multiidp:label:defaultidp', 'auth_saml2'), '', array(), array(false, true));
 
                 // Add the adminidp checkbox.
-                $mform->addElement('advcheckbox', $fieldkey.'[adminidp]', '', '', array(), array(false, true));
-                $mform->addElement('html', '</td></tr>');
-            }
+                $mform->addElement('advcheckbox', $fieldkey.'[adminidp]',
+                        get_string('multiidp:label:admin', 'auth_saml2'), '', array(), array(false, true));
 
-            // Close off the table.
-            $mform->addElement('html', '</tbody></table>');
+                // Add whitelisted IP for redirection to this IdP.
+                $mform->addElement('textarea', $fieldkey.'[whitelist]', get_string('multiidp:label:whitelist', 'auth_saml2'));
+                $mform->addHelpButton($fieldkey.'[whitelist]', 'multiidp:label:whitelist', 'auth_saml2');
+                $mform->setType($fieldkey.'[whitelist]', PARAM_TEXT);
+            }
         }
 
         $this->add_action_buttons();

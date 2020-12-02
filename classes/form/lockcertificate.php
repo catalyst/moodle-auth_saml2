@@ -44,16 +44,26 @@ class lockcertificate extends moodleform {
      */
     protected function definition() {
         global $OUTPUT;
-        $mform    = $this->_form;
+        $mform = $this->_form;
+        $buttonarray = [];
 
-        $warningmsg = get_string('certificatelock_warning', 'auth_saml2');
+        $certslockwarning  = html_writer::start_div('warning');
+        if (get_config('auth_saml2', 'certs_locked') == false) {
+            // The certs are unlocked.
+            $certslockwarning .= $OUTPUT->notification(get_string('certificatelock_warning', 'auth_saml2'), 'warning');
+            $certslockwarning .= html_writer::end_div();
+            $mform->addElement('html', $certslockwarning);
+            $buttonarray[] = &$mform->createElement('submit', 'submitbutton', get_string('certificatelock', 'auth_saml2'));
+        } else {
+            // The certs are locked.
+            $certslockwarning .= $OUTPUT->notification(get_string('certificatelock_lockedmessage', 'auth_saml2'), 'warning');
+            $certslockwarning .= html_writer::end_div();
+            $mform->addElement('html', $certslockwarning);
+            $buttonarray[] = &$mform->createElement('submit', 'unlockcertsbutton',
+                    get_string('certificatelock_unlock', 'auth_saml2'));
+        }
 
-        $html  = html_writer::start_div('warning');
-        $html .= $OUTPUT->notification($warningmsg, 'warning');
-        $html .= html_writer::end_div();
-
-        $mform->addElement('html', $html);
-        $this->add_action_buttons(true, get_string('certificatelock', 'auth_saml2'));
-
+        $buttonarray[] = &$mform->createElement('cancel');
+        $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
     }
 }

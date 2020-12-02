@@ -24,15 +24,13 @@
 
 require_once(__DIR__ . '/../../config.php');
 require('setup.php');
-require_login();
-require_capability('moodle/site:config', context_system::instance());
+
+auth_saml2_admin_nav(get_string('certificatedetails', 'auth_saml2'),
+    '/auth/saml2/cert.php');
 
 $path = $saml2auth->certcrt;
 $data = openssl_x509_parse(file_get_contents($path));
 
-$PAGE->set_url("$CFG->httpswwwroot/auth/saml2/debug.php");
-$PAGE->set_course($SITE);
-$PAGE->set_title(get_string('certificatedetails', 'auth_saml2'));
 echo $OUTPUT->header();
 echo get_string('certificatedetailshelp', 'auth_saml2');
 echo "<p>$path</p>";
