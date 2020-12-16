@@ -181,6 +181,12 @@ class auth_plugin_saml2 extends auth_plugin_base {
             // @codingStandardsIgnoreStart
             error_log('auth_saml2: ' . $msg);
             // @codingStandardsIgnoreEnd
+
+            // If SSP logs to tmp file we want these to also go there.
+            if ($this->config->logtofile) {
+                require_once('setup.php');
+                SimpleSAML\Logger::debug('auth_saml2: ' . $msg);
+            }
         }
     }
 
@@ -507,7 +513,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
         global $CFG, $DB, $USER, $SESSION, $saml2auth;
         // @codingStandardsIgnoreEnd
 
-        require('setup.php');
+        require_once('setup.php');
         require_once("$CFG->dirroot/login/lib.php");
 
         // Set the default IdP to be the first in the list. Used when dual login is disabled.
@@ -979,7 +985,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
             return;
         }
 
-        require('setup.php');
+        require_once('setup.php');
 
         // We just loaded the SP session which replaces the Moodle so we lost
         // the session data, lets temporarily restore the IdP.
@@ -1044,7 +1050,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
      * @return string
      */
     public function get_ssp_version() {
-        require('setup.php');
+        require_once('setup.php');
         $config = new SimpleSAML\Configuration(array(), '');
         return $config->getVersion();
     }
