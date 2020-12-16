@@ -42,12 +42,18 @@ foreach ($saml2auth->metadataentities as $metadataurl => $idpentities) {
     ];
 }
 
+$remoteip = getremoteaddr();
+
 $config = array(
     'baseurlpath'       => $wwwroot . '/auth/saml2/sp/',
     'certdir'           => $saml2auth->get_saml2_directory() . '/',
     'debug'             => $saml2auth->config->debug ? true : false,
     'logging.level'     => $saml2auth->config->debug ? SimpleSAML\Logger::DEBUG : SimpleSAML\Logger::ERR,
     'logging.handler'   => $saml2auth->config->logtofile ? 'file' : 'errorlog',
+
+    // SSP has a %srcip token, but instead use $remoteip so Moodle handle's which header to use.
+    'logging.format'    => '%date{%b %d %H:%M:%S} ' . $remoteip . ' %process %level %stat[%trackid] %msg',
+
     'loggingdir'        => $saml2auth->config->logdir,
     'logging.logfile'   => 'simplesamlphp.log',
     'showerrors'        => $CFG->debugdisplay ? true : false,
