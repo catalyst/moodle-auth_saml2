@@ -40,7 +40,7 @@ class auth_saml2_redis_store_testcase extends advanced_testcase {
      */
     protected $redis;
 
-    public function setUp() {
+    public function setUp(): void {
         if (!$this->is_redis_available()) {
             $this->markTestSkipped('Redis was not available - skipping test');
         }
@@ -51,7 +51,7 @@ class auth_saml2_redis_store_testcase extends advanced_testcase {
         $this->redis->setOption(\Redis::OPT_SERIALIZER, \Redis::SERIALIZER_PHP);
     }
 
-    public function tearDown() {
+    public function tearDown(): void {
         unset($this->redis);
     }
 
