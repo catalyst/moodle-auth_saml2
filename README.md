@@ -70,10 +70,13 @@ Branches
 
 | Moodle verion     | Branch      | PHP  | SimpleSAMLphp |
 | ----------------- | ----------- | ---- | ------------- |
-| Moodle 2.7 to 3.4 | 27_34STABLE | 5.5+ | v1.15.4       |
-| Totara up to 11   | 27_34STABLE | 5.5+ | v1.15.4       |
-| Moodle 3.5 to 3.8 | master      | 7.0+ | v1.17.7       |
-| Totara 12+        | master      | 7.0+ | v1.17.7       |
+| Moodle 2.7 to 3.4 | VERSION1    | 5.5+ | v1.15.4       |
+| Totara up to 11   | VERSION1    | 5.5+ | v1.15.4       |
+| Moodle 3.5 to 3.8 | VERSION2    | 7.0+ | v1.18.8       |
+| Moodle 3.9        | VERSION2    | 7.2+ | v1.18.8       |
+| Totara 12+        | VERSION2    | 7.0+ | v1.18.8       |
+| Moodle 3.10+      | VERSION3    | 7.2+ | v1.18.8       |
+| Totara 13+        | VERSION3    | 7.2+ | v1.18.8       |
 
 Installation
 ------------
