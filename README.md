@@ -1,5 +1,5 @@
-<a href="https://travis-ci.org/catalyst/moodle-auth_saml2">
-<img src="https://travis-ci.org/catalyst/moodle-auth_saml2.svg?branch=master">
+<a href="https://github.com/catalyst/moodle-local_envbar/actions">
+<img src="https://github.com/catalyst/moodle-auth_saml2/workflows/Moodle%20plugin%20CI%20for%20VERSION2/badge.svg">
 </a>
 
 https://moodle.org/plugins/auth_saml2
