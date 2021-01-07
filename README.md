@@ -76,9 +76,11 @@ Branches
 | ----------------- | ----------- | ---- | ------------- |
 | Moodle 2.7 to 3.4 | 27_34STABLE | 5.5+ | v1.15.4       |
 | Totara up to 11   | 27_34STABLE | 5.5+ | v1.15.4       |
-| Moodle 3.5 to 3.8 | master      | 7.0+ | v1.18.8       |
-| Moodle 3.9        | master      | 7.2+ | v1.18.8       |
-| Totara 12+        | master      | 7.0+ | v1.18.8       |
+| Moodle 3.5 to 3.8 | 35_39STABLE | 7.0+ | v1.18.8       |
+| Moodle 3.9        | 35_39STABLE | 7.2+ | v1.18.8       |
+| Totara 12         | 35_39STABLE | 7.0+ | v1.18.8       |
+| Moodle 3.10+      | master      | 7.2+ | v1.18.8       |
+| Totara 13+        | master      | 7.2+ | v1.18.8       |
 
 Installation
 ------------
@@ -91,7 +93,7 @@ Moodle plugin directory, or you can use git to clone it into your source:
    ```
 
    Or install via the Moodle plugin directory:
-    
+
    https://moodle.org/plugins/auth_saml2
 
 2. Then run the Moodle upgrade
@@ -99,7 +101,7 @@ Moodle plugin directory, or you can use git to clone it into your source:
 3. If your IdP has a publicly available XML descriptor, copy it's url into
    the SAML2 auth config settings page. Otherwise copy the XML verbatum into
    the settings textarea instead.
-   
+
 4. If your IdP requires whitelisting each SP then in the settings page is
    links to download the XML, or you can provide that url to your IdP
    administrator.
@@ -175,17 +177,17 @@ issues lies. Some common issues are:
 
 1) You received a valid set of saml attributes, but the attribute(s) needed are not
    present. ie often with say ADFS you may have to specify to 'release' the username.
-    
+
 2) You have got a valid set of attributes, but the key for the username isn't what
    you expected. Cut and paste the correct key name into the Moodle auth_saml2 config
    page to correctly map the 'idpattr' value.
-   
+
 3) The attribute key name might be a really crazy long looking string. This is common
    with ADFS. If that long string contains certain characters then moodle will not
    accept it, and this is an issue in Moodle itself and applies to all auth plugins.
    You can add a custom claim in ADFS to rename this attribute to something nicer.
    See this for more: https://github.com/catalyst/moodle-auth_saml2/issues/124
-   
+
 4) If it is bringing across all the attributes properly, but you are getting:
    "You have logged in succesfully as 'xyz' but do not have an account in Moodle"
    then you either need to change your user provisioning process to ensure users are
@@ -232,7 +234,7 @@ yank out the contents of the ds:X509Certificate element into a file and then
 import it into OpenAM's certificate store:
 
 ```bash
-$ cat moodle.edu.crt 
+$ cat moodle.edu.crt
 -----BEGIN CERTIFICATE-----
 thesuperlongcertificatestringgoeshere=
 -----END CERTIFICATE-----
