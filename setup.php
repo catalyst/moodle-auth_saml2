@@ -22,11 +22,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 use auth_saml2\event\cert_regenerated;
 
-// @codingStandardsIgnoreStart
-require_once(__DIR__ . '/../../config.php');
-// @codingStandardsIgnoreEnd
 require_once(__DIR__ . '/setuplib.php');
 
 global $CFG, $saml2auth;

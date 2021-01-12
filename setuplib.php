@@ -22,11 +22,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 use auth_saml2\ssl_algorithms;
 
-// @codingStandardsIgnoreStart
-require_once(__DIR__ . '/../../config.php');
-// @codingStandardsIgnoreEnd
 require_once(__DIR__ . '/_autoload.php');
 
 global $CFG;
