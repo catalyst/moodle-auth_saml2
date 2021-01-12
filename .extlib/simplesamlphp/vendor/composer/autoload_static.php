@@ -9,7 +9,6 @@ class ComposerStaticInitcecba5b45983fc2b8de9ece2f750c80c
     public static $files = array (
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
-        '023d27dca8066ef29e6739335ea73bad' => __DIR__ . '/..' . '/symfony/polyfill-php70/bootstrap.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         'bd9634f2d41831496de0d3dfe4c94881' => __DIR__ . '/..' . '/symfony/polyfill-php56/bootstrap.php',
         '6175f5662c2e26de0149cb048cda7209' => __DIR__ . '/..' . '/simplesamlphp/saml2/src/_autoload.php',
@@ -17,17 +16,17 @@ class ComposerStaticInitcecba5b45983fc2b8de9ece2f750c80c
     );
 
     public static $prefixLengthsPsr4 = array (
-        'W' => 
+        'W' =>
         array (
             'WhiteHat101\\Crypt\\' => 18,
             'Webmozart\\Assert\\' => 17,
         ),
-        'T' => 
+        'T' =>
         array (
             'Twig\\Extensions\\' => 16,
             'Twig\\' => 5,
         ),
-        'S' => 
+        'S' =>
         array (
             'Symfony\\Polyfill\\Util\\' => 22,
             'Symfony\\Polyfill\\Php70\\' => 23,
@@ -70,248 +69,248 @@ class ComposerStaticInitcecba5b45983fc2b8de9ece2f750c80c
             'SimpleSAML\\Module\\adfs\\' => 23,
             'SimpleSAML\\' => 11,
         ),
-        'R' => 
+        'R' =>
         array (
             'RobRichards\\XMLSecLibs\\' => 23,
         ),
-        'P' => 
+        'P' =>
         array (
             'Psr\\Log\\' => 8,
             'Psr\\Container\\' => 14,
         ),
-        'G' => 
+        'G' =>
         array (
             'Gettext\\Languages\\' => 18,
             'Gettext\\' => 8,
         ),
-        'B' => 
+        'B' =>
         array (
             'Basho\\' => 6,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'WhiteHat101\\Crypt\\' => 
+        'WhiteHat101\\Crypt\\' =>
         array (
             0 => __DIR__ . '/..' . '/whitehat101/apr1-md5/src',
         ),
-        'Webmozart\\Assert\\' => 
+        'Webmozart\\Assert\\' =>
         array (
             0 => __DIR__ . '/..' . '/webmozart/assert/src',
         ),
-        'Twig\\Extensions\\' => 
+        'Twig\\Extensions\\' =>
         array (
             0 => __DIR__ . '/..' . '/twig/extensions/src',
         ),
-        'Twig\\' => 
+        'Twig\\' =>
         array (
             0 => __DIR__ . '/..' . '/twig/twig/src',
         ),
-        'Symfony\\Polyfill\\Util\\' => 
+        'Symfony\\Polyfill\\Util\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-util',
         ),
-        'Symfony\\Polyfill\\Php70\\' => 
+        'Symfony\\Polyfill\\Php70\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-php70',
         ),
-        'Symfony\\Polyfill\\Php56\\' => 
+        'Symfony\\Polyfill\\Php56\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-php56',
         ),
-        'Symfony\\Polyfill\\Mbstring\\' => 
+        'Symfony\\Polyfill\\Mbstring\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-mbstring',
         ),
-        'Symfony\\Polyfill\\Ctype\\' => 
+        'Symfony\\Polyfill\\Ctype\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-ctype',
         ),
-        'Symfony\\Component\\Yaml\\' => 
+        'Symfony\\Component\\Yaml\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/yaml',
         ),
-        'Symfony\\Component\\Routing\\' => 
+        'Symfony\\Component\\Routing\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/routing',
         ),
-        'Symfony\\Component\\HttpKernel\\' => 
+        'Symfony\\Component\\HttpKernel\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/http-kernel',
         ),
-        'Symfony\\Component\\HttpFoundation\\' => 
+        'Symfony\\Component\\HttpFoundation\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/http-foundation',
         ),
-        'Symfony\\Component\\Filesystem\\' => 
+        'Symfony\\Component\\Filesystem\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/filesystem',
         ),
-        'Symfony\\Component\\EventDispatcher\\' => 
+        'Symfony\\Component\\EventDispatcher\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/event-dispatcher',
         ),
-        'Symfony\\Component\\DependencyInjection\\' => 
+        'Symfony\\Component\\DependencyInjection\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/dependency-injection',
         ),
-        'Symfony\\Component\\Debug\\' => 
+        'Symfony\\Component\\Debug\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/debug',
         ),
-        'Symfony\\Component\\Config\\' => 
+        'Symfony\\Component\\Config\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/config',
         ),
-        'SimpleSAML\\modules\\yubikey\\' => 
+        'SimpleSAML\\modules\\yubikey\\' =>
         array (
             0 => __DIR__ . '/../..' . '/modules/authYubikey/lib',
         ),
-        'SimpleSAML\\modules\\discopower\\' => 
+        'SimpleSAML\\modules\\discopower\\' =>
         array (
             0 => __DIR__ . '/../..' . '/modules/discopower/lib',
         ),
-        'SimpleSAML\\TwigConfigurableI18n\\' => 
+        'SimpleSAML\\TwigConfigurableI18n\\' =>
         array (
             0 => __DIR__ . '/..' . '/simplesamlphp/twig-configurable-i18n/src',
         ),
-        'SimpleSAML\\Module\\statistics\\' => 
+        'SimpleSAML\\Module\\statistics\\' =>
         array (
             0 => __DIR__ . '/../..' . '/modules/statistics/lib',
         ),
-        'SimpleSAML\\Module\\sqlauth\\' => 
+        'SimpleSAML\\Module\\sqlauth\\' =>
         array (
             0 => __DIR__ . '/../..' . '/modules/sqlauth/lib',
         ),
-        'SimpleSAML\\Module\\smartattributes\\' => 
+        'SimpleSAML\\Module\\smartattributes\\' =>
         array (
             0 => __DIR__ . '/../..' . '/modules/smartattributes/lib',
         ),
-        'SimpleSAML\\Module\\sanitycheck\\' => 
+        'SimpleSAML\\Module\\sanitycheck\\' =>
         array (
             0 => __DIR__ . '/../..' . '/modules/sanitycheck/lib',
         ),
-        'SimpleSAML\\Module\\riak\\' => 
+        'SimpleSAML\\Module\\riak\\' =>
         array (
             0 => __DIR__ . '/../..' . '/modules/riak/lib',
         ),
-        'SimpleSAML\\Module\\radius\\' => 
+        'SimpleSAML\\Module\\radius\\' =>
         array (
             0 => __DIR__ . '/../..' . '/modules/radius/lib',
         ),
-        'SimpleSAML\\Module\\preprodwarning\\' => 
+        'SimpleSAML\\Module\\preprodwarning\\' =>
         array (
             0 => __DIR__ . '/../..' . '/modules/preprodwarning/lib',
         ),
-        'SimpleSAML\\Module\\negotiate\\' => 
+        'SimpleSAML\\Module\\negotiate\\' =>
         array (
             0 => __DIR__ . '/../..' . '/modules/negotiate/lib',
         ),
-        'SimpleSAML\\Module\\metarefresh\\' => 
+        'SimpleSAML\\Module\\metarefresh\\' =>
         array (
             0 => __DIR__ . '/../..' . '/modules/metarefresh/lib',
         ),
-        'SimpleSAML\\Module\\ldap\\' => 
+        'SimpleSAML\\Module\\ldap\\' =>
         array (
             0 => __DIR__ . '/../..' . '/modules/ldap/lib',
         ),
-        'SimpleSAML\\Module\\expirycheck\\' => 
+        'SimpleSAML\\Module\\expirycheck\\' =>
         array (
             0 => __DIR__ . '/../..' . '/modules/expirycheck/lib',
         ),
-        'SimpleSAML\\Module\\exampleattributeserver\\' => 
+        'SimpleSAML\\Module\\exampleattributeserver\\' =>
         array (
             0 => __DIR__ . '/../..' . '/modules/exampleattributeserver/lib',
         ),
-        'SimpleSAML\\Module\\consent\\' => 
+        'SimpleSAML\\Module\\consent\\' =>
         array (
             0 => __DIR__ . '/../..' . '/modules/consent/lib',
         ),
-        'SimpleSAML\\Module\\cdc\\' => 
+        'SimpleSAML\\Module\\cdc\\' =>
         array (
             0 => __DIR__ . '/../..' . '/modules/cdc/lib',
         ),
-        'SimpleSAML\\Module\\cas\\' => 
+        'SimpleSAML\\Module\\cas\\' =>
         array (
             0 => __DIR__ . '/../..' . '/modules/cas/lib',
         ),
-        'SimpleSAML\\Module\\authwindowslive\\' => 
+        'SimpleSAML\\Module\\authwindowslive\\' =>
         array (
             0 => __DIR__ . '/../..' . '/modules/authwindowslive/lib',
         ),
-        'SimpleSAML\\Module\\authtwitter\\' => 
+        'SimpleSAML\\Module\\authtwitter\\' =>
         array (
             0 => __DIR__ . '/../..' . '/modules/authtwitter/lib',
         ),
-        'SimpleSAML\\Module\\authorize\\' => 
+        'SimpleSAML\\Module\\authorize\\' =>
         array (
             0 => __DIR__ . '/../..' . '/modules/authorize/lib',
         ),
-        'SimpleSAML\\Module\\authfacebook\\' => 
+        'SimpleSAML\\Module\\authfacebook\\' =>
         array (
             0 => __DIR__ . '/../..' . '/modules/authfacebook/lib',
         ),
-        'SimpleSAML\\Module\\authcrypt\\' => 
+        'SimpleSAML\\Module\\authcrypt\\' =>
         array (
             0 => __DIR__ . '/../..' . '/modules/authcrypt/lib',
         ),
-        'SimpleSAML\\Module\\authX509\\' => 
+        'SimpleSAML\\Module\\authX509\\' =>
         array (
             0 => __DIR__ . '/../..' . '/modules/authX509/lib',
         ),
-        'SimpleSAML\\Module\\adfs\\' => 
+        'SimpleSAML\\Module\\adfs\\' =>
         array (
             0 => __DIR__ . '/../..' . '/modules/adfs/lib',
         ),
-        'SimpleSAML\\' => 
+        'SimpleSAML\\' =>
         array (
             0 => __DIR__ . '/../..' . '/lib/SimpleSAML',
         ),
-        'RobRichards\\XMLSecLibs\\' => 
+        'RobRichards\\XMLSecLibs\\' =>
         array (
             0 => __DIR__ . '/..' . '/robrichards/xmlseclibs/src',
         ),
-        'Psr\\Log\\' => 
+        'Psr\\Log\\' =>
         array (
             0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
         ),
-        'Psr\\Container\\' => 
+        'Psr\\Container\\' =>
         array (
             0 => __DIR__ . '/..' . '/psr/container/src',
         ),
-        'Gettext\\Languages\\' => 
+        'Gettext\\Languages\\' =>
         array (
             0 => __DIR__ . '/..' . '/gettext/languages/src',
         ),
-        'Gettext\\' => 
+        'Gettext\\' =>
         array (
             0 => __DIR__ . '/..' . '/gettext/gettext/src',
         ),
-        'Basho\\' => 
+        'Basho\\' =>
         array (
             0 => __DIR__ . '/..' . '/phpfastcache/riak-client/src',
         ),
     );
 
     public static $prefixesPsr0 = array (
-        'T' => 
+        'T' =>
         array (
-            'Twig_Extensions_' => 
+            'Twig_Extensions_' =>
             array (
                 0 => __DIR__ . '/..' . '/twig/extensions/lib',
             ),
-            'Twig_' => 
+            'Twig_' =>
             array (
                 0 => __DIR__ . '/..' . '/twig/twig/lib',
             ),
         ),
-        'S' => 
+        'S' =>
         array (
-            'SimpleSamlPhp\\Composer' => 
+            'SimpleSamlPhp\\Composer' =>
             array (
                 0 => __DIR__ . '/..' . '/simplesamlphp/composer-module-installer/src',
             ),
-            'SAML2\\' => 
+            'SAML2\\' =>
             array (
                 0 => __DIR__ . '/..' . '/simplesamlphp/saml2/src',
             ),
