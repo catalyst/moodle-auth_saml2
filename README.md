@@ -76,9 +76,9 @@ Branches
 | ----------------- | ----------- | ---- | ------------- |
 | Moodle 2.7 to 3.4 | 27_34STABLE | 5.5+ | v1.15.4       |
 | Totara up to 11   | 27_34STABLE | 5.5+ | v1.15.4       |
-| Moodle 3.5 to 3.8 | master      | 7.0+ | v1.18.8       |
+| Moodle 3.5 to 3.8 | master      | 7.2+ | v1.18.8       |
 | Moodle 3.9        | master      | 7.2+ | v1.18.8       |
-| Totara 12+        | master      | 7.0+ | v1.18.8       |
+| Totara 12+        | master      | 7.2+ | v1.18.8       |
 
 Installation
 ------------

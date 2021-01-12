@@ -43,7 +43,7 @@ jobs:
         database: ['pgsql', 'mariadb']
         moodle-branch: ['MOODLE_35_STABLE']
         node: ['14.15.1']
-        php: ['7.0', '7.2']
+        php: ['7.2']
 
     steps:
       - name: Check out repository code
