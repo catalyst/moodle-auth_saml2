@@ -77,7 +77,12 @@ class auth_saml2_metadata_fetcher_testcase extends advanced_testcase {
             $this->fail();
         } catch (\moodle_exception $e) {
             $this->assertEquals(CURLE_READ_ERROR, (int) $fetcher->get_curlerrorno());
-            $this->assertStringContainsString('Metadata fetch failed: some bad stuff', $e->getMessage());
+            if (method_exists($this, 'assertStringContainsString')) {
+                $this->assertStringContainsString('Metadata fetch failed: some bad stuff', $e->getMessage());
+            } else {
+                // Maintains Support for Moodle 3.5 - remove when this branch does not support Moodle 3.5 anymore.
+                $this->assertContains('Metadata fetch failed: some bad stuff', $e->getMessage());
+            }
             $this->assertEquals('some bad stuff', $fetcher->get_curlerror());
         }
     }
@@ -100,7 +105,12 @@ class auth_saml2_metadata_fetcher_testcase extends advanced_testcase {
             // Fail if the exception is not thrown.
             $this->fail();
         } catch (\moodle_exception $e) {
-            $this->assertStringContainsString('Metadata fetch failed: Unknown cURL error', $e->getMessage());
+            if (method_exists($this, 'assertStringContainsString')) {
+                $this->assertStringContainsString('Metadata fetch failed: Unknown cURL error', $e->getMessage());
+            } else {
+                // Maintains Support for Moodle 3.5 - remove when this branch does not support Moodle 3.5 anymore.
+                $this->assertContains('Metadata fetch failed: Unknown cURL error', $e->getMessage());
+            }
         }
     }
 

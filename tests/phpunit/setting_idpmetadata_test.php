@@ -135,8 +135,15 @@ class setting_idpmetadata_test extends advanced_testcase {
     public function test_it_returns_error_if_metadata_url_is_not_valid() {
         $error = self::$config->validate('http://invalid.url.metadata.test');
         self::assertDebuggingCalled();
-        self::assertStringContainsString('Invalid metadata', $error);
-        self::assertStringContainsString('http://invalid.url.metadata.test', $error);
+        if (method_exists($this, 'assertStringContainsString')) {
+            self::assertStringContainsString('Invalid metadata', $error);
+            self::assertStringContainsString('http://invalid.url.metadata.test', $error);
+        } else {
+            // Maintains Support for Moodle 3.5 - remove when this branch does not support Moodle 3.5 anymore.
+            self::assertContains('Invalid metadata', $error);
+            self::assertContains('http://invalid.url.metadata.test', $error);
+
+        }
     }
 
     /**
