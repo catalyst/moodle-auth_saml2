@@ -25,11 +25,15 @@
 use auth_saml2\event\cert_regenerated;
 
 // @codingStandardsIgnoreStart
-require_once(__DIR__ . '/../../config.php');
+global $CFG;
+if (!isset($CFG)) {
+    require_once(__DIR__ . '/../../config.php');
+}
+
 // @codingStandardsIgnoreEnd
 require_once(__DIR__ . '/setuplib.php');
 
-global $CFG, $saml2auth;
+global $saml2auth;
 
 // Tell SSP that we are on 443 if we are terminating SSL elsewhere.
 if (isset($CFG->sslproxy) && $CFG->sslproxy) {
