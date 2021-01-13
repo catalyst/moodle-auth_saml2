@@ -46,9 +46,10 @@ class auth_saml2_metadata_parser_testcase extends basic_testcase {
     }
 
     /**
-     * @expectedException \moodle_exception
+     * This is a test function for parsing failse metadata
      */
     public function test_parse_metadata_fail() {
+        $this->expectException(\moodle_exception::class);
         $malformedxml = <<<XML
 <EntitiesDescriptor Name="https://your-federation.org/metadata/federation-name.xml"
                     xmlns="urn:oasis:names:tc:SAML:2.0:metadata"
