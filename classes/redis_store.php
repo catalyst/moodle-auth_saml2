@@ -110,6 +110,11 @@ class redis_store extends \SimpleSAML\Store {
         try {
             $redis = new \Redis();
             $redis->connect($CFG->auth_saml2_redis_server);
+
+            if (!empty($CFG->auth_saml2_redis_password)) {
+                $redis->auth($CFG->auth_saml2_redis_password);
+            }
+
         } catch (\RedisException $e) {
             throw new \coding_exception("RedisException caught with message: {$e->getMessage()}");
         }
