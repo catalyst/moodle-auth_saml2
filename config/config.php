@@ -46,6 +46,9 @@ $remoteip = getremoteaddr();
 
 $config = array(
     'baseurlpath'       => $wwwroot . '/auth/saml2/sp/',
+    'application'       => [
+      'baseURL'         => $wwwroot . '/auth/saml2/sp/',
+    ],
     'certdir'           => $saml2auth->get_saml2_directory() . '/',
     'debug'             => $saml2auth->config->debug ? true : false,
     'logging.level'     => $saml2auth->config->debug ? SimpleSAML\Logger::DEBUG : SimpleSAML\Logger::ERR,
