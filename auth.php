@@ -646,6 +646,11 @@ class auth_plugin_saml2 extends auth_plugin_base {
             }
             // Make sure all user data is fetched.
             $user = get_complete_user_data('username', $user->username);
+            if (!$user) {
+                $this->log(__FUNCTION__ . ' did not find user ' . $user->username);
+                $this->error_page(get_string('nouser', 'auth_saml2', $uid));
+            }
+
             $this->log(__FUNCTION__ . ' found user '.$user->username);
         }
 
@@ -890,9 +895,11 @@ class auth_plugin_saml2 extends auth_plugin_base {
                 // If set to true - don't update based on data from this call.
                 unset($user->description);
             }
-            user_update_user($user, false, false);
-            // Save custom profile fields.
+            // We should save the profile fields first so they are present and
+            // then we update the user which also fires events which other
+            // plugins listen to so they have the correct user data.
             profile_save_data($user);
+            user_update_user($user, false);
         }
 
         return $update;
