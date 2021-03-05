@@ -27,8 +27,8 @@ require_once(__DIR__ . '/../../config.php');
 // @codingStandardsIgnoreEnd
 require('setup.php');
 
-$idp = optional_param('idp', '', PARAM_RAW);
-$logout = optional_param('logout', '', PARAM_RAW);
+$idp = optional_param('idp', '', PARAM_TEXT);
+$logout = optional_param('logout', '', PARAM_BOOL);
 $idplogout = optional_param('idplogout', '', PARAM_RAW);
 
 if (!empty($idp)) {
@@ -51,12 +51,12 @@ if (!empty($logout)) {
     $SESSION->saml2idp = $idplogout;
 }
 
-$passive = optional_param('passive', '', PARAM_RAW);
-$passivefail = optional_param('passivefail', '', PARAM_RAW);
-$trylogin = optional_param('login', '', PARAM_RAW);
+$passive = optional_param('passive', '', PARAM_BOOL);
+$passivefail = optional_param('passivefail', '', PARAM_BOOL);
+$trylogin = optional_param('login', '', PARAM_BOOL);
 
 echo '<p>SP name: ' . $saml2auth->spname;
-echo '<p>Which IdP will be used? ' . $SESSION->saml2idp;
+echo '<p>Which IdP will be used? ' . s($SESSION->saml2idp);
 
 $auth = new SimpleSAML\Auth\Simple($saml2auth->spname);
 
