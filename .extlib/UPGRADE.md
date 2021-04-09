@@ -35,7 +35,9 @@ npm run build
 ```
 ### Copy into auth_saml2
 Copy the updated simplesaml files into auth/saml/.extlib/simplesaml.
-Exclude stuff like .gitignore, other hidden system files that shouldnt be needed - also exclude the composer.* files
+
+Exclude stuff like .gitignore, other hidden system files that shouldnt be needed - also exclude the composer.* files and the node_modules directory.
+
 enter the simplesaml folder and run the following to fix file permission for Totara:
 ```bash
 find . -type f -exec chmod 644 -- {} +

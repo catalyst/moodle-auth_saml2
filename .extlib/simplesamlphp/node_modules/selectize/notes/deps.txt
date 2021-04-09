@@ -1,9 +1,0 @@
-getItem (L1400)
-  getElementWithValue
-  $control.children
-getOption (L1352)
-  getElementWithValue
-  $dropdown_content
-getElementWithValue (L1379)
-  # Is a utility function
-
