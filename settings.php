@@ -187,6 +187,24 @@ if ($ADMIN->fulltree) {
             saml2_settings::OPTION_DUAL_LOGIN_YES,
             $dualloginoptions));
 
+    // Auto login.
+    $autologinoptions = [
+        saml2_settings::OPTION_AUTO_LOGIN_NO => get_string('no'),
+        saml2_settings::OPTION_AUTO_LOGIN_SESSION => get_string('autologinbysession', 'auth_saml2'),
+        saml2_settings::OPTION_AUTO_LOGIN_COOKIE => get_string('autologinbycookie', 'auth_saml2'),
+    ];
+    $settings->add(new admin_setting_configselect(
+            'auth_saml2/autologin',
+            get_string('autologin', 'auth_saml2'),
+            get_string('autologin_help', 'auth_saml2'),
+            saml2_settings::OPTION_AUTO_LOGIN_NO,
+            $autologinoptions));
+    $settings->add(new admin_setting_configtext(
+            'auth_saml2/autologincookie',
+            get_string('autologincookie', 'auth_saml2'),
+            get_string('autologincookie_help', 'auth_saml2'),
+            '', PARAM_TEXT));
+
     // Allow any auth type.
     $settings->add(new admin_setting_configselect(
             'auth_saml2/anyauth',

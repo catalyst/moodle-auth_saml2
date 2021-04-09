@@ -49,6 +49,8 @@ class auth_plugin_saml2 extends auth_plugin_base {
         'metadataentities'   => '',
         'debug'              => 0,
         'duallogin'          => saml2_settings::OPTION_DUAL_LOGIN_YES,
+        'autologin'          => saml2_settings::OPTION_AUTO_LOGIN_NO,
+        'autologincookie'    => '',
         'anyauth'            => 1,
         'idpattr'            => 'uid',
         'mdlattr'            => 'username',

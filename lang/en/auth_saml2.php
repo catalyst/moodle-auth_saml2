@@ -33,6 +33,12 @@ $string['auth_saml2description'] = 'Authenticate with a SAML2 IdP';
 $string['auth_saml2blockredirectdescription'] = 'Redirect or display message to SAML2 logins based on configured group restrictions';
 $string['autocreate'] = 'Auto create users';
 $string['autocreate_help'] = 'If users are in the IdP but not in moodle create a moodle account.';
+$string['autologin'] = 'Auto-login';
+$string['autologin_help'] = 'On pages that allow guest access without login, automatically log users into Moodle with a real user account if they are logged in to the IdP (using passive authentication).';
+$string['autologinbysession'] = 'Check once per session';
+$string['autologinbycookie'] = 'Check when the specified cookie exists or changes';
+$string['autologincookie'] = 'Auto-login cookie';
+$string['autologincookie_help'] = 'Name of cookie used to decide when to attempt auto-login (only relevant if the cookie option is selected above).';
 $string['availableidps'] = 'Select available IdPs';
 $string['availableidps_help'] = 'If an IdP metadata xml contains multiple IdP entities, you will need to select which entities are availiable
 for users to login with.';
@@ -62,6 +68,7 @@ $string['duallogin_help'] = '
 <p>If on, then external pages can deep link into moodle using saml eg /course/view.php?id=45&saml=on</p>';
 $string['emailtaken'] = 'Can\'t create a new account, because {$a} email address is already registered';
 $string['emailtakenupdate'] = 'Your email wasn\'t updated, because email address {$a} is already registered';
+$string['errorinvalidautologin'] = 'Invalid autologin request';
 $string['errorparsingxml'] = 'Error parsing XML: {$a}';
 $string['exception'] = 'SAML2 exception: {$a}';
 $string['expirydays'] = 'Expiry in Days';
