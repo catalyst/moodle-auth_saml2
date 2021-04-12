@@ -27,7 +27,6 @@
 use auth_saml2\admin\saml2_settings;
 use auth_saml2\task\metadata_refresh;
 use Behat\Behat\Hook\Scope\AfterStepScope;
-use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Mink\Exception\ExpectationException;
 use Behat\Gherkin\Node\TableNode;
 
@@ -41,35 +40,6 @@ require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
  * @SuppressWarnings(public) Allow as many methods as needed.
  */
 class behat_auth_saml2 extends behat_base {
-    /**
-     * Hopefully it will help when dealing with the IDP...
-     *
-     * @AfterStep
-     */
-    public function take_screenshot_after_failure($scope) {
-        if (!($scope instanceof AfterStepScope)) {
-            // Older version of behat.
-            return;
-        }
-        $resultcode = $scope->getTestResult()->getResultCode();
-        if ($resultcode === 99) {
-            $filename = '/tmp/behat_screenshots.base64';
-            if (!file_exists($filename)) {
-                file_put_contents($filename, "Just paste it into your browser :-). You're welcome!\n\n");
-            }
-
-            try {
-                $screenshot = $this->getSession()->getDriver()->getScreenshot();
-                $screenshot = base64_encode($screenshot);
-
-                $url = "data:image/png;base64,{$screenshot}\n"; //
-                file_put_contents($filename, $url, FILE_APPEND);
-            } catch (UnsupportedDriverActionException $e) {
-                file_put_contents($filename, $e->getMessage(), FILE_APPEND);
-            }
-        }
-    }
-
     /**
      * @Given /^the authentication plugin saml2 is (disabled|enabled) +\# auth_saml2$/
      */
