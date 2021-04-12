@@ -4,7 +4,7 @@ name: 3.5 branch test
 # events but only for the master branch
 # Run this workflow every time a new commit pushed to your repository
 
-on: push
+on: [push, pull_request]
 
 jobs:
   citest:
