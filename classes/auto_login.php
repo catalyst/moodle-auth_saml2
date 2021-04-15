@@ -64,7 +64,7 @@ class auto_login {
         }
 
         // If this is not a GET request, don't try autologin.
-        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+        if (empty($_SERVER['REQUEST_METHOD']) || $_SERVER['REQUEST_METHOD'] !== 'GET') {
             return;
         }
 
