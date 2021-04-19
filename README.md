@@ -197,6 +197,14 @@ issues lies. Some common issues are:
 Gotchas
 -------
 
+### Bitnami Moodle ###
+
+We get lots of compaints in many plugins that end up being issues with Bitnami. It does a
+very poor job and properly configuring Moodle with some quite basic things and we strongly
+recommend you don't use it at all, not just for saml issues.  In particular it dynamicaly
+detects the domain that Moodle is on, which is not supported by Moodle. ```$CFG->wwwroot```
+MUST be manually set to a static value in ```config.php```.
+
 ### Multiple IdPs ###
 
 When using multiple IdPs the system will force enable the dual login setting. This is so
