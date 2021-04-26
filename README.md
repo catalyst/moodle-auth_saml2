@@ -138,6 +138,7 @@ This plugin has been tested against:
 * An AAF instance of Shibboleth
 * OpenAM (Sun / Oracle)
 * Microsoft ADFS
+* NetIQ Access Manager
 
 To configure this against testshib you will need a moodle which is publicly
 accessible over the internet. Turn on the SAML2 plugin and then configure it:
@@ -200,7 +201,7 @@ Gotchas
 ### Bitnami Moodle ###
 
 We get lots of compaints in many plugins that end up being issues with Bitnami. It does a very
-poor job and does no properly configure Moodle with some quite basic things and we strongly
+poor job and does not properly configure Moodle with some quite basic things and we strongly
 recommend you don't use it at all, not just for saml issues.  In particular it dynamicaly
 detects the domain that Moodle is on, which is not supported by Moodle. ```$CFG->wwwroot```
 MUST be manually set to a static value in ```config.php```.
