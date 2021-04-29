@@ -607,7 +607,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
                 $this->log(__FUNCTION__ . " to lowercase for $key => $uid");
                 $uid = strtolower($uid);
             }
-            if ($user = $DB->get_record('user', array( $this->config->mdlattr => $uid, 'deleted' => 0 ))) {
+            if ($user = $DB->get_record('user', array( $this->config->mdlattr => $uid, 'deleted' => 0, 'mnethostid' => $CFG->mnet_localhost_id ))) {
                 continue;
             }
         }
