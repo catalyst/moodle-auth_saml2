@@ -28,12 +28,6 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG, $saml2auth, $saml2config;
 
-// Check for https login.
-$wwwroot = $CFG->wwwroot;
-if (!empty($CFG->loginhttps)) {
-    $wwwroot = str_replace('http:', 'https:', $CFG->wwwroot);
-}
-
 $metadatasources = [];
 foreach ($saml2auth->metadataentities as $metadataurl => $idpentities) {
     $metadatasources[] = [
@@ -45,9 +39,9 @@ foreach ($saml2auth->metadataentities as $metadataurl => $idpentities) {
 $remoteip = getremoteaddr();
 
 $config = array(
-    'baseurlpath'       => $wwwroot . '/auth/saml2/sp/',
+    'baseurlpath'       => $CFG->wwwroot . '/auth/saml2/sp/',
     'application'       => [
-      'baseURL'         => $wwwroot . '/auth/saml2/sp/',
+      'baseURL'         => $CFG->wwwroot . '/auth/saml2/sp/',
     ],
     'certdir'           => $saml2auth->get_saml2_directory() . '/',
     'debug'             => $saml2auth->config->debug ? true : false,

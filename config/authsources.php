@@ -28,12 +28,6 @@ defined('MOODLE_INTERNAL') || die();
 
 global $saml2auth, $CFG, $SITE, $SESSION;
 
-// Check for https login.
-$wwwroot = $CFG->wwwroot;
-if (!empty($CFG->loginhttps)) {
-    $wwwroot = str_replace('http:', 'https:', $CFG->wwwroot);
-}
-
 $config = [];
 
 // Case for specifying no $SESSION IdP, select the first configured IdP as the default.
@@ -57,7 +51,7 @@ if (!empty($SESSION->saml2idp)) {
 
 $config[$saml2auth->spname] = [
     'saml:SP',
-    'entityID' => "$wwwroot/auth/saml2/sp/metadata.php",
+    'entityID' => "$CFG->wwwroot/auth/saml2/sp/metadata.php",
     'discoURL' => !empty($CFG->auth_saml2_disco_url) ? $CFG->auth_saml2_disco_url : null,
     'idp' => empty($CFG->auth_saml2_disco_url) ? $idpentityid : null,
     'NameIDPolicy' => $saml2auth->config->nameidpolicy,
