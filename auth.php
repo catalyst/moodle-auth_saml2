@@ -1139,7 +1139,7 @@ class auth_plugin_saml2 extends auth_plugin_base {
     /**
      * Called from SimpleSamlphp after a LogoutResponse from the IdP
      */
-    static public function auth_saml2_after_logout_from_idp_front_channel() {
+    public static function auth_saml2_after_logout_from_idp_front_channel() {
         global $saml2config;
 
         // The SP session will be cleaned up but we need to remove the
