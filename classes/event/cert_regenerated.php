@@ -43,10 +43,10 @@ class cert_regenerated extends base {
      */
     public function get_description() {
         $userregenerated = '';
-        if ($this->other['userid']) {
+        if (!empty($this->other['userid'])) {
             $userregenerated .= "'{$this->other['userid']}'";
         } else {
-            $userregenerated .= 'unkown';
+            $userregenerated .= 'unknown';
         }
         return "The saml certificates were regenerated: '{$this->other['reason']}' by user $userregenerated";
     }
