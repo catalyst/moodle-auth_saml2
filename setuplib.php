@@ -37,8 +37,8 @@ require_once("{$CFG->dirroot}/auth/saml2/auth.php");
  * @copyright  Brendan Heywood <brendan@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
- * @param \auth_plugin_saml2  $saml2auth config object
- * @param array   $dn Certificate Distinguished name details
+ * @param \auth_saml2\auth $saml2auth config object
+ * @param array $dn Certificate Distinguished name details
  * @param integer $numberofdays Certificate expirey period
  */
 function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
