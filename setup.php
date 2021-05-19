@@ -35,7 +35,7 @@ if (isset($CFG->sslproxy) && $CFG->sslproxy) {
       $_SERVER['SERVER_PORT'] = '443';
 }
 
-$saml2auth = new auth_plugin_saml2();
+$saml2auth = new \auth_saml2\auth();
 
 // Auto create unique certificates for this moodle SP.
 //

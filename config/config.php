@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
- use auth_saml2\ssl_algorithms;
+use auth_saml2\ssl_algorithms;
 
 defined('MOODLE_INTERNAL') || die();
 

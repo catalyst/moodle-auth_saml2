@@ -25,6 +25,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Check if we have the saml=on param set. If so, disable guest access and force the user to log in with saml.
  *
+ * @since  Moodle 3.8
  * @return void
  */
 function auth_saml2_after_config() {
@@ -53,6 +54,8 @@ function auth_saml2_after_config() {
  *
  * This callback requires Moodle 3.7+. On earlier versions this will not run. It also won't run
  * on pages which don't call require_login, so we use the _before_http_headers() callback too.
+ *
+ * @since Moodle 3.7
  */
 function auth_saml2_after_require_login() {
     \auth_saml2\auto_login::process();
@@ -60,6 +63,8 @@ function auth_saml2_after_require_login() {
 
 /**
  * Callback before HTTP headers are sent.
+ *
+ * This is called on every page.
  */
 function auth_saml2_before_http_headers() {
     \auth_saml2\auto_login::process();

@@ -48,7 +48,7 @@ $_SERVER['PATH_INFO'] = '/' . $saml2auth->spname;
  */
 try {
     $session = \SimpleSAML\Session::getSessionFromRequest();
-    $session->registerLogoutHandler($saml2auth->spname, $saml2auth, 'auth_saml2_after_logout_from_idp_front_channel');
+    $session->registerLogoutHandler($saml2auth->spname, '\auth_saml2\api', 'logout_from_idp_front_channel');
 
     require('../.extlib/simplesamlphp/modules/saml/www/sp/saml2-logout.php');
 } catch (Exception $e) {

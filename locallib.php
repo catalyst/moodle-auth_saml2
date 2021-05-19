@@ -34,7 +34,6 @@ defined('MOODLE_INTERNAL') || die();
  * easier when upgrading SSPHP.
  */
 function auth_saml2_get_sp_metadata() {
-
     global $saml2auth, $CFG;
 
     $sourceId = $saml2auth->spname;
@@ -493,7 +492,7 @@ function auth_saml2_process_regenerate_form($fromform) {
     );
     $numberofdays = $fromform->expirydays;
 
-    $saml2auth = new \auth_plugin_saml2();
+    $saml2auth = new \auth_saml2\auth();
     $error = create_certificates($saml2auth, $dn, $numberofdays);
 
     if (!$error) {
@@ -544,4 +543,3 @@ function auth_saml2_admin_nav($title, $url) {
     $PAGE->set_heading(get_string('pluginname', 'auth_saml2') . ': ' . $title);
     $PAGE->set_title(get_string('pluginname', 'auth_saml2') . ': ' . $title);
 }
-

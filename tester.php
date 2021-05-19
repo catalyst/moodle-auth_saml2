@@ -34,7 +34,7 @@ foreach ($idps as $idpid => $idparray) {
 }
 
 $data = [
-        'idpentityids' => $idpentityids,
+    'idpentityids' => $idpentityids,
 ];
 
 $action = new moodle_url('/auth/saml2/test.php');
