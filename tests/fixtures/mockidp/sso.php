@@ -32,6 +32,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+// This file does not need require_login, skip codechecker here.
+// phpcs:disable moodle.Files.RequireLogin.Missing
 require(__DIR__ . '/../../../../../config.php');
 
 defined('BEHAT_SITE_RUNNING') || die();

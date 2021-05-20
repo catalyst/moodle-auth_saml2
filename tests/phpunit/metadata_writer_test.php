@@ -50,11 +50,11 @@ class auth_saml2_metadata_writer_testcase extends basic_testcase {
     /**
      */
     public function test_write_empty_filename() {
-        $this->expectException(\moodle_exception::class);
         $filename = '';
         $content = 'Test data';
 
         $writer = new metadata_writer();
+        $this->expectException(\moodle_exception::class);
         $writer->write($filename, $content);
     }
 
