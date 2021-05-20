@@ -142,8 +142,7 @@ class auto_login {
         }
 
         // Check if this plugin is enabled.
-        $enabled = get_enabled_auth_plugins();
-        return in_array('saml2', $enabled);
+        return \auth_saml2\api::is_enabled();
     }
 
     /**

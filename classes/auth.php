@@ -112,6 +112,15 @@ class auth extends \auth_plugin_base {
         $this->defaultidp = auth_saml2_get_default_idp();
     }
 
+    /**
+     * If debug mode enabled for plugin.
+     *
+     * @return bool
+     */
+    public function is_debugging() {
+        return (bool) $this->config->debug;
+    }
+
     public function get_saml2_directory() {
         global $CFG;
         $directory = "{$CFG->dataroot}/saml2";
@@ -153,10 +162,9 @@ class auth extends \auth_plugin_base {
      * @param string $msg Log message
      */
     private function log($msg) {
-        if ($this->config->debug) {
-            // @codingStandardsIgnoreStart
+        if ($this->is_debugging()) {
+            // @codingStandardsIgnoreLine
             error_log('auth_saml2: ' . $msg);
-            // @codingStandardsIgnoreEnd
 
             // If SSP logs to tmp file we want these to also go there.
             if ($this->config->logtofile) {

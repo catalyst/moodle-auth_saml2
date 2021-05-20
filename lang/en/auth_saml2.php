@@ -140,6 +140,7 @@ $string['nullpubliccert'] = 'Creation of Public Certificate failed.';
 $string['organizationalunitname'] = 'Organisational Unit';
 $string['organizationname'] = 'Organisation';
 $string['passivemode'] = 'Passive mode';
+$string['plugindisabled'] = 'SAML2 authentication plugin is disabled';
 $string['pluginname'] = 'SAML2';
 $string['privatekeypass'] = 'Private certificate key password';
 $string['privatekeypass_help'] = 'This is used for signing the local Moodle certificate, changing this will invalidate the current certificate.';

@@ -22,9 +22,23 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// @codingStandardsIgnoreStart
+// Require_login is not needed here.
+// phpcs:disable moodle.Files.RequireLogin.Missing
 require_once(__DIR__ . '/../../config.php');
-// @codingStandardsIgnoreEnd
+require_once(__DIR__ . '/locallib.php');
+
+// Check we are in debug mode to use this tool.
+$saml2auth = new \auth_saml2\auth();
+if (!$saml2auth->is_debugging()) {
+    redirect('/');
+}
+
+$PAGE->set_context(context_system::instance());
+$PAGE->set_url(new moodle_url('/auth/saml2/tester.php'));
+
+if (!\auth_saml2\api::is_enabled()) {
+    throw new \moodle_exception('plugindisabled', 'auth_saml2');
+}
 
 $idps = auth_saml2_get_idps(false, true);
 $idpentityids = array();
@@ -33,10 +47,6 @@ foreach ($idps as $idpid => $idparray) {
     $idpentityids[] = $idp['entityid'];
 }
 
-$data = [
-    'idpentityids' => $idpentityids,
-];
-
 $action = new moodle_url('/auth/saml2/test.php');
-$mform = new \auth_saml2\form\testidpselect($action, $data);
+$mform = new \auth_saml2\form\testidpselect($action, ['idpentityids' => $idpentityids]);
 $mform->display();
