@@ -92,7 +92,7 @@ $config = array(
 
     'proxy' => null, // TODO inherit from moodle conf see http://moodle.local/admin/settings.php?section=http for more.
 
-    'authproc.sp' => auth_plugin_saml2::saml2_authproc_filters_hook(),
+    'authproc.sp' => \auth_saml2\api::authproc_filters_hook(),
 
     // TODO setting for redirect.sign.
 );

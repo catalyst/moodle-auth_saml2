@@ -112,37 +112,6 @@ class auth extends \auth_plugin_base {
         $this->defaultidp = auth_saml2_get_default_idp();
     }
 
-    public static function saml2_authproc_filters_hook() {
-        $authprocfilters = [];
-        $authprocfilters[50] = array(
-            'class' => 'core:AttributeMap',
-            'oid2name',
-        );
-        $callbacks = get_plugins_with_function('extend_auth_saml2_proc', 'lib.php');
-        foreach ($callbacks as $plugins) {
-            foreach ($plugins as $pluginfunction) {
-                $filters = $pluginfunction();
-                foreach ($filters as $key => $value) {
-                    $key = self::check_filters_priority($key, $authprocfilters);
-                    $authprocfilters[$key] = $value;
-                }
-            }
-        }
-        return $authprocfilters;
-    }
-
-    public static function check_filters_priority($priority, $filters) {
-        $uniquekey = false;
-        while (!$uniquekey) {
-            if (!array_key_exists($priority, $filters)) {
-                $uniquekey = true;
-            } else {
-                $priority++;
-            }
-        }
-        return $priority;
-    }
-
     public function get_saml2_directory() {
         global $CFG;
         $directory = "{$CFG->dataroot}/saml2";
