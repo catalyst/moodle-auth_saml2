@@ -52,25 +52,16 @@ if ($missingcertpem || $missingcertcrt) {
     $missingcertpem ? $errorstring .= "= Missing cert pem file! =\n" : null;
     $missingcertcrt ? $errorstring .= "= Missing cert crt file! = \n" : null;
     $errorstring .= "Now regenerating saml2 certificates...";
-    // @codingStandardsIgnoreStart
-    if (!PHPUNIT_TEST) { // Don't clutter the unit test output with this error_log message.
-        error_log($errorstring);
+    if (!(PHPUNIT_TEST || defined('BEHAT_TEST'))) {
+        debugging($errorstring);
     }
-    // @codingStandardsIgnoreEnd
-    cert_regenerated::create(['other' => ['reason' => $errorstring]])->trigger();
 
-    $error = '';
     try {
         create_certificates($saml2auth);
     } catch (saml2_exception $exception) {
-        $error = $exception->getMessage() . $exception->getTraceAsString();
+        debugging($exception->getMessage(), DEBUG_DEVELOPER, $exception->getTrace());
     }
-
-    if ($error && !PHPUNIT_TEST) { // Don't clutter the unit test output with this error_log message.
-        // @codingStandardsIgnoreStart
-        error_log($error);
-        // @codingStandardsIgnoreEnd
-    }
+    cert_regenerated::create(['other' => ['reason' => $errorstring]])->trigger();
 }
 
 SimpleSAML\Configuration::setConfigDir("$CFG->dirroot/auth/saml2/config");

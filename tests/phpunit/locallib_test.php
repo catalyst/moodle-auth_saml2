@@ -610,9 +610,8 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
 
     /**
      * If locked do not generate the cert, if unlocked then generate the cert.
-     * If locked and we try to generate certs, throw an exception and do not generate the certs.
      */
-    public function test_no_generate_if_locked() {
+    public function test_setup_no_cert_generate_if_locked() {
         $this->resetAfterTest();
         $auth = get_auth_plugin('saml2');
         set_config('certs_locked', 1, 'auth_saml2');
@@ -626,12 +625,7 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
 
         // Call setup.php and see that it doesn't generate a cert.
         require(dirname(__FILE__) . '/../../setup.php');
-        $crt = file_exists($auth->certcrt);
-        $this->assertFalse($crt);
-
-        // Call the create_certificates function directly to assert that it throws an exception and does not generate a cert.
-        $this->expectException('saml2_exception');
-        create_certificates($auth);
+        $this->assertDebuggingCalled();
         $crt = file_exists($auth->certcrt);
         $this->assertFalse($crt);
 
@@ -642,6 +636,25 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         require(dirname(__FILE__) . '/../../setup.php');
         $crt = file_exists($auth->certcrt);
         $this->assertTrue($crt);
+    }
+
+    /**
+     * If locked and we try to generate certs, throw an exception and do not generate the certs.
+     */
+    public function test_create_certificates_if_locked() {
+        $this->resetAfterTest();
+        $auth = get_auth_plugin('saml2');
+        set_config('certs_locked', 1, 'auth_saml2');
+
+        // Call the create_certificates function directly to assert that
+        // it throws an exception and does not generate a cert.
+        try {
+            create_certificates($auth);
+            // Fail if the exception is not thrown.
+            $this->fail();
+        } catch (\saml2_exception $e) {
+            $this->assertFalse(file_exists($auth->certcrt));
+        }
     }
 
     /**
