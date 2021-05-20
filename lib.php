@@ -42,10 +42,7 @@ function auth_saml2_after_config() {
             unset($CFG->autologinguests);
         }
     } catch (\Exception $exception) {
-        // @codingStandardsIgnoreStart
-        // We never want this to throw a real exception. But log the error.
-        error_log('auth_saml2_afer_config error! ' . $exception->getTraceAsString());
-        // @codingStandardsIgnoreEnd
+        debugging('auth_saml2_after_config error', DEBUG_DEVELOPER, $exception->getTrace());
     }
 }
 
