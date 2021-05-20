@@ -100,4 +100,13 @@ class api {
         }
         return $priority;
     }
+
+    /**
+     * Is the plugin enabled.
+     *
+     * @return bool
+     */
+    public static function is_enabled(): bool {
+        return is_enabled_auth('saml2');
+    }
 }

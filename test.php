@@ -22,10 +22,19 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// @codingStandardsIgnoreStart
+// Require_login is not needed here.
+// phpcs:disable moodle.Files.RequireLogin.Missing
 require_once(__DIR__ . '/../../config.php');
-// @codingStandardsIgnoreEnd
 require('setup.php');
+
+// Check we are in debug mode to use this tool.
+if (!$saml2auth->is_debugging()) {
+    redirect('/');
+}
+
+if (!\auth_saml2\api::is_enabled()) {
+    throw new \moodle_exception('plugindisabled', 'auth_saml2');
+}
 
 $idp = optional_param('idp', '', PARAM_TEXT);
 $logout = optional_param('logout', '', PARAM_BOOL);
@@ -72,7 +81,6 @@ foreach ($idps as $entityid => $info) {
     echo "<p>check: " . md5($entityid) . "</p>";
 
 }
-
 
 if ($logout) {
     $urlparams = [
