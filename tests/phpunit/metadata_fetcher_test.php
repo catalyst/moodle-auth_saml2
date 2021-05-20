@@ -35,6 +35,18 @@ defined('MOODLE_INTERNAL') || die();
  */
 class auth_saml2_metadata_fetcher_testcase extends advanced_testcase {
 
+    /** @var \Prophecy\Prophet */
+    protected $prophet;
+
+    /**
+     * Set up
+     */
+    public function setUp(): void {
+        if (class_exists('\\Prophecy\\Prophet')) {
+            $this->prophet = new \Prophecy\Prophet();
+        }
+    }
+
     public function test_fetch_metadata_404() {
         $url = $this->getExternalTestFileUrl('/test404.xml');
         $fetcher = new metadata_fetcher();
@@ -59,12 +71,12 @@ class auth_saml2_metadata_fetcher_testcase extends advanced_testcase {
     }
 
     public function test_fetch_metadata_curlerrorno() {
-        if (!method_exists($this, 'prophesize')) {
+        if (!isset($this->prophet)) {
             $this->markTestSkipped('Skipping due to Prophecy library not available');
         }
 
         $url = 'http://fakeurl.localhost';
-        $curl = $this->prophesize('curl');
+        $curl = $this->prophet->prophesize('curl');
 
         $fetcher = new metadata_fetcher();
         $curl->get($url, Prophecy\Argument::type('array'))->willReturn('some bad stuff');
@@ -88,12 +100,12 @@ class auth_saml2_metadata_fetcher_testcase extends advanced_testcase {
     }
 
     public function test_fetch_metadata_nohttpstatus() {
-        if (!method_exists($this, 'prophesize')) {
+        if (!isset($this->prophet)) {
             $this->markTestSkipped('Skipping due to Prophecy library not available');
         }
 
         $url = 'http://fakeurl.localhost';
-        $curl = $this->prophesize('curl');
+        $curl = $this->prophet->prophesize('curl');
 
         $fetcher = new metadata_fetcher();
         $curl->get($url, Prophecy\Argument::type('array'))->willReturn('');
@@ -117,7 +129,7 @@ class auth_saml2_metadata_fetcher_testcase extends advanced_testcase {
     public function test_fetch_metadata_override_ssl_options() {
         global $CFG;
 
-        if (!method_exists($this, 'prophesize')) {
+        if (!isset($this->prophet)) {
             $this->markTestSkipped('Skipping due to Prophecy library not available');
         }
 
@@ -143,7 +155,7 @@ class auth_saml2_metadata_fetcher_testcase extends advanced_testcase {
         $CFG->forced_plugin_settings['auth_saml2']['CURLOPT_SSL_VERIFYPEER'] = 0;
         $CFG->forced_plugin_settings['auth_saml2']['CURLOPT_SSL_VERIFYHOST'] = 0;
 
-        $curl = $this->prophesize('curl');
+        $curl = $this->prophet->prophesize('curl');
 
         $fetcher = new metadata_fetcher();
 
