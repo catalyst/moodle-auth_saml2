@@ -32,7 +32,7 @@ class api {
     /**
      * Called from SimpleSamlphp after a LogoutResponse from the IdP
      */
-    public static function logout_from_idp_front_channel() {
+    public static function logout_from_idp_front_channel(): void {
         // The SP session will be cleaned up but we need to remove the
         // Moodle session here.
         \core\session\manager::terminate_current();
@@ -40,8 +40,10 @@ class api {
 
     /**
      * Called from SimpleSamlphp after a LogoutRequest from the SP
+     *
+     * @param array $state Information about the current logout operation.
      */
-    public static function after_logout_from_sp($state) {
+    public static function after_logout_from_sp($state): void {
         global $saml2config;
 
         $cookiename = $saml2config['session.cookie.name'];
@@ -53,5 +55,49 @@ class api {
         $store->delete('session', $sessid);
 
         redirect(new moodle_url($state['ReturnTo']));
+    }
+
+    /**
+     * Used to populate authproc.sp config attribute with a list of callbacks
+     * defined in other components.
+     *
+     * @return array
+     */
+    public static function authproc_filters_hook(): array {
+        $authprocfilters = [];
+        $authprocfilters[50] = array(
+            'class' => 'core:AttributeMap',
+            'oid2name',
+        );
+        $callbacks = get_plugins_with_function('extend_auth_saml2_proc', 'lib.php');
+        foreach ($callbacks as $plugins) {
+            foreach ($plugins as $pluginfunction) {
+                $filters = $pluginfunction();
+                foreach ($filters as $key => $value) {
+                    $key = self::check_filters_priority($key, $authprocfilters);
+                    $authprocfilters[$key] = $value;
+                }
+            }
+        }
+        return $authprocfilters;
+    }
+
+    /**
+     * Helper method to find unique key {@see self::saml2_authproc_filters_hook}.
+     *
+     * @param int $priority
+     * @param array $filters
+     * @return int
+     */
+    private static function check_filters_priority($priority, $filters): int {
+        $uniquekey = false;
+        while (!$uniquekey) {
+            if (!array_key_exists($priority, $filters)) {
+                $uniquekey = true;
+            } else {
+                $priority++;
+            }
+        }
+        return $priority;
     }
 }
