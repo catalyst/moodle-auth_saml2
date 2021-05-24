@@ -1003,6 +1003,11 @@ class auth_plugin_saml2 extends auth_plugin_base {
 
         // Only log out of the IdP if we logged in via the IdP. TODO check session timeouts.
         if ($auth->isAuthenticated()) {
+            
+            // Delete session cookie to address security concern in issue 499
+            $myCookie = 'MOODLEIDP1_'.$CFG->sessioncookie;
+            setcookie($myCookie, '', time() - HOURSECS, $CFG->sessioncookiepath, $CFG->sessioncookiedomain, $cookiesecure, $CFG->cookiehttponly);
+
             $this->log(__FUNCTION__ . ' Do SSP logout');
             $alterlogout = $this->config->alterlogout;
             if (!empty($alterlogout)) {
