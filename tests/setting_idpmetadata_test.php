@@ -26,7 +26,7 @@ use auth_saml2\idp_data;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once(__DIR__ . '/../../_autoload.php');
+require_once(__DIR__ . '/../_autoload.php');
 
 class setting_idpmetadata_test extends advanced_testcase {
     /** @var setting_idpmetadata */
@@ -46,7 +46,7 @@ class setting_idpmetadata_test extends advanced_testcase {
 
     public function test_it_validates_the_xml() {
         $this->resetAfterTest();
-        $xml = file_get_contents(__DIR__ . '/../fixtures/metadata.xml');
+        $xml = file_get_contents(__DIR__ . '/fixtures/metadata.xml');
         $data = self::$config->validate($xml);
         self::assertTrue($data);
     }
@@ -56,7 +56,7 @@ class setting_idpmetadata_test extends advanced_testcase {
 
         $this->resetAfterTest();
 
-        $xml = file_get_contents(__DIR__ . '/../fixtures/metadata.xml');
+        $xml = file_get_contents(__DIR__ . '/fixtures/metadata.xml');
         self::$config->write_setting($xml);
         $actual = get_config('auth_saml2');
 
@@ -84,7 +84,7 @@ class setting_idpmetadata_test extends advanced_testcase {
 
         $this->resetAfterTest();
 
-        $xml = file_get_contents(__DIR__ . '/../fixtures/dualmetadata.xml');
+        $xml = file_get_contents(__DIR__ . '/fixtures/dualmetadata.xml');
         self::$config->write_setting($xml);
         $actual = get_config('auth_saml2');
 
@@ -118,7 +118,7 @@ class setting_idpmetadata_test extends advanced_testcase {
     }
 
     public function test_it_gets_idp_data_for_xml() {
-        $xml = file_get_contents(__DIR__ . '/../fixtures/metadata.xml');
+        $xml = file_get_contents(__DIR__ . '/fixtures/metadata.xml');
         $data = self::$config->get_idps_data($xml);
         self::assertCount(1, $data);
         $this->validate_idp_data_array($data);

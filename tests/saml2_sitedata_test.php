@@ -23,7 +23,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once(__DIR__ . '/../../_autoload.php');
+require_once(__DIR__ . '/../_autoload.php');
 
 class auth_saml2_sitedata_test extends advanced_testcase {
     public function test_it_creates_the_directory_if_it_does_not_exist() {
