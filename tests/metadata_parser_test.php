@@ -36,7 +36,7 @@ defined('MOODLE_INTERNAL') || die();
 class auth_saml2_metadata_parser_testcase extends basic_testcase {
 
     public function test_parse_metadata() {
-        $xml = file_get_contents(__DIR__ . '/../fixtures/metadata.xml');
+        $xml = file_get_contents(__DIR__ . '/fixtures/metadata.xml');
 
         $parser = new metadata_parser();
         $parser->parse($xml);

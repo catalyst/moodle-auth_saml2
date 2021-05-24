@@ -23,7 +23,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once(__DIR__ . '/../../_autoload.php');
+require_once(__DIR__ . '/../_autoload.php');
 
 /**
  * @package     auth_saml2

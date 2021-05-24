@@ -26,7 +26,7 @@ use auth_saml2\admin\saml2_settings;
 use auth_saml2\admin\setting_idpmetadata;
 
 defined('MOODLE_INTERNAL') || die();
-require_once(__DIR__ . '/../../locallib.php');
+require_once(__DIR__ . '/../locallib.php');
 
 /**
  * Tests for SAML
@@ -624,7 +624,7 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $this->assertFalse($crt);
 
         // Call setup.php and see that it doesn't generate a cert.
-        require(dirname(__FILE__) . '/../../setup.php');
+        require(dirname(__FILE__) . '/../setup.php');
         $this->assertDebuggingCalled();
         $crt = file_exists($auth->certcrt);
         $this->assertFalse($crt);
@@ -633,7 +633,7 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         set_config('certs_locked', 0, 'auth_saml2');
 
         // Call setup.php and see that it generates the certificate.
-        require(dirname(__FILE__) . '/../../setup.php');
+        require(dirname(__FILE__) . '/../setup.php');
         $crt = file_exists($auth->certcrt);
         $this->assertTrue($crt);
     }
