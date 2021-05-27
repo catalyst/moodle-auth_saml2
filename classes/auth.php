@@ -202,71 +202,65 @@ class auth extends \auth_plugin_base {
         // The array of IdPs to return.
         $idplist = [];
 
-        foreach ($this->metadatalist as $metadata) {
-            if (!array_key_exists($metadata->idpurl, $this->metadataentities)) {
-                $message = "Missing identity configuration for '{$metadata->idpurl}': " .
-                           'Please check/save SAML2 configuration or if able to inspect the database, check: ' .
-                           "SELECT * FROM {auth_saml2_idps} WHERE metadataurl='{$metadata->idpurl}' " .
-                           '-- Remember to purge caches if you make changes in the database.';
-                debugging($message);
+        // Create IdP metadata url => name mapping.
+        $idpurls = array_combine(array_column($this->metadatalist, 'idpurl'), array_column($this->metadatalist, 'idpname'));
+        // Flattern $this->metadataentities one level down.
+        $metadataentities = array_merge(...array_values($this->metadataentities));
+        foreach ($metadataentities as $idpentityid => $idp) {
+            // Check for unlikely case that entity metadataurl is no longer in configuration.
+            if (!array_key_exists($idp->metadataurl, $idpurls)) {
+                debugging("Missing IdP metadata configuration for '{$idp->metadataurl}'");
                 continue;
             }
 
-            foreach ($this->metadataentities[$metadata->idpurl] as $idpentityid => $idp) {
-                $params = [
-                    'wants' => $wantsurl,
-                    'idp' => $idpentityid,
-                ];
-
-                // The wants url may already be routed via login.php so don't re-re-route it.
-                if (strpos($wantsurl, '/auth/saml2/login.php')) {
-                    $idpurl = new moodle_url($wantsurl);
-                } else {
-                    $idpurl = new moodle_url('/auth/saml2/login.php', $params);
-                }
-                $idpurl->param('passive', 'off');
-
-                // A default icon.
-                $idpiconurl = null;
-                $idpicon = null;
-                if (!empty($idp->logo)) {
-                    $idpiconurl = new moodle_url($idp->logo);
-                } else {
-                    $idpicon = new pix_icon('i/user', 'Login');
-                }
-
-                // Initially use the default name. This is suitable for a single IdP.
-                $idpname = $conf->idpdefaultname;
-
-                // When multiple IdPs are configured, use a different default based on the IdP.
-                if ($this->multiidp) {
-                    $host = parse_url($idp->entityid, PHP_URL_HOST);
-                    $idpname = get_string('idpnamedefault_varaible', 'auth_saml2', $host);
-                }
-
-                // Use a forced override set in the idpmetadata field.
-                if (!empty($metadata->idpname)) {
-                    $idpname = $metadata->idpname;
-                }
-
-                // Try to use the <mdui:DisplayName> if it exists.
-                if (!empty($idp->name)) {
-                    $idpname = $idp->name;
-                }
-
-                // Has the IdP label override been set in the admin configuration?
-                // This is best used with a single IdP. Multiple IdP overrides are different.
-                if (!empty($conf->idpname)) {
-                    $idpname = $conf->idpname;
-                }
-
-                $idplist[] = [
-                    'url'  => $idpurl,
-                    'icon' => $idpicon,
-                    'iconurl' => $idpiconurl,
-                    'name' => $idpname,
-                ];
+            // The wants url may already be routed via login.php so don't re-re-route it.
+            if (strpos($wantsurl, '/auth/saml2/login.php') !== false) {
+                $idpurl = new moodle_url($wantsurl);
+            } else {
+                $idpurl = new moodle_url('/auth/saml2/login.php', ['wants' => $wantsurl, 'idp' => $idpentityid]);
             }
+            $idpurl->param('passive', 'off');
+
+            // A default icon.
+            $idpiconurl = null;
+            $idpicon = null;
+            if (!empty($idp->logo)) {
+                $idpiconurl = new moodle_url($idp->logo);
+            } else {
+                $idpicon = new pix_icon('i/user', 'Login');
+            }
+
+            // Initially use the default name. This is suitable for a single IdP.
+            $idpname = $conf->idpdefaultname;
+
+            // When multiple IdPs are configured, use a different default based on the IdP.
+            if ($this->multiidp) {
+                $host = parse_url($idp->entityid, PHP_URL_HOST);
+                $idpname = get_string('idpnamedefault_varaible', 'auth_saml2', $host);
+            }
+
+            // Use a forced override set in the idpmetadata field.
+            if (!empty($idpurls[$idp->metadataurl])) {
+                $idpname = $idpurls[$idp->metadataurl];
+            }
+
+            // Try to use the <mdui:DisplayName> if it exists.
+            if (!empty($idp->name)) {
+                $idpname = $idp->name;
+            }
+
+            // Has the IdP label override been set in the admin configuration?
+            // This is best used with a single IdP. Multiple IdP overrides are different.
+            if (!empty($conf->idpname)) {
+                $idpname = $conf->idpname;
+            }
+
+            $idplist[] = [
+                'url'  => $idpurl,
+                'icon' => $idpicon,
+                'iconurl' => $idpiconurl,
+                'name' => $idpname,
+            ];
         }
 
         return $idplist;
