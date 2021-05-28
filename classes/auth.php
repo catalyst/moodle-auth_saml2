@@ -43,6 +43,11 @@ require_once(__DIR__.'/../locallib.php');
  */
 class auth extends \auth_plugin_base {
     /**
+     * @var array $metadataentities List of active IdPs configured.
+     */
+    public $metadataentities;
+
+    /**
      * @var array $defaults The config defaults
      */
     public $defaults = [
@@ -51,7 +56,6 @@ class auth extends \auth_plugin_base {
         'idpmetadata'        => '',
         'multiidp'           => false,
         'defaultidp'         => null,
-        'metadataentities'   => '',
         'debug'              => 0,
         'duallogin'          => saml2_settings::OPTION_DUAL_LOGIN_YES,
         'autologin'          => saml2_settings::OPTION_AUTO_LOGIN_NO,
@@ -91,7 +95,7 @@ class auth extends \auth_plugin_base {
         $parser = new idp_parser();
         $this->metadatalist = $parser->parse($this->config->idpmetadata);
 
-        // EntitiyIDs provded by the metadata.
+        // Active entitiyIDs provided by the metadata.
         $this->metadataentities = auth_saml2_get_idps(true);
 
         // Check if we have mutiple IdPs configured.
@@ -187,12 +191,12 @@ class auth extends \auth_plugin_base {
 
         // If we have disabled the visibility of the idp link, return with an empty array right away.
         if (!$conf->showidplink) {
-            return array();
+            return [];
         }
 
         // If the plugin has not been configured then do not return an IdP link.
         if ($this->is_configured() === false) {
-            return array();
+            return [];
         }
 
         // The array of IdPs to return.
@@ -295,8 +299,13 @@ class auth extends \auth_plugin_base {
             return false;
         }
 
-        $eids = $this->metadataentities;
-        foreach ($eids as $metadataid => $idps) {
+        // Requires at least one active IdP to work.
+        if (!count($this->metadataentities)) {
+            $this->log(__FUNCTION__ . ' no active IdPs');
+            return false;
+        }
+
+        foreach ($this->metadataentities as $metadataid => $idps) {
             $file = $this->get_file_idp_metadata_file($metadataid);
             if (!file_exists($file)) {
                 $this->log(__FUNCTION__ . ' file not found, ' . $file);
