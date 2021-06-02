@@ -153,17 +153,13 @@ class auto_login {
      * @param \auth_plugin_saml2 $auth Auth plugin
      */
     protected static function login(\auth_plugin_saml2 $auth) {
-        global $CFG, $FULLME, $SESSION, $SCRIPT, $saml2auth;
+        global $CFG, $FULLME, $SESSION, $SCRIPT;
 
         require(__DIR__ . '/../setup.php');
         $auth = get_auth_plugin('saml2');
 
         // Set the default IdP to be the first in the list. Used when dual login is disabled.
-        $arr = array_reverse($saml2auth->metadataentities);
-        $metadataentities = array_pop($arr);
-        $idpentity = array_pop($metadataentities);
-        $idp = md5($idpentity->entityid);
-        $SESSION->saml2idp = $idp;
+        $SESSION->saml2idp = reset($auth->metadataentities)->md5entityid;
 
         // Target URL is normally the same as current page, but if we got redirected to enrol.php
         // with a 'wants' URL, then that means if the login is successful we should try again at
