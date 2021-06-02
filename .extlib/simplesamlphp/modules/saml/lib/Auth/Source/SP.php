@@ -294,12 +294,10 @@ class SP extends \SimpleSAML\Auth\Source
         // Moodle customization. If we have multiple IdP's configured
         // then accept requests from the other IdP's even if they are
         // not the default IdP.
-        foreach ($saml2auth->metadataentities as $metadataurl => $idpentities) {
-            foreach ($idpentities as $key => $entity) {
-                if ($entity->entityid == $entityId) {
-                    $this->idp = null;
-                    break 2;
-                }
+        foreach ($saml2auth->metadataentities as $idpentity) {
+            if ($idpentity->entityid == $entityId) {
+                $this->idp = null;
+                break;
             }
         }
 
