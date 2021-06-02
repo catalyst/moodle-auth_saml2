@@ -294,7 +294,6 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $auth->metadataentities = [
             md5('idp') => (object)[
                 'whitelist' => $whitelist,
-                'activeidp' => true,
                 'md5entityid' => md5('idp'),
             ]
         ];

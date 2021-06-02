@@ -46,13 +46,8 @@ if (!empty($idp)) {
 }
 
 if (empty($SESSION->saml2idp)) {
-    $arr = array_reverse($saml2auth->metadataentities);
-    $metadataentities = array_pop($arr);
-    $idpentity = array_pop($metadataentities);
-    $idp = md5($idpentity->entityid);
-
     // Specify the default IdP to use.
-    $SESSION->saml2idp = $idp;
+    $SESSION->saml2idp = reset($saml2auth->metadataentities)->md5entityid;
     echo '<p>Setting IdP to default</p>';
 }
 
@@ -69,17 +64,11 @@ echo '<p>Which IdP will be used? ' . s($SESSION->saml2idp);
 
 $auth = new SimpleSAML\Auth\Simple($saml2auth->spname);
 
-$idps = $saml2auth->metadataentities;
-
-foreach ($idps as $entityid => $info) {
-
-    $md5 = key($info);
-
+foreach ($saml2auth->metadataentities as $idpentity) {
     echo '<hr>';
-    echo "<h4>IDP: $entityid</h4>";
-    echo "<p>md5: $md5</p>";
-    echo "<p>check: " . md5($entityid) . "</p>";
-
+    echo "<h4>IDP: $idpentity->entityid</h4>";
+    echo "<p>md5: $idpentity->md5entityid</p>";
+    echo "<p>check: " . md5($idpentity->entityid) . "</p>";
 }
 
 if ($logout) {

@@ -29,10 +29,11 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG, $saml2auth, $saml2config;
 
 $metadatasources = [];
-foreach ($saml2auth->metadataentities as $metadataurl => $idpentities) {
-    $metadatasources[] = [
+foreach ($saml2auth->metadataentities as $idpentity) {
+    $metadataurlhash = md5($idpentity->metadataurl);
+    $metadatasources[$metadataurlhash] = [
         'type' => 'xml',
-        'file' => "$CFG->dataroot/saml2/" . md5($metadataurl) . ".idp.xml"
+        'file' => "$CFG->dataroot/saml2/" . $metadataurlhash . ".idp.xml"
     ];
 }
 
@@ -86,7 +87,7 @@ $config = array(
     'metadata.sign.certificate'     => $saml2auth->certcrt,
     'metadata.sign.privatekey'      => $saml2auth->certpem,
     'metadata.sign.privatekey_pass' => $saml2auth->config->privatekeypass,
-    'metadata.sources'              => $metadatasources,
+    'metadata.sources'              => array_values($metadatasources),
 
     'store.type' => !empty($CFG->auth_saml2_store) ? $CFG->auth_saml2_store : '\\auth_saml2\\store',
 
