@@ -173,7 +173,7 @@ class auth extends \auth_plugin_base {
             // If SSP logs to tmp file we want these to also go there.
             if ($this->config->logtofile) {
                 require_once(__DIR__.'/../setup.php');
-                SimpleSAML\Logger::debug('auth_saml2: ' . $msg);
+                \SimpleSAML\Logger::debug('auth_saml2: ' . $msg);
             }
         }
     }
