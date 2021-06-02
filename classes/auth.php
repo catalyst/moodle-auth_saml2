@@ -43,9 +43,19 @@ require_once(__DIR__.'/../locallib.php');
  */
 class auth extends \auth_plugin_base {
     /**
-     * @var array $metadataentities List of active IdPs configured.
+     * @var array $metadataentities List of configured active IdPs.
      */
-    public $metadataentities;
+    public $metadataentities = [];
+
+    /**
+     * @var bool $multiidp Indicates if we have more than one active IdP.
+     */
+    private $multiidp = false;
+
+    /**
+     * @var stdClass $defaultidp.
+     */
+    private $defaultidp;
 
     /**
      * @var array $defaults The config defaults
@@ -54,8 +64,6 @@ class auth extends \auth_plugin_base {
         'idpname'            => '',
         'idpdefaultname'     => '', // Set in constructor.
         'idpmetadata'        => '',
-        'multiidp'           => false,
-        'defaultidp'         => null,
         'debug'              => 0,
         'duallogin'          => saml2_settings::OPTION_DUAL_LOGIN_YES,
         'autologin'          => saml2_settings::OPTION_AUTO_LOGIN_NO,
@@ -95,25 +103,22 @@ class auth extends \auth_plugin_base {
         $parser = new idp_parser();
         $this->metadatalist = $parser->parse($this->config->idpmetadata);
 
-        // Active entitiyIDs provided by the metadata.
-        $this->metadataentities = auth_saml2_get_idps(true);
+        // Fetch active entitiyIDs provided by the metadata and populate metadataentities list.
+        $idpentities = $DB->get_records('auth_saml2_idps', ['activeidp' => 1]);
+        foreach ($idpentities as $idpentity) {
+            // Set name.
+            $idpentity->name = empty($idpentity->displayname) ? $idpentity->defaultname : $idpentity->displayname;
+            $idpentity->md5entityid = md5($idpentity->entityid);
+            // Set default IdP if we found one.
+            if ((bool) $idpentity->defaultidp && !isset($this->defaultidp)) {
+                $this->defaultidp = $idpentity;
+            }
+            $this->metadataentities[$idpentity->md5entityid] = $idpentity;
+        }
 
         // Check if we have mutiple IdPs configured.
         // If we have mutliple metadata entries set multiidp to true.
-        $this->multiidp = false;
-
-        if (count($this->metadataentities) > 1) {
-            $this->multiidp = true;
-        } else {
-            // If we have mutliple IdP entries for a metadata set multiidp to true.
-            foreach ($this->metadataentities as $idpentities) {
-                if (count($idpentities) > 1) {
-                    $this->multiidp = true;
-                }
-            }
-        }
-
-        $this->defaultidp = auth_saml2_get_default_idp();
+        $this->multiidp = (count($this->metadataentities) > 1);
     }
 
     /**
@@ -204,9 +209,7 @@ class auth extends \auth_plugin_base {
 
         // Create IdP metadata url => name mapping.
         $idpurls = array_combine(array_column($this->metadatalist, 'idpurl'), array_column($this->metadatalist, 'idpname'));
-        // Flattern $this->metadataentities one level down.
-        $metadataentities = array_merge(...array_values($this->metadataentities));
-        foreach ($metadataentities as $idpentityid => $idp) {
+        foreach ($this->metadataentities as $idp) {
             // Check for unlikely case that entity metadataurl is no longer in configuration.
             if (!array_key_exists($idp->metadataurl, $idpurls)) {
                 debugging("Missing IdP metadata configuration for '{$idp->metadataurl}'");
@@ -217,7 +220,7 @@ class auth extends \auth_plugin_base {
             if (strpos($wantsurl, '/auth/saml2/login.php') !== false) {
                 $idpurl = new moodle_url($wantsurl);
             } else {
-                $idpurl = new moodle_url('/auth/saml2/login.php', ['wants' => $wantsurl, 'idp' => $idpentityid]);
+                $idpurl = new moodle_url('/auth/saml2/login.php', ['wants' => $wantsurl, 'idp' => $idp->md5entityid]);
             }
             $idpurl->param('passive', 'off');
 
@@ -299,8 +302,8 @@ class auth extends \auth_plugin_base {
             return false;
         }
 
-        foreach ($this->metadataentities as $metadataid => $idps) {
-            $file = $this->get_file_idp_metadata_file($metadataid);
+        foreach ($this->metadataentities as $idpentity) {
+            $file = $this->get_file_idp_metadata_file($idpentity->metadataurl);
             if (!file_exists($file)) {
                 $this->log(__FUNCTION__ . ' file not found, ' . $file);
                 return false;
@@ -495,35 +498,24 @@ class auth extends \auth_plugin_base {
      * All the checking happens before the login page in this hook
      */
     public function saml_login() {
-
-        // @codingStandardsIgnoreStart
-        global $CFG, $DB, $USER, $SESSION, $saml2auth;
-        // @codingStandardsIgnoreEnd
+        global $CFG, $SESSION;
 
         require_once(__DIR__.'/../setup.php');
         require_once("$CFG->dirroot/login/lib.php");
 
         // Set the default IdP to be the first in the list. Used when dual login is disabled.
-        $arr = array_reverse($saml2auth->metadataentities);
-        $metadataentities = array_pop($arr);
-        $idpentity = array_pop($metadataentities);
-        $idp = md5($idpentity->entityid);
-
-        // Specify the default IdP to use.
-        $SESSION->saml2idp = $idp;
+        $SESSION->saml2idp = reset($this->metadataentities)->md5entityid;
 
         // We store the IdP in the session to generate the config/config.php array with the default local SP.
         $idpalias = optional_param('idpalias', '', PARAM_TEXT);
         if (!empty($idpalias)) {
             $idpfound = false;
 
-            foreach ($saml2auth->metadataentities as $idpentities) {
-                foreach ($idpentities as $md5idpentityid => $idpentity) {
-                    if ($idpalias == $idpentity->alias) {
-                        $SESSION->saml2idp = $md5idpentityid;
-                        $idpfound = true;
-                        break 2;
-                    }
+            foreach ($this->metadataentities as $idpentity) {
+                if ($idpalias == $idpentity->alias) {
+                    $SESSION->saml2idp = $idpentity->md5entityid;
+                    $idpfound = true;
+                    break;
                 }
             }
 
@@ -532,9 +524,9 @@ class auth extends \auth_plugin_base {
             }
         } else if (isset($_GET['idp'])) {
             $SESSION->saml2idp = $_GET['idp'];
-        } else if (!is_null($saml2auth->defaultidp)) {
-            $SESSION->saml2idp = md5($saml2auth->defaultidp->entityid);
-        } else if ($saml2auth->multiidp) {
+        } else if (!is_null($this->defaultidp)) {
+            $SESSION->saml2idp = $this->defaultidp->md5entityid;
+        } else if ($this->multiidp) {
             // At this stage there is no alias, get-param or default IdP configured.
             // On a multi-idp system, now check for any whitelisted IP address redirection.
             $entitiyid = $this->check_whitelisted_ip_redirect();
@@ -574,10 +566,7 @@ class auth extends \auth_plugin_base {
      * This is split so we can handle SP and IdP first login flows.
      */
     public function saml_login_complete($attributes) {
-
-        // @codingStandardsIgnoreStart
-        global $CFG, $DB, $USER, $SESSION, $saml2auth;
-        // @codingStandardsIgnoreEnd
+        global $CFG, $DB, $USER, $SESSION;
 
         if ($this->config->attrsimple) {
             $attributes = $this->simplify_attr($attributes);
@@ -663,27 +652,11 @@ class auth extends \auth_plugin_base {
         $this->update_user_profile_fields($user, $attributes, $newuser);
 
         // If admin has been set for this IdP we make the user an admin.
-        $adminidp = false;
-        foreach ($saml2auth->metadataentities as $idpentities) {
-            foreach ($idpentities as $md5idpentityid => $idpentity) {
-
-                if (!empty($SESSION->saml2idp) && $SESSION->saml2idp == $md5idpentityid) {
-                    $adminidp = $idpentity->adminidp;
-                    break 2;
-                }
+        if (!empty($SESSION->saml2idp) && $this->metadataentities[$SESSION->saml2idp]->adminidp) {
+            $admins = explode(',', $CFG->siteadmins);
+            if (!in_array($user->id, $admins)) {
+                $admins[] = $user->id;
             }
-        }
-
-        if ($adminidp) {
-            $admins = array();
-            foreach (explode(',', $CFG->siteadmins) as $admin) {
-                $admin = (int)$admin;
-                if ($admin) {
-                    $admins[$admin] = $admin;
-                }
-            }
-
-            $admins[$user->id] = $user->id;
             set_config('siteadmins', implode(',', $admins));
         }
 
@@ -742,7 +715,7 @@ class auth extends \auth_plugin_base {
 
     /**
      * Checks configuration of the multiple IdP IP whitelist field. If the users IP matches, this will
-     * return the $md5idpentityid on true. Or false if not found.
+     * return the md5 hash of IdP entityid on true. Or false if not found.
      *
      * This is used in two places, firstly to determine if a saml redirect is to happen.
      * Secondly to determine which IdP to force the redirect to.
@@ -750,14 +723,9 @@ class auth extends \auth_plugin_base {
      * @return bool|string
      */
     protected function check_whitelisted_ip_redirect() {
-        foreach ($this->metadataentities as $idpentities) {
-            foreach ($idpentities as $md5idpentityid => $idpentity) {
-                if (!$idpentity->activeidp) {
-                    continue;
-                }
-                if (\core\ip_utils::is_ip_in_subnet_list(getremoteaddr(), $idpentity->whitelist)) {
-                    return $md5idpentityid;
-                }
+        foreach ($this->metadataentities as $idpentity) {
+            if (\core\ip_utils::is_ip_in_subnet_list(getremoteaddr(), $idpentity->whitelist)) {
+                return $idpentity->md5entityid;
             }
         }
         return false;
