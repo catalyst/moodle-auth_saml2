@@ -38,6 +38,15 @@ class auth_testcase extends \advanced_testcase {
     }
 
     /**
+     * Get generator
+     *
+     * @return auth_saml2_generator
+     */
+    protected function get_generator(): \auth_saml2_generator {
+        return $this->getDataGenerator()->get_plugin_generator('auth_saml2');
+    }
+
+    /**
      * Test test_is_configured
      */
     public function test_is_configured(): void {
@@ -118,37 +127,22 @@ class auth_testcase extends \advanced_testcase {
 
         /** @var auth_plugin_saml2 $auth */
         $auth = get_auth_plugin('saml2');
-
         touch($auth->certcrt);
         touch($auth->certpem);
-
         $this->assertFalse($auth->is_configured());
 
-        $xmlfile = md5("https://idp.example.org/idp/shibboleth");
-        touch($auth->get_file("{$xmlfile}.idp.xml"));
-
+        touch($auth->get_file(md5($metadataurl). ".idp.xml"));
         $this->assertTrue($auth->is_configured());
     }
 
     public function test_loginpage_idp_list() {
         global $DB;
 
-        // Add IdP and configuration.
-        $metadataurl = 'https://idp.example.org/idp/shibboleth';
-        $idprecord = [
-            'metadataurl' => $metadataurl,
-            'entityid'    => 'https://idp1.example.org/idp/shibboleth',
-            'defaultname' => 'Test IdP 1',
-            'activeidp'   => 1,
-        ];
-        $recordid = $DB->insert_record('auth_saml2_idps', $idprecord);
-        set_config('idpmetadata', $metadataurl, 'auth_saml2');
-        $auth = get_auth_plugin('saml2');
-        touch($auth->certcrt);
-        touch($auth->certpem);
-        touch($auth->get_file(md5($metadataurl). ".idp.xml"));
+        // Add IdP entity.
+        $entity1 = $this->get_generator()->create_idp_entity();
 
         // Single list item is expected.
+        $auth = get_auth_plugin('saml2');
         $list = $auth->loginpage_idp_list('/');
         $this->assertCount(1, $list);
 
@@ -160,7 +154,7 @@ class auth_testcase extends \advanced_testcase {
         $this->assertInstanceOf(\moodle_url::class, $url);
         $this->assertEquals('/moodle/auth/saml2/login.php', $url->get_path());
         $this->assertEquals('/', $url->get_param('wants'));
-        $this->assertEquals(md5($idprecord['entityid']), $url->get_param('idp'));
+        $this->assertEquals(md5($entity1->entityid), $url->get_param('idp'));
         $this->assertEquals('off', $url->get_param('passive'));
 
         // Wantsurl is pointing to auth/saml2/login.php
@@ -176,11 +170,11 @@ class auth_testcase extends \advanced_testcase {
         set_config('idpname', '', 'auth_saml2');
         $auth = get_auth_plugin('saml2');
         $list = $auth->loginpage_idp_list('/');
-        $this->assertEquals($idprecord['defaultname'], $list[0]['name']);
+        $this->assertEquals($entity1->defaultname, $list[0]['name']);
 
         // Set metadata display name.
         $DB->update_record('auth_saml2_idps', [
-            'id' => $recordid,
+            'id' => $entity1->id,
             'displayname' => 'Test',
         ]);
         $auth = get_auth_plugin('saml2');
@@ -189,7 +183,7 @@ class auth_testcase extends \advanced_testcase {
 
         // Unset metadata names, expect default.
         $DB->update_record('auth_saml2_idps', [
-            'id' => $recordid,
+            'id' => $entity1->id,
             'displayname' => '',
             'defaultname' => '',
         ]);
@@ -199,20 +193,20 @@ class auth_testcase extends \advanced_testcase {
 
         // Expect name in idpmetadata config to be used when no displayname
         // or defaultname are defined in entity.
-        set_config('idpmetadata', 'Hello ' . $metadataurl, 'auth_saml2');
+        set_config('idpmetadata', 'Hello ' . $entity1->metadataurl, 'auth_saml2');
         $auth = get_auth_plugin('saml2');
         $list = $auth->loginpage_idp_list('/');
         $this->assertEquals('Hello', $list[0]['name']);
 
         // Expect debug message if idpmetadata config does not match one stored in DB.
-        set_config('idpmetadata', $metadataurl . 'modified', 'auth_saml2');
+        set_config('idpmetadata', $entity1->metadataurl . 'modified', 'auth_saml2');
         $auth = get_auth_plugin('saml2');
         $auth->loginpage_idp_list('/');
         $this->assertDebuggingCalled();
 
         // Deactivate.
         $DB->update_record('auth_saml2_idps', [
-            'id' => $recordid,
+            'id' => $entity1->id,
             'activeidp' => 0,
         ]);
         $auth = get_auth_plugin('saml2');
@@ -223,29 +217,12 @@ class auth_testcase extends \advanced_testcase {
     public function test_loginpage_idp_list_multiple() {
         global $DB;
 
-        // Add two fake IdPs.
-        $metadataurl = 'https://idp.example.org/idp/shibboleth';
-        $idprecord1 = [
-            'metadataurl' => $metadataurl,
-            'entityid'    => 'https://idp1.example.org/idp/shibboleth',
-            'displayname' => 'Test IdP 1',
-            'activeidp'   => 1,
-        ];
-        $idprecord2 = [
-            'metadataurl' => $metadataurl,
-            'entityid'    => 'https://idp2.example.org/idp/shibboleth',
-            'displayname' => 'Test IdP 2',
-            'activeidp'   => 1,
-        ];
-        $recordid = $DB->insert_record('auth_saml2_idps', $idprecord1);
-        $DB->insert_record('auth_saml2_idps', $idprecord2);
-        set_config('idpmetadata', $metadataurl, 'auth_saml2');
-        $auth = get_auth_plugin('saml2');
-        touch($auth->certcrt);
-        touch($auth->certpem);
-        touch($auth->get_file(md5($metadataurl). ".idp.xml"));
+        // Add two IdPs.
+        $entity1 = $this->get_generator()->create_idp_entity(['displayname' => 'Login 1']);
+        $entity2 = $this->get_generator()->create_idp_entity(['displayname' => 'Login 2']);
 
         // Two list items are expected.
+        $auth = get_auth_plugin('saml2');
         $list = $auth->loginpage_idp_list('/');
         $this->assertCount(2, $list);
 
@@ -253,26 +230,35 @@ class auth_testcase extends \advanced_testcase {
         set_config('idpname', '', 'auth_saml2');
         $auth = get_auth_plugin('saml2');
         $list = $auth->loginpage_idp_list('/');
-        $this->assertEqualsCanonicalizing([$idprecord1['displayname'], $idprecord2['displayname']], array_column($list, 'name'));
+        $this->assertEqualsCanonicalizing([$entity1->displayname, $entity2->displayname], array_column($list, 'name'));
 
-        // Unset display name for first entity, it will be replaced by default with hostname mentioned.
+        // Unset display name for first entity, it will be replaced by entity default name.
         $DB->update_record('auth_saml2_idps', [
-            'id' => $recordid,
+            'id' => $entity1->id,
             'displayname' => '',
         ]);
-        $idpname1 = get_string('idpnamedefault_varaible', 'auth_saml2', parse_url($idprecord1['entityid'], PHP_URL_HOST));
         $auth = get_auth_plugin('saml2');
         $list = $auth->loginpage_idp_list('/');
-        $this->assertEqualsCanonicalizing([$idpname1, $idprecord2['displayname']], array_column($list, 'name'));
+        $this->assertEqualsCanonicalizing([$entity1->defaultname, $entity2->displayname], array_column($list, 'name'));
+
+        // Unset default name for first entity, it will be replaced by default with hostname mentioned.
+        $DB->update_record('auth_saml2_idps', [
+            'id' => $entity1->id,
+            'defaultname' => '',
+        ]);
+        $idpname1 = get_string('idpnamedefault_varaible', 'auth_saml2', parse_url($entity1->entityid, PHP_URL_HOST));
+        $auth = get_auth_plugin('saml2');
+        $list = $auth->loginpage_idp_list('/');
+        $this->assertEqualsCanonicalizing([$idpname1, $entity2->displayname], array_column($list, 'name'));
 
         // Deactivate first entity.
         $DB->update_record('auth_saml2_idps', [
-            'id' => $recordid,
+            'id' => $entity1->id,
             'activeidp' => 0,
         ]);
         $auth = get_auth_plugin('saml2');
         $list = $auth->loginpage_idp_list('/');
         $this->assertCount(1, $list);
-        $this->assertEquals($idprecord2['displayname'], $list[0]['name']);
+        $this->assertEquals($entity2->displayname, $list[0]['name']);
     }
 }
