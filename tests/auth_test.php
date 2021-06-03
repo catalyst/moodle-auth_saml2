@@ -135,6 +135,81 @@ class auth_testcase extends \advanced_testcase {
         $this->assertTrue($auth->is_configured());
     }
 
+    public function test_class_constructor() {
+        // Sanity check.
+        $auth = get_auth_plugin('saml2');
+        $this->assertFalse($auth->is_configured());
+        $this->assertCount(0, $auth->metadataentities);
+
+        // Create one entity.
+        $entity1 = $this->get_generator()->create_idp_entity();
+        $auth = get_auth_plugin('saml2');
+        $this->assertTrue($auth->is_configured());
+        $this->assertCount(1, $auth->metadataentities);
+
+        // Name attribute is matching defaultname.
+        $this->assertEquals($entity1->defaultname, reset($auth->metadataentities)->name);
+
+        // Encoded entityid present as an attribute as well as the key.
+        $this->assertArrayHasKey(md5($entity1->entityid), $auth->metadataentities);
+        $this->assertEquals(md5($entity1->entityid), reset($auth->metadataentities)->md5entityid);
+
+        // Multiidp flag is false.
+        $reflector = new \ReflectionClass($auth);
+        $property = $reflector->getParentClass()->getProperty('multiidp');
+        $property->setAccessible(true);
+        $this->assertFalse($property->getValue($auth));
+
+        // DefaultIdP is not defined.
+        $property = $reflector->getParentClass()->getProperty('defaultidp');
+        $property->setAccessible(true);
+        $this->assertNull($property->getValue($auth));
+
+        // Create non-active entity. Nothing should change.
+        $preventities = $auth->metadataentities;
+        $this->get_generator()->create_idp_entity(['activeidp' => 0]);
+        $auth = get_auth_plugin('saml2');
+        $this->assertCount(1, $auth->metadataentities);
+        $this->assertEquals(reset($preventities), reset($auth->metadataentities));
+
+        // Multiidp flag is false.
+        $reflector = new \ReflectionClass($auth);
+        $property = $reflector->getParentClass()->getProperty('multiidp');
+        $property->setAccessible(true);
+        $this->assertFalse($property->getValue($auth));
+
+        // DefaultIdP is not defined.
+        $property = $reflector->getParentClass()->getProperty('defaultidp');
+        $property->setAccessible(true);
+        $this->assertNull($property->getValue($auth));
+
+        // Create another entity with displayname and default flag set.
+        $entity3 = $this->get_generator()->create_idp_entity(['displayname' => 'Login 1', 'defaultidp' => 1]);
+        $auth = get_auth_plugin('saml2');
+        $this->assertCount(2, $auth->metadataentities);
+
+        // Check entity name.
+        $this->assertEqualsCanonicalizing(['Login 1', $entity1->defaultname], array_column($auth->metadataentities, 'name'));
+
+        // Encoded entityid present as an attribute as well as the key.
+        $this->assertEqualsCanonicalizing([md5($entity1->entityid), md5($entity3->entityid)],
+            array_column($auth->metadataentities, 'md5entityid'));
+        $this->assertEqualsCanonicalizing([md5($entity1->entityid), md5($entity3->entityid)],
+            array_keys($auth->metadataentities));
+
+        // Multiidp flag is true.
+        $reflector = new \ReflectionClass($auth);
+        $property = $reflector->getParentClass()->getProperty('multiidp');
+        $property->setAccessible(true);
+        $this->assertTrue($property->getValue($auth));
+
+        // DefaultIdP is defined and matching third entity.
+        $property = $reflector->getParentClass()->getProperty('defaultidp');
+        $property->setAccessible(true);
+        $this->assertNotNull($property->getValue($auth));
+        $this->assertEquals($auth->metadataentities[md5($entity3->entityid)], $property->getValue($auth));
+    }
+
     public function test_loginpage_idp_list() {
         global $DB;
 
