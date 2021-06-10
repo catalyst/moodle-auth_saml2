@@ -218,3 +218,13 @@ $string['regeneratewarning'] = 'Warning! Generating a new certificate will overw
 $string['regeneratepath'] = 'Certificate path path: {$a}';
 $string['regenerateheader'] = 'Regenerate Private Key and Certificate';
 $string['regeneratesuccess'] = 'Private Key and Certificate successfully regenerated';
+
+/*
+ * Role mapping
+ */
+$string['saml_role_map'] = "Role";
+$string['saml_rolemapping'] = "Role Mapping";
+$string['saml_rolemapping_head'] = "The IdP can use it's own roles. Set in this section the mapping between IdP and Moodle roles. Accepts multiple valued comma separated. Example: admin,owner,superuser.";
+$string['saml_role_siteadmin_map'] = "Site administrators";
+$string['saml_role_manager_map'] = "Manager";
+$string['saml_role_coursecreator_map'] = "Course creator";

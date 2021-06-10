@@ -298,6 +298,42 @@ if ($ADMIN->fulltree) {
             $authplugin->get_ssp_version()
             ));
 
+    // Role mapping
+    $name = 'auth_saml2/field_map_role';
+    $title = get_string('saml_role_map', 'auth_saml2');
+    $description = '';
+    $default = '';
+    $setting = new admin_setting_configtext($name, $title, $description, $default, PARAM_ALPHANUMEXT);
+    $settings->add($setting);
+
+    $settings->add(
+        new admin_setting_heading(
+            'auth_saml2/saml_rolemapping',
+            new lang_string('saml_rolemapping', 'auth_saml2'),
+            new lang_string('saml_rolemapping_head', 'auth_saml2')
+        )
+    );
+
+    $name = 'auth_saml2/saml_role_siteadmin_map';
+    $title = get_string('saml_role_siteadmin_map', 'auth_saml2');
+    $description = '';
+    $default = '';
+    $setting = new admin_setting_configtext($name, $title, $description, $default, PARAM_ALPHANUMEXT);
+    $settings->add($setting);
+
+    $name = 'auth_saml2/saml_role_manager_map';
+    $title = get_string('saml_role_manager_map', 'auth_saml2');
+    $description = '';
+    $default = '';
+    $setting = new admin_setting_configtext($name, $title, $description, $default, PARAM_ALPHANUMEXT);
+    $settings->add($setting);
+    
+    $name = 'auth_saml2/saml_role_coursecreator_map';
+    $title = get_string('saml_role_coursecreator_map', 'auth_saml2');
+    $description = '';
+    $default = '';
+    $setting = new admin_setting_configtext($name, $title, $description, $default, PARAM_ALPHANUMEXT);
+    $settings->add($setting);
 
     // Display locking / mapping of profile fields.
     $help = get_string('auth_updatelocal_expl', 'auth');

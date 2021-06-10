@@ -543,3 +543,32 @@ function auth_saml2_admin_nav($title, $url) {
     $PAGE->set_heading(get_string('pluginname', 'auth_saml2') . ': ' . $title);
     $PAGE->set_title(get_string('pluginname', 'auth_saml2') . ': ' . $title);
 }
+
+/**
+* Map user roles from Roles array
+*
+*/
+function sync_roles($user,$attributes,$config) {
+    global $CFG, $DB;
+
+    // Process siteadmin (special, they are stored at mdl_config)
+    if(in_array($config->saml_role_siteadmin_map,$attributes['Role'])){
+        $siteadmins = explode(',', $CFG->siteadmins);
+        if (!in_array($user->id, $siteadmins)) {
+            $siteadmins[] = $user->id;
+            $newAdmins = implode(',', $siteadmins);
+            set_config('siteadmins', $newAdmins);
+        }
+    }
+
+    // Process coursecreator and manager
+    $syscontext = context_system::instance();
+    if(in_array($config->saml_role_coursecreator_map,$attributes['Role'])){
+        $creatorrole = $DB->get_record('role', array('shortname'=>'coursecreator'), '*', MUST_EXIST);
+        role_assign($creatorrole->id, $user->id, $syscontext);
+    }
+    if (in_array($config->saml_role_manager_map, $attributes['Role'])) {
+        $managerrole = $DB->get_record('role', array('shortname'=>'manager'), '*', MUST_EXIST);
+        role_assign($managerrole->id, $user->id, $syscontext);
+    }
+}
