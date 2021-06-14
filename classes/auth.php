@@ -576,42 +576,58 @@ class auth extends \auth_plugin_base {
         }
 
         $attr = $this->config->idpattr;
-        if (empty($attributes[$attr]) ) {
+        if (empty($attributes[$attr])) {
+            // Missing mapping IdP attribute. Login failed.
+            $event = \core\event\user_login_failed::create(['other' => ['username' => 'unknown',
+                'reason' => AUTH_LOGIN_NOUSER]]);
+            $event->trigger();
             $this->error_page(get_string('noattribute', 'auth_saml2', $attr));
         }
 
+        // Testing user's groups and allow access according to preferences.
+        if (!$this->is_access_allowed_for_member($attributes)) {
+            $event = \core\event\user_login_failed::create(['other' => ['username' => 'unknown',
+                'reason' => AUTH_LOGIN_UNAUTHORISED]]);
+            $event->trigger();
+            $this->handle_blocked_access();
+        }
+
+        // Find Moodle user.
         $user = null;
-        foreach ($attributes[$attr] as $key => $uid) {
+        foreach ($attributes[$attr] as $uid) {
             if ($this->config->tolower) {
-                $this->log(__FUNCTION__ . " to lowercase for $key => $uid");
+                $this->log(__FUNCTION__ . " to lowercase for $uid");
                 $uid = strtolower($uid);
             }
             if ($user = $DB->get_record('user', array(
                     $this->config->mdlattr => $uid,
                     'deleted' => 0,
                     'mnethostid' => $CFG->mnet_localhost_id))) {
-                continue;
+                break;
             }
-        }
-
-        // Testing user's groups and allow access decided on preferences.
-        if (!$this->is_access_allowed_for_member($attributes)) {
-            $this->handle_blocked_access();
         }
 
         $newuser = false;
         if (!$user) {
+            // No existing user.
             if ($this->config->autocreate) {
                 $email = $this->get_email_from_attributes($attributes);
                 // If can't have accounts with the same emails, check if email is taken before create a new user.
                 if (empty($CFG->allowaccountssameemail) && $this->is_email_taken($email)) {
+                    $event = \core\event\user_login_failed::create(['other' => ['username' => $uid,
+                        'reason' => AUTH_LOGIN_FAILED]]);
+                    $event->trigger();
+
                     $this->log(__FUNCTION__ . " user '$uid' can't be autocreated as email '$email' is taken");
                     $this->error_page(get_string('emailtaken', 'auth_saml2', $email));
                 }
 
-                // Honor the core allowemailaddresses setting #412.
-                $error = email_is_not_allowed($email);
-                if ($error) {
+                // Honor the core allowemailaddresses setting.
+                if ($error = email_is_not_allowed($email)) {
+                    $event = \core\event\user_login_failed::create(['other' => ['username' => $uid,
+                        'reason' => AUTH_LOGIN_FAILED]]);
+                    $event->trigger();
+
                     $this->log(__FUNCTION__ . " '$email' " . $error);
                     $this->handle_blocked_access();
                 }
@@ -620,34 +636,69 @@ class auth extends \auth_plugin_base {
                 $user = create_user_record($uid, '', 'saml2');
                 $newuser = true;
             } else {
+                // Moodle user does not exist and settings prevent creating new accounts.
+                $event = \core\event\user_login_failed::create(['other' => ['username' => $uid,
+                    'reason' => AUTH_LOGIN_NOUSER]]);
+                $event->trigger();
                 $this->log(__FUNCTION__ . " user '$uid' is not in moodle so error");
                 $this->error_page(get_string('nouser', 'auth_saml2', $uid));
             }
         } else {
-            // Prevent access to users who are suspended.
-            if ($user->suspended) {
-                $this->error_page(get_string('suspendeduser', 'auth_saml2', $uid));
-            }
             // Make sure all user data is fetched.
             $user = get_complete_user_data('username', $user->username);
             if (!$user) {
+                $event = \core\event\user_login_failed::create(['other' => ['username' => $user->username,
+                    'reason' => AUTH_LOGIN_NOUSER]]);
+                $event->trigger();
                 $this->log(__FUNCTION__ . ' did not find user ' . $user->username);
                 $this->error_page(get_string('nouser', 'auth_saml2', $uid));
+            }
+
+            // Prevent access to users who are suspended.
+            if ($user->suspended) {
+                $event = \core\event\user_login_failed::create([
+                    'userid' => $user->id,
+                    'other' => [
+                        'username' => $user->username,
+                        'reason' => AUTH_LOGIN_SUSPENDED,
+                    ]
+                ]);
+                $event->trigger();
+
+                $this->error_page(get_string('suspendeduser', 'auth_saml2', $uid));
             }
 
             $this->log(__FUNCTION__ . ' found user '.$user->username);
         }
 
         if (!$this->config->anyauth && $user->auth != 'saml2') {
+            $event = \core\event\user_login_failed::create([
+                'userid' => $user->id,
+                'other' => [
+                    'username' => $user->username,
+                    'reason' => AUTH_LOGIN_UNAUTHORISED,
+                ]
+            ]);
+            $event->trigger();
+
             $this->log(__FUNCTION__ . " user $uid is auth type: $user->auth");
             $this->error_page(get_string('wrongauth', 'auth_saml2', $uid));
         }
 
-        if ($this->config->anyauth && !is_enabled_auth($user->auth) ) {
+        if ($this->config->anyauth && !is_enabled_auth($user->auth)) {
+            $event = \core\event\user_login_failed::create([
+                'userid' => $user->id,
+                'other' => [
+                    'username' => $user->username,
+                    'reason' => AUTH_LOGIN_UNAUTHORISED,
+                ]
+            ]);
+            $event->trigger();
+
             $this->log(__FUNCTION__ . " user $uid's auth type: $user->auth is not enabled");
-            $this->error_page(get_string('anyauthotherdisabled', 'auth_saml2', array(
+            $this->error_page(get_string('anyauthotherdisabled', 'auth_saml2', [
                 'username' => $uid, 'auth' => $user->auth,
-            )));
+            ]));
         }
 
         // Do we need to update any user fields? Unlike ldap, we can only do
@@ -672,8 +723,8 @@ class auth extends \auth_plugin_base {
         set_moodle_cookie($USER->username);
 
         $wantsurl = core_login_get_return_url();
-        // If we are not on the page we want, then redirect to it.
-        if ( qualified_me() !== $wantsurl ) {
+        // If we are not on the page we want, then redirect to it (unless this is CLI).
+        if ( qualified_me() !== false && qualified_me() !== $wantsurl ) {
             $this->log(__FUNCTION__ . " redirecting to $wantsurl");
             unset($SESSION->wantsurl);
             redirect($wantsurl);
@@ -707,11 +758,11 @@ class auth extends \auth_plugin_base {
     protected function handle_blocked_access() {
         switch ($this->config->flagresponsetype) {
             case saml2_settings::OPTION_FLAGGED_LOGIN_REDIRECT :
-                $this->redirect_blocked_access ();
+                $this->redirect_blocked_access();
                 break;
             case saml2_settings::OPTION_FLAGGED_LOGIN_MESSAGE :
             default :
-                $this->error_page ( $this->config->flagmessage );
+                $this->error_page($this->config->flagmessage);
                 break;
         }
     }
