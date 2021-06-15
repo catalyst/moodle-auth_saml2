@@ -336,4 +336,305 @@ class auth_testcase extends \advanced_testcase {
         $this->assertCount(1, $list);
         $this->assertEquals($entity2->displayname, $list[0]['name']);
     }
+
+    public function test_saml_login_complete_missing_idpattr() {
+        $attribs = [
+            'uid' => ['samlu1'],
+            'email' => ['samluser1@example.com'],
+        ];
+        set_config('idpattr', 'blabla', 'auth_saml2');
+        $auth = $this->get_mocked_auth();
+
+        $sink = $this->redirectEvents();
+        try {
+            $auth->saml_login_complete($attribs);
+            $this->fail('Exception expected');
+        } catch (\coding_exception $e) {
+            // Validate reason.
+            $this->assertStringContainsString(get_string('noattribute', 'auth_saml2', 'blabla'), $e->getMessage());
+        }
+
+        // Checking that the event contains the expected values.
+        $events = $sink->get_events();
+        $this->assertCount(1, $events);
+        $event = array_pop($events);
+        $this->assertInstanceOf('\core\event\user_login_failed', $event);
+        $this->assertEquals(AUTH_LOGIN_NOUSER, $event->get_data()['other']['reason']);
+    }
+
+    public function test_saml_login_complete_group_restriction() {
+        $attribs = [
+            'uid' => ['samlu1'],
+            'email' => ['samluser1@example.com'],
+            'library' => ['overdue'],
+        ];
+        set_config('grouprules', 'deny library=overdue', 'auth_saml2');
+        $auth = $this->get_mocked_auth();
+
+        $sink = $this->redirectEvents();
+        try {
+            $auth->saml_login_complete($attribs);
+            $this->fail('Exception expected');
+        } catch (\coding_exception $e) {
+            // Validate reason.
+            $this->assertStringContainsString(get_string('flagmessage_default', 'auth_saml2'), $e->getMessage());
+        }
+
+        // Checking that the event contains the expected values.
+        $events = $sink->get_events();
+        $this->assertCount(1, $events);
+        $event = array_pop($events);
+        $this->assertInstanceOf('\core\event\user_login_failed', $event);
+        $this->assertEquals(AUTH_LOGIN_UNAUTHORISED, $event->get_data()['other']['reason']);
+    }
+
+    public function test_saml_login_complete_email_taken() {
+        $attribs = [
+            'uid' => ['samlu1'],
+            'email' => ['samluser1@example.com'],
+        ];
+        set_config('autocreate', '1', 'auth_saml2');
+        set_config('field_map_email', 'email', 'auth_saml2');
+        $this->getDataGenerator()->create_user(['email' => 'samluser1@example.com']);
+        $auth = $this->get_mocked_auth();
+
+        $sink = $this->redirectEvents();
+        try {
+            $auth->saml_login_complete($attribs);
+            $this->fail('Exception expected');
+        } catch (\coding_exception $e) {
+            // Validate reason.
+            $this->assertStringContainsString(get_string('emailtaken', 'auth_saml2', $attribs['email'][0]), $e->getMessage());
+        }
+
+        // Checking that the event contains the expected values.
+        $events = $sink->get_events();
+        $this->assertCount(1, $events);
+        $event = array_pop($events);
+        $this->assertInstanceOf('\core\event\user_login_failed', $event);
+        $this->assertEquals(AUTH_LOGIN_FAILED, $event->get_data()['other']['reason']);
+    }
+
+    public function test_saml_login_complete_allowemailaddresses() {
+        global $CFG;
+        $attribs = [
+            'uid' => ['samlu1'],
+            'email' => ['samluser1@example.com'],
+        ];
+        set_config('autocreate', '1', 'auth_saml2');
+        $CFG->allowemailaddresses = 'other.com';
+        $auth = $this->get_mocked_auth();
+
+        $sink = $this->redirectEvents();
+        try {
+            $auth->saml_login_complete($attribs);
+            $this->fail('Exception expected');
+        } catch (\coding_exception $e) {
+            // Validate reason.
+            $this->assertStringContainsString(get_string('flagmessage_default', 'auth_saml2'), $e->getMessage());
+        }
+
+        // Checking that the event contains the expected values.
+        $events = $sink->get_events();
+        $this->assertCount(1, $events);
+        $event = array_pop($events);
+        $this->assertInstanceOf('\core\event\user_login_failed', $event);
+        $this->assertEquals(AUTH_LOGIN_FAILED, $event->get_data()['other']['reason']);
+    }
+
+    public function test_saml_login_complete_no_autocreate() {
+        $attribs = [
+            'uid' => ['samlu1'],
+            'email' => ['samluser1@example.com'],
+        ];
+        set_config('autocreate', '0', 'auth_saml2');
+        $auth = $this->get_mocked_auth();
+
+        $sink = $this->redirectEvents();
+        try {
+            $auth->saml_login_complete($attribs);
+            $this->fail('Exception expected');
+        } catch (\coding_exception $e) {
+            // Validate reason.
+            $this->assertStringContainsString(get_string('nouser', 'auth_saml2', $attribs['uid'][0]), $e->getMessage());
+        }
+
+        // Checking that the event contains the expected values.
+        $events = $sink->get_events();
+        $this->assertCount(1, $events);
+        $event = array_pop($events);
+        $this->assertInstanceOf('\core\event\user_login_failed', $event);
+        $this->assertEquals(AUTH_LOGIN_NOUSER, $event->get_data()['other']['reason']);
+    }
+
+    public function test_saml_login_complete_suspended() {
+        $attribs = [
+            'uid' => ['samlu1'],
+            'email' => ['samluser1@example.com'],
+        ];
+        $this->getDataGenerator()->create_user(['username' => 'samlu1', 'suspended' => 1]);
+        $auth = $this->get_mocked_auth();
+
+        $sink = $this->redirectEvents();
+        try {
+            $auth->saml_login_complete($attribs);
+            $this->fail('Exception expected');
+        } catch (\coding_exception $e) {
+            // Validate reason.
+            $this->assertStringContainsString(get_string('suspendeduser', 'auth_saml2', $attribs['uid'][0]), $e->getMessage());
+        }
+
+        // Checking that the event contains the expected values.
+        $events = $sink->get_events();
+        $this->assertCount(1, $events);
+        $event = array_pop($events);
+        $this->assertInstanceOf('\core\event\user_login_failed', $event);
+        $this->assertEquals(AUTH_LOGIN_SUSPENDED, $event->get_data()['other']['reason']);
+    }
+
+    public function test_saml_login_complete_wrong_auth() {
+        $attribs = [
+            'uid' => ['samlu1'],
+            'email' => ['samluser1@example.com'],
+        ];
+        set_config('anyauth', '0', 'auth_saml2');
+        $this->getDataGenerator()->create_user(['username' => 'samlu1', 'auth' => 'manual']);
+        $auth = $this->get_mocked_auth();
+
+        $sink = $this->redirectEvents();
+        try {
+            $auth->saml_login_complete($attribs);
+            $this->fail('Exception expected');
+        } catch (\coding_exception $e) {
+            // Validate reason.
+            $this->assertStringContainsString(get_string('wrongauth', 'auth_saml2', $attribs['uid'][0]), $e->getMessage());
+        }
+
+        // Checking that the event contains the expected values.
+        $events = $sink->get_events();
+        $this->assertCount(1, $events);
+        $event = array_pop($events);
+        $this->assertInstanceOf('\core\event\user_login_failed', $event);
+        $this->assertEquals(AUTH_LOGIN_UNAUTHORISED, $event->get_data()['other']['reason']);
+    }
+
+    public function test_saml_login_complete_disabled_auth() {
+        $attribs = [
+            'uid' => ['samlu1'],
+            'email' => ['samluser1@example.com'],
+        ];
+        set_config('anyauth', '1', 'auth_saml2');
+        $this->getDataGenerator()->create_user(['username' => 'samlu1', 'auth' => 'shibboleth']);
+        $auth = $this->get_mocked_auth();
+
+        $sink = $this->redirectEvents();
+        try {
+            $auth->saml_login_complete($attribs);
+            $this->fail('Exception expected');
+        } catch (\coding_exception $e) {
+            // Validate reason.
+            $msg = get_string('anyauthotherdisabled', 'auth_saml2', [
+                'username' => $attribs['uid'][0], 'auth' => 'shibboleth',
+            ]);
+            $this->assertStringContainsString($msg, $e->getMessage());
+        }
+
+        // Checking that the event contains the expected values.
+        $events = $sink->get_events();
+        $this->assertCount(1, $events);
+        $event = array_pop($events);
+        $this->assertInstanceOf('\core\event\user_login_failed', $event);
+        $this->assertEquals(AUTH_LOGIN_UNAUTHORISED, $event->get_data()['other']['reason']);
+    }
+
+    public function test_saml_login_complete_new_account() {
+        global $USER;
+        $attribs = [
+            'uid' => ['samlu1'],
+            'email' => ['samluser1@example.com'],
+        ];
+        set_config('autocreate', '1', 'auth_saml2');
+        set_config('field_map_email', 'email', 'auth_saml2');
+
+        // Sanity check.
+        $this->assertFalse(isloggedin());
+
+        $sink = $this->redirectEvents();
+
+        // Try to login, suppress output.
+        $auth = new \auth_saml2\auth();
+        @$auth->saml_login_complete($attribs);
+
+        // Check global object.
+        $this->assertEquals($attribs['uid'][0], $USER->username);
+        $this->assertEquals($attribs['email'][0], $USER->email);
+
+        // Checking that the events contain the expected values.
+        $events = $sink->get_events();
+        $this->assertCount(4, $events);
+        $event = array_pop($events);
+        $this->assertInstanceOf('\core\event\user_loggedin', $event);
+        $this->assertEquals($USER->id, $event->get_data()['objectid']);
+        $event = array_pop($events);
+        $this->assertInstanceOf('\core\event\user_updated', $event);
+        $this->assertEquals($USER->id, $event->get_data()['objectid']);
+        $event = array_pop($events);
+        $this->assertInstanceOf('\core\event\user_created', $event);
+        $this->assertEquals($USER->id, $event->get_data()['objectid']);
+    }
+
+    public function test_saml_login_complete_existing_account() {
+        global $USER;
+        $attribs = [
+            'uid' => ['samlu1'],
+            'email' => ['samluser1@example.com'],
+        ];
+        set_config('field_map_email', 'email', 'auth_saml2');
+        set_config('field_updatelocal_email', 'onlogin', 'auth_saml2');
+        $user = $this->getDataGenerator()->create_user(['username' => 'samlu1', 'auth' => 'saml2']);
+
+        // Sanity check.
+        $this->assertFalse(isloggedin());
+        $this->assertNotEquals($attribs['email'][0], $user->email);
+
+        $sink = $this->redirectEvents();
+
+        // Try to login, suppress output.
+        $auth = new \auth_saml2\auth();
+        @$auth->saml_login_complete($attribs);
+
+        // Check global object, make sure email was updated.
+        $this->assertEquals($attribs['uid'][0], $USER->username);
+        $this->assertEquals($attribs['email'][0], $USER->email);
+
+        // Checking that the events contain the expected values.
+        $events = $sink->get_events();
+        $this->assertCount(2, $events);
+        $event = array_pop($events);
+        $this->assertInstanceOf('\core\event\user_loggedin', $event);
+        $this->assertEquals($USER->id, $event->get_data()['objectid']);
+        $event = array_pop($events);
+        $this->assertInstanceOf('\core\event\user_updated', $event);
+        $this->assertEquals($USER->id, $event->get_data()['objectid']);
+    }
+
+    /**
+     * Retrieve mocked auth instance.
+     *
+     * @return \auth_saml2\auth
+     */
+    protected function get_mocked_auth(): \auth_saml2\auth {
+        // Setup mock, make error_page throw exception containing argument as
+        // exception message. This is needed to check $msg argument and stop
+        // execution like original method does.
+        $auth = $this->getMockBuilder(\auth_saml2\auth::class)
+            ->setMethods(['error_page'])->getMock();
+
+        $auth->expects($this->once())
+            ->method('error_page')
+            ->will($this->returnCallback(function($msg) {
+                throw new \coding_exception($msg);
+            }));
+        return $auth;
+    }
 }
