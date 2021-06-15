@@ -319,19 +319,22 @@ class auth extends \auth_plugin_base {
      * @param string $msg The error message.
      */
     public function error_page($msg) {
-        global $PAGE, $OUTPUT;
+        global $PAGE, $OUTPUT, $SESSION;
 
-        $logouturl = new moodle_url('/auth/saml2/logout.php');
+        // Clean up $SESSION->wantsurl that was set explicitly in {@see login.php},
+        // we don't go anywhere.
+        unset($SESSION->wantsurl);
 
         $PAGE->set_context(\context_system::instance());
         $PAGE->set_url('/auth/saml2/error.php');
         $PAGE->set_title(get_string('error', 'auth_saml2'));
         $PAGE->set_heading(get_string('error', 'auth_saml2'));
         echo $OUTPUT->header();
-        echo $OUTPUT->box($msg);
-        echo \html_writer::link($logouturl, get_string('logout'));
+        echo $OUTPUT->box($msg, 'generalbox', 'notice');
+        $logouturl = new moodle_url('/auth/saml2/logout.php');
+        echo $OUTPUT->single_button($logouturl, get_string('logout'), 'get');
         echo $OUTPUT->footer();
-        exit;
+        exit(1);
     }
 
     /**
