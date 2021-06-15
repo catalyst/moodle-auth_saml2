@@ -596,10 +596,8 @@ class auth extends \auth_plugin_base {
                 $this->log(__FUNCTION__ . " to lowercase for $uid");
                 $uid = strtolower($uid);
             }
-            if ($user = $DB->get_record('user', array(
-                    $this->config->mdlattr => $uid,
-                    'deleted' => 0,
-                    'mnethostid' => $CFG->mnet_localhost_id))) {
+            if ($user = get_complete_user_data($this->config->mdlattr, $uid)) {
+                // We found a user.
                 break;
             }
         }
@@ -641,16 +639,6 @@ class auth extends \auth_plugin_base {
                 $this->error_page(get_string('nouser', 'auth_saml2', $uid));
             }
         } else {
-            // Make sure all user data is fetched.
-            $user = get_complete_user_data('username', $user->username);
-            if (!$user) {
-                $event = \core\event\user_login_failed::create(['other' => ['username' => $user->username,
-                    'reason' => AUTH_LOGIN_NOUSER]]);
-                $event->trigger();
-                $this->log(__FUNCTION__ . ' did not find user ' . $user->username);
-                $this->error_page(get_string('nouser', 'auth_saml2', $uid));
-            }
-
             // Prevent access to users who are suspended.
             if ($user->suspended) {
                 $event = \core\event\user_login_failed::create([
