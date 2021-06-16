@@ -51,31 +51,17 @@ class auth_testcase extends \advanced_testcase {
      */
     public function test_is_configured(): void {
         global $DB;
+        // Add one IdP.
+        $entity1 = $this->get_generator()->create_idp_entity([], false);
 
-        // Add a fake IdP.
-        $url = 'http://www.example.com';
-        $recordid = $DB->insert_record('auth_saml2_idps', array(
-            'metadataurl' => $url,
-            'entityid'    => $url,
-            'name'        => 'Test IdP',
-            'activeidp'   => 1));
-
-        /** @var auth_plugin_saml2 $auth */
         $auth = get_auth_plugin('saml2');
-
         $files = array(
             'crt' => $auth->certcrt,
             'pem' => $auth->certpem,
-            'xml' => $auth->get_file(md5($url) . '.idp.xml'),
+            'xml' => $auth->get_file(md5($entity1->metadataurl) . '.idp.xml'),
         );
 
-        // Setup, remove the phpuunit dataroot temp files for saml2.
-        foreach ($files as $file) {
-            if (file_exists($file)) {
-                @unlink($file);
-            }
-        }
-
+        // Sanity check.
         $this->assertFalse($auth->is_configured());
 
         // File crt: true.
@@ -101,7 +87,7 @@ class auth_testcase extends \advanced_testcase {
 
         // Make IdP inactive.
         $DB->update_record('auth_saml2_idps', [
-            'id' => $recordid,
+            'id' => $entity1->id,
             'activeidp' => 0,
         ]);
         $auth = get_auth_plugin('saml2');
@@ -109,28 +95,18 @@ class auth_testcase extends \advanced_testcase {
         $this->assertFalse($auth->is_configured());
     }
 
-    public function test_is_configured_works_with_multi_idp_in_one_xml() {
-        global $DB;
-
-        // Add two fake IdPs.
+    public function test_is_configured_works_with_multi_idp_in_one_xml(): void {
+        // Add two IdPs.
         $metadataurl = 'https://idp.example.org/idp/shibboleth';
-        $DB->insert_record('auth_saml2_idps', array(
-            'metadataurl' => $metadataurl,
-            'entityid'    => 'https://idp1.example.org/idp/shibboleth',
-            'name'        => 'Test IdP 1',
-            'activeidp'   => 1));
-        $DB->insert_record('auth_saml2_idps', array(
-            'metadataurl' => $metadataurl,
-            'entityid'    => 'https://idp2.example.org/idp/shibboleth',
-            'name'        => 'Test IdP 2',
-            'activeidp'   => 1));
+        $this->get_generator()->create_idp_entity(['metadataurl' => $metadataurl], false);
+        $this->get_generator()->create_idp_entity(['metadataurl' => $metadataurl], false);
 
-        /** @var auth_plugin_saml2 $auth */
         $auth = get_auth_plugin('saml2');
         touch($auth->certcrt);
         touch($auth->certpem);
         $this->assertFalse($auth->is_configured());
 
+        // Create xml.
         touch($auth->get_file(md5($metadataurl). ".idp.xml"));
         $this->assertTrue($auth->is_configured());
     }

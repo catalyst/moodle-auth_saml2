@@ -45,9 +45,10 @@ class auth_saml2_generator extends component_generator_base {
      * Creates new IdP entity
      *
      * @param array|stdClass $idprecord
+     * @param bool $createfiles
      * @return stdClass record from db
      */
-    public function create_idp_entity($idprecord = []) : stdClass {
+    public function create_idp_entity($idprecord = [], $createfiles = true) : stdClass {
         global $DB;
         // Add IdP and configuration.
         $entitycount = ++$this->entitiescount;
@@ -66,10 +67,12 @@ class auth_saml2_generator extends component_generator_base {
 
         $recordid = $DB->insert_record('auth_saml2_idps', $idprecord);
         set_config('idpmetadata', $idprecord['metadataurl'], 'auth_saml2');
-        $auth = get_auth_plugin('saml2');
-        touch($auth->certcrt);
-        touch($auth->certpem);
-        touch($auth->get_file(md5($idprecord['metadataurl']). ".idp.xml"));
+        if ($createfiles) {
+            $auth = get_auth_plugin('saml2');
+            touch($auth->certcrt);
+            touch($auth->certpem);
+            touch($auth->get_file(md5($idprecord['metadataurl']). ".idp.xml"));
+        }
         return $DB->get_record('auth_saml2_idps', ['id' => $recordid]);
     }
 }
