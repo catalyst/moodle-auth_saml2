@@ -47,35 +47,41 @@ class auth_testcase extends \advanced_testcase {
     }
 
     /**
+     * Retrieve mocked auth instance.
+     *
+     * @return \auth_saml2\auth
+     */
+    protected function get_mocked_auth(): \auth_saml2\auth {
+        // Setup mock, make error_page throw exception containing argument as
+        // exception message. This is needed to check $msg argument and stop
+        // execution like original method does.
+        $auth = $this->getMockBuilder(\auth_saml2\auth::class)
+            ->setMethods(['error_page'])->getMock();
+
+        $auth->expects($this->once())
+            ->method('error_page')
+            ->will($this->returnCallback(function($msg) {
+                throw new \coding_exception($msg);
+            }));
+        return $auth;
+    }
+
+    /**
      * Test test_is_configured
      */
     public function test_is_configured(): void {
         global $DB;
+        // Add one IdP.
+        $entity1 = $this->get_generator()->create_idp_entity([], false);
 
-        // Add a fake IdP.
-        $url = 'http://www.example.com';
-        $recordid = $DB->insert_record('auth_saml2_idps', array(
-            'metadataurl' => $url,
-            'entityid'    => $url,
-            'name'        => 'Test IdP',
-            'activeidp'   => 1));
-
-        /** @var auth_plugin_saml2 $auth */
         $auth = get_auth_plugin('saml2');
-
         $files = array(
             'crt' => $auth->certcrt,
             'pem' => $auth->certpem,
-            'xml' => $auth->get_file(md5($url) . '.idp.xml'),
+            'xml' => $auth->get_file(md5($entity1->metadataurl) . '.idp.xml'),
         );
 
-        // Setup, remove the phpuunit dataroot temp files for saml2.
-        foreach ($files as $file) {
-            if (file_exists($file)) {
-                @unlink($file);
-            }
-        }
-
+        // Sanity check.
         $this->assertFalse($auth->is_configured());
 
         // File crt: true.
@@ -101,7 +107,7 @@ class auth_testcase extends \advanced_testcase {
 
         // Make IdP inactive.
         $DB->update_record('auth_saml2_idps', [
-            'id' => $recordid,
+            'id' => $entity1->id,
             'activeidp' => 0,
         ]);
         $auth = get_auth_plugin('saml2');
@@ -109,33 +115,23 @@ class auth_testcase extends \advanced_testcase {
         $this->assertFalse($auth->is_configured());
     }
 
-    public function test_is_configured_works_with_multi_idp_in_one_xml() {
-        global $DB;
-
-        // Add two fake IdPs.
+    public function test_is_configured_works_with_multi_idp_in_one_xml(): void {
+        // Add two IdPs.
         $metadataurl = 'https://idp.example.org/idp/shibboleth';
-        $DB->insert_record('auth_saml2_idps', array(
-            'metadataurl' => $metadataurl,
-            'entityid'    => 'https://idp1.example.org/idp/shibboleth',
-            'name'        => 'Test IdP 1',
-            'activeidp'   => 1));
-        $DB->insert_record('auth_saml2_idps', array(
-            'metadataurl' => $metadataurl,
-            'entityid'    => 'https://idp2.example.org/idp/shibboleth',
-            'name'        => 'Test IdP 2',
-            'activeidp'   => 1));
+        $this->get_generator()->create_idp_entity(['metadataurl' => $metadataurl], false);
+        $this->get_generator()->create_idp_entity(['metadataurl' => $metadataurl], false);
 
-        /** @var auth_plugin_saml2 $auth */
         $auth = get_auth_plugin('saml2');
         touch($auth->certcrt);
         touch($auth->certpem);
         $this->assertFalse($auth->is_configured());
 
+        // Create xml.
         touch($auth->get_file(md5($metadataurl). ".idp.xml"));
         $this->assertTrue($auth->is_configured());
     }
 
-    public function test_class_constructor() {
+    public function test_class_constructor(): void {
         // Sanity check.
         $auth = get_auth_plugin('saml2');
         $this->assertFalse($auth->is_configured());
@@ -210,7 +206,7 @@ class auth_testcase extends \advanced_testcase {
         $this->assertEquals($auth->metadataentities[md5($entity3->entityid)], $property->getValue($auth));
     }
 
-    public function test_loginpage_idp_list() {
+    public function test_loginpage_idp_list(): void {
         global $DB;
 
         // Add IdP entity.
@@ -289,7 +285,7 @@ class auth_testcase extends \advanced_testcase {
         $this->assertEmpty($list);
     }
 
-    public function test_loginpage_idp_list_multiple() {
+    public function test_loginpage_idp_list_multiple(): void {
         global $DB;
 
         // Add two IdPs.
@@ -337,7 +333,7 @@ class auth_testcase extends \advanced_testcase {
         $this->assertEquals($entity2->displayname, $list[0]['name']);
     }
 
-    public function test_saml_login_complete_missing_idpattr() {
+    public function test_saml_login_complete_missing_idpattr(): void {
         $attribs = [
             'uid' => ['samlu1'],
             'email' => ['samluser1@example.com'],
@@ -362,7 +358,7 @@ class auth_testcase extends \advanced_testcase {
         $this->assertEquals(AUTH_LOGIN_NOUSER, $event->get_data()['other']['reason']);
     }
 
-    public function test_saml_login_complete_group_restriction() {
+    public function test_saml_login_complete_group_restriction(): void {
         $attribs = [
             'uid' => ['samlu1'],
             'email' => ['samluser1@example.com'],
@@ -388,7 +384,7 @@ class auth_testcase extends \advanced_testcase {
         $this->assertEquals(AUTH_LOGIN_UNAUTHORISED, $event->get_data()['other']['reason']);
     }
 
-    public function test_saml_login_complete_email_taken() {
+    public function test_saml_login_complete_email_taken(): void {
         $attribs = [
             'uid' => ['samlu1'],
             'email' => ['samluser1@example.com'],
@@ -415,7 +411,7 @@ class auth_testcase extends \advanced_testcase {
         $this->assertEquals(AUTH_LOGIN_FAILED, $event->get_data()['other']['reason']);
     }
 
-    public function test_saml_login_complete_allowemailaddresses() {
+    public function test_saml_login_complete_allowemailaddresses(): void {
         global $CFG;
         $attribs = [
             'uid' => ['samlu1'],
@@ -442,7 +438,7 @@ class auth_testcase extends \advanced_testcase {
         $this->assertEquals(AUTH_LOGIN_FAILED, $event->get_data()['other']['reason']);
     }
 
-    public function test_saml_login_complete_no_autocreate() {
+    public function test_saml_login_complete_no_autocreate(): void {
         $attribs = [
             'uid' => ['samlu1'],
             'email' => ['samluser1@example.com'],
@@ -467,7 +463,7 @@ class auth_testcase extends \advanced_testcase {
         $this->assertEquals(AUTH_LOGIN_NOUSER, $event->get_data()['other']['reason']);
     }
 
-    public function test_saml_login_complete_suspended() {
+    public function test_saml_login_complete_suspended(): void {
         $attribs = [
             'uid' => ['samlu1'],
             'email' => ['samluser1@example.com'],
@@ -492,7 +488,7 @@ class auth_testcase extends \advanced_testcase {
         $this->assertEquals(AUTH_LOGIN_SUSPENDED, $event->get_data()['other']['reason']);
     }
 
-    public function test_saml_login_complete_wrong_auth() {
+    public function test_saml_login_complete_wrong_auth(): void {
         $attribs = [
             'uid' => ['samlu1'],
             'email' => ['samluser1@example.com'],
@@ -518,7 +514,7 @@ class auth_testcase extends \advanced_testcase {
         $this->assertEquals(AUTH_LOGIN_UNAUTHORISED, $event->get_data()['other']['reason']);
     }
 
-    public function test_saml_login_complete_disabled_auth() {
+    public function test_saml_login_complete_disabled_auth(): void {
         $attribs = [
             'uid' => ['samlu1'],
             'email' => ['samluser1@example.com'],
@@ -547,7 +543,7 @@ class auth_testcase extends \advanced_testcase {
         $this->assertEquals(AUTH_LOGIN_UNAUTHORISED, $event->get_data()['other']['reason']);
     }
 
-    public function test_saml_login_complete_new_account() {
+    public function test_saml_login_complete_new_account(): void {
         global $USER;
         $attribs = [
             'uid' => ['samlu1'],
@@ -583,7 +579,7 @@ class auth_testcase extends \advanced_testcase {
         $this->assertEquals($USER->id, $event->get_data()['objectid']);
     }
 
-    public function test_saml_login_complete_existing_account() {
+    public function test_saml_login_complete_existing_account(): void {
         global $USER;
         $attribs = [
             'uid' => ['samlu1'],
@@ -619,22 +615,596 @@ class auth_testcase extends \advanced_testcase {
     }
 
     /**
-     * Retrieve mocked auth instance.
+     * Test test_should_login_redirect
      *
-     * @return \auth_saml2\auth
+     * @dataProvider provider_should_login_redirect
+     * @param array $cfg core config
+     * @param array $config plugin config
+     * @param bool $param
+     * @param bool $multiidp
+     * @param bool $session
+     * @param bool $expected The expected return value
      */
-    protected function get_mocked_auth(): \auth_saml2\auth {
-        // Setup mock, make error_page throw exception containing argument as
-        // exception message. This is needed to check $msg argument and stop
-        // execution like original method does.
-        $auth = $this->getMockBuilder(\auth_saml2\auth::class)
-            ->setMethods(['error_page'])->getMock();
+    public function test_should_login_redirect($cfg, $config, $param, $multiidp, $session, $expected): void {
+        global $SESSION;
 
-        $auth->expects($this->once())
-            ->method('error_page')
-            ->will($this->returnCallback(function($msg) {
-                throw new \coding_exception($msg);
-            }));
-        return $auth;
+        foreach ($config as $key => $value) {
+            set_config($key, $value, 'auth_saml2');
+        }
+
+        $SESSION->saml = $session;
+
+        // HTML get param optional_param('saml', 0, PARAM_BOOL).
+        if ($param !== null) {
+            if ($param == 'error') {
+                $_GET['SimpleSAML_Auth_State_exceptionId'] = '...';
+            } else if ($param == 'post') {
+                $_SERVER['REQUEST_METHOD'] = 'POST';
+            } else {
+                $_GET['saml'] = $param;
+            }
+        }
+
+        // HTML get param optional_param('multiidp', 0, PARAM_BOOL).
+        if ($multiidp === true) {
+            $_GET['multiidp'] = true;
+        }
+
+        /** @var auth_plugin_saml2 $auth */
+        $auth = get_auth_plugin('saml2');
+        $result = $auth->should_login_redirect();
+
+        $this->assertEquals($expected, $result);
+
+        unset($_GET['saml']);
+        unset($SESSION->saml);
+    }
+
+    /**
+     * Dataprovider for the test_should_login_redirect testcase
+     *
+     * @return array of testcases
+     */
+    public function provider_should_login_redirect(): array {
+        $midp = (new \moodle_url('/auth/saml2/selectidp.php'))->out();
+        return [
+            // Login normal, dual login on.
+            "1. dual: y, param: null, multiidp: false, session: false" => [
+                [],
+                ['duallogin' => true],
+                null, false, false,
+                false],
+
+            // Login normal, dual login on.
+            "2. dual: y, param: off, multiidp: false, session: false" => [
+                [],
+                ['duallogin' => true],
+                'off', false, false,
+                false],
+
+            // SAML redirect, ?saml=on.
+            "3. dual: y, param: on, multiidp: false, session: false" => [
+                [],
+                ['duallogin' => true],
+                'on', false, false,
+                true],
+
+            // Login normal, $SESSION->saml=0.
+            "4. dual: n, param: null, multiidp: false, session: false" => [
+                [],
+                ['duallogin' => false],
+                null, false, false,
+                false],
+
+            // Login normal, ?saml=off.
+            "5. dual: n, param: off, multiidp: false, session: false" => [
+                [],
+                ['duallogin' => false],
+                'off', false, false,
+                false],
+
+            // SAML redirect, ?saml=on.
+            "6. dual: n, param: on, multiidp: false, session: false" => [
+                [],
+                ['duallogin' => false],
+                'on', false, false,
+                true],
+
+            // SAML redirect, $SESSION->saml=1.
+            "7. dual: n, param: null, multiidp: false, session: true" => [
+                [],
+                ['duallogin' => false],
+                null, false, true,
+                true],
+
+            // Login normal, ?saml=off.
+            "8. dual: n, param: off, multiidp: false, session: true" => [
+                [],
+                ['duallogin' => false],
+                'off', false, true,
+                false],
+
+            // SAML redirect, ?saml=on.
+            "9. dual: n, param: on, multiidp: false, session: true" => [
+                [],
+                ['duallogin' => false],
+                'on', false, true,
+                true],
+
+            // For passive mode always redirect, SAML2 will redirect back if not logged in.
+            "10. dual: p, param: null, multiidp: false, session: true" => [
+                [],
+                ['duallogin' => 'passive'],
+                null, false, true,
+                true],
+
+            // Except if ?saml=off.
+            "11. dual: p, param: off, multiidp: false, session: true" => [
+                [],
+                ['duallogin' => 'passive'],
+                'off', false, true,
+                false],
+
+            "12. dual: p, param: on, multiidp: false, session: true" => [
+                [],
+                ['duallogin' => 'passive'],
+                'on', false, true,
+                true],
+
+            // Except if ?saml=off.
+            "14. dual: p, param: off, multiidp: false, session: false" => [
+                [],
+                ['duallogin' => 'passive'],
+                'off', false, false,
+                false],
+
+            "15. dual: p, param: on, multiidp: false, session: false" => [
+                [],
+                ['duallogin' => 'passive'],
+                'on', false, false,
+                true],
+
+            // Passive redirect back.
+            "16. dual: p, with SAMLerror" => [
+                [],
+                ['duallogin' => 'passive'],
+                'error', false, false,
+                false],
+
+            // POSTing.
+            "17. dual: p using POST" => [
+                [],
+                ['duallogin' => 'passive'],
+                'post', false, false,
+                false],
+
+            // Param multi-idp.
+            // Login normal, dual login on. Multi IdP true.
+            "18. dual: y, param: null, multiidp: true, session: false" => [
+                [],
+                ['duallogin' => true],
+                null, true, false,
+                $midp],
+
+            // Login normal, dual login on. Multi IdP true.
+            "19. dual: y, param: off, multiidp: true, session: false" => [
+                [],
+                ['duallogin' => true],
+                'off', true, false,
+                false],
+
+            // SAML redirect, ?saml=on. Multi IdP true.
+            "20. dual: y, param: on, multiidp: true, session: false" => [
+                [],
+                ['duallogin' => true],
+                'on', true, false,
+                $midp],
+        ];
+    }
+
+    /**
+     * Test test_check_whitelisted_ip_redirect
+     *
+     * @dataProvider provider_check_whitelisted_ip_redirect
+     * @param string $saml
+     * @param string $remoteip
+     * @param string $whitelist
+     * @param bool $expected The expected return value
+     */
+    public function test_check_whitelisted_ip_redirect($saml, $remoteip, $whitelist, $expected): void {
+        // Setting an address here as getremoteaddr() will return default 0.0.0.0 which then is ignored by the address_in_subnet
+        // function.
+        $_SERVER['REMOTE_ADDR'] = $remoteip;
+
+        $this->get_generator()->create_idp_entity(['whitelist' => $whitelist]);
+        $auth = get_auth_plugin('saml2');
+
+        if ($saml !== null) {
+            $_GET['saml'] = $saml;
+        }
+
+        $result = $auth->should_login_redirect();
+        $this->assertTrue($result === $expected);
+    }
+
+    /**
+     * Dataprovider for {@see self::test_check_whitelisted_ip_redirect} testcase
+     *
+     * @return array
+     */
+    public function provider_check_whitelisted_ip_redirect(): array {
+        return [
+            'saml off, no ip, no redirect'              => ['off', '1.2.3.4', '', false],
+            'saml not specified, junk, no redirect'     => [null, '1.2.3.4', 'qwer1234!@#qwer', false],
+            'saml not specified, junk+ip, yes redirect' => [null, '1.2.3.4', "qwer1234!@#qwer\n1.2.3.4", true],
+            'saml not specified, localip, yes redirect' => [null, '1.2.3.4', "127.0.0.\n1.", true],
+            'saml not specified, wrongip, no redirect' => [null, '4.3.2.1', "127.0.0.\n1.", false],
+        ];
+    }
+
+    /**
+     * Data provider with the test attributes for is_access_allowed_for_member_* methods.
+     *
+     * @return array
+     */
+    public function provider_is_access_allowed(): array {
+        return [
+            '' => [[
+                ['uid' => 'test'], // User don't have groups attribute.
+                ['uid' => 'test', 'groups' => ['blocked']], // In blocked group.
+                ['uid' => 'test', 'groups' => ['allowed']],  // In allowed group.
+                ['uid' => 'test', 'groups' => ['allowed', 'blocked']], // In both allowed first.
+                ['uid' => 'test', 'groups' => ['blocked', 'allowed']], // In both blocked first.
+                ['uid' => 'test', 'groups' => []],  // Groups exists, but empty.
+            ]]
+        ];
+    }
+
+    /**
+     * Test access allowed if required attributes are not configured.
+     *
+     * @dataProvider provider_is_access_allowed
+     * @param $attributes
+     */
+    public function test_is_access_allowed_for_member_not_configured($attributes): void {
+        set_config('idpattr', 'uid', 'auth_saml2');
+
+        // User don't have groups attribute.
+        $auth = get_auth_plugin('saml2');
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[0]));
+
+        // In blocked group.
+        $auth = get_auth_plugin('saml2');
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[1]));
+
+        // In allowed group.
+        $auth = get_auth_plugin('saml2');
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[2]));
+
+        // In both allowed first.
+        $auth = get_auth_plugin('saml2');
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[3]));
+
+        // In both blocked first.
+        $auth = get_auth_plugin('saml2');
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[4]));
+
+        // Groups exists, but empty.
+        $auth = get_auth_plugin('saml2');
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[5]));
+    }
+
+    /**
+     * Test access allowed if configured, but restricted groups attribute is set to empty.
+     *
+     * @dataProvider provider_is_access_allowed
+     * @param $attributes
+     */
+    public function test_is_access_allowed_for_member_blocked_empty($attributes): void {
+        set_config('idpattr', 'uid', 'auth_saml2');
+        set_config('grouprules', 'allow groups=allowed', 'auth_saml2');
+
+        $auth = get_auth_plugin('saml2');
+
+        // User don't have groups attribute.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[0]));
+
+        // In blocked group.
+        $this->assertFalse($auth->is_access_allowed_for_member($attributes[1]));
+
+        // In allowed group.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[2]));
+
+        // In both allowed first.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[3]));
+
+        // In both blocked first.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[4]));
+
+        // Groups exist, but empty.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[5]));
+    }
+
+    /**
+     * Test access allowed if configured, but allowed groups attribute is set to empty.
+     *
+     * @dataProvider provider_is_access_allowed
+     * @param $attributes
+     */
+    public function test_is_access_allowed_for_member_allowed_empty($attributes): void {
+        set_config('idpattr', 'uid', 'auth_saml2');
+        set_config('grouprules', 'deny groups=blocked', 'auth_saml2');
+        $auth = get_auth_plugin('saml2');
+
+        // User don't have groups attribute.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[0]));
+
+        // In blocked group.
+        $this->assertFalse($auth->is_access_allowed_for_member($attributes[1]));
+
+        // In allowed group.
+        $this->assertFalse($auth->is_access_allowed_for_member($attributes[2]));
+
+        // In both allowed first.
+        $this->assertFalse($auth->is_access_allowed_for_member($attributes[3]));
+
+        // In both blocked first.
+        $this->assertFalse($auth->is_access_allowed_for_member($attributes[4]));
+
+        // Groups exist, but empty.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[5]));
+    }
+
+    /**
+     * Test access allowed if fully configured.
+     *
+     * @dataProvider provider_is_access_allowed
+     * @param $attributes
+     */
+    public function test_is_access_allowed_for_member_allowed_and_blocked($attributes): void {
+        set_config('idpattr', 'uid', 'auth_saml2');
+        set_config('grouprules', "deny groups=blocked\nallow groups=allowed", 'auth_saml2');
+
+        $auth = get_auth_plugin('saml2');
+
+        // User don't have groups attribute.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[0]));
+
+        // In blocked group.
+        $this->assertFalse($auth->is_access_allowed_for_member($attributes[1]));
+
+        // In allowed group.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[2]));
+
+        // In both allowed first.
+        $this->assertFalse($auth->is_access_allowed_for_member($attributes[3]));
+
+        // In both blocked first.
+        $this->assertFalse($auth->is_access_allowed_for_member($attributes[4]));
+
+        // Groups exist, but empty.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[5]));
+    }
+
+    /**
+     * Test access allowed if fully configured and allowed priority is set to yes.
+     *
+     * @dataProvider provider_is_access_allowed
+     * @param $attributes
+     */
+    public function test_is_access_allowed_for_member_allowed_and_blocked_with_allowed_priority($attributes): void {
+        set_config('idpattr', 'uid', 'auth_saml2');
+        set_config('grouprules', "allow groups=allowed\ndeny groups=blocked", 'auth_saml2');
+
+        $auth = get_auth_plugin('saml2');
+
+        // User don't have groups attribute.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[0]));
+
+        // In blocked group.
+        $this->assertFalse($auth->is_access_allowed_for_member($attributes[1]));
+
+        // In allowed group.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[2]));
+
+        // In both allowed first.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[3]));
+
+        // In both blocked first.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[4]));
+
+        // Groups exist, but empty.
+        $this->assertTrue($auth->is_access_allowed_for_member($attributes[5]));
+    }
+
+    /**
+     * Test test_update_custom_user_profile_fields
+     *
+     * @dataProvider provider_update_custom_user_profile_fields
+     */
+    public function test_update_custom_user_profile_fields($attributes): void {
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/user/profile/lib.php');
+
+        $this->resetAfterTest();
+
+        $auth = get_auth_plugin('saml2');
+
+        $user = $this->getDataGenerator()->create_user();
+
+        $fieldname = key($attributes);
+
+        // Add a custom profile field named $fieldname.
+        $pid = $DB->insert_record('user_info_field', [
+            'shortname'  => $fieldname,
+            'name'       => 'Test Field',
+            'categoryid' => 1,
+            'datatype'   => 'text'
+        ]);
+
+        // Check both are returned using normal options.
+        if (moodle_major_version() < '2.7.1') {
+            $fields = auth_saml2_profile_get_custom_fields();
+        } else {
+            $fields = profile_get_custom_fields();
+        }
+        $this->assertArrayHasKey($pid, $fields);
+        $this->assertEquals($fieldname, $fields[$pid]->shortname);
+
+        // Is the key the same?
+        $customprofilefields = $auth->get_custom_user_profile_fields();
+        $key = 'profile_field_' . $fields[$pid]->shortname;
+        $this->assertTrue(in_array($key, $customprofilefields));
+
+        // Function print_auth_lock_options creates variables in the config object.
+        set_config("field_map_$key", $fieldname, 'auth_saml2');
+        set_config("field_updatelocal_$key", 'onlogin', 'auth_saml2');
+        set_config("field_lock_$key", 'locked', 'auth_saml2');
+
+        $update = $auth->update_user_profile_fields($user, $attributes);
+        $this->assertTrue($update);
+    }
+
+    /**
+     * Dataprovider for the test_update_custom_user_profile_fields testcase
+     *
+     * @return array of testcases
+     */
+    public function provider_update_custom_user_profile_fields(): array {
+        return [
+            [['testfield' => ['Test data']]],
+            [['secondfield' => ['A different string']]],
+        ];
+    }
+
+    /**
+     * Test test_missing_user_custom_profile_fields
+     * The custom profile field does not exist, but IdP attribute data is mapped.
+     *
+     * @dataProvider provider_missing_user_custom_profile_fields
+     */
+    public function test_missing_user_custom_profile_fields($attributes): void {
+        global $CFG;
+        require_once($CFG->dirroot . '/user/profile/lib.php');
+
+        $auth = get_auth_plugin('saml2');
+
+        $user = $this->getDataGenerator()->create_user();
+
+        $fieldname = key($attributes);
+
+        if (moodle_major_version() < '2.7.1') {
+            $fields = auth_saml2_profile_get_custom_fields();
+        } else {
+            $fields = profile_get_custom_fields();
+        }
+
+        $key = 'profile_field_' . $fieldname;
+        $this->assertFalse(in_array($key, $fields));
+
+        // Function print_auth_lock_options creates variables in the config object.
+        set_config("field_map_$key", $fieldname, 'auth_saml2');
+        set_config("field_updatelocal_$key", 'onlogin', 'auth_saml2');
+        set_config("field_lock_$key", 'locked', 'auth_saml2');
+
+        $update = $auth->update_user_profile_fields($user, $attributes);
+        $this->assertTrue($update);
+    }
+
+    /**
+     * Dataprovider for the test_missing_user_custom_profile_fields testcase
+     *
+     * @return array of testcases
+     */
+    public function provider_missing_user_custom_profile_fields(): array {
+        return array(
+            array(['missingfield' => array('Test data')]),
+            array(['secondfield' => array('A different string')]),
+        );
+    }
+
+    /**
+     * Test test_invalid_map_user_profile_fields
+     *
+     * @dataProvider provider_invalid_map_user_profile_fields
+     */
+    public function test_invalid_map_user_profile_fields($mapping, $attributes): void {
+        global $CFG;
+        require_once($CFG->dirroot . '/user/profile/lib.php');
+
+        $auth = get_auth_plugin('saml2');
+
+        $user = $this->getDataGenerator()->create_user();
+
+        $field = $mapping['field'];
+        $map = $mapping['mapping'];
+
+        // Function print_auth_lock_options creates variables in the config object.
+        set_config("field_map_$field", $map, 'auth_saml2');
+        set_config("field_updatelocal_$field", 'onlogin', 'auth_saml2');
+        set_config("field_lock_$field", 'locked', 'auth_saml2');
+
+        $updateprofile = $auth->update_user_profile_fields($user, $attributes);
+        $this->assertFalse($updateprofile);
+    }
+
+    /**
+     * Dataprovider for the test_invalid_map_user_profile_fields testcase
+     *
+     * @return array of testcases
+     */
+    public function provider_invalid_map_user_profile_fields(): array {
+        return [
+            [
+                ['field' => 'userame', 'mapping' => 'invalid'],
+                ['attributefield' => ['Test data']],
+            ],
+        ];
+    }
+
+    public function test_get_email_from_attributes(): void {
+        $auth = get_auth_plugin('saml2');
+        $this->assertFalse($auth->get_email_from_attributes([]));
+        $this->assertFalse($auth->get_email_from_attributes(['email' => ['test@test.com']]));
+
+        set_config('field_map_email', 'test', 'auth_saml2');
+        $auth = get_auth_plugin('saml2');
+
+        $this->assertFalse($auth->get_email_from_attributes(['email' => ['test@test.com']]));
+
+        set_config('field_map_email', 'email', 'auth_saml2');
+        $auth = get_auth_plugin('saml2');
+        $this->assertEquals('test@test.com', $auth->get_email_from_attributes(['email' => ['test@test.com']]));
+
+        set_config('field_map_email', 'email', 'auth_saml2');
+        $auth = get_auth_plugin('saml2');
+        $this->assertEquals('test@test.com', $auth->get_email_from_attributes(['email' => ['test@test.com', 'test2@test.com']]));
+    }
+
+    public function test_is_email_taken(): void {
+        $auth = get_auth_plugin('saml2');
+        $user = $this->getDataGenerator()->create_user();
+
+        $this->assertFalse($auth->is_email_taken(''));
+        $this->assertFalse($auth->is_email_taken('', $user->username));
+
+        $this->assertTrue($auth->is_email_taken($user->email));
+        $this->assertTrue($auth->is_email_taken(strtoupper($user->email)));
+        $this->assertTrue($auth->is_email_taken(ucfirst($user->email)));
+        $this->assertFalse($auth->is_email_taken($user->email, $user->username));
+        $this->assertFalse($auth->is_email_taken(strtoupper($user->email), $user->username));
+        $this->assertFalse($auth->is_email_taken(ucfirst($user->email), $user->username));
+
+        // Create a new user with the same email, but different mnethostid.
+        $user2 = $this->getDataGenerator()->create_user(['email' => $user->email, 'mnethostid' => 777]);
+
+        // Delete original user.
+        delete_user($user);
+        $this->assertFalse($auth->is_email_taken($user->email));
+        $this->assertFalse($auth->is_email_taken(strtoupper($user->email)));
+        $this->assertFalse($auth->is_email_taken(ucfirst($user->email)));
+        $this->assertFalse($auth->is_email_taken($user->email, $user->username));
+        $this->assertFalse($auth->is_email_taken(strtoupper($user->email), $user->username));
+        $this->assertFalse($auth->is_email_taken(ucfirst($user->email), $user->username));
     }
 }

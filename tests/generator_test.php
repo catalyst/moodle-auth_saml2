@@ -54,9 +54,18 @@ class generator_testcase extends \advanced_testcase {
         $this->assertFalse($auth->is_configured());
         $this->assertCount(0, $auth->metadataentities);
 
-        // Create one entity, check fields.
+        // Create one entity, check files and fields.
         $entity1 = $this->get_generator()->create_idp_entity();
         $auth = get_auth_plugin('saml2');
+
+        $files = array(
+            'crt' => $auth->certcrt,
+            'pem' => $auth->certpem,
+            'xml' => $auth->get_file(md5($entity1->metadataurl) . '.idp.xml'),
+        );
+        foreach ($files as $file) {
+            $this->assertFileExists($file);
+        }
         $this->assertTrue($auth->is_configured());
         $this->assertCount(1, $auth->metadataentities);
         $this->assertEquals($entity1->defaultname, reset($auth->metadataentities)->name);
@@ -80,5 +89,28 @@ class generator_testcase extends \advanced_testcase {
         $auth = get_auth_plugin('saml2');
         $this->assertCount(3, $auth->metadataentities);
         $this->assertEqualsCanonicalizing(['Test IdP 1', 'Test IdP 2', 'Generator'], array_column($auth->metadataentities, 'name'));
+    }
+
+    /**
+     * Test create_idp_entity
+     */
+    public function test_create_idp_entity_no_files(): void {
+        // Sanity check.
+        $auth = get_auth_plugin('saml2');
+        $this->assertFalse($auth->is_configured());
+        $this->assertCount(0, $auth->metadataentities);
+
+        // Create one entity, check no files were created.
+        $entity1 = $this->get_generator()->create_idp_entity([], false);
+        $auth = get_auth_plugin('saml2');
+
+        $files = array(
+            'crt' => $auth->certcrt,
+            'pem' => $auth->certpem,
+            'xml' => $auth->get_file(md5($entity1->metadataurl) . '.idp.xml'),
+        );
+        foreach ($files as $file) {
+            $this->assertFileNotExists($file);
+        }
     }
 }
