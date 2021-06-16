@@ -110,7 +110,7 @@ class generator_testcase extends \advanced_testcase {
             'xml' => $auth->get_file(md5($entity1->metadataurl) . '.idp.xml'),
         );
         foreach ($files as $file) {
-            $this->assertFileDoesNotExist($file);
+            $this->assertFileNotExists($file);
         }
     }
 }
