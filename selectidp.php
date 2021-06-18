@@ -43,16 +43,14 @@ $PAGE->requires->css('/auth/saml2/styles.css');
 $wants = optional_param('wants', '', PARAM_RAW);
 
 $idpname = $saml2auth->config->idpname;
-
-// Retrieve IdP used for login when 'rememberidp' checkbox was set.
-$storedchoiceidp = $saml2auth->get_idp_cookie();
+$defaultidp = $saml2auth->get_idp_cookie();
 if (empty($idpname)) {
     $idpname = get_string('idpnamedefault', 'auth_saml2');
 }
 
 $data = [
     'metadataentities' => $saml2auth->metadataentities,
-    'storedchoiceidp' => $storedchoiceidp,
+    'defaultidp' => $defaultidp,
     'wants' => $wants,
     'idpname' => $idpname
 ];
@@ -83,12 +81,12 @@ if ($fromform = $mform->get_data()) {
     $loginurl = new moodle_url('/auth/saml2/login.php', $params);
     redirect($loginurl);
 } else {
-    $rememberidp = $storedchoiceidp !== '' ? 1 : 0;
+    $rememberidp = $defaultidp !== '' ? 1 : 0;
 
     $data = array('rememberidp' => $rememberidp);
 
     if ($displaytype == saml2_settings::OPTION_MULTI_IDP_DISPLAY_DROPDOWN) {
-        $data['idp'] = $storedchoiceidp;
+        $data['idp'] = $defaultidp;
     }
 
     $mform->set_data($data);
@@ -103,7 +101,7 @@ if ($fromform = $mform->get_data()) {
 
         $params = [
             'wants' => $wants,
-            'idp' => $storedchoiceidp,
+            'idp' => $defaultidp,
             'passive' => 1,
             'errorurl' => $errorurl->out(false)
         ];

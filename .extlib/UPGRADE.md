@@ -33,15 +33,10 @@ php composer.phar install --no-dev
 npm install
 npm run build
 ```
-
-### Review simplesamlphp bin/build-release.sh
-Simplesamlphp uses a bin/build-release.sh to generate their release
-This script removes a number of system files that are not required like .gitignore, composer.* files, node_modules directory.
-
-Review the latest version of this file and remove anything not required:
-https://github.com/simplesamlphp/simplesamlphp/blob/master/bin/build-release.sh
 ### Copy into auth_saml2
 Copy the updated simplesaml files into auth/saml/.extlib/simplesaml.
+
+Exclude stuff like .gitignore, other hidden system files that shouldnt be needed - also exclude the composer.* files and the node_modules directory.
 
 enter the simplesaml folder and run the following to fix file permission for Totara:
 ```bash

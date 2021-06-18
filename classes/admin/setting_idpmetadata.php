@@ -219,7 +219,7 @@ class setting_idpmetadata extends admin_setting_configtextarea {
 
         $rawxml = $idp->rawxml;
 
-        if (!$xml->loadXML($rawxml, LIBXML_PARSEHUGE)) {
+        if (!$xml->loadXML($rawxml)) {
             $errors = libxml_get_errors();
             $lines = explode("\n", $rawxml);
             $msg = '';

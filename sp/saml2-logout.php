@@ -33,11 +33,10 @@ $_SERVER['PATH_INFO'] = '/' . $saml2auth->spname;
 /*
  * There are 4 methods of logging out:
  *
- * 1) Initiated from moodle logout, in which case we first logout of
+ * 1) Initiated from moodles logout, in which case we first logout of
  *    moodle and then log out of the middle SP and then optionally
  *    redirect to the IdP to do full Single Logout. This is the way
- *    a majority of users logout and is fully supported. Notice that in this
- *    case SAML session is not authenticated by the time we reach this point.
+ *    a majority of users logout and is fully supported.
  *
  * 2) If doing SLO via IdP via the HTTP-Redirect binding
  *
@@ -49,12 +48,7 @@ $_SERVER['PATH_INFO'] = '/' . $saml2auth->spname;
  */
 try {
     $session = \SimpleSAML\Session::getSessionFromRequest();
-    // When logout is initiated from IdP (we land here from SingleLogoutService call),
-    // session is still authenticated, so we can register the handler that will log
-    // user out in Moodle.
-    if (!is_null($session->getAuthState($saml2auth->spname))) {
-        $session->registerLogoutHandler($saml2auth->spname, '\auth_saml2\api', 'logout_from_idp_front_channel');
-    }
+    $session->registerLogoutHandler($saml2auth->spname, '\auth_saml2\api', 'logout_from_idp_front_channel');
 
     require('../.extlib/simplesamlphp/modules/saml/www/sp/saml2-logout.php');
 } catch (Exception $e) {

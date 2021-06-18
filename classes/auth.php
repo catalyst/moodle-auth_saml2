@@ -43,19 +43,9 @@ require_once(__DIR__.'/../locallib.php');
  */
 class auth extends \auth_plugin_base {
     /**
-     * @var array $metadataentities List of configured active IdPs.
+     * @var array $metadataentities List of active IdPs configured.
      */
-    public $metadataentities = [];
-
-    /**
-     * @var bool $multiidp Indicates if we have more than one active IdP.
-     */
-    private $multiidp = false;
-
-    /**
-     * @var stdClass $defaultidp.
-     */
-    private $defaultidp;
+    public $metadataentities;
 
     /**
      * @var array $defaults The config defaults
@@ -64,6 +54,8 @@ class auth extends \auth_plugin_base {
         'idpname'            => '',
         'idpdefaultname'     => '', // Set in constructor.
         'idpmetadata'        => '',
+        'multiidp'           => false,
+        'defaultidp'         => null,
         'debug'              => 0,
         'duallogin'          => saml2_settings::OPTION_DUAL_LOGIN_YES,
         'autologin'          => saml2_settings::OPTION_AUTO_LOGIN_NO,
@@ -103,22 +95,25 @@ class auth extends \auth_plugin_base {
         $parser = new idp_parser();
         $this->metadatalist = $parser->parse($this->config->idpmetadata);
 
-        // Fetch active entitiyIDs provided by the metadata and populate metadataentities list.
-        $idpentities = $DB->get_records('auth_saml2_idps', ['activeidp' => 1]);
-        foreach ($idpentities as $idpentity) {
-            // Set name.
-            $idpentity->name = empty($idpentity->displayname) ? $idpentity->defaultname : $idpentity->displayname;
-            $idpentity->md5entityid = md5($idpentity->entityid);
-            // Set default IdP if we found one.
-            if ((bool) $idpentity->defaultidp && !isset($this->defaultidp)) {
-                $this->defaultidp = $idpentity;
-            }
-            $this->metadataentities[$idpentity->md5entityid] = $idpentity;
-        }
+        // Active entitiyIDs provided by the metadata.
+        $this->metadataentities = auth_saml2_get_idps(true);
 
         // Check if we have mutiple IdPs configured.
         // If we have mutliple metadata entries set multiidp to true.
-        $this->multiidp = (count($this->metadataentities) > 1);
+        $this->multiidp = false;
+
+        if (count($this->metadataentities) > 1) {
+            $this->multiidp = true;
+        } else {
+            // If we have mutliple IdP entries for a metadata set multiidp to true.
+            foreach ($this->metadataentities as $idpentities) {
+                if (count($idpentities) > 1) {
+                    $this->multiidp = true;
+                }
+            }
+        }
+
+        $this->defaultidp = auth_saml2_get_default_idp();
     }
 
     /**
@@ -207,63 +202,71 @@ class auth extends \auth_plugin_base {
         // The array of IdPs to return.
         $idplist = [];
 
-        // Create IdP metadata url => name mapping.
-        $idpurls = array_combine(array_column($this->metadatalist, 'idpurl'), array_column($this->metadatalist, 'idpname'));
-        foreach ($this->metadataentities as $idp) {
-            // Check for unlikely case that entity metadataurl is no longer in configuration.
-            if (!array_key_exists($idp->metadataurl, $idpurls)) {
-                debugging("Missing IdP metadata configuration for '{$idp->metadataurl}'");
+        foreach ($this->metadatalist as $metadata) {
+            if (!array_key_exists($metadata->idpurl, $this->metadataentities)) {
+                $message = "Missing identity configuration for '{$metadata->idpurl}': " .
+                           'Please check/save SAML2 configuration or if able to inspect the database, check: ' .
+                           "SELECT * FROM {auth_saml2_idps} WHERE metadataurl='{$metadata->idpurl}' " .
+                           '-- Remember to purge caches if you make changes in the database.';
+                debugging($message);
                 continue;
             }
 
-            // The wants url may already be routed via login.php so don't re-re-route it.
-            if (strpos($wantsurl, '/auth/saml2/login.php') !== false) {
-                $idpurl = new moodle_url($wantsurl);
-            } else {
-                $idpurl = new moodle_url('/auth/saml2/login.php', ['wants' => $wantsurl, 'idp' => $idp->md5entityid]);
+            foreach ($this->metadataentities[$metadata->idpurl] as $idpentityid => $idp) {
+                $params = [
+                    'wants' => $wantsurl,
+                    'idp' => $idpentityid,
+                ];
+
+                // The wants url may already be routed via login.php so don't re-re-route it.
+                if (strpos($wantsurl, '/auth/saml2/login.php')) {
+                    $idpurl = new moodle_url($wantsurl);
+                } else {
+                    $idpurl = new moodle_url('/auth/saml2/login.php', $params);
+                }
+                $idpurl->param('passive', 'off');
+
+                // A default icon.
+                $idpiconurl = null;
+                $idpicon = null;
+                if (!empty($idp->logo)) {
+                    $idpiconurl = new moodle_url($idp->logo);
+                } else {
+                    $idpicon = new pix_icon('i/user', 'Login');
+                }
+
+                // Initially use the default name. This is suitable for a single IdP.
+                $idpname = $conf->idpdefaultname;
+
+                // When multiple IdPs are configured, use a different default based on the IdP.
+                if ($this->multiidp) {
+                    $host = parse_url($idp->entityid, PHP_URL_HOST);
+                    $idpname = get_string('idpnamedefault_varaible', 'auth_saml2', $host);
+                }
+
+                // Use a forced override set in the idpmetadata field.
+                if (!empty($metadata->idpname)) {
+                    $idpname = $metadata->idpname;
+                }
+
+                // Try to use the <mdui:DisplayName> if it exists.
+                if (!empty($idp->name)) {
+                    $idpname = $idp->name;
+                }
+
+                // Has the IdP label override been set in the admin configuration?
+                // This is best used with a single IdP. Multiple IdP overrides are different.
+                if (!empty($conf->idpname)) {
+                    $idpname = $conf->idpname;
+                }
+
+                $idplist[] = [
+                    'url'  => $idpurl,
+                    'icon' => $idpicon,
+                    'iconurl' => $idpiconurl,
+                    'name' => $idpname,
+                ];
             }
-            $idpurl->param('passive', 'off');
-
-            // A default icon.
-            $idpiconurl = null;
-            $idpicon = null;
-            if (!empty($idp->logo)) {
-                $idpiconurl = new moodle_url($idp->logo);
-            } else {
-                $idpicon = new pix_icon('i/user', 'Login');
-            }
-
-            // Initially use the default name. This is suitable for a single IdP.
-            $idpname = $conf->idpdefaultname;
-
-            // When multiple IdPs are configured, use a different default based on the IdP.
-            if ($this->multiidp) {
-                $host = parse_url($idp->entityid, PHP_URL_HOST);
-                $idpname = get_string('idpnamedefault_varaible', 'auth_saml2', $host);
-            }
-
-            // Use a forced override set in the idpmetadata field.
-            if (!empty($idpurls[$idp->metadataurl])) {
-                $idpname = $idpurls[$idp->metadataurl];
-            }
-
-            // Try to use the <mdui:DisplayName> if it exists.
-            if (!empty($idp->name)) {
-                $idpname = $idp->name;
-            }
-
-            // Has the IdP label override been set in the admin configuration?
-            // This is best used with a single IdP. Multiple IdP overrides are different.
-            if (!empty($conf->idpname)) {
-                $idpname = $conf->idpname;
-            }
-
-            $idplist[] = [
-                'url'  => $idpurl,
-                'icon' => $idpicon,
-                'iconurl' => $idpiconurl,
-                'name' => $idpname,
-            ];
         }
 
         return $idplist;
@@ -302,8 +305,8 @@ class auth extends \auth_plugin_base {
             return false;
         }
 
-        foreach ($this->metadataentities as $idpentity) {
-            $file = $this->get_file_idp_metadata_file($idpentity->metadataurl);
+        foreach ($this->metadataentities as $metadataid => $idps) {
+            $file = $this->get_file_idp_metadata_file($metadataid);
             if (!file_exists($file)) {
                 $this->log(__FUNCTION__ . ' file not found, ' . $file);
                 return false;
@@ -319,22 +322,19 @@ class auth extends \auth_plugin_base {
      * @param string $msg The error message.
      */
     public function error_page($msg) {
-        global $PAGE, $OUTPUT, $SESSION;
+        global $PAGE, $OUTPUT;
 
-        // Clean up $SESSION->wantsurl that was set explicitly in {@see login.php},
-        // we don't go anywhere.
-        unset($SESSION->wantsurl);
+        $logouturl = new moodle_url('/auth/saml2/logout.php');
 
         $PAGE->set_context(\context_system::instance());
         $PAGE->set_url('/auth/saml2/error.php');
         $PAGE->set_title(get_string('error', 'auth_saml2'));
         $PAGE->set_heading(get_string('error', 'auth_saml2'));
         echo $OUTPUT->header();
-        echo $OUTPUT->box($msg, 'generalbox', 'notice');
-        $logouturl = new moodle_url('/auth/saml2/logout.php');
-        echo $OUTPUT->single_button($logouturl, get_string('logout'), 'get');
+        echo $OUTPUT->box($msg);
+        echo \html_writer::link($logouturl, get_string('logout'));
         echo $OUTPUT->footer();
-        exit(1);
+        exit;
     }
 
     /**
@@ -501,24 +501,35 @@ class auth extends \auth_plugin_base {
      * All the checking happens before the login page in this hook
      */
     public function saml_login() {
-        global $CFG, $SESSION;
+
+        // @codingStandardsIgnoreStart
+        global $CFG, $DB, $USER, $SESSION, $saml2auth;
+        // @codingStandardsIgnoreEnd
 
         require_once(__DIR__.'/../setup.php');
         require_once("$CFG->dirroot/login/lib.php");
 
         // Set the default IdP to be the first in the list. Used when dual login is disabled.
-        $SESSION->saml2idp = reset($this->metadataentities)->md5entityid;
+        $arr = array_reverse($saml2auth->metadataentities);
+        $metadataentities = array_pop($arr);
+        $idpentity = array_pop($metadataentities);
+        $idp = md5($idpentity->entityid);
+
+        // Specify the default IdP to use.
+        $SESSION->saml2idp = $idp;
 
         // We store the IdP in the session to generate the config/config.php array with the default local SP.
         $idpalias = optional_param('idpalias', '', PARAM_TEXT);
         if (!empty($idpalias)) {
             $idpfound = false;
 
-            foreach ($this->metadataentities as $idpentity) {
-                if ($idpalias == $idpentity->alias) {
-                    $SESSION->saml2idp = $idpentity->md5entityid;
-                    $idpfound = true;
-                    break;
+            foreach ($saml2auth->metadataentities as $idpentities) {
+                foreach ($idpentities as $md5idpentityid => $idpentity) {
+                    if ($idpalias == $idpentity->alias) {
+                        $SESSION->saml2idp = $md5idpentityid;
+                        $idpfound = true;
+                        break 2;
+                    }
                 }
             }
 
@@ -527,9 +538,9 @@ class auth extends \auth_plugin_base {
             }
         } else if (isset($_GET['idp'])) {
             $SESSION->saml2idp = $_GET['idp'];
-        } else if (!is_null($this->defaultidp)) {
-            $SESSION->saml2idp = $this->defaultidp->md5entityid;
-        } else if ($this->multiidp) {
+        } else if (!is_null($saml2auth->defaultidp)) {
+            $SESSION->saml2idp = md5($saml2auth->defaultidp->entityid);
+        } else if ($saml2auth->multiidp) {
             // At this stage there is no alias, get-param or default IdP configured.
             // On a multi-idp system, now check for any whitelisted IP address redirection.
             $entitiyid = $this->check_whitelisted_ip_redirect();
@@ -569,63 +580,49 @@ class auth extends \auth_plugin_base {
      * This is split so we can handle SP and IdP first login flows.
      */
     public function saml_login_complete($attributes) {
-        global $CFG, $DB, $USER, $SESSION;
+
+        // @codingStandardsIgnoreStart
+        global $CFG, $DB, $USER, $SESSION, $saml2auth;
+        // @codingStandardsIgnoreEnd
 
         if ($this->config->attrsimple) {
             $attributes = $this->simplify_attr($attributes);
         }
 
         $attr = $this->config->idpattr;
-        if (empty($attributes[$attr])) {
-            // Missing mapping IdP attribute. Login failed.
-            $event = \core\event\user_login_failed::create(['other' => ['username' => 'unknown',
-                'reason' => AUTH_LOGIN_NOUSER]]);
-            $event->trigger();
+        if (empty($attributes[$attr]) ) {
             $this->error_page(get_string('noattribute', 'auth_saml2', $attr));
         }
 
-        // Testing user's groups and allow access according to preferences.
-        if (!$this->is_access_allowed_for_member($attributes)) {
-            $event = \core\event\user_login_failed::create(['other' => ['username' => 'unknown',
-                'reason' => AUTH_LOGIN_UNAUTHORISED]]);
-            $event->trigger();
-            $this->handle_blocked_access();
-        }
-
-        // Find Moodle user.
         $user = null;
-        foreach ($attributes[$attr] as $uid) {
+        foreach ($attributes[$attr] as $key => $uid) {
             if ($this->config->tolower) {
-                $this->log(__FUNCTION__ . " to lowercase for $uid");
+                $this->log(__FUNCTION__ . " to lowercase for $key => $uid");
                 $uid = strtolower($uid);
             }
-            if ($user = get_complete_user_data($this->config->mdlattr, $uid)) {
-                // We found a user.
-                break;
+            if ($user = $DB->get_record('user', array( $this->config->mdlattr => $uid, 'deleted' => 0 ))) {
+                continue;
             }
+        }
+
+        // Testing user's groups and allow access decided on preferences.
+        if (!$this->is_access_allowed_for_member($attributes)) {
+            $this->handle_blocked_access();
         }
 
         $newuser = false;
         if (!$user) {
-            // No existing user.
             if ($this->config->autocreate) {
                 $email = $this->get_email_from_attributes($attributes);
                 // If can't have accounts with the same emails, check if email is taken before create a new user.
                 if (empty($CFG->allowaccountssameemail) && $this->is_email_taken($email)) {
-                    $event = \core\event\user_login_failed::create(['other' => ['username' => $uid,
-                        'reason' => AUTH_LOGIN_FAILED]]);
-                    $event->trigger();
-
                     $this->log(__FUNCTION__ . " user '$uid' can't be autocreated as email '$email' is taken");
                     $this->error_page(get_string('emailtaken', 'auth_saml2', $email));
                 }
 
-                // Honor the core allowemailaddresses setting.
-                if ($error = email_is_not_allowed($email)) {
-                    $event = \core\event\user_login_failed::create(['other' => ['username' => $uid,
-                        'reason' => AUTH_LOGIN_FAILED]]);
-                    $event->trigger();
-
+                // Honor the core allowemailaddresses setting #412.
+                $error = email_is_not_allowed($email);
+                if ($error) {
                     $this->log(__FUNCTION__ . " '$email' " . $error);
                     $this->handle_blocked_access();
                 }
@@ -634,59 +631,34 @@ class auth extends \auth_plugin_base {
                 $user = create_user_record($uid, '', 'saml2');
                 $newuser = true;
             } else {
-                // Moodle user does not exist and settings prevent creating new accounts.
-                $event = \core\event\user_login_failed::create(['other' => ['username' => $uid,
-                    'reason' => AUTH_LOGIN_NOUSER]]);
-                $event->trigger();
                 $this->log(__FUNCTION__ . " user '$uid' is not in moodle so error");
                 $this->error_page(get_string('nouser', 'auth_saml2', $uid));
             }
         } else {
             // Prevent access to users who are suspended.
             if ($user->suspended) {
-                $event = \core\event\user_login_failed::create([
-                    'userid' => $user->id,
-                    'other' => [
-                        'username' => $user->username,
-                        'reason' => AUTH_LOGIN_SUSPENDED,
-                    ]
-                ]);
-                $event->trigger();
-
                 $this->error_page(get_string('suspendeduser', 'auth_saml2', $uid));
+            }
+            // Make sure all user data is fetched.
+            $user = get_complete_user_data('username', $user->username);
+            if (!$user) {
+                $this->log(__FUNCTION__ . ' did not find user ' . $user->username);
+                $this->error_page(get_string('nouser', 'auth_saml2', $uid));
             }
 
             $this->log(__FUNCTION__ . ' found user '.$user->username);
         }
 
         if (!$this->config->anyauth && $user->auth != 'saml2') {
-            $event = \core\event\user_login_failed::create([
-                'userid' => $user->id,
-                'other' => [
-                    'username' => $user->username,
-                    'reason' => AUTH_LOGIN_UNAUTHORISED,
-                ]
-            ]);
-            $event->trigger();
-
             $this->log(__FUNCTION__ . " user $uid is auth type: $user->auth");
             $this->error_page(get_string('wrongauth', 'auth_saml2', $uid));
         }
 
-        if ($this->config->anyauth && !is_enabled_auth($user->auth)) {
-            $event = \core\event\user_login_failed::create([
-                'userid' => $user->id,
-                'other' => [
-                    'username' => $user->username,
-                    'reason' => AUTH_LOGIN_UNAUTHORISED,
-                ]
-            ]);
-            $event->trigger();
-
+        if ($this->config->anyauth && !is_enabled_auth($user->auth) ) {
             $this->log(__FUNCTION__ . " user $uid's auth type: $user->auth is not enabled");
-            $this->error_page(get_string('anyauthotherdisabled', 'auth_saml2', [
+            $this->error_page(get_string('anyauthotherdisabled', 'auth_saml2', array(
                 'username' => $uid, 'auth' => $user->auth,
-            ]));
+            )));
         }
 
         // Do we need to update any user fields? Unlike ldap, we can only do
@@ -694,11 +666,27 @@ class auth extends \auth_plugin_base {
         $this->update_user_profile_fields($user, $attributes, $newuser);
 
         // If admin has been set for this IdP we make the user an admin.
-        if (!empty($SESSION->saml2idp) && $this->metadataentities[$SESSION->saml2idp]->adminidp) {
-            $admins = explode(',', $CFG->siteadmins);
-            if (!in_array($user->id, $admins)) {
-                $admins[] = $user->id;
+        $adminidp = false;
+        foreach ($saml2auth->metadataentities as $idpentities) {
+            foreach ($idpentities as $md5idpentityid => $idpentity) {
+
+                if (!empty($SESSION->saml2idp) && $SESSION->saml2idp == $md5idpentityid) {
+                    $adminidp = $idpentity->adminidp;
+                    break 2;
+                }
             }
+        }
+
+        if ($adminidp) {
+            $admins = array();
+            foreach (explode(',', $CFG->siteadmins) as $admin) {
+                $admin = (int)$admin;
+                if ($admin) {
+                    $admins[$admin] = $admin;
+                }
+            }
+
+            $admins[$user->id] = $user->id;
             set_config('siteadmins', implode(',', $admins));
         }
 
@@ -711,8 +699,8 @@ class auth extends \auth_plugin_base {
         set_moodle_cookie($USER->username);
 
         $wantsurl = core_login_get_return_url();
-        // If we are not on the page we want, then redirect to it (unless this is CLI).
-        if ( qualified_me() !== false && qualified_me() !== $wantsurl ) {
+        // If we are not on the page we want, then redirect to it.
+        if ( qualified_me() !== $wantsurl ) {
             $this->log(__FUNCTION__ . " redirecting to $wantsurl");
             unset($SESSION->wantsurl);
             redirect($wantsurl);
@@ -746,18 +734,18 @@ class auth extends \auth_plugin_base {
     protected function handle_blocked_access() {
         switch ($this->config->flagresponsetype) {
             case saml2_settings::OPTION_FLAGGED_LOGIN_REDIRECT :
-                $this->redirect_blocked_access();
+                $this->redirect_blocked_access ();
                 break;
             case saml2_settings::OPTION_FLAGGED_LOGIN_MESSAGE :
             default :
-                $this->error_page($this->config->flagmessage);
+                $this->error_page ( $this->config->flagmessage );
                 break;
         }
     }
 
     /**
      * Checks configuration of the multiple IdP IP whitelist field. If the users IP matches, this will
-     * return the md5 hash of IdP entityid on true. Or false if not found.
+     * return the $md5idpentityid on true. Or false if not found.
      *
      * This is used in two places, firstly to determine if a saml redirect is to happen.
      * Secondly to determine which IdP to force the redirect to.
@@ -765,9 +753,14 @@ class auth extends \auth_plugin_base {
      * @return bool|string
      */
     protected function check_whitelisted_ip_redirect() {
-        foreach ($this->metadataentities as $idpentity) {
-            if (\core\ip_utils::is_ip_in_subnet_list(getremoteaddr(), $idpentity->whitelist)) {
-                return $idpentity->md5entityid;
+        foreach ($this->metadataentities as $idpentities) {
+            foreach ($idpentities as $md5idpentityid => $idpentity) {
+                if (!$idpentity->activeidp) {
+                    continue;
+                }
+                if (\core\ip_utils::is_ip_in_subnet_list(getremoteaddr(), $idpentity->whitelist)) {
+                    return $md5idpentityid;
+                }
             }
         }
         return false;

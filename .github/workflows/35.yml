@@ -1,4 +1,4 @@
-name: 3.9 and higher branch test
+name: 3.5 branch test
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
@@ -13,7 +13,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres
+        image: postgres:9.5
         env:
           POSTGRES_USER: 'postgres'
           POSTGRES_HOST_AUTH_METHOD: 'trust'
@@ -25,34 +25,12 @@ jobs:
         ports:
           - 5432:5432
 
-      mariadb:
-        image: mariadb
-        env:
-          MYSQL_USER: 'root'
-          MYSQL_ALLOW_EMPTY_PASSWORD: "true"
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 3
-
     strategy:
       fail-fast: false
       matrix:
         database: ['pgsql']
-        moodle-branch: ['MOODLE_39_STABLE', 'MOODLE_310_STABLE', 'MOODLE_311_STABLE', 'master']
-        php: ['7.2', '7.4']
-        exclude:
-          - moodle-branch: master
-            php: 7.2
-          - moodle-branch: MOODLE_311_STABLE
-            php: 7.2
-        include:
-          - moodle-branch: master
-            php: 7.4
-            database: mariadb
+        moodle-branch: ['MOODLE_35_STABLE']
+        php: ['7.2']
 
     steps:
       - name: Check out repository code
@@ -64,7 +42,6 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          ini-values: max_input_vars=5000
           coverage: none
 
       - name: Initialise moodle-plugin-ci
