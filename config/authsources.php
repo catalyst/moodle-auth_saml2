@@ -30,23 +30,11 @@ global $saml2auth, $CFG, $SITE, $SESSION;
 
 $config = [];
 
-// Case for specifying no $SESSION IdP, select the first configured IdP as the default.
-$arr = array_reverse($saml2auth->metadataentities);
-$metadataentities = array_pop($arr);
-$idpentity = array_pop($metadataentities);
-
-// This must always be a valid saml entityId.
-$idpentityid = $idpentity->entityid;
-
-if (!empty($SESSION->saml2idp)) {
-    foreach ($saml2auth->metadataentities as $idpentities) {
-        foreach ($idpentities as $md5entityid => $idpentity) {
-            if ($SESSION->saml2idp === $md5entityid) {
-                $idpentityid = $idpentity->entityid;
-                break 2;
-            }
-        }
-    }
+if (!empty($SESSION->saml2idp) && array_key_exists($SESSION->saml2idp, $saml2auth->metadataentities)) {
+    $idpentityid = $saml2auth->metadataentities[$SESSION->saml2idp]->entityid;
+} else {
+    // Case for specifying no $SESSION IdP, select the first configured IdP as the default.
+    $idpentityid = reset($saml2auth->metadataentities)->entityid;
 }
 
 $config[$saml2auth->spname] = [

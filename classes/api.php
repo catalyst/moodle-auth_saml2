@@ -29,17 +29,19 @@ use moodle_url;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class api {
+
     /**
-     * Called from SimpleSamlphp after a LogoutResponse from the IdP
+     * IdP logout callback. Called only when logout is initiated from IdP.
+     * {@see saml2-logout.php}
      */
     public static function logout_from_idp_front_channel(): void {
-        // The SP session will be cleaned up but we need to remove the
-        // Moodle session here.
-        \core\session\manager::terminate_current();
+        // The SP session will be cleaned up. Log user out of Moodle.
+        require_logout();
     }
 
     /**
-     * Called from SimpleSamlphp after a LogoutRequest from the SP
+     * SP logout callback. Called in case of normal Moodle logout.
+     * {@see auth::logoutpage_hook}
      *
      * @param array $state Information about the current logout operation.
      */

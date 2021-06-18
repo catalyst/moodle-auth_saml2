@@ -18,7 +18,8 @@ http://moodle.local/auth/saml2/login.php?wants&idp=c4b9265e38e3107bee1ccdf9d6475
 http://moodle.local/login/logout.php?sesskey=ihwmEywPxu
 
 
-4) Test Single logout starting from the IdP
+4) Test Single logout starting from the IdP. Notice that `ReturnTo` URL domain should be in `trusted.url.domains` in IdP config.
+If that is not the case, try using `ReturnTo=http://idp.local/simplesaml` which should work as SimpleSAMLphp trusts self hostname by default.
 
 http://idp.local/simplesaml/saml2/idp/SingleLogoutService.php?ReturnTo=http://moodle.local/
 
