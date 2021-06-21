@@ -49,6 +49,13 @@ class auth_saml2_metadata_refresh_testcase extends advanced_testcase {
         $this->resetAfterTest(true);
     }
 
+    /**
+     * Tear down after every test.
+     */
+    protected function tearDown(): void {
+        $this->prophet = null;  // Required for Totara 12+ support (see issue #578).
+    }
+
     public function test_metadata_refresh_disabled() {
         set_config('idpmetadatarefresh', 0, 'auth_saml2');
         set_config('idpmetadata', 'http://somefakeidpurl.local', 'auth_saml2');
