@@ -28,7 +28,7 @@ require_once(__DIR__ . '/../../config.php');
 // @codingStandardsIgnoreEnd
 require_once(__DIR__ . '/locallib.php');
 
-global $DB;
+use core\output\notification;
 
 $heading = get_string('manageidpsheading', 'auth_saml2');
 
@@ -60,11 +60,12 @@ if ($fromform = $mform->get_data()) {
         }
     }
 } else {
-    $mform->set_data(array('metadataentities' => $metadataentities));
+    $mform->set_data(['metadataentities' => $metadataentities]);
 }
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading($heading);
-echo get_string('multiidpinfo', 'auth_saml2');
+$notification = new notification(get_string('multiidpinfo', 'auth_saml2'), notification::NOTIFY_INFO, false);
+echo $OUTPUT->render($notification);
 $mform->display();
 echo $OUTPUT->footer();
