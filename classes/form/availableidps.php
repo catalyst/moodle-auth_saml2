@@ -91,6 +91,13 @@ class availableidps extends moodleform {
                 $mform->addElement('textarea', $fieldkey.'[whitelist]', get_string('multiidp:label:whitelist', 'auth_saml2'));
                 $mform->addHelpButton($fieldkey.'[whitelist]', 'multiidp:label:whitelist', 'auth_saml2');
                 $mform->setType($fieldkey.'[whitelist]', PARAM_TEXT);
+
+                // Moodle Workplace - Tenant availability edit button.
+                if (class_exists('\tool_tenant\local\auth\saml2\manager')) {
+                    $links = component_class_callback('\tool_tenant\local\auth\saml2\manager',
+                        'issuer_tenant_availability_button', [['id' => $idpentityid, 'name' => $idpentity['name']]], '');
+                    $mform->addElement('static', 'tenantbutton', '&nbsp;', $links);
+                }
             }
         }
 

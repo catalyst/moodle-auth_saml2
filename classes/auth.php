@@ -216,6 +216,12 @@ class auth extends \auth_plugin_base {
                 continue;
             }
 
+            // Moodle Workplace - Check IdP's tenant availability.
+            if (!component_class_callback('\tool_tenant\local\auth\saml2\manager', 'issuer_available',
+                    [$idp->md5entityid], true)) {
+                continue;
+            }
+
             // The wants url may already be routed via login.php so don't re-re-route it.
             if (strpos($wantsurl, '/auth/saml2/login.php') !== false) {
                 $idpurl = new moodle_url($wantsurl);
@@ -569,7 +575,7 @@ class auth extends \auth_plugin_base {
      * This is split so we can handle SP and IdP first login flows.
      */
     public function saml_login_complete($attributes) {
-        global $CFG, $DB, $USER, $SESSION;
+        global $CFG, $USER, $SESSION;
 
         if ($this->config->attrsimple) {
             $attributes = $this->simplify_attr($attributes);
@@ -593,7 +599,7 @@ class auth extends \auth_plugin_base {
         }
 
         // Find Moodle user.
-        $user = null;
+        $user = false;
         foreach ($attributes[$attr] as $uid) {
             if ($this->config->tolower) {
                 $this->log(__FUNCTION__ . " to lowercase for $uid");
@@ -604,6 +610,10 @@ class auth extends \auth_plugin_base {
                 break;
             }
         }
+
+        // Moodle Workplace - Check IdP's tenant availability, for new user pre-allocate to tenant.
+        component_class_callback('\tool_tenant\local\auth\saml2\manager', 'complete_login_hook',
+            [$SESSION->saml2idp ?? null, $uid, $user]);
 
         $newuser = false;
         if (!$user) {
