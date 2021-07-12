@@ -111,10 +111,10 @@ and to easily debug the plugin if things are not working.
 
 Configuration
 -------------
+For setting up a new SAML integration, see the Quick Start Guide here:
+https://github.com/catalyst/moodle-auth_saml2/wiki/Quick-start-Guide
 
-Most of the configuration is done in the Moodle admin GUI and should be self
-explanatory for someone familiar with SAML generally. There are a few extra
-configuration items which are currently don't have a GUI and should be added
+There are a few extra configuration items which are currently don't have a GUI and should be added
 to your moodle config.php file:
 
 ```php
