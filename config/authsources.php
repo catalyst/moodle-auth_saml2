@@ -39,7 +39,7 @@ if (!empty($SESSION->saml2idp) && array_key_exists($SESSION->saml2idp, $saml2aut
 
 $config[$saml2auth->spname] = [
     'saml:SP',
-    'entityID' => "$CFG->wwwroot/auth/saml2/sp/metadata.php",
+    'entityID' => !empty($saml2auth->config->entityid) ? $saml2auth->config->entityid : "$CFG->wwwroot/auth/saml2/sp/metadata.php",
     'discoURL' => !empty($CFG->auth_saml2_disco_url) ? $CFG->auth_saml2_disco_url : null,
     'idp' => empty($CFG->auth_saml2_disco_url) ? $idpentityid : null,
     'NameIDPolicy' => $saml2auth->config->nameidpolicy,
@@ -58,6 +58,8 @@ $config[$saml2auth->spname] = [
     'sign.logout' => true,
     'redirect.sign' => true,
     'signature.algorithm' => $saml2auth->config->signaturealgorithm,
+    'WantAssertionsSigned' => $saml2auth->config->wantassertionssigned == 1,
+    'acs.Bindings' => explode(',', $saml2auth->config->assertionsconsumerservices),
 ];
 
 /*
