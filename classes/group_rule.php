@@ -131,5 +131,4 @@ class group_rule {
     public function is_allowed() {
         return $this->status == self::STATUS_ALLOW;
     }
-
 }
