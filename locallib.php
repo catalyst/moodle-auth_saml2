@@ -428,28 +428,23 @@ function auth_saml2_profile_get_custom_fields($onlyinuserobject = false) {
 function auth_saml2_get_idps($active = false, $asarray = false) {
     global $DB;
 
-    $conditions = array();
+    $conditions = [];
     if ($active) {
-        $conditions = array('activeidp' => 1);
+        $conditions = ['activeidp' => 1];
     }
 
     $idpentitiesrs = $DB->get_records('auth_saml2_idps', $conditions);
-    $idpentities = array();
+    $idpentities = [];
 
     foreach ($idpentitiesrs as $idpentity) {
         $idpentity->name = empty($idpentity->displayname) ? $idpentity->defaultname : $idpentity->displayname;
+        $idpentity->md5entityid = md5($idpentity->entityid);
 
         if (!isset($idpentities[$idpentity->metadataurl])) {
-            $idpentities[$idpentity->metadataurl] = array();
+            $idpentities[$idpentity->metadataurl] = [];
         }
 
-        $md5entityid = md5($idpentity->entityid);
-        if ($asarray) {
-            $idpentities[$idpentity->metadataurl][$md5entityid] = (array) $idpentity;
-        } else {
-            $idpentities[$idpentity->metadataurl][$md5entityid] = $idpentity;
-        }
-
+        $idpentities[$idpentity->metadataurl][$idpentity->md5entityid] = ($asarray) ? (array) $idpentity : $idpentity;
     }
 
     return $idpentities;

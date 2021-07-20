@@ -228,7 +228,7 @@ class auth_testcase extends \advanced_testcase {
         $this->assertEquals(md5($entity1->entityid), $url->get_param('idp'));
         $this->assertEquals('off', $url->get_param('passive'));
 
-        // Wantsurl is pointing to auth/saml2/login.php
+        // Wantsurl is pointing to auth/saml2/login.php.
         $list = $auth->loginpage_idp_list('/auth/saml2/login.php');
         $url = $list[0]['url'];
         $this->assertInstanceOf(\moodle_url::class, $url);

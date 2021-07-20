@@ -9,7 +9,7 @@ Feature: SAML2 settings
     And I am an administrator                                                         # auth_saml2
     When I navigate to "Plugins > Authentication > SAML2" in site administration
     Then I should see "SAML2"
-    And I should see "Authenticate with a SAML2 IdP"
+    And I should see "Authenticate with a SAML2 Identity Provider (IdP)"
 
   Scenario Outline: I can change the Dual Login options
     Given the authentication plugin saml2 is enabled        # auth_saml2

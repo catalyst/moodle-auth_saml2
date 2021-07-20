@@ -58,7 +58,8 @@ class selectidp_buttons extends moodleform {
         foreach ($metadataentities as $idpentities) {
             if (isset($idpentities[$storedchoiceidp])) {
                 $storedchoiceidp = $idpentities[$storedchoiceidp];
-                $mform->addElement('html', $this->get_idpbutton($storedchoiceidp, $storedchoiceidp->name, $storedchoiceidp->logo, true));
+                $mform->addElement('html',
+                    $this->get_idpbutton($storedchoiceidp, $storedchoiceidp->name, $storedchoiceidp->logo, true));
                 $mform->addElement('html', '<hr>');
                 unset($idpentities[$storedchoiceidp]);
             }

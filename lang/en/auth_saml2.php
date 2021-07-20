@@ -29,7 +29,7 @@ $string['anyauth_help'] = 'Yes: Allow SAML login for all users? No: Only users w
 $string['anyauthotherdisabled'] = 'You have logged in successfully as \'{$a->username}\' but your auth type of \'{$a->auth}\' is disabled.';
 $string['attemptsignout'] = 'Attempt IdP Signout';
 $string['attemptsignout_help'] = 'This will attempt to communicate with the IdP to send a sign out request';
-$string['auth_saml2description'] = 'Authenticate with a SAML2 IdP';
+$string['auth_saml2description'] = 'Authenticate with a SAML2 Identity Provider (IdP)';
 $string['auth_saml2blockredirectdescription'] = 'Redirect or display message to SAML2 logins based on configured group restrictions';
 $string['autocreate'] = 'Auto create users';
 $string['autocreate_help'] = 'If users are in the IdP but not in moodle create a moodle account.';
@@ -105,7 +105,7 @@ $string['logdir_help'] = 'The log directory SSPHP will write to, the file will b
 $string['logdir'] = 'Log Directory';
 $string['logtofile'] = 'Enable logging to file';
 $string['logtofile_help'] = 'Turning this on will redirect SSPHP log output to a file in the logdir';
-$string['manageidpsheading'] = 'Manage available IdPs';
+$string['manageidpsheading'] = 'Manage available Identity Providers (IdPs)';
 $string['mdlattr_help'] = 'Which Moodle user field should the IdP attribute be matched to?';
 $string['mdlattr'] = 'Mapping Moodle';
 $string['metadatafetchfailed'] = 'Metadata fetch failed: {$a}';
@@ -115,7 +115,8 @@ $string['multiidp:label:displayname'] = 'Display name';
 $string['multiidp:label:alias'] = 'Alias';
 $string['multiidp:label:active'] = 'Active';
 $string['multiidp:label:defaultidp'] = 'Default IdP';
-$string['multiidp:label:admin'] = 'Admin';
+$string['multiidp:label:admin'] = 'For admin users only';
+$string['multiidp:label:admin_help'] = 'Any users that log in using this IdP will automatically be made an site administrator';
 $string['multiidp:label:whitelist'] = 'Redirected IP addresses';
 $string['multiidp:label:whitelist_help'] = 'If set, it will force clients to this IdP. Format: xxx.xxx.xxx.xxx/bitmask. Separate multiple subnets on a new line.';
 $string['multiidpinfo'] = '
@@ -123,7 +124,6 @@ $string['multiidpinfo'] = '
 <li>An IdP can only be used if it is set as Active</li>
 <li>When duallogin has been turned on all active IdPs will be displayed on the login page</li>
 <li>When an IdP has been set as Default and duallogin is not turned on, this IdP will automatically be used unless ?multiidp=on or saml=off is passed on /login/index.php</li>
-<li>When an IdP has been set as Admin any users that log in using this IdP will automatically be made an admin</li>
 <li>An IdP can be given an Alias, when going to /login/index.php?idpalias={alias} the alias can be passed to directly use that IdP</li>
 </ul>';
 $string['multiidpbuttons'] = 'Buttons with icons';
@@ -151,6 +151,7 @@ $string['required'] = 'This field is required';
 $string['requireint'] = 'This field is required and needs to be a positive integer';
 $string['showidplink'] = 'Display IdP link';
 $string['showidplink_help'] = 'This will display the IdP link when the site is configured.';
+$string['source'] = 'Source: {$a}';
 $string['spmetadata_help'] = '<a href=\'{$a}\'>View Service Provider Metadata</a> | <a href=\'{$a}?download=1\'>Download SP Metadata</a>
 <p>You may need to give this to the IdP admin to whitelist you.</p>';
 $string['spmetadatasign_help'] = 'Sign the SP Metadata.';
@@ -158,6 +159,7 @@ $string['spmetadatasign'] = 'SP Metadata signature';
 $string['spmetadata'] = 'SP Metadata';
 $string['sspversion'] = 'SimpleSAMLphp version';
 $string['stateorprovincename'] = 'State or Province';
+$string['status'] = 'Status';
 $string['suspendeduser'] = 'You have logged in successfully as \'{$a}\' but your account has been suspended in Moodle.';
 $string['taskmetadatarefresh'] = 'Metadata refresh task';
 $string['test_auth'] = '<a href="{$a}">Test isAuthenticated and login</a>';
