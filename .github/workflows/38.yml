@@ -1,4 +1,4 @@
-name: 3.8 and higher branch test
+name: 3.8 test
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
@@ -42,17 +42,8 @@ jobs:
       fail-fast: false
       matrix:
         database: ['pgsql']
-        moodle-branch: ['MOODLE_38_STABLE','MOODLE_39_STABLE', 'MOODLE_310_STABLE', 'MOODLE_311_STABLE', 'master']
+        moodle-branch: ['MOODLE_38_STABLE']
         php: ['7.2', '7.4']
-        exclude:
-          - moodle-branch: master
-            php: 7.2
-          - moodle-branch: MOODLE_311_STABLE
-            php: 7.2
-        include:
-          - moodle-branch: master
-            php: 7.4
-            database: mariadb
 
     steps:
       - name: Check out repository code
