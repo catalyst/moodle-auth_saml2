@@ -410,10 +410,16 @@ class auth extends \auth_plugin_base {
             $saml = 0;
         }
 
-        // Never redirect on POST.
+        // Sometimes redirect on POST to catch guest "continue" button in self enrolment.
         if (isset($_SERVER['REQUEST_METHOD']) && ($_SERVER['REQUEST_METHOD'] == 'POST')) {
-            $this->log(__FUNCTION__ . ' skipping due to method=post');
-            return false;
+            if (empty($_POST['username']) && empty($_POST['password'])) {
+                $this->log(__FUNCTION__ . ' redirecting due to missing username and password in POST (guest)');
+                $loginurl = new moodle_url('/auth/saml2/login.php');
+                redirect($loginurl);
+            } else {
+                $this->log(__FUNCTION__ . ' skipping due to method=post');
+                return false;
+            }
         }
 
         // Never redirect if requested so.
