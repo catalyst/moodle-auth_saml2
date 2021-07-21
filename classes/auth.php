@@ -613,7 +613,7 @@ class auth extends \auth_plugin_base {
 
         // Moodle Workplace - Check IdP's tenant availability, for new user pre-allocate to tenant.
         component_class_callback('\tool_tenant\local\auth\saml2\manager', 'complete_login_hook',
-            [$SESSION->saml2idp ?? null, $uid, $user]);
+            [$SESSION->saml2idp ?? '', $uid, $user]);
 
         $newuser = false;
         if (!$user) {

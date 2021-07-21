@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   2021 Moodle Pty Ltd <support@moodle.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class auth_testcase extends \advanced_testcase {
+class auth_test extends \advanced_testcase {
     /**
      * Set up
      */
