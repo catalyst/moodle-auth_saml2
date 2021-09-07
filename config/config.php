@@ -37,6 +37,11 @@ foreach ($saml2auth->metadataentities as $idpentity) {
     ];
 }
 
+$samesitedefault = (!empty($CFG->cookiesamesite) ? $CFG->cookiesamesite : 'Lax');
+if ($samesitedefault == "None") {
+    $samesitedefault = \SimpleSAML\Utils\HTTP::canSetSameSiteNone() ? 'None' : null;
+}
+
 $remoteip = getremoteaddr();
 
 $config = array(
@@ -71,6 +76,7 @@ $config = array(
     'session.cookie.path'     => $CFG->sessioncookiepath,
     'session.cookie.domain'   => null,
     'session.cookie.secure'   => !empty($CFG->cookiesecure),
+    'session.cookie.samesite' => $samesitedefault,
     'session.cookie.lifetime' => 0,
 
     'session.phpsession.cookiename' => null,
