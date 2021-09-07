@@ -36,18 +36,21 @@ foreach ($saml2auth->metadataentities as $idpentity) {
         'file' => "$CFG->dataroot/saml2/" . $metadataurlhash . ".idp.xml"
     ];
 }
-// Check if the config for samesite is set otherwise default to 'Lax'
-$samesitedefault = (isset($CFG->cookiesamesite) ? $CFG->cookiesamesite : 'lax');
-switch (strtolower($samesitedefault)) {
-    case 'none':
-        $samesitedefault = \SimpleSAML\Utils\HTTP::canSetSameSiteNone() ? 'None' : 'Lax';
-        break;
-    case 'lax':
-    case 'strict':
-        $samesitedefault = ucfirst($samesitedefault);
-        break;
-    default:
-        $samesitedefault = 'Lax';
+
+// Check if the config for samesite is set otherwise default to null
+$samesitedefault = (isset($CFG->cookiesamesite) ? $CFG->cookiesamesite : null);
+if (!is_null($samesitedefault)) {
+    switch (strtolower($samesitedefault)) {
+        case 'none':
+            $samesitedefault = \SimpleSAML\Utils\HTTP::canSetSameSiteNone() ? 'None' : null;
+            break;
+        case 'lax':
+        case 'strict':
+            $samesitedefault = ucfirst($samesitedefault);
+            break;
+        default:
+            $samesitedefault = 'Lax';
+    }
 }
 
 $remoteip = getremoteaddr();
