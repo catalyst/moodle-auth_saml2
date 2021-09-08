@@ -26,6 +26,7 @@ use auth_saml2\admin\saml2_settings;
 use auth_saml2\admin\setting_button;
 use auth_saml2\admin\setting_textonly;
 use auth_saml2\ssl_algorithms;
+use auth_saml2\user_fields;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -228,17 +229,11 @@ if ($ADMIN->fulltree) {
             'uid', PARAM_TEXT));
 
     // Moodle Field.
-    $fields = [
-        'username'      => get_string('username'),
-        'idnumber'      => get_string('idnumber'),
-        'email'         => get_string('email'),
-        'alternatename' => get_string('alternatename'),
-    ];
     $settings->add(new admin_setting_configselect(
             'auth_saml2/mdlattr',
             get_string('mdlattr', 'auth_saml2'),
             get_string('mdlattr_help', 'auth_saml2'),
-            'username', $fields));
+            'username', user_fields::get_supported_fields()));
 
     // Lowercase.
     $settings->add(new admin_setting_configselect(
