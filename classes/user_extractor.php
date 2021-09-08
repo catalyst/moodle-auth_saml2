@@ -61,9 +61,9 @@ class user_extractor {
             $params['fieldvalue'] = $fieldvalue;
             $params['mnethostid'] = $CFG->mnet_localhost_id;
 
-            $sql = "SELECT u.id 
-                      FROM {user} u $joins 
-                     WHERE u.deleted <> 1 AND 
+            $sql = "SELECT u.id
+                      FROM {user} u $joins
+                     WHERE u.deleted <> 1 AND
                            u.mnethostid = :mnethostid $fieldsql";
 
             if ($records = $DB->get_records_sql($sql, $params)) {
