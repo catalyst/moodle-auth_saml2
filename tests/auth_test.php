@@ -38,6 +38,36 @@ class auth_test extends \advanced_testcase {
     }
 
     /**
+     * A helper function to create a custom profile field.
+     *
+     * @param string $shortname Short name of the field.
+     * @param string $datatype Type of the field, e.g. text, checkbox, datetime, menu and etc.
+     * @param bool $unique Should the field to be unique?
+     *
+     * @return \stdClass
+     */
+    protected function add_user_profile_field(string $shortname, string $datatype, bool $unique = false) : \stdClass {
+        global $DB;
+
+        // Create a new profile field.
+        $data = new \stdClass();
+        $data->shortname = $shortname;
+        $data->datatype = $datatype;
+        $data->name = 'Test ' . $shortname;
+        $data->description = 'This is a test field';
+        $data->required = false;
+        $data->locked = false;
+        $data->forceunique = $unique;
+        $data->signup = false;
+        $data->visible = '0';
+        $data->categoryid = '0';
+
+        $DB->insert_record('user_info_field', $data);
+
+        return $data;
+    }
+
+    /**
      * Get generator
      *
      * @return auth_saml2_generator
@@ -588,6 +618,48 @@ class auth_test extends \advanced_testcase {
         set_config('field_map_email', 'email', 'auth_saml2');
         set_config('field_updatelocal_email', 'onlogin', 'auth_saml2');
         $user = $this->getDataGenerator()->create_user(['username' => 'samlu1', 'auth' => 'saml2']);
+
+        // Sanity check.
+        $this->assertFalse(isloggedin());
+        $this->assertNotEquals($attribs['email'][0], $user->email);
+
+        $sink = $this->redirectEvents();
+
+        // Try to login, suppress output.
+        $auth = new \auth_saml2\auth();
+        @$auth->saml_login_complete($attribs);
+
+        // Check global object, make sure email was updated.
+        $this->assertEquals($attribs['uid'][0], $USER->username);
+        $this->assertEquals($attribs['email'][0], $USER->email);
+
+        // Checking that the events contain the expected values.
+        $events = $sink->get_events();
+        $this->assertCount(2, $events);
+        $event = array_pop($events);
+        $this->assertInstanceOf('\core\event\user_loggedin', $event);
+        $this->assertEquals($USER->id, $event->get_data()['objectid']);
+        $event = array_pop($events);
+        $this->assertInstanceOf('\core\event\user_updated', $event);
+        $this->assertEquals($USER->id, $event->get_data()['objectid']);
+    }
+
+    public function test_saml_login_complete_existing_account_match_custom_profile_field(): void {
+        global $USER;
+
+        $field1 = $this->add_user_profile_field('field1', 'text', true);
+
+        $attribs = [
+            'uid' => ['samlu1'],
+            'email' => ['samluser1@example.com'],
+        ];
+
+        set_config('mdlattr', 'profile_field1', 'auth_saml2');
+        set_config('field_map_email', 'email', 'auth_saml2');
+        set_config('field_updatelocal_email', 'onlogin', 'auth_saml2');
+
+        $user = $this->getDataGenerator()->create_user(['username' => 'samlu1', 'auth' => 'saml2']);
+        profile_save_data((object)['id' => $user->id, 'profile_field_' . $field1->shortname => 'samlu1']);
 
         // Sanity check.
         $this->assertFalse(isloggedin());

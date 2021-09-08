@@ -605,7 +605,7 @@ class auth extends \auth_plugin_base {
                 $this->log(__FUNCTION__ . " to lowercase for $uid");
                 $uid = strtolower($uid);
             }
-            if ($user = get_complete_user_data($this->config->mdlattr, $uid)) {
+            if ($user = user_extractor::get_user($this->config->mdlattr, $uid)) {
                 // We found a user.
                 break;
             }
