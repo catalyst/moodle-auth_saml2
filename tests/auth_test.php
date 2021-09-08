@@ -696,20 +696,15 @@ class auth_test extends \advanced_testcase {
         $field1 = $this->add_user_profile_field('field1', 'text', true);
 
         $attribs = [
-            'uid' => ['samlu1'],
-            'email' => ['samluser1@example.com'],
+            'uid' => ['samluser'],
         ];
 
         set_config('mdlattr', 'profile_field1', 'auth_saml2');
-        set_config('field_map_email', 'email', 'auth_saml2');
-        set_config('field_updatelocal_email', 'onlogin', 'auth_saml2');
 
-        $user = $this->getDataGenerator()->create_user(['username' => 'samlu1', 'auth' => 'saml2']);
-        profile_save_data((object)['id' => $user->id, 'profile_field_' . $field1->shortname => 'samlu1']);
+        $user = $this->getDataGenerator()->create_user(['auth' => 'saml2']);
+        profile_save_data((object)['id' => $user->id, 'profile_field_' . $field1->shortname => 'samluser']);
 
-        // Sanity check.
         $this->assertFalse(isloggedin());
-        $this->assertNotEquals($attribs['email'][0], $user->email);
 
         $sink = $this->redirectEvents();
 
@@ -718,17 +713,13 @@ class auth_test extends \advanced_testcase {
         @$auth->saml_login_complete($attribs);
 
         // Check global object, make sure email was updated.
-        $this->assertEquals($attribs['uid'][0], $USER->username);
-        $this->assertEquals($attribs['email'][0], $USER->email);
+        $this->assertEquals($user->id, $USER->id);
+        $this->assertEquals($user->username, $USER->username);
 
-        // Checking that the events contain the expected values.
         $events = $sink->get_events();
-        $this->assertCount(2, $events);
+        $this->assertCount(1, $events);
         $event = array_pop($events);
         $this->assertInstanceOf('\core\event\user_loggedin', $event);
-        $this->assertEquals($USER->id, $event->get_data()['objectid']);
-        $event = array_pop($events);
-        $this->assertInstanceOf('\core\event\user_updated', $event);
         $this->assertEquals($USER->id, $event->get_data()['objectid']);
     }
 
