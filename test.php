@@ -37,8 +37,16 @@ if (!\auth_saml2\api::is_enabled()) {
 }
 
 $idp = optional_param('idp', '', PARAM_TEXT);
-$logout = optional_param('logout', '', PARAM_BOOL);
-$idplogout = optional_param('idplogout', '', PARAM_RAW);
+$logout = optional_param('logout', false, PARAM_BOOL);
+$idplogout = optional_param('idplogout', '', PARAM_TEXT);
+$testtype = optional_param('testtype', 'login', PARAM_TEXT);
+$passive = optional_param('passive', false, PARAM_BOOL);
+$passivefail = optional_param('passivefail', false, PARAM_BOOL);
+$trylogin = optional_param('login', false, PARAM_BOOL);
+
+if ($testtype === 'passive') {
+    $passive = true;
+}
 
 if (!empty($idp)) {
     $SESSION->saml2idp = $idp;
@@ -55,10 +63,6 @@ if (!empty($logout)) {
     $SESSION->saml2idp = $idplogout;
 }
 
-$passive = optional_param('passive', '', PARAM_BOOL);
-$passivefail = optional_param('passivefail', '', PARAM_BOOL);
-$trylogin = optional_param('login', '', PARAM_BOOL);
-
 echo '<p>SP name: ' . $saml2auth->spname;
 echo '<p>Which IdP will be used? ' . s($SESSION->saml2idp);
 
@@ -72,49 +76,33 @@ foreach ($saml2auth->metadataentities as $idpentity) {
 }
 
 if ($logout) {
-    $urlparams = [
-        'sesskey' => sesskey(),
-        'auth' => $saml2auth->authtype,
-    ];
-    $url = new moodle_url('/auth/saml2/test.php', $urlparams);
+    $url = new moodle_url('/auth/saml2/test.php');
     $auth->logout(['ReturnTo' => $url->out(false)]);
 }
 
-if ($passive) {
+if (!$auth->isAuthenticated() && $passive) {
     /* Prevent it from calling the missing post redirection. /auth/saml2/sp/module.php/core/postredirect.php */
     $auth->requireAuth(array(
         'KeepPost' => false,
         'isPassive' => true,
         'ErrorURL' => $CFG->wwwroot . '/auth/saml2/test.php?passivefail=1'
     ));
-    echo "<p>Passive auth check:</p>";
-    if (!$auth->isAuthenticated() ) {
-        $attributes = $auth->getAttributes();
-    } else {
-        echo "You are not logged in";
-    }
-
 } else if (!$auth->isAuthenticated() && $trylogin) {
-
     $auth->requireAuth(array(
         'KeepPost' => false
     ));
-    echo "Hello, authenticated user!";
-    $attributes = $as->getAttributes();
-    var_dump($attributes);
-    echo 'IdP: ' . $auth->getAuthData('saml:sp:IdP');
-
 } else if (!$auth->isAuthenticated()) {
     echo '<p>You are not logged in: <a href="?login=true">Login</a> | <a href="?passive=true">isPassive test</a></p>';
     if ($passivefail) {
-        echo "Passive test worked, but not logged in";
+        $state = \SimpleSAML\Auth\State::loadExceptionState();
+        $exception = $state[\SimpleSAML\Auth\State::EXCEPTION_DATA];
+        echo "Passive test failed with error: " . $exception->getMessage();
     }
 } else {
-    echo 'Authed!';
-    $attributes = $auth->getAttributes();
+    echo '<hr>';
+    echo 'Authed with IdP ' . $auth->getAuthData('saml:sp:IdP');
     echo '<pre>';
-    var_dump($attributes);
-    echo 'IdP: ' . $auth->getAuthData('saml:sp:IdP');
+    echo json_encode($auth->getAttributes(), JSON_PRETTY_PRINT);
     echo '</pre>';
     echo '<p>You are logged in: <a href="?logout=true&idplogout=' . md5($auth->getAuthData('saml:sp:IdP')) . '">Logout</a></p>';
 }
