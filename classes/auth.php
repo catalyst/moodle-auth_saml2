@@ -90,6 +90,12 @@ class auth extends \auth_plugin_base {
      */
     public function __construct() {
         global $CFG, $DB;
+
+        // Add username field to the list of data mapping to be able to update it on user creation if required.
+        if (!in_array('username', $this->userfields)) {
+            array_unshift($this->userfields, "username");
+        }
+
         $this->defaults['idpdefaultname'] = get_string('idpnamedefault', 'auth_saml2');
         $this->defaults['flagmessage'] = get_string('flagmessage_default', 'auth_saml2');
         $this->authtype = 'saml2';
