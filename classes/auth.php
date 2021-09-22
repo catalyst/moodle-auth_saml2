@@ -896,6 +896,16 @@ class auth extends \auth_plugin_base {
                                     }
                                 }
 
+                                // We don't want Mapping Moodle field or username to be updated once they are set on user creation.
+                                if (!$newuser) {
+                                    if ($field == $this->config->mdlattr || $field == 'username') {
+                                        $this->log(__FUNCTION__ .
+                                            " user '$user->username' $field can't be updated once set");
+                                        \core\notification::warning("Your $field wasn't updated");
+                                        continue;
+                                    }
+                                }
+
                                 // Custom profile fields have the prefix profile_field_ and will be saved as profile field data.
                                 $user->$field = $attributes[$attr][0];
                                 $update = true;
