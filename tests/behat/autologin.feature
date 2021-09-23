@@ -160,7 +160,7 @@ Feature: Automatically log in
     And I follow "Site home"
     And I navigate to "Turn editing on" in current page administration
     And I add the "Course/site summary" block
-    And I log out
+    And I click log out
 
     # Situation 4: Autologin does not run on POST requests.
     When the following config values are set as admin:
