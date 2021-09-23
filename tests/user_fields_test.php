@@ -79,7 +79,7 @@ class auth_saml2_user_fields_test extends advanced_testcase {
         ], user_fields::MATCH_FIELDS_FROM_USER_TABLE);
 
         $this->assertSame(['text'], user_fields::SUPPORTED_TYPES_OF_PROFILE_FIELDS);
-        $this->assertSame('profile_', user_fields::PROFILE_FIELD_PREFIX);
+        $this->assertSame('profile_field_', user_fields::PROFILE_FIELD_PREFIX);
     }
 
     /**
@@ -120,8 +120,8 @@ class auth_saml2_user_fields_test extends advanced_testcase {
         ];
 
         $profilefields = [
-            'profile_text1' => 'Test text1',
-            'profile_text3' => 'Test text3'
+            'profile_field_text1' => 'Test text1',
+            'profile_field_text3' => 'Test text3'
         ];
         $expected = array_merge($userfields, $profilefields);
 
@@ -134,11 +134,11 @@ class auth_saml2_user_fields_test extends advanced_testcase {
      */
     public function is_custom_profile_field_data_provider(): array {
         return [
-            ['profile_test', true],
+            ['profile_field_test', true],
             ['profiletest', false],
             ['profile', false],
-            ['profile_', true],
-            ['profile_profile_', true],
+            ['profile_field_', true],
+            ['profile_field_profile_field_', true],
             ['Test', false],
             [0, false],
             [false, false],
@@ -163,10 +163,10 @@ class auth_saml2_user_fields_test extends advanced_testcase {
      */
     public function get_short_name_data_provider(): array {
         return [
-            ['profile_test', 'test'],
-            ['profile_profile_test', 'profile_test'],
+            ['profile_field_test', 'test'],
+            ['profile_field_profile_field_test', 'profile_field_test'],
             ['test', 'test'],
-            ['profile_', ''],
+            ['profile_field_', ''],
         ];
     }
 

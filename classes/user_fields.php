@@ -59,7 +59,7 @@ class user_fields {
     /**
      * Prefix for profile fields in the config.
      */
-    const PROFILE_FIELD_PREFIX = 'profile_';
+    const PROFILE_FIELD_PREFIX = 'profile_field_';
 
     /**
      * Get a list of fields to be able to match by.

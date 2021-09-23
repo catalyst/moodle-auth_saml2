@@ -124,27 +124,27 @@ class auth_saml2_user_extractor_test extends advanced_testcase {
         profile_save_data((object)['id' => $user2->id, 'profile_field_' . $field2->shortname => 'User 2 Field 2']);
 
         // Should find users.
-        $actual = user_extractor::get_user('profile_field1', 'User 1 Field 1');
+        $actual = user_extractor::get_user('profile_field_field1', 'User 1 Field 1');
         $this->assertNotFalse($actual);
         $this->assertSame($user1->id, $actual->id);
 
-        $actual = user_extractor::get_user('profile_field2', 'User 1 Field 2');
+        $actual = user_extractor::get_user('profile_field_field2', 'User 1 Field 2');
         $this->assertNotFalse($actual);
         $this->assertSame($user1->id, $actual->id);
 
-        $actual = user_extractor::get_user('profile_field1', 'User 2 Field 1');
+        $actual = user_extractor::get_user('profile_field_field1', 'User 2 Field 1');
         $this->assertNotFalse($actual);
         $this->assertSame($user2->id, $actual->id);
 
-        $actual = user_extractor::get_user('profile_field2', 'User 2 Field 2');
+        $actual = user_extractor::get_user('profile_field_field2', 'User 2 Field 2');
         $this->assertNotFalse($actual);
         $this->assertSame($user2->id, $actual->id);
 
         // Shouldn't find users.
-        $actual = user_extractor::get_user('profile_field1', 'User 3 Field 1');
+        $actual = user_extractor::get_user('profile_field_field1', 'User 3 Field 1');
         $this->assertFalse($actual);
 
-        $actual = user_extractor::get_user('profile_field3', 'User 3 Field 1');
+        $actual = user_extractor::get_user('profile_field_field3', 'User 3 Field 1');
         $this->assertFalse($actual);
 
         $actual = user_extractor::get_user('field1', 'User 1 Field 1');
@@ -172,10 +172,10 @@ class auth_saml2_user_extractor_test extends advanced_testcase {
         profile_save_data((object)['id' => $user2->id, 'profile_field_' . $field1->shortname => 'User 1 Field 1']);
         profile_save_data((object)['id' => $user2->id, 'profile_field_' . $field2->shortname => 'User 1 Field 2']);
 
-        $actual = user_extractor::get_user('profile_field1', 'User 1 Field 1');
+        $actual = user_extractor::get_user('profile_field_field1', 'User 1 Field 1');
         $this->assertFalse($actual);
 
-        $actual = user_extractor::get_user('profile_field2', 'User 1 Field 2');
+        $actual = user_extractor::get_user('profile_field_field2', 'User 1 Field 2');
         $this->assertFalse($actual);
     }
 
