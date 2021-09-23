@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\XML\ds;
 
+use DOMElement;
 use RobRichards\XMLSecLibs\XMLSecurityDSig;
+
 use SAML2\Utils;
-use Webmozart\Assert\Assert;
 
 /**
  * Class representing a ds:KeyName element.
@@ -18,7 +21,7 @@ class KeyName
      *
      * @var string
      */
-    public $name;
+    public $name = '';
 
 
     /**
@@ -26,7 +29,7 @@ class KeyName
      *
      * @param \DOMElement|null $xml The XML element we should load.
      */
-    public function __construct(\DOMElement $xml = null)
+    public function __construct(DOMElement $xml = null)
     {
         if ($xml === null) {
             return;
@@ -38,9 +41,10 @@ class KeyName
 
     /**
      * Collect the value of the name-property
+     *
      * @return string
      */
-    public function getName()
+    public function getName() : string
     {
         return $this->name;
     }
@@ -48,12 +52,12 @@ class KeyName
 
     /**
      * Set the value of the name-property
+     *
      * @param string $name
      * @return void
      */
-    public function setName($name)
+    public function setName(string $name) : void
     {
-        Assert::nullOrString($name);
         $this->name = $name;
     }
 
@@ -64,10 +68,8 @@ class KeyName
      * @param \DOMElement $parent The element we should append this KeyName element to.
      * @return \DOMElement
      */
-    public function toXML(\DOMElement $parent)
+    public function toXML(DOMElement $parent) : DOMElement
     {
-        Assert::string($this->name);
-
         return Utils::addString($parent, XMLSecurityDSig::XMLDSIGNS, 'ds:KeyName', $this->name);
     }
 }

@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\XML\md;
+
+use DOMElement;
 
 use SAML2\Constants;
 use SAML2\Utils;
-use Webmozart\Assert\Assert;
 
 /**
  * Class representing SAML 2 metadata AdditionalMetadataLocation element.
@@ -18,14 +21,14 @@ class AdditionalMetadataLocation
      *
      * @var string
      */
-    public $namespace;
+    private $namespace;
 
     /**
      * The URI where the metadata is located.
      *
      * @var string
      */
-    public $location;
+    private $location;
 
 
     /**
@@ -34,7 +37,7 @@ class AdditionalMetadataLocation
      * @param \DOMElement|null $xml The XML element we should load.
      * @throws \Exception
      */
-    public function __construct(\DOMElement $xml = null)
+    public function __construct(DOMElement $xml = null)
     {
         if ($xml === null) {
             return;
@@ -51,9 +54,10 @@ class AdditionalMetadataLocation
 
     /**
      * Collect the value of the namespace-property
+     *
      * @return string
      */
-    public function getNamespace()
+    public function getNamespace() : string
     {
         return $this->namespace;
     }
@@ -61,21 +65,22 @@ class AdditionalMetadataLocation
 
     /**
      * Set the value of the namespace-property
+     *
      * @param string $namespace
      * @return void
      */
-    public function setNamespace($namespace)
+    public function setNamespace(string $namespace) : void
     {
-        Assert::string($namespace);
         $this->namespace = $namespace;
     }
 
 
     /**
      * Collect the value of the location-property
+     *
      * @return string
      */
-    public function getLocation()
+    public function getLocation() : string
     {
         return $this->location;
     }
@@ -83,12 +88,12 @@ class AdditionalMetadataLocation
 
     /**
      * Set the value of the location-property
+     *
      * @param string $location
      * @return void
      */
-    public function setLocation($location)
+    public function setLocation(string $location) : void
     {
-        Assert::string($location);
         $this->location = $location;
     }
 
@@ -99,11 +104,8 @@ class AdditionalMetadataLocation
      * @param  \DOMElement $parent The element we should append to.
      * @return \DOMElement This AdditionalMetadataLocation-element.
      */
-    public function toXML(\DOMElement $parent)
+    public function toXML(DOMElement $parent) : DOMElement
     {
-        Assert::string($this->getNamespace());
-        Assert::string($this->getLocation());
-
         $e = Utils::addString($parent, Constants::NS_MD, 'md:AdditionalMetadataLocation', $this->getLocation());
         $e->setAttribute('namespace', $this->getNamespace());
 

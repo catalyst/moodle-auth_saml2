@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SimpleSAML\Test\Utils;
 
 use PHPUnit\Framework\TestCase;
@@ -50,7 +52,7 @@ class ClearStateTestCase extends TestCase
      * Clear any SSP global state to reduce spill over between tests.
      * @return void
      */
-    public static function clearState()
+    public static function clearState(): void
     {
         self::$stateClearer->clearGlobals();
         self::$stateClearer->clearSSPState();

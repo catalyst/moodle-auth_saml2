@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2;
 
 use RobRichards\XMLSecLibs\XMLSecurityKey;
@@ -14,17 +16,19 @@ class HTTPRedirect extends Binding
 {
     const DEFLATE = 'urn:oasis:names:tc:SAML:2.0:bindings:URL-Encoding:DEFLATE';
 
-
     /**
      * Create the redirect URL for a message.
      *
-     * @param  \SAML2\Message $message The message.
-     * @return string        The URL the user should be redirected to in order to send a message.
+     * @param \SAML2\Message $message The message.
+     * @return string The URL the user should be redirected to in order to send a message.
      */
-    public function getRedirectURL(Message $message)
+    public function getRedirectURL(Message $message) : string
     {
         if ($this->destination === null) {
             $destination = $message->getDestination();
+            if ($destination === null) {
+                throw new \Exception('Cannot build a redirect URL, no destination set.');
+            }
         } else {
             $destination = $this->destination;
         }
@@ -34,9 +38,9 @@ class HTTPRedirect extends Binding
         $key = $message->getSignatureKey();
 
         $msgStr = $message->toUnsignedXML();
-        $msgStr = $msgStr->ownerDocument->saveXML($msgStr);
 
         Utils::getContainer()->debugMessage($msgStr, 'out');
+        $msgStr = $msgStr->ownerDocument->saveXML($msgStr);
 
         $msgStr = gzdeflate($msgStr);
         $msgStr = base64_encode($msgStr);
@@ -54,8 +58,8 @@ class HTTPRedirect extends Binding
             $msg .= '&RelayState='.urlencode($relayState);
         }
 
-        if ($key !== null) {
-            /* Add the signature. */
+        if ($key !== null) { // add the signature
+            /** @psalm-suppress PossiblyInvalidArgument */
             $msg .= '&SigAlg='.urlencode($key->type);
 
             $signature = $key->signData($msg);
@@ -79,7 +83,7 @@ class HTTPRedirect extends Binding
      * @param \SAML2\Message $message The message we should send.
      * @return void
      */
-    public function send(Message $message)
+    public function send(Message $message) : void
     {
         $destination = $this->getRedirectURL($message);
         Utils::getContainer()->getLogger()->debug('Redirect to '.strlen($destination).' byte URL: '.$destination);
@@ -96,9 +100,8 @@ class HTTPRedirect extends Binding
      * @return \SAML2\Message The received message.
      *
      * NPath is currently too high but solving that just moves code around.
-     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
-    public function receive()
+    public function receive(): Message
     {
         $data = self::parseQuery();
         if (array_key_exists('SAMLRequest', $data)) {
@@ -123,10 +126,12 @@ class HTTPRedirect extends Binding
             throw new \Exception('Error while inflating SAML message.');
         }
 
-        Utils::getContainer()->debugMessage($message, 'in');
         $document = DOMDocumentFactory::fromString($message);
-        $xml      = $document->firstChild;
-        $message  = Message::fromXML($xml);
+        Utils::getContainer()->debugMessage($document->documentElement, 'in');
+        if (!$document->firstChild instanceof \DOMElement) {
+            throw new \Exception('Malformed SAML message received.');
+        }
+        $message = Message::fromXML($document->firstChild);
 
         if (array_key_exists('RelayState', $data)) {
             $message->setRelayState($data['RelayState']);
@@ -161,7 +166,7 @@ class HTTPRedirect extends Binding
      *
      * @return array The query data that is signed.
      */
-    private static function parseQuery()
+    private static function parseQuery() : array
     {
         /*
          * Parse the query string. We need to do this ourself, so that we get access
@@ -214,7 +219,7 @@ class HTTPRedirect extends Binding
      * @throws \Exception
      * @return void
      */
-    public static function validateSignature(array $data, XMLSecurityKey $key)
+    public static function validateSignature(array $data, XMLSecurityKey $key) : void
     {
         Assert::keyExists($data, "Query");
         Assert::keyExists($data, "SigAlg");

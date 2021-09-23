@@ -1,8 +1,8 @@
 <?php
 
-namespace SAML2;
+declare(strict_types=1);
 
-use Webmozart\Assert\Assert;
+namespace SAML2;
 
 /**
  * Base class for SAML 2 bindings.
@@ -15,8 +15,9 @@ abstract class Binding
      * The destination of messages.
      *
      * This can be null, in which case the destination in the message is used.
+     * @var string|null
      */
-    protected $destination;
+    protected $destination = null;
 
 
     /**
@@ -28,10 +29,8 @@ abstract class Binding
      * @throws \Exception
      * @return \SAML2\Binding The binding.
      */
-    public static function getBinding($urn)
+    public static function getBinding(string $urn) : Binding
     {
-        Assert::string($urn);
-
         switch ($urn) {
             case Constants::BINDING_HTTP_POST:
                 return new HTTPPost();
@@ -63,7 +62,7 @@ abstract class Binding
      * @throws \Exception
      * @return \SAML2\Binding The binding.
      */
-    public static function getCurrentBinding()
+    public static function getCurrentBinding() : Binding
     {
         switch ($_SERVER['REQUEST_METHOD']) {
             case 'GET':
@@ -86,7 +85,7 @@ abstract class Binding
                     return new HTTPPost();
                 } elseif (array_key_exists('SAMLart', $_POST)) {
                     return new HTTPArtifact();
-                } elseif ($contentType === 'text/xml') {
+                } elseif ($contentType === 'text/xml' || $contentType === 'application/soap+xml') {
                     return new SOAP();
                 }
                 break;
@@ -105,16 +104,16 @@ abstract class Binding
             $logger->warning('Content-Type: '.var_export($_SERVER['CONTENT_TYPE'], true));
         }
 
-        throw new \Exception('Unable to find the current binding.');
+        throw new \Exception('Unable to find the SAML 2 binding used for this request.');
     }
 
 
     /**
      * Retrieve the destination of a message.
      *
-     * @return string|null $destination  The destination the message will be delivered to.
+     * @return string|null $destination The destination the message will be delivered to.
      */
-    public function getDestination()
+    public function getDestination() : ?string
     {
         return $this->destination;
     }
@@ -128,10 +127,8 @@ abstract class Binding
      * @param string|null $destination The destination the message should be delivered to.
      * @return void
      */
-    public function setDestination($destination)
+    public function setDestination(string $destination = null) : void
     {
-        Assert::nullOrString($destination);
-
         $this->destination = $destination;
     }
 
@@ -145,7 +142,7 @@ abstract class Binding
      * @param \SAML2\Message $message The message which should be sent.
      * @return void
      */
-    abstract public function send(Message $message);
+    abstract public function send(Message $message) : void;
 
 
     /**
@@ -156,5 +153,5 @@ abstract class Binding
      *
      * @return \SAML2\Message The received message.
      */
-    abstract public function receive();
+    abstract public function receive(): Message;
 }

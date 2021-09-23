@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\Signature;
 
 use SAML2\Configuration\CertificateProvider;
@@ -23,5 +25,5 @@ interface ChainedValidator extends ValidatorInterface
     public function canValidate(
         SignedElement $signedElement,
         CertificateProvider $configuration
-    );
+    ) : bool;
 }

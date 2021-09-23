@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\Signature;
 
 use Psr\Log\LoggerInterface;
-use SAML2\Certificate\FingerprintLoader;
+
 use SAML2\Certificate\KeyLoader;
 use SAML2\Configuration\CertificateProvider;
 use SAML2\SignedElement;
@@ -32,19 +34,19 @@ class Validator
 
     /**
      * @param SignedElement $signedElement
-     * @oaram CertificateProvider $configuration
+     * @param CertificateProvider $configuration
+     *
      * @return bool
      */
     public function hasValidSignature(
         SignedElement $signedElement,
         CertificateProvider $configuration
-    ) {
+    ) : bool {
         // should be DI
         $validator = new ValidatorChain(
             $this->logger,
             [
-                new PublicKeyValidator($this->logger, new KeyLoader()),
-                new FingerprintValidator($this->logger, new FingerprintLoader())
+                new PublicKeyValidator($this->logger, new KeyLoader())
             ]
         );
 

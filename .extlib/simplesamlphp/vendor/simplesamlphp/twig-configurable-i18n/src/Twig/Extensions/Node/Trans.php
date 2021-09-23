@@ -1,4 +1,5 @@
 <?php
+
 /**
  * A class for translation nodes that can be translated with customizable functions.
  *
@@ -22,7 +23,7 @@ class Trans extends \Twig\Extensions\Node\TransNode
      * @param \Twig\Compiler $compiler A \Twig\Compiler instance
      * @return void
      */
-    public function compile(Compiler $compiler)
+    public function compile(Compiler $compiler): void
     {
         parent::compile($compiler);
 
@@ -43,18 +44,20 @@ class Trans extends \Twig\Extensions\Node\TransNode
             /** @var \SimpleSAML\TwigConfigurableI18n\Twig\Environment $env */
             $options = $env->getOptions();
             $source = $compiler->getSource();
-            if (array_key_exists('translation_function', $options) &&
-                is_callable($options['translation_function'], false, $callable)
+            if (
+                array_key_exists('translation_function', $options)
+                && is_callable($options['translation_function'], false, $callable)
             ) {
-                $source = preg_replace('/([^\w_$])gettext\(/', '$1'.$callable.'(', $source);
+                $source = preg_replace('/([^\w_$])gettext\(/', '$1' . $callable . '(', $source);
                 $property->setValue($compiler, $source);
             }
-            if (array_key_exists('translation_function_plural', $options) &&
-                is_callable($options['translation_function_plural'], false, $callable)
+            if (
+                array_key_exists('translation_function_plural', $options)
+                && is_callable($options['translation_function_plural'], false, $callable)
             ) {
                 $source = preg_replace(
                     '/([^\w_$])ngettext\(/',
-                    '$1'.$callable.'(',
+                    '$1' . $callable . '(',
                     $source
                 );
                 $property->setValue($compiler, $source);

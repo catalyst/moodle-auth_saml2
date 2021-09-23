@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\XML\saml;
 
 use DOMElement;
+use Webmozart\Assert\Assert;
+
 use SAML2\Constants;
 use SAML2\DOMDocumentFactory;
 use SAML2\Utils;
-use Webmozart\Assert\Assert;
 
 /**
  * Serializable class representing an AttributeValue.
@@ -20,14 +23,14 @@ class AttributeValue implements \Serializable
      *
      * @var \DOMElement
      */
-    public $element;
+    private $element;
 
 
     /**
      * Create an AttributeValue.
      *
      * @param mixed $value The value of this element. Can be one of:
-     *  - string                      Create an attribute value with a simple string.
+     *  - string                       Create an attribute value with a simple string.
      *  - \DOMElement(AttributeValue)  Create an attribute value of the given DOMElement.
      *  - \DOMElement                  Create an attribute value with the given DOMElement as a child.
      */
@@ -37,32 +40,33 @@ class AttributeValue implements \Serializable
 
         if (is_string($value)) {
             $doc = DOMDocumentFactory::create();
-            $this->setElement($doc->createElementNS(Constants::NS_SAML, 'saml:AttributeValue'));
-            $this->getElement()->setAttributeNS(Constants::NS_XSI, 'xsi:type', 'xs:string');
-            $this->getElement()->appendChild($doc->createTextNode($value));
+            $this->element = $doc->createElementNS(Constants::NS_SAML, 'saml:AttributeValue');
+            $this->element->setAttributeNS(Constants::NS_XSI, 'xsi:type', 'xs:string');
+            $this->element->appendChild($doc->createTextNode($value));
 
             /* Make sure that the xs-namespace is available in the AttributeValue (for xs:string). */
-            $this->getElement()->setAttributeNS(Constants::NS_XS, 'xs:tmp', 'tmp');
-            $this->getElement()->removeAttributeNS(Constants::NS_XS, 'tmp');
+            $this->element->setAttributeNS(Constants::NS_XS, 'xs:tmp', 'tmp');
+            $this->element->removeAttributeNS(Constants::NS_XS, 'tmp');
             return;
         }
 
         if ($value->namespaceURI === Constants::NS_SAML && $value->localName === 'AttributeValue') {
-            $this->setElement(Utils::copyElement($value));
+            $this->element = Utils::copyElement($value);
             return;
         }
 
         $doc = DOMDocumentFactory::create();
-        $this->setElement($doc->createElementNS(Constants::NS_SAML, 'saml:AttributeValue'));
+        $this->element = $doc->createElementNS(Constants::NS_SAML, 'saml:AttributeValue');
         Utils::copyElement($value, $this->element);
     }
 
 
     /**
      * Collect the value of the element-property
+     *
      * @return \DOMElement
      */
-    public function getElement()
+    public function getElement() : DOMElement
     {
         return $this->element;
     }
@@ -70,10 +74,11 @@ class AttributeValue implements \Serializable
 
     /**
      * Set the value of the element-property
+     *
      * @param \DOMElement $element
      * @return void
      */
-    public function setElement(DOMElement $element)
+    public function setElement(DOMElement $element) : void
     {
         $this->element = $element;
     }
@@ -85,21 +90,21 @@ class AttributeValue implements \Serializable
      * @param  \DOMElement $parent The element we should append this attribute value to.
      * @return \DOMElement The generated AttributeValue element.
      */
-    public function toXML(DOMElement $parent)
+    public function toXML(DOMElement $parent) : DOMElement
     {
-        Assert::isInstanceOf($this->getElement(), DOMElement::class);
         Assert::same($this->getElement()->namespaceURI, Constants::NS_SAML);
-        Assert::same($this->element->localName, "AttributeValue");
+        Assert::same($this->getElement()->localName, "AttributeValue");
 
-        return Utils::copyElement($this->getElement(), $parent);
+        return Utils::copyElement($this->element, $parent);
     }
 
 
     /**
      * Returns a plain text content of the attribute value.
+     *
      * @return string
      */
-    public function getString()
+    public function getString() : string
     {
         return $this->element->textContent;
     }
@@ -112,14 +117,12 @@ class AttributeValue implements \Serializable
      *
      * @return string This attribute value.
      */
-    public function __toString()
+    public function __toString() : string
     {
-        Assert::isInstanceOf($this->getElement(), DOMElement::class);
-
-        $doc = $this->getElement()->ownerDocument;
+        $doc = $this->element->ownerDocument;
 
         $ret = '';
-        foreach ($this->getElement()->childNodes as $c) {
+        foreach ($this->element->childNodes as $c) {
             $ret .= $doc->saveXML($c);
         }
 
@@ -132,9 +135,9 @@ class AttributeValue implements \Serializable
      *
      * @return string The AttributeValue serialized.
      */
-    public function serialize()
+    public function serialize() : string
     {
-        return serialize($this->getElement()->ownerDocument->saveXML($this->getElement()));
+        return serialize($this->element->ownerDocument->saveXML($this->element));
     }
 
 
@@ -143,10 +146,12 @@ class AttributeValue implements \Serializable
      *
      * @param string $serialized The serialized AttributeValue.
      * @return void
+     *
+     * Type hint not possible due to upstream method signature
      */
-    public function unserialize($serialized)
+    public function unserialize($serialized) : void
     {
         $doc = DOMDocumentFactory::fromString(unserialize($serialized));
-        $this->setElement($doc->documentElement);
+        $this->element = $doc->documentElement;
     }
 }

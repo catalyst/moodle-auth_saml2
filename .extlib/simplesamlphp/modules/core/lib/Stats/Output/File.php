@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SimpleSAML\Module\core\Stats\Output;
 
 use SimpleSAML\Configuration;
@@ -55,10 +57,8 @@ class File extends \SimpleSAML\Stats\Output
      * @param string $date  The date for the log file.
      * @return void
      */
-    private function openLog($date)
+    private function openLog(string $date): void
     {
-        assert(is_string($date));
-
         if ($this->file !== null && $this->file !== false) {
             fclose($this->file);
             $this->file = null;

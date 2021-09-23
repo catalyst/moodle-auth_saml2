@@ -15,8 +15,10 @@ namespace Symfony\Component\Config\Resource;
  * DirectoryResource represents a resources stored in a subdirectory tree.
  *
  * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @final since Symfony 4.3
  */
-class DirectoryResource implements SelfCheckingResourceInterface, \Serializable
+class DirectoryResource implements SelfCheckingResourceInterface
 {
     private $resource;
     private $pattern;
@@ -27,7 +29,7 @@ class DirectoryResource implements SelfCheckingResourceInterface, \Serializable
      *
      * @throws \InvalidArgumentException
      */
-    public function __construct($resource, $pattern = null)
+    public function __construct(string $resource, string $pattern = null)
     {
         $this->resource = realpath($resource) ?: (file_exists($resource) ? $resource : false);
         $this->pattern = $pattern;
@@ -102,21 +104,5 @@ class DirectoryResource implements SelfCheckingResourceInterface, \Serializable
         }
 
         return true;
-    }
-
-    /**
-     * @internal
-     */
-    public function serialize()
-    {
-        return serialize([$this->resource, $this->pattern]);
-    }
-
-    /**
-     * @internal
-     */
-    public function unserialize($serialized)
-    {
-        list($this->resource, $this->pattern) = unserialize($serialized);
     }
 }

@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\Certificate;
 
 use SAML2\Certificate\Exception\InvalidCertificateStructureException;
 use SAML2\Certificate\Exception\NoKeysFoundException;
+use SAML2\Certificate\KeyCollection;
 use SAML2\Configuration\CertificateProvider;
 use SAML2\Exception\InvalidArgumentException;
 use SAML2\Utilities\Certificate;
@@ -40,9 +43,9 @@ class KeyLoader
      */
     public static function extractPublicKeys(
         CertificateProvider $config,
-        $usage = null,
-        $required = false
-    ) {
+        string $usage = null,
+        bool $required = false
+    ) : KeyCollection {
         $keyLoader = new self();
 
         return $keyLoader->loadKeysFromConfiguration($config, $usage, $required);
@@ -51,15 +54,15 @@ class KeyLoader
 
     /**
      * @param \SAML2\Configuration\CertificateProvider $config
-     * @param null|string                             $usage
-     * @param bool                                    $required
+     * @param null|string $usage
+     * @param bool $required
      * @return \SAML2\Certificate\KeyCollection
      */
     public function loadKeysFromConfiguration(
         CertificateProvider $config,
-        $usage = null,
-        $required = false
-    ) {
+        string $usage = null,
+        bool $required = false
+    ) : KeyCollection {
         $keys = $config->getKeys();
         $certificateData = $config->getCertificateData();
         $certificateFile = $config->getCertificateFile();
@@ -87,11 +90,11 @@ class KeyLoader
      * Loads the keys given, optionally excluding keys when a usage is given and they
      * are not configured to be used with the usage given
      *
-     * @param array $configuredKeys
-     * @param string $usage
+     * @param array|\Traversable $configuredKeys
+     * @param string|null $usage
      * @return void
      */
-    public function loadKeys(array $configuredKeys, $usage)
+    public function loadKeys($configuredKeys, string $usage = null) : void
     {
         foreach ($configuredKeys as $keyData) {
             if (isset($keyData['X509Certificate'])) {
@@ -115,12 +118,8 @@ class KeyLoader
      * @param string $certificateData
      * @return void
      */
-    public function loadCertificateData($certificateData)
+    public function loadCertificateData(string $certificateData) : void
     {
-        if (!is_string($certificateData)) {
-            throw InvalidArgumentException::invalidType('string', $certificateData);
-        }
-
         $this->loadedKeys->add(X509::createFromCertificateData($certificateData));
     }
 
@@ -131,7 +130,7 @@ class KeyLoader
      * @param string $certificateFile the full path to the cert file.
      * @return void
      */
-    public function loadCertificateFile($certificateFile)
+    public function loadCertificateFile(string $certificateFile) : void
     {
         $certificate = File::getFileContents($certificateFile);
 
@@ -151,7 +150,7 @@ class KeyLoader
     /**
      * @return \SAML2\Certificate\KeyCollection
      */
-    public function getKeys()
+    public function getKeys() : KeyCollection
     {
         return $this->loadedKeys;
     }
@@ -160,8 +159,8 @@ class KeyLoader
     /**
      * @return bool
      */
-    public function hasKeys()
+    public function hasKeys() : bool
     {
-        return !!count($this->loadedKeys);
+        return count($this->loadedKeys) && true;
     }
 }

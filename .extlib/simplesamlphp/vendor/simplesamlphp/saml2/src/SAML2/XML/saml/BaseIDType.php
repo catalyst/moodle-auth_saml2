@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * Base class corresponding to the BaseID element.
  *
@@ -8,9 +11,10 @@
 
 namespace SAML2\XML\saml;
 
+use DOMElement;
+
 use SAML2\Constants;
 use SAML2\DOMDocumentFactory;
-use Webmozart\Assert\Assert;
 
 abstract class BaseIDType
 {
@@ -22,7 +26,7 @@ abstract class BaseIDType
      *
      * @var string|null
      */
-    public $NameQualifier = null;
+    protected $NameQualifier = null;
 
     /**
      * Further qualifies an identifier with the name of a service provider or affiliation of providers.
@@ -32,7 +36,7 @@ abstract class BaseIDType
      *
      * @var string|null
      */
-    public $SPNameQualifier = null;
+    protected $SPNameQualifier = null;
 
     /**
      * The name for this BaseID.
@@ -54,7 +58,7 @@ abstract class BaseIDType
      *
      * @param \DOMElement|null $xml The XML element we should load, if any.
      */
-    public function __construct(\DOMElement $xml = null)
+    public function __construct(DOMElement $xml = null)
     {
         if ($xml === null) {
             return;
@@ -63,20 +67,21 @@ abstract class BaseIDType
         $this->element = $xml;
 
         if ($xml->hasAttribute('NameQualifier')) {
-            $this->setNameQualifier($xml->getAttribute('NameQualifier'));
+            $this->NameQualifier = $xml->getAttribute('NameQualifier');
         }
 
         if ($xml->hasAttribute('SPNameQualifier')) {
-            $this->setSPNameQualifier($xml->getAttribute('SPNameQualifier'));
+            $this->SPNameQualifier = $xml->getAttribute('SPNameQualifier');
         }
     }
 
 
     /**
      * Collect the value of the NameQualifier-property
+     *
      * @return string|null
      */
-    public function getNameQualifier()
+    public function getNameQualifier() : ?string
     {
         return $this->NameQualifier;
     }
@@ -84,21 +89,22 @@ abstract class BaseIDType
 
     /**
      * Set the value of the NameQualifier-property
+     *
      * @param string|null $nameQualifier
      * @return void
      */
-    public function setNameQualifier($nameQualifier = null)
+    public function setNameQualifier(string $nameQualifier = null) : void
     {
-        Assert::nullOrString($nameQualifier);
         $this->NameQualifier = $nameQualifier;
     }
 
 
     /**
      * Collect the value of the SPNameQualifier-property
+     *
      * @return string|null
      */
-    public function getSPNameQualifier()
+    public function getSPNameQualifier() : ?string
     {
         return $this->SPNameQualifier;
     }
@@ -106,12 +112,12 @@ abstract class BaseIDType
 
     /**
      * Set the value of the SPNameQualifier-property
+     *
      * @param string|null $spNameQualifier
      * @return void
      */
-    public function setSPNameQualifier($spNameQualifier = null)
+    public function setSPNameQualifier(string $spNameQualifier = null) : void
     {
-        Assert::nullOrString($spNameQualifier);
         $this->SPNameQualifier = $spNameQualifier;
     }
 
@@ -122,11 +128,8 @@ abstract class BaseIDType
      * @param \DOMElement $parent The element we are converting to XML.
      * @return \DOMElement The XML element after adding the data corresponding to this BaseID.
      */
-    public function toXML(\DOMElement $parent = null)
+    public function toXML(DOMElement $parent = null) : DOMElement
     {
-        Assert::nullOrString($this->getNameQualifier());
-        Assert::nullOrString($this->getSPNameQualifier());
-
         if ($parent === null) {
             $parent = DOMDocumentFactory::create();
             $doc = $parent;
@@ -136,12 +139,12 @@ abstract class BaseIDType
         $element = $doc->createElementNS(Constants::NS_SAML, $this->nodeName);
         $parent->appendChild($element);
 
-        if ($this->getNameQualifier() !== null) {
-            $element->setAttribute('NameQualifier', $this->getNameQualifier());
+        if ($this->NameQualifier !== null) {
+            $element->setAttribute('NameQualifier', $this->NameQualifier);
         }
 
-        if ($this->getSPNameQualifier() !== null) {
-            $element->setAttribute('SPNameQualifier', $this->getSPNameQualifier());
+        if ($this->SPNameQualifier !== null) {
+            $element->setAttribute('SPNameQualifier', $this->SPNameQualifier);
         }
 
         return $element;

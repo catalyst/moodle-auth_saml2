@@ -1,6 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\Compat;
+
+use \Psr\Log\LoggerInterface;
+use \Psr\Log\NullLogger;
 
 /**
  * Class \SAML2\Compat\MockContainer
@@ -25,12 +30,12 @@ class MockContainer extends AbstractContainer
     /**
      * @var array
      */
-    private $redirectData;
+    private $redirectData = [];
 
     /**
-     * @var string
+     * @var string|null
      */
-    private $postRedirectUrl;
+    private $postRedirectUrl = null;
 
     /**
      * @var array
@@ -42,9 +47,9 @@ class MockContainer extends AbstractContainer
      * Get a PSR-3 compatible logger.
      * @return \Psr\Log\LoggerInterface
      */
-    public function getLogger()
+    public function getLogger() : LoggerInterface
     {
-        return new \Psr\Log\NullLogger();
+        return new NullLogger();
     }
 
 
@@ -52,7 +57,7 @@ class MockContainer extends AbstractContainer
      * Generate a random identifier for identifying SAML2 documents.
      * @return string
      */
-    public function generateId()
+    public function generateId() : string
     {
         return $this->id;
     }
@@ -67,11 +72,11 @@ class MockContainer extends AbstractContainer
      * - **encrypt** XML that is about to be encrypted
      * - **decrypt** XML that was just decrypted
      *
-     * @param string $message
+     * @param \DOMElement|string $message
      * @param string $type
      * @return void
      */
-    public function debugMessage($message, $type)
+    public function debugMessage($message, string $type) : void
     {
         $this->debugMessages[$type] = $message;
     }
@@ -84,7 +89,7 @@ class MockContainer extends AbstractContainer
      * @param array $data
      * @return void
      */
-    public function redirect($url, $data = [])
+    public function redirect(string $url, array $data = []) : void
     {
         $this->redirectUrl = $url;
         $this->redirectData = $data;
@@ -94,13 +99,38 @@ class MockContainer extends AbstractContainer
     /**
      * Trigger the user to perform a POST to the given URL with the given data.
      *
-     * @param string $url
+     * @param string|null $url
      * @param array $data
      * @return void
      */
-    public function postRedirect($url, $data = [])
+    public function postRedirect(string $url = null, array $data = []) : void
     {
         $this->postRedirectUrl = $url;
         $this->postRedirectData = $data;
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getTempDir() : string
+    {
+        return sys_get_temp_dir();
+    }
+
+
+    /**
+     * @param string $filename
+     * @param string $data
+     * @param int|null $mode
+     * @return void
+     */
+    public function writeFile(string $filename, string $data, int $mode = null) : void
+    {
+        if ($mode === null) {
+            $mode = 0600;
+        }
+        file_put_contents($filename, $data);
+        chmod($filename, $mode);
     }
 }

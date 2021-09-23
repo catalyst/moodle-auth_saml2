@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\Response\Validation\ConstraintValidator;
 
 use SAML2\Constants;
@@ -12,12 +14,12 @@ class IsSuccessful implements ConstraintValidator
     /**
      * @param \SAML2\Response $response
      * @param \SAML2\Response\Validation\Result $result
-     *
+     * @return void
      */
     public function validate(
         Response $response,
         Result $result
-    ) {
+    ) : void {
         if (!$response->isSuccess()) {
             $result->addError($this->buildMessage($response->getStatus()));
         }
@@ -29,7 +31,7 @@ class IsSuccessful implements ConstraintValidator
      *
      * @return string
      */
-    private function buildMessage(array $responseStatus)
+    private function buildMessage(array $responseStatus) : string
     {
         return sprintf(
             '%s%s%s',
@@ -46,7 +48,7 @@ class IsSuccessful implements ConstraintValidator
      *
      * @return string
      */
-    private function truncateStatus($status)
+    private function truncateStatus(string $status) : string
     {
         $prefixLength = strlen(Constants::STATUS_PREFIX);
         if (strpos($status, Constants::STATUS_PREFIX) !== 0) {

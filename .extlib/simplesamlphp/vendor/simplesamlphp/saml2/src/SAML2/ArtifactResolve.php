@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2;
 
-use Webmozart\Assert\Assert;
+use DOMElement;
 
 /**
  * The Artifact is part of the SAML 2.0 IdP code, and it builds an artifact object.
@@ -14,6 +16,7 @@ use Webmozart\Assert\Assert;
  */
 class ArtifactResolve extends Request
 {
+    /** @var string */
     private $artifact;
 
 
@@ -22,7 +25,7 @@ class ArtifactResolve extends Request
      *
      * @param \DOMElement|null $xml The input assertion.
      */
-    public function __construct(\DOMElement $xml = null)
+    public function __construct(DOMElement $xml = null)
     {
         parent::__construct('ArtifactResolve', $xml);
 
@@ -37,7 +40,7 @@ class ArtifactResolve extends Request
      *
      * @return string artifact.
      */
-    public function getArtifact()
+    public function getArtifact() : string
     {
         return $this->artifact;
     }
@@ -49,9 +52,8 @@ class ArtifactResolve extends Request
      * @param string $artifact
      * @return void
      */
-    public function setArtifact($artifact)
+    public function setArtifact(string $artifact) : void
     {
-        Assert::string($artifact);
         $this->artifact = $artifact;
     }
 
@@ -61,7 +63,7 @@ class ArtifactResolve extends Request
      *
      * @return \DOMElement This response.
      */
-    public function toUnsignedXML()
+    public function toUnsignedXML() : DOMElement
     {
         $root = parent::toUnsignedXML();
         $artifactelement = $this->document->createElementNS(Constants::NS_SAMLP, 'Artifact', $this->artifact);

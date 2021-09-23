@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\Configuration;
 
 /**
@@ -23,7 +25,7 @@ interface CertificateProvider extends Queryable
      *
      * @return null|string
      */
-    public function getCertificateData();
+    public function getCertificateData() : ?string;
 
 
     /**
@@ -31,16 +33,5 @@ interface CertificateProvider extends Queryable
      *
      * @return null|string
      */
-    public function getCertificateFile();
-
-
-    /**
-     * Returns an array or \Traversable where each element represents a certificate fingerprint. A certificate
-     * fingerprint is a string containing the certificate fingerprint.
-     *
-     * @return null|array|\Traversable
-     *
-     * @deprecated Please use getCertifiateFile() or getCertificateData()
-     */
-    public function getCertificateFingerprints();
+    public function getCertificateFile() : ?string;
 }

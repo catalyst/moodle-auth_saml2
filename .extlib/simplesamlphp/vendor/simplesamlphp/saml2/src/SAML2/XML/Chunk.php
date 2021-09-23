@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\XML;
 
 use DOMElement;
+
 use SAML2\DOMDocumentFactory;
 use SAML2\Utils;
-use Webmozart\Assert\Assert;
 
 /**
  * Serializable class used to hold an XML element.
@@ -19,21 +21,21 @@ class Chunk implements \Serializable
      *
      * @var string
      */
-    public $localName;
+    private $localName;
 
     /**
      * The namespaceURI of this element.
      *
      * @var string|null
      */
-    public $namespaceURI;
+    private $namespaceURI;
 
     /**
      * The \DOMElement we contain.
      *
      * @var \DOMElement
      */
-    public $xml;
+    private $xml;
 
 
     /**
@@ -41,12 +43,12 @@ class Chunk implements \Serializable
      *
      * @param \DOMElement $xml The element we should copy.
      */
-    public function __construct(\DOMElement $xml)
+    public function __construct(DOMElement $xml)
     {
-        $this->setLocalName($xml->localName);
-        $this->setNamespaceURI($xml->namespaceURI);
+        $this->localName = $xml->localName;
+        $this->namespaceURI = $xml->namespaceURI;
 
-        $this->setXml(Utils::copyElement($xml));
+        $this->xml = Utils::copyElement($xml);
     }
 
 
@@ -54,9 +56,8 @@ class Chunk implements \Serializable
      * Get this \DOMElement.
      *
      * @return \DOMElement This element.
-     * @deprecated
      */
-    public function getXML()
+    public function getXML() : DOMElement
     {
         return $this->xml;
     }
@@ -68,7 +69,7 @@ class Chunk implements \Serializable
      * @param  \DOMElement $parent The element we should append this element to.
      * @return \DOMElement The new element.
      */
-    public function toXML(DOMElement $parent)
+    public function toXML(DOMElement $parent) : DOMElement
     {
         return Utils::copyElement($this->xml, $parent);
     }
@@ -76,9 +77,10 @@ class Chunk implements \Serializable
 
     /**
      * Collect the value of the localName-property
+     *
      * @return string
      */
-    public function getLocalName()
+    public function getLocalName() : string
     {
         return $this->localName;
     }
@@ -86,21 +88,22 @@ class Chunk implements \Serializable
 
     /**
      * Set the value of the localName-property
+     *
      * @param string $localName
      * @return void
      */
-    public function setLocalName($localName)
+    public function setLocalName(string $localName) : void
     {
-        Assert::string($localName);
         $this->localName = $localName;
     }
 
 
     /**
      * Collect the value of the namespaceURI-property
+     *
      * @return string|null
      */
-    public function getNamespaceURI()
+    public function getNamespaceURI() : ?string
     {
         return $this->namespaceURI;
     }
@@ -108,25 +111,13 @@ class Chunk implements \Serializable
 
     /**
      * Set the value of the namespaceURI-property
+     *
      * @param string|null $namespaceURI
      * @return void
      */
-    public function setNamespaceURI($namespaceURI = null)
+    public function setNamespaceURI(string $namespaceURI = null) : void
     {
-        Assert::nullOrString($namespaceURI);
         $this->namespaceURI = $namespaceURI;
-    }
-
-
-    /**
-     * Set the value of the xml-property
-     * @param \DOMelement $xml
-     * @return void
-     */
-    private function setXml($xml)
-    {
-        Assert::isInstanceOf($xml, DOMElement::class);
-        $this->xml = $xml;
     }
 
 
@@ -135,23 +126,25 @@ class Chunk implements \Serializable
      *
      * @return string The serialized chunk.
      */
-    public function serialize()
+    public function serialize() : string
     {
-        return serialize($this->getXml()->ownerDocument->saveXML($this->getXml()));
+        return serialize($this->xml->ownerDocument->saveXML($this->xml));
     }
 
-
+    
     /**
      * Un-serialize this XML chunk.
      *
-     * @param  string          $serialized The serialized chunk.
+     * @param string $serialized The serialized chunk.
      * @return void
+     *
+     * Type hint not possible due to upstream method signature
      */
-    public function unserialize($serialized)
+    public function unserialize($serialized) : void
     {
         $doc = DOMDocumentFactory::fromString(unserialize($serialized));
-        $this->setXml($doc->documentElement);
-        $this->setLocalName($this->getXml()->localName);
-        $this->setNamespaceURI($this->getXml()->namespaceURI);
+        $this->xml = $doc->documentElement;
+        $this->setLocalName($this->xml->localName);
+        $this->setNamespaceURI($this->xml->namespaceURI);
     }
 }

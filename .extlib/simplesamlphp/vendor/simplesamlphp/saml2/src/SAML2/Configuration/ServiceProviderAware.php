@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\Configuration;
 
 /**
@@ -11,5 +13,5 @@ interface ServiceProviderAware
      * @param ServiceProvider $serviceProvider
      * @return void
      */
-    public function setServiceProvider(ServiceProvider $serviceProvider);
+    public function setServiceProvider(ServiceProvider $serviceProvider) : void;
 }

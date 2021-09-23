@@ -17,6 +17,7 @@ use Symfony\Component\Config\Definition\EnumNode;
 use Symfony\Component\Config\Definition\NodeInterface;
 use Symfony\Component\Config\Definition\PrototypedArrayNode;
 use Symfony\Component\Config\Definition\ScalarNode;
+use Symfony\Component\Config\Definition\VariableNode;
 use Symfony\Component\Yaml\Inline;
 
 /**
@@ -69,11 +70,7 @@ class YamlReferenceDumper
         return $ref;
     }
 
-    /**
-     * @param int  $depth
-     * @param bool $prototypedArray
-     */
-    private function writeNode(NodeInterface $node, NodeInterface $parentNode = null, $depth = 0, $prototypedArray = false)
+    private function writeNode(NodeInterface $node, NodeInterface $parentNode = null, int $depth = 0, bool $prototypedArray = false)
     {
         $comments = [];
         $default = '';
@@ -99,6 +96,9 @@ class YamlReferenceDumper
         } elseif ($node instanceof EnumNode) {
             $comments[] = 'One of '.implode('; ', array_map('json_encode', $node->getValues()));
             $default = $node->hasDefaultValue() ? Inline::dump($node->getDefaultValue()) : '~';
+        } elseif (VariableNode::class === \get_class($node) && \is_array($example)) {
+            // If there is an array example, we are sure we dont need to print a default value
+            $default = '';
         } else {
             $default = '~';
 
@@ -129,7 +129,7 @@ class YamlReferenceDumper
 
         // example
         if ($example && !\is_array($example)) {
-            $comments[] = 'Example: '.$example;
+            $comments[] = 'Example: '.Inline::dump($example);
         }
 
         $default = '' != (string) $default ? ' '.$default : '';
@@ -165,7 +165,7 @@ class YamlReferenceDumper
 
             $this->writeLine('# '.$message.':', $depth * 4 + 4);
 
-            $this->writeArray($example, $depth + 1);
+            $this->writeArray(array_map([Inline::class, 'dump'], $example), $depth + 1);
         }
 
         if ($children) {
@@ -177,11 +177,8 @@ class YamlReferenceDumper
 
     /**
      * Outputs a single config reference line.
-     *
-     * @param string $text
-     * @param int    $indent
      */
-    private function writeLine($text, $indent = 0)
+    private function writeLine(string $text, int $indent = 0)
     {
         $indent = \strlen($text) + $indent;
         $format = '%'.$indent.'s';
@@ -189,7 +186,7 @@ class YamlReferenceDumper
         $this->reference .= sprintf($format, $text)."\n";
     }
 
-    private function writeArray(array $array, $depth)
+    private function writeArray(array $array, int $depth)
     {
         $isIndexed = array_values($array) === $array;
 
@@ -212,10 +209,7 @@ class YamlReferenceDumper
         }
     }
 
-    /**
-     * @return array
-     */
-    private function getPrototypeChildren(PrototypedArrayNode $node)
+    private function getPrototypeChildren(PrototypedArrayNode $node): array
     {
         $prototype = $node->getPrototype();
         $key = $node->getKeyAttribute();

@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\XML\shibmd;
 
-use SAML2\Utils;
+use DOMElement;
 use Webmozart\Assert\Assert;
+
+use SAML2\Utils;
 
 /**
  * Class which represents the Scope element found in Shibboleth metadata.
@@ -23,14 +27,14 @@ class Scope
      *
      * @var string
      */
-    public $scope;
+    private $scope = '';
 
     /**
      * Whether this is a regexp scope.
      *
      * @var bool
      */
-    public $regexp = false;
+    private $regexp = false;
 
 
     /**
@@ -38,22 +42,23 @@ class Scope
      *
      * @param \DOMElement|null $xml The XML element we should load.
      */
-    public function __construct(\DOMElement $xml = null)
+    public function __construct(DOMElement $xml = null)
     {
         if ($xml === null) {
             return;
         }
 
-        $this->setScope($xml->textContent);
-        $this->setIsRegexpScope(Utils::parseBoolean($xml, 'regexp', false));
+        $this->scope = $xml->textContent;
+        $this->regexp = Utils::parseBoolean($xml, 'regexp', false);
     }
 
 
     /**
      * Collect the value of the scope-property
+     *
      * @return string
      */
-    public function getScope()
+    public function getScope() : string
     {
         return $this->scope;
     }
@@ -61,21 +66,22 @@ class Scope
 
     /**
      * Set the value of the scope-property
+     *
      * @param string $scope
      * @return void
      */
-    public function setScope($scope)
+    public function setScope(string $scope) : void
     {
-        Assert::string($scope);
         $this->scope = $scope;
     }
 
 
     /**
      * Collect the value of the regexp-property
-     * @return boolean
+     *
+     * @return bool
      */
-    public function isRegexpScope()
+    public function isRegexpScope() : bool
     {
         return $this->regexp;
     }
@@ -83,12 +89,12 @@ class Scope
 
     /**
      * Set the value of the regexp-property
-     * @param boolean $regexp
+     *
+     * @param bool $regexp
      * @return void
      */
-    public function setIsRegexpScope($regexp)
+    public function setIsRegexpScope(bool $regexp) : void
     {
-        Assert::boolean($regexp);
         $this->regexp = $regexp;
     }
 
@@ -99,19 +105,18 @@ class Scope
      * @param \DOMElement $parent The element we should append this Scope to.
      * @return \DOMElement
      */
-    public function toXML(\DOMElement $parent)
+    public function toXML(DOMElement $parent) : DOMElement
     {
-        Assert::string($this->getScope());
-        Assert::nullOrBoolean($this->isRegexpScope());
+        Assert::notEmpty($this->scope);
 
         $doc = $parent->ownerDocument;
 
         $e = $doc->createElementNS(Scope::NS, 'shibmd:Scope');
         $parent->appendChild($e);
 
-        $e->appendChild($doc->createTextNode($this->getScope()));
+        $e->appendChild($doc->createTextNode($this->scope));
 
-        if ($this->isRegexpScope() === true) {
+        if ($this->regexp === true) {
             $e->setAttribute('regexp', 'true');
         } else {
             $e->setAttribute('regexp', 'false');

@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\XML\md;
 
+use DOMElement;
+
 use SAML2\Utils;
-use Webmozart\Assert\Assert;
 
 /**
  * Class representing SAML 2 SPSSODescriptor.
@@ -17,14 +20,14 @@ class SPSSODescriptor extends SSODescriptorType
      *
      * @var bool|null
      */
-    public $AuthnRequestsSigned = null;
+    private $AuthnRequestsSigned = null;
 
     /**
      * Whether this SP wants the Assertion elements to be signed.
      *
      * @var bool|null
      */
-    public $WantAssertionsSigned = null;
+    private $WantAssertionsSigned = null;
 
     /**
      * List of AssertionConsumerService endpoints for this SP.
@@ -33,7 +36,7 @@ class SPSSODescriptor extends SSODescriptorType
      *
      * @var \SAML2\XML\md\IndexedEndpointType[]
      */
-    public $AssertionConsumerService = [];
+    private $AssertionConsumerService = [];
 
     /**
      * List of AttributeConsumingService descriptors for this SP.
@@ -42,7 +45,7 @@ class SPSSODescriptor extends SSODescriptorType
      *
      * @var \SAML2\XML\md\AttributeConsumingService[]
      */
-    public $AttributeConsumingService = [];
+    private $AttributeConsumingService = [];
 
 
     /**
@@ -50,7 +53,7 @@ class SPSSODescriptor extends SSODescriptorType
      *
      * @param \DOMElement|null $xml The XML element we should load.
      */
-    public function __construct(\DOMElement $xml = null)
+    public function __construct(DOMElement $xml = null)
     {
         parent::__construct('md:SPSSODescriptor', $xml);
 
@@ -58,24 +61,27 @@ class SPSSODescriptor extends SSODescriptorType
             return;
         }
 
-        $this->setAuthnRequestsSigned(Utils::parseBoolean($xml, 'AuthnRequestsSigned', null));
-        $this->setWantAssertionsSigned(Utils::parseBoolean($xml, 'WantAssertionsSigned', null));
+        $this->AuthnRequestsSigned = Utils::parseBoolean($xml, 'AuthnRequestsSigned', null);
+        $this->WantAssertionsSigned = Utils::parseBoolean($xml, 'WantAssertionsSigned', null);
 
+        /** @var \DOMElement $ep */
         foreach (Utils::xpQuery($xml, './saml_metadata:AssertionConsumerService') as $ep) {
-            $this->addAssertionConsumerService(new IndexedEndpointType($ep));
+            $this->AssertionConsumerService[] = new IndexedEndpointType($ep);
         }
 
+        /** @var \DOMElement $acs */
         foreach (Utils::xpQuery($xml, './saml_metadata:AttributeConsumingService') as $acs) {
-            $this->addAttributeConsumingService(new AttributeConsumingService($acs));
+            $this->AttributeConsumingService[] = new AttributeConsumingService($acs);
         }
     }
 
 
     /**
      * Collect the value of the AuthnRequestsSigned-property
+     *
      * @return bool|null
      */
-    public function getAuthnRequestsSigned()
+    public function getAuthnRequestsSigned() : ?bool
     {
         return $this->AuthnRequestsSigned;
     }
@@ -83,21 +89,22 @@ class SPSSODescriptor extends SSODescriptorType
 
     /**
      * Set the value of the AuthnRequestsSigned-property
+     *
      * @param bool|null $flag
      * @return void
      */
-    public function setAuthnRequestsSigned($flag = null)
+    public function setAuthnRequestsSigned(bool $flag = null) : void
     {
-        Assert::nullOrBoolean($flag);
         $this->AuthnRequestsSigned = $flag;
     }
 
 
     /**
      * Collect the value of the WantAssertionsSigned-property
+     *
      * @return bool|null
      */
-    public function wantAssertionsSigned()
+    public function wantAssertionsSigned() : ?bool
     {
         return $this->WantAssertionsSigned;
     }
@@ -105,21 +112,22 @@ class SPSSODescriptor extends SSODescriptorType
 
     /**
      * Set the value of the WantAssertionsSigned-property
+     *
      * @param bool|null $flag
      * @return void
      */
-    public function setWantAssertionsSigned($flag = null)
+    public function setWantAssertionsSigned(bool $flag = null) : void
     {
-        Assert::nullOrBoolean($flag);
         $this->WantAssertionsSigned = $flag;
     }
 
 
     /**
      * Collect the value of the AssertionConsumerService-property
+     *
      * @return array
      */
-    public function getAssertionConsumerService()
+    public function getAssertionConsumerService() : array
     {
         return $this->AssertionConsumerService;
     }
@@ -127,10 +135,11 @@ class SPSSODescriptor extends SSODescriptorType
 
     /**
      * Set the value of the AssertionConsumerService-property
+     *
      * @param array $acs
      * @return void
      */
-    public function setAssertionConsumerService(array $acs)
+    public function setAssertionConsumerService(array $acs) : void
     {
         $this->AssertionConsumerService = $acs;
     }
@@ -138,10 +147,11 @@ class SPSSODescriptor extends SSODescriptorType
 
     /**
      * Add the value to the AssertionConsumerService-property
+     *
      * @param \SAML2\XML\md\IndexedEndpointType $acs
      * @return void
      */
-    public function addAssertionConsumerService(IndexedEndpointType $acs)
+    public function addAssertionConsumerService(IndexedEndpointType $acs) : void
     {
         $this->AssertionConsumerService[] = $acs;
     }
@@ -149,9 +159,10 @@ class SPSSODescriptor extends SSODescriptorType
 
     /**
      * Collect the value of the AttributeConsumingService-property
+     *
      * @return array
      */
-    public function getAttributeConsumingService()
+    public function getAttributeConsumingService() : array
     {
         return $this->AttributeConsumingService;
     }
@@ -159,10 +170,11 @@ class SPSSODescriptor extends SSODescriptorType
 
     /**
      * Add the value to the AttributeConsumingService-property
+     *
      * @param \SAML2\XML\md\AttributeConsumingService $acs
      * @return void
      */
-    public function addAttributeConsumingService(AttributeConsumingService $acs)
+    public function addAttributeConsumingService(AttributeConsumingService $acs) : void
     {
         $this->AttributeConsumingService[] = $acs;
     }
@@ -170,10 +182,11 @@ class SPSSODescriptor extends SSODescriptorType
 
     /**
      * Set the value of the AttributeConsumingService-property
+     *
      * @param array $acs
      * @return void
      */
-    public function setAttributeConsumingService(array $acs)
+    public function setAttributeConsumingService(array $acs) : void
     {
         $this->AttributeConsumingService = $acs;
     }
@@ -185,32 +198,23 @@ class SPSSODescriptor extends SSODescriptorType
      * @param \DOMElement $parent The EntityDescriptor we should append this SPSSODescriptor to.
      * @return \DOMElement
      */
-    public function toXML(\DOMElement $parent)
+    public function toXML(DOMElement $parent) : DOMElement
     {
-        Assert::nullOrBoolean($this->getAuthnRequestsSigned());
-        Assert::nullOrBoolean($this->wantAssertionsSigned());
-        Assert::isArray($this->getAssertionConsumerService());
-        Assert::isArray($this->getAttributeConsumingService());
-
         $e = parent::toXML($parent);
 
-        if ($this->getAuthnRequestsSigned() === true) {
-            $e->setAttribute('AuthnRequestsSigned', 'true');
-        } elseif ($this->getAuthnRequestsSigned() === false) {
-            $e->setAttribute('AuthnRequestsSigned', 'false');
+        if (is_bool($this->AuthnRequestsSigned)) {
+            $e->setAttribute('AuthnRequestsSigned', $this->AuthnRequestsSigned ? 'true' : 'false');
         }
 
-        if ($this->wantAssertionsSigned() === true) {
-            $e->setAttribute('WantAssertionsSigned', 'true');
-        } elseif ($this->wantAssertionsSigned() === false) {
-            $e->setAttribute('WantAssertionsSigned', 'false');
+        if (is_bool($this->WantAssertionsSigned)) {
+            $e->setAttribute('WantAssertionsSigned', $this->WantAssertionsSigned ? 'true' : 'false');
         }
 
-        foreach ($this->getAssertionConsumerService() as $ep) {
+        foreach ($this->AssertionConsumerService as $ep) {
             $ep->toXML($e, 'md:AssertionConsumerService');
         }
 
-        foreach ($this->getAttributeConsumingService() as $acs) {
+        foreach ($this->AttributeConsumingService as $acs) {
             $acs->toXML($e);
         }
 

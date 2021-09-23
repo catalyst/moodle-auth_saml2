@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\XML\md;
+
+use DOMElement;
 
 use SAML2\Constants;
 use SAML2\Utils;
 use SAML2\XML\Chunk;
-use Webmozart\Assert\Assert;
 
 /**
  * Class representing SAML 2 ContactPerson.
@@ -19,7 +22,7 @@ class ContactPerson
      *
      * @var string
      */
-    public $contactType;
+    private $contactType;
 
     /**
      * Extensions on this element.
@@ -28,49 +31,49 @@ class ContactPerson
      *
      * @var array
      */
-    public $Extensions = [];
+    private $Extensions = [];
 
     /**
      * The Company of this contact.
      *
-     * @var string
+     * @var string|null
      */
-    public $Company = null;
+    private $Company = null;
 
     /**
      * The GivenName of this contact.
      *
-     * @var string
+     * @var string|null
      */
-    public $GivenName = null;
+    private $GivenName = null;
 
     /**
      * The SurName of this contact.
      *
-     * @var string
+     * @var string|null
      */
-    public $SurName = null;
+    private $SurName = null;
 
     /**
      * The EmailAddresses of this contact.
      *
      * @var array
      */
-    public $EmailAddress = [];
+    private $EmailAddress = [];
 
     /**
      * The TelephoneNumbers of this contact.
      *
      * @var array
      */
-    public $TelephoneNumber = [];
+    private $TelephoneNumber = [];
 
     /**
      * Extra attributes on the contact element.
      *
      * @var array
      */
-    public $ContactPersonAttributes = [];
+    private $ContactPersonAttributes = [];
 
 
     /**
@@ -79,7 +82,7 @@ class ContactPerson
      * @param \DOMElement|null $xml The XML element we should load.
      * @throws \Exception
      */
-    public function __construct(\DOMElement $xml = null)
+    public function __construct(DOMElement $xml = null)
     {
         if ($xml === null) {
             return;
@@ -115,10 +118,8 @@ class ContactPerson
      * @param  string     $name   The name of the child elements.
      * @return array      The value of the child elements.
      */
-    private static function getStringElements(\DOMElement $parent, $name)
+    private static function getStringElements(\DOMElement $parent, string $name) : array
     {
-        Assert::string($name);
-
         $e = Utils::xpQuery($parent, './saml_metadata:'.$name);
 
         $ret = [];
@@ -138,10 +139,8 @@ class ContactPerson
      * @throws \Exception
      * @return string|null The value of the child element.
      */
-    private static function getStringElement(\DOMElement $parent, $name)
+    private static function getStringElement(\DOMElement $parent, string $name) : ?string
     {
-        Assert::string($name);
-
         $e = self::getStringElements($parent, $name);
         if (empty($e)) {
             return null;
@@ -156,9 +155,10 @@ class ContactPerson
 
     /**
      * Collect the value of the contactType-property
+     *
      * @return string
      */
-    public function getContactType()
+    public function getContactType() : string
     {
         return $this->contactType;
     }
@@ -166,21 +166,22 @@ class ContactPerson
 
     /**
      * Set the value of the contactType-property
+     *
      * @param string $contactType
      * @return void
      */
-    public function setContactType($contactType)
+    public function setContactType(string $contactType) : void
     {
-        Assert::string($contactType);
         $this->contactType = $contactType;
     }
 
 
     /**
      * Collect the value of the Company-property
+     *
      * @return string|null
      */
-    public function getCompany()
+    public function getCompany() : ?string
     {
         return $this->Company;
     }
@@ -188,21 +189,22 @@ class ContactPerson
 
     /**
      * Set the value of the Company-property
+     *
      * @param string|null $company
      * @return void
      */
-    public function setCompany($company)
+    public function setCompany(string $company = null) : void
     {
-        Assert::nullOrString($company);
         $this->Company = $company;
     }
 
 
     /**
      * Collect the value of the GivenName-property
+     *
      * @return string|null
      */
-    public function getGivenName()
+    public function getGivenName() : ?string
     {
         return $this->GivenName;
     }
@@ -210,21 +212,22 @@ class ContactPerson
 
     /**
      * Set the value of the GivenName-property
+     *
      * @param string|null $givenName
      * @return void
      */
-    public function setGivenName($givenName)
+    public function setGivenName(string $givenName = null) : void
     {
-        Assert::nullOrString($givenName);
         $this->GivenName = $givenName;
     }
 
 
     /**
      * Collect the value of the SurName-property
+     *
      * @return string|null
      */
-    public function getSurName()
+    public function getSurName() : ?string
     {
         return $this->SurName;
     }
@@ -232,21 +235,22 @@ class ContactPerson
 
     /**
      * Set the value of the SurName-property
+     *
      * @param string|null $surName
      * @return void
      */
-    public function setSurName($surName)
+    public function setSurName(string $surName = null) : void
     {
-        Assert::nullOrString($surName);
         $this->SurName = $surName;
     }
 
 
     /**
      * Collect the value of the EmailAddress-property
+     *
      * @return string[]
      */
-    public function getEmailAddress()
+    public function getEmailAddress() : array
     {
         return $this->EmailAddress;
     }
@@ -254,10 +258,11 @@ class ContactPerson
 
     /**
      * Set the value of the EmailAddress-property
+     *
      * @param string[] $emailAddress
      * @return void
      */
-    public function setEmailAddress(array $emailAddress)
+    public function setEmailAddress(array $emailAddress) : void
     {
         $emailAddress = preg_replace('/^mailto:/i', '', $emailAddress);
         $this->EmailAddress = $emailAddress;
@@ -266,10 +271,11 @@ class ContactPerson
 
     /**
      * Add the value to the EmailAddress-property
+     *
      * @param string $emailAddress
      * @return void
      */
-    public function addEmailAddress($emailAddress)
+    public function addEmailAddress($emailAddress) : void
     {
         $emailAddress = preg_replace('/^mailto:/i', '', $emailAddress);
         $this->EmailAddress[] = $emailAddress;
@@ -278,9 +284,10 @@ class ContactPerson
 
     /**
      * Collect the value of the TelephoneNumber-property
+     *
      * @return string[]
      */
-    public function getTelephoneNumber()
+    public function getTelephoneNumber() : array
     {
         return $this->TelephoneNumber;
     }
@@ -288,10 +295,11 @@ class ContactPerson
 
     /**
      * Set the value of the TelephoneNumber-property
+     *
      * @param string[] $telephoneNumber
      * @return void
      */
-    public function setTelephoneNumber(array $telephoneNumber)
+    public function setTelephoneNumber(array $telephoneNumber) : void
     {
         $this->TelephoneNumber = $telephoneNumber;
     }
@@ -299,10 +307,11 @@ class ContactPerson
 
     /**
      * Add the value to the TelephoneNumber-property
+     *
      * @param string $telephoneNumber
      * @return void
      */
-    public function addTelephoneNumber($telephoneNumber)
+    public function addTelephoneNumber($telephoneNumber) : void
     {
         $this->TelephoneNumber[] = $telephoneNumber;
     }
@@ -310,9 +319,10 @@ class ContactPerson
 
     /**
      * Collect the value of the Extensions-property
+     *
      * @return \SAML2\XML\Chunk[]
      */
-    public function getExtensions()
+    public function getExtensions() : array
     {
         return $this->Extensions;
     }
@@ -320,10 +330,11 @@ class ContactPerson
 
     /**
      * Set the value of the Extensions-property
+     *
      * @param array $extensions
      * @return void
      */
-    public function setExtensions(array $extensions)
+    public function setExtensions(array $extensions) : void
     {
         $this->Extensions = $extensions;
     }
@@ -335,7 +346,7 @@ class ContactPerson
      * @param \SAML2\XML\Chunk $extensions The Extensions
      * @return void
      */
-    public function addExtension(Chunk $extension)
+    public function addExtension(Chunk $extension) : void
     {
         $this->Extensions[] = $extension;
     }
@@ -343,9 +354,10 @@ class ContactPerson
 
     /**
      * Collect the value of the ContactPersonAttributes-property
+     *
      * @return string[]
      */
-    public function getContactPersonAttributes()
+    public function getContactPersonAttributes() : array
     {
         return $this->ContactPersonAttributes;
     }
@@ -353,10 +365,11 @@ class ContactPerson
 
     /**
      * Set the value of the ContactPersonAttributes-property
+     *
      * @param string[] $contactPersonAttributes
      * @return void
      */
-    public function setContactPersonAttributes(array $contactPersonAttributes)
+    public function setContactPersonAttributes(array $contactPersonAttributes) : void
     {
         $this->ContactPersonAttributes = $contactPersonAttributes;
     }
@@ -364,14 +377,13 @@ class ContactPerson
 
     /**
      * Add the key/value of the ContactPersonAttributes-property
+     *
      * @param string $attr
      * @param string $value
      * @return void
      */
-    public function addContactPersonAttributes($attr, $value)
+    public function addContactPersonAttributes(string $attr, string $value) : void
     {
-        Assert::string($attr);
-        Assert::string($value);
         $this->ContactPersonAttributes[$attr] = $value;
     }
 
@@ -382,17 +394,8 @@ class ContactPerson
      * @param  \DOMElement $parent The element we should add this contact to.
      * @return \DOMElement The new ContactPerson-element.
      */
-    public function toXML(\DOMElement $parent)
+    public function toXML(DOMElement $parent) : DOMElement
     {
-        Assert::string($this->getContactType());
-        Assert::isArray($this->getExtensions());
-        Assert::nullOrString($this->getCompany());
-        Assert::nullOrString($this->getGivenName());
-        Assert::nullOrString($this->getSurName());
-        Assert::isArray($this->getEmailAddress());
-        Assert::isArray($this->getTelephoneNumber());
-        Assert::isArray($this->getContactPersonAttributes());
-
         $doc = $parent->ownerDocument;
 
         $e = $doc->createElementNS(Constants::NS_MD, 'md:ContactPerson');
@@ -406,22 +409,22 @@ class ContactPerson
 
         Extensions::addList($e, $this->getExtensions());
 
-        if ($this->getCompany() !== null) {
-            Utils::addString($e, Constants::NS_MD, 'md:Company', $this->getCompany());
+        if ($this->Company !== null) {
+            Utils::addString($e, Constants::NS_MD, 'md:Company', $this->Company);
         }
-        if ($this->getGivenName() !== null) {
-            Utils::addString($e, Constants::NS_MD, 'md:GivenName', $this->getGivenName());
+        if ($this->GivenName !== null) {
+            Utils::addString($e, Constants::NS_MD, 'md:GivenName', $this->GivenName);
         }
-        if ($this->getSurName() !== null) {
-            Utils::addString($e, Constants::NS_MD, 'md:SurName', $this->getSurName());
+        if ($this->SurName !== null) {
+            Utils::addString($e, Constants::NS_MD, 'md:SurName', $this->SurName);
         }
-        if ($this->getEmailAddress() !== null) {
+        if (!empty($this->getEmailAddress())) {
             /** @var array $addresses */
             $addresses = preg_filter('/^/', 'mailto:', $this->EmailAddress);
 
             Utils::addStrings($e, Constants::NS_MD, 'md:EmailAddress', false, $addresses);
         }
-        if ($this->getTelephoneNumber() !== null) {
+        if (!empty($this->getTelephoneNumber())) {
             Utils::addStrings($e, Constants::NS_MD, 'md:TelephoneNumber', false, $this->getTelephoneNumber());
         }
 

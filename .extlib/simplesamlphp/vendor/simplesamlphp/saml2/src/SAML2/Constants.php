@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2;
 
 /**
@@ -23,6 +25,16 @@ class Constants
      * Unspecified authentication context.
      */
     const AC_UNSPECIFIED = 'urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified';
+
+    /**
+     * Subject identifier attribute
+     */
+    const ATTR_SUBJECT_ID = 'urn:oasis:names:tc:SAML:attribute:subject-id';
+
+    /**
+     * Pairwise identifier attribute
+     */
+    const ATTR_PAIRWISE_ID = 'urn:oasis:names:tc:SAML:attribute:pairwise-id';
 
     /**
      * The URN for the HTTP-POST binding.
@@ -420,9 +432,4 @@ class Constants
      * Second-level status code.
      */
     const STATUS_UNSUPPORTED_BINDING = 'urn:oasis:names:tc:SAML:2.0:status:UnsupportedBinding';
-
-    /**
-     * The name of the EntityAttribute used to indicate the subject-id needs of a Service Provider.
-     */
-    const SUBJECT_ID_REQ = 'urn:oasis:names:tc:SAML:profiles:subject-id:req';
 }

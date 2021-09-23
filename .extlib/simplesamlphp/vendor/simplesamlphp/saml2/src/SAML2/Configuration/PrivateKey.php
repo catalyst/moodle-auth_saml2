@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\Configuration;
 
 use SAML2\Exception\InvalidArgumentException;
@@ -19,7 +21,7 @@ class PrivateKey extends ArrayAdapter
     private $filePathOrContents;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $passphrase;
 
@@ -38,24 +40,11 @@ class PrivateKey extends ArrayAdapter
      *
      * @param string $filePathOrContents
      * @param string $name
-     * @param string|null $passphrase
+     * @param string $passphrase
      * @param bool $isFile
-     * @throws \Exception
      */
-    public function __construct($filePathOrContents, $name, $passphrase = null, $isFile = true)
+    public function __construct(string $filePathOrContents, string $name, string $passphrase = '', bool $isFile = true)
     {
-        if (!is_string($filePathOrContents)) {
-            throw InvalidArgumentException::invalidType('string', $filePathOrContents);
-        }
-
-        if (!is_string($name)) {
-            throw InvalidArgumentException::invalidType('string', $name);
-        }
-
-        if ($passphrase && !is_string($passphrase)) {
-            throw InvalidArgumentException::invalidType('string', $passphrase);
-        }
-
         $this->filePathOrContents = $filePathOrContents;
         $this->passphrase = $passphrase;
         $this->name = $name;
@@ -66,7 +55,7 @@ class PrivateKey extends ArrayAdapter
     /**
      * @return string
      */
-    public function getFilePath()
+    public function getFilePath() : string
     {
         if (!$this->isFile()) {
             throw new RuntimeException('No path provided.');
@@ -79,16 +68,16 @@ class PrivateKey extends ArrayAdapter
     /**
      * @return bool
      */
-    public function hasPassPhrase()
+    public function hasPassPhrase() : bool
     {
-        return (bool) $this->passphrase;
+        return $this->passphrase !== null;
     }
 
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getPassPhrase()
+    public function getPassPhrase() : ?string
     {
         return $this->passphrase;
     }
@@ -97,7 +86,7 @@ class PrivateKey extends ArrayAdapter
     /**
      * @return string
      */
-    public function getName()
+    public function getName() : string
     {
         return $this->name;
     }
@@ -105,7 +94,7 @@ class PrivateKey extends ArrayAdapter
     /**
      * @return string
      */
-    public function getContents()
+    public function getContents() : string
     {
         if ($this->isFile()) {
             throw new RuntimeException('No contents provided');
@@ -117,7 +106,7 @@ class PrivateKey extends ArrayAdapter
     /**
      * @return bool
      */
-    public function isFile()
+    public function isFile() : bool
     {
         return $this->isFile;
     }

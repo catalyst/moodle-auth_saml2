@@ -18,7 +18,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  */
 class ParametersConfigurator extends AbstractConfigurator
 {
-    const FACTORY = 'parameters';
+    public const FACTORY = 'parameters';
 
     private $container;
 
@@ -30,12 +30,9 @@ class ParametersConfigurator extends AbstractConfigurator
     /**
      * Creates a parameter.
      *
-     * @param string $name
-     * @param mixed  $value
-     *
      * @return $this
      */
-    final public function set($name, $value)
+    final public function set(string $name, $value): self
     {
         $this->container->setParameter($name, static::processValue($value, true));
 
@@ -45,12 +42,9 @@ class ParametersConfigurator extends AbstractConfigurator
     /**
      * Creates a parameter.
      *
-     * @param string $name
-     * @param mixed  $value
-     *
      * @return $this
      */
-    final public function __invoke($name, $value)
+    final public function __invoke(string $name, $value): self
     {
         return $this->set($name, $value);
     }

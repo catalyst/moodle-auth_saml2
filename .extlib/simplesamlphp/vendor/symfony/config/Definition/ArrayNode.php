@@ -235,7 +235,7 @@ class ArrayNode extends BaseNode implements PrototypeNodeInterface
             }
 
             if ($child->isDeprecated()) {
-                @trigger_error($child->getDeprecationMessage($name, $this->getPath()), E_USER_DEPRECATED);
+                @trigger_error($child->getDeprecationMessage($name, $this->getPath()), \E_USER_DEPRECATED);
             }
 
             try {
@@ -300,7 +300,31 @@ class ArrayNode extends BaseNode implements PrototypeNodeInterface
 
         // if extra fields are present, throw exception
         if (\count($value) && !$this->ignoreExtraKeys) {
-            $ex = new InvalidConfigurationException(sprintf('Unrecognized option%s "%s" under "%s"', 1 === \count($value) ? '' : 's', implode(', ', array_keys($value)), $this->getPath()));
+            $proposals = array_keys($this->children);
+            sort($proposals);
+            $guesses = [];
+
+            foreach (array_keys($value) as $subject) {
+                $minScore = \INF;
+                foreach ($proposals as $proposal) {
+                    $distance = levenshtein($subject, $proposal);
+                    if ($distance <= $minScore && $distance < 3) {
+                        $guesses[$proposal] = $distance;
+                        $minScore = $distance;
+                    }
+                }
+            }
+
+            $msg = sprintf('Unrecognized option%s "%s" under "%s"', 1 === \count($value) ? '' : 's', implode(', ', array_keys($value)), $this->getPath());
+
+            if (\count($guesses)) {
+                asort($guesses);
+                $msg .= sprintf('. Did you mean "%s"?', implode('", "', array_keys($guesses)));
+            } else {
+                $msg .= sprintf('. Available option%s %s "%s".', 1 === \count($proposals) ? '' : 's', 1 === \count($proposals) ? 'is' : 'are', implode('", "', $proposals));
+            }
+
+            $ex = new InvalidConfigurationException($msg);
             $ex->setPath($this->getPath());
 
             throw $ex;
@@ -318,7 +342,7 @@ class ArrayNode extends BaseNode implements PrototypeNodeInterface
      */
     protected function remapXml($value)
     {
-        foreach ($this->xmlRemappings as list($singular, $plural)) {
+        foreach ($this->xmlRemappings as [$singular, $plural]) {
             if (!isset($value[$singular])) {
                 continue;
             }
@@ -368,12 +392,25 @@ class ArrayNode extends BaseNode implements PrototypeNodeInterface
             }
 
             if (!isset($this->children[$k])) {
-                throw new \RuntimeException('merge() expects a normalized config array.');
+                if (!$this->ignoreExtraKeys || $this->removeExtraKeys) {
+                    throw new \RuntimeException('merge() expects a normalized config array.');
+                }
+
+                $leftSide[$k] = $v;
+                continue;
             }
 
             $leftSide[$k] = $this->children[$k]->merge($leftSide[$k], $v);
         }
 
         return $leftSide;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function allowPlaceholders(): bool
+    {
+        return false;
     }
 }

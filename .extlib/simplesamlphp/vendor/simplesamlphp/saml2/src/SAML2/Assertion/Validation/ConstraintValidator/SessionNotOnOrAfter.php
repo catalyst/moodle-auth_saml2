@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\Assertion\Validation\ConstraintValidator;
 
 use SAML2\Assertion;
@@ -15,7 +17,7 @@ class SessionNotOnOrAfter implements
      * @param Result $result
      * @return void
      */
-    public function validate(Assertion $assertion, Result $result)
+    public function validate(Assertion $assertion, Result $result) : void
     {
         $sessionNotOnOrAfterTimestamp = $assertion->getSessionNotOnOrAfter();
         $currentTime = Temporal::getTime();

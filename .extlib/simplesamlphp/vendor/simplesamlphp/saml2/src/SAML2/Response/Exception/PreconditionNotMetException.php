@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\Response\Exception;
 
 use SAML2\Response\Validation\Result;
@@ -13,7 +15,7 @@ class PreconditionNotMetException extends InvalidResponseException
      * @param Result $result
      * @return PreconditionNotMetException
      */
-    public static function createFromValidationResult(Result $result)
+    public static function createFromValidationResult(Result $result) : PreconditionNotMetException
     {
         $message = sprintf(
             'Cannot process response, preconditions not met: "%s"',

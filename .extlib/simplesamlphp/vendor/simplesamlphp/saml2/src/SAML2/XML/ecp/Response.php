@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\XML\ecp;
 
 use DOMElement;
 use InvalidArgumentException;
+
 use SAML2\Constants;
-use Webmozart\Assert\Assert;
 
 /**
  * Class representing the ECP Response element.
@@ -17,7 +19,7 @@ class Response
      *
      * @var string
      */
-    public $AssertionConsumerServiceURL;
+    private $AssertionConsumerServiceURL;
 
 
     /**
@@ -55,9 +57,10 @@ class Response
 
     /**
      * Collect the value of the AssertionConsumerServiceURL-property
+     *
      * @return string
      */
-    public function getAssertionConsumerServiceURL()
+    public function getAssertionConsumerServiceURL() : string
     {
         return $this->AssertionConsumerServiceURL;
     }
@@ -65,13 +68,13 @@ class Response
 
     /**
      * Set the value of the AssertionConsumerServiceURL-property
+     *
      * @param string $assertionConsumerServiceURL
      * @throws InvalidArgumentException
      * @return void
      */
-    public function setAssertionConsumerServiceURL($assertionConsumerServiceURL)
+    public function setAssertionConsumerServiceURL(string $assertionConsumerServiceURL) : void
     {
-        Assert::string($assertionConsumerServiceURL);
         if (!filter_var($assertionConsumerServiceURL, FILTER_VALIDATE_URL)) {
             throw new InvalidArgumentException('AssertionConsumerServiceURL is not a valid URL.');
         }
@@ -86,7 +89,7 @@ class Response
      * @throws InvalidArgumentException
      * @return \DOMElement
      */
-    public function toXML(\DOMElement $parent)
+    public function toXML(DOMElement $parent) : DOMElement
     {
         if (!is_string($this->getAssertionConsumerServiceURL())) {
             throw new InvalidArgumentException("AssertionConsumerServiceURL must be a string");

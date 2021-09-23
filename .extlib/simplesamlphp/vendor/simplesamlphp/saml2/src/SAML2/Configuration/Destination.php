@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\Configuration;
 
 use SAML2\Exception\InvalidArgumentException;
@@ -18,12 +20,8 @@ class Destination
     /**
      * @param string $destination
      */
-    public function __construct($destination)
+    public function __construct(string $destination)
     {
-        if (!is_string($destination)) {
-            throw InvalidArgumentException::invalidType('string', $destination);
-        }
-
         $this->destination = $destination;
     }
 
@@ -33,7 +31,7 @@ class Destination
      *
      * @return bool
      */
-    public function equals(Destination $otherDestination)
+    public function equals(Destination $otherDestination) : bool
     {
         return $this->destination === $otherDestination->destination;
     }
@@ -42,7 +40,7 @@ class Destination
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString() : string
     {
         return $this->destination;
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\Assertion\Validation\ConstraintValidator;
 
 use SAML2\Assertion;
@@ -22,7 +24,7 @@ class SpIsValidAudience implements
      * @param ServiceProvider $serviceProvider
      * @return void
      */
-    public function setServiceProvider(ServiceProvider $serviceProvider)
+    public function setServiceProvider(ServiceProvider $serviceProvider) : void
     {
         $this->serviceProvider = $serviceProvider;
     }
@@ -33,7 +35,7 @@ class SpIsValidAudience implements
      * @param Result $result
      * @return void
      */
-    public function validate(Assertion $assertion, Result $result)
+    public function validate(Assertion $assertion, Result $result) : void
     {
         $intendedAudiences = $assertion->getValidAudiences();
         if ($intendedAudiences === null) {

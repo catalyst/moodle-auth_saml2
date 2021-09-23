@@ -1,12 +1,15 @@
 <?php
+
 /**
  * An internationalization extension for Twig that allows you to specify the functions to use for translation.
  *
  * @author Jaime Pérez Crespo
  */
+
 namespace SimpleSAML\TwigConfigurableI18n\Twig\Extensions\Extension;
 
 use SimpleSAML\TwigConfigurableI18n\Twig\Extensions\TokenParser\Trans;
+use Twig\TwigFilter;
 
 class I18n extends \Twig\Extensions\I18nExtension
 {
@@ -23,8 +26,8 @@ class I18n extends \Twig\Extensions\I18nExtension
     public function __construct()
     {
         $this->filters = [
-            new \Twig\TwigFilter('trans', [$this, 'translateSingular'], ['needs_environment' => true]),
-            new \Twig\TwigFilter('transchoice', [$this, 'translatePlural'], ['needs_environment' => true]),
+            new TwigFilter('trans', [$this, 'translateSingular'], ['needs_environment' => true]),
+            new TwigFilter('transchoice', [$this, 'translatePlural'], ['needs_environment' => true]),
         ];
     }
 
@@ -34,7 +37,7 @@ class I18n extends \Twig\Extensions\I18nExtension
      *
      * @return \Twig\TokenParser\TokenParserInterface[]
      */
-    public function getTokenParsers()
+    public function getTokenParsers(): array
     {
         return [new Trans()];
     }
@@ -45,7 +48,7 @@ class I18n extends \Twig\Extensions\I18nExtension
      *
      * @return \Twig\TwigFilter[] An array of filters
      */
-    public function getFilters()
+    public function getFilters(): array
     {
         return $this->filters;
     }
@@ -56,7 +59,7 @@ class I18n extends \Twig\Extensions\I18nExtension
      *
      * Defaults to gettext().
      *
-     * @return string
+     * @return string|null|false
      */
     public function translateSingular()
     {
@@ -66,8 +69,9 @@ class I18n extends \Twig\Extensions\I18nExtension
         /** @var \SimpleSAML\TwigConfigurableI18n\Twig\Environment $env */
         $env = array_shift($args);
         $options = $env->getOptions();
-        if (array_key_exists('translation_function', $options) &&
-            is_callable($options['translation_function'], false, $callable)
+        if (
+            array_key_exists('translation_function', $options)
+            && is_callable($options['translation_function'], false, $callable)
         ) {
             $singular = $options['translation_function'];
         }
@@ -80,7 +84,7 @@ class I18n extends \Twig\Extensions\I18nExtension
      *
      * Defaults to ngettext().
      *
-     * @return string
+     * @return string|null|false
      */
     public function translatePlural()
     {
@@ -91,8 +95,9 @@ class I18n extends \Twig\Extensions\I18nExtension
         $env = array_shift($args);
         $options = $env->getOptions();
 
-        if (array_key_exists('translation_function_plural', $options) &&
-            is_callable($options['translation_function_plural'])
+        if (
+            array_key_exists('translation_function_plural', $options)
+            && is_callable($options['translation_function_plural'])
         ) {
             $plural = $options['translation_function_plural'];
         }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SimpleSAML\Error;
 
 use SimpleSAML\Configuration;
@@ -7,6 +9,7 @@ use SimpleSAML\Logger;
 use SimpleSAML\Session;
 use SimpleSAML\Utils;
 use SimpleSAML\XHTML\Template;
+use Throwable;
 
 /**
  * Class that wraps SimpleSAMLphp errors in exceptions.
@@ -72,11 +75,11 @@ class Error extends Exception
      * The error can either be given as a string, or as an array. If it is an array, the first element in the array
      * (with index 0), is the error code, while the other elements are replacements for the error text.
      *
-     * @param mixed     $errorCode One of the error codes defined in the errors dictionary.
-     * @param \Exception $cause The exception which caused this fatal error (if any). Optional.
-     * @param int|null  $httpCode The HTTP response code to use. Optional.
+     * @param mixed      $errorCode One of the error codes defined in the errors dictionary.
+     * @param \Throwable $cause The exception which caused this fatal error (if any). Optional.
+     * @param int|null   $httpCode The HTTP response code to use. Optional.
      */
-    public function __construct($errorCode, \Exception $cause = null, $httpCode = null)
+    public function __construct($errorCode, Throwable $cause = null, ?int $httpCode = null)
     {
         assert(is_string($errorCode) || is_array($errorCode));
 
@@ -219,8 +222,6 @@ class Error extends Exception
      */
     public function show()
     {
-        $this->setHTTPCode();
-
         // log the error message
         $this->logError();
 
@@ -262,14 +263,13 @@ class Error extends Exception
         $show_function = $config->getArray('errors.show_function', null);
         if (isset($show_function)) {
             assert(is_callable($show_function));
+            $this->setHTTPCode();
             call_user_func($show_function, $config, $data);
             assert(false);
         } else {
             $t = new Template($config, 'error.php', 'errors');
-            $translator = $t->getTranslator();
+            $t->setStatusCode($this->httpCode);
             $t->data = array_merge($t->data, $data);
-            $t->data['dictTitleTranslated'] = $translator->t($t->data['dictTitle']);
-            $t->data['dictDescrTranslated'] = $translator->t($t->data['dictDescr'], $t->data['parameters']);
             $t->show();
         }
 

@@ -6,6 +6,58 @@ SimpleSAMLphp changelog
 This document lists the changes between versions of SimpleSAMLphp.
 See the upgrade notes for specific information about upgrading.
 
+## Version 1.19.1
+
+Released 2021-04-29
+
+  * Added authproc-filters for generating the subject-id and pairwise-id (#1435)
+  * Restore support for custom error messages (#1326)
+  * Fixed a bug in the Artifact Resolution Service (#1428)
+  * Fixed compatibility with Composer pre 1.8.5 (Debian 10) (#1427)
+  * Updated npm dependencies up to April 23, 2021
+  * Fixed a bug where it was impossible to set WantAssertionsSigned=true on SP-metadata (#1433)
+  * Make inResponseTo available in state array (#1447)
+
+### admin
+  * Fixed a bug in the metadata-coverter where the coverted metadata would contain newline-characters
+
+### authorize
+  * Fix a bug in the Twig-template that causes an exception in Twig strict vars mode
+
+### memcacheMonitor
+  * Fix a bug in the Twig-template that causes an exception on newer Twig-versions
+
+### negotiate
+  * Fix a bug that was breaking the module when using the old UI
+
+### statistics
+  * Fix a bug in the Twig-template that causes an exception on newer Twig-versions
+
+### sqlauth
+  * Fix a security bug where in rare cases the database user credentials would be printed in exception messages
+
+## Version 1.19.0
+
+Released 2021-01-21
+
+  * This version will be the last of the 1.x branch and will provide a migration path to our new
+    templating system, routing system and translation system.
+  * SAML 1 / Shib 1.3 support is now marked deprecated and will be removed in SimpleSAMLphp 2.0.
+  * Raised minimum PHP version to 7.1
+  * Dropped support for Symfony 3.x
+  * Update the SAML2 library dependency to 4.1.9
+  * Fix a bug where SSP wouldn't write to the tmp-directory if it didn't own it, but could write to it (#1314)
+  * Fixed several bugs in saml:NameIDAttribute (#1245)
+  * Fix artifact resolution (#1343)
+  * Allow additional audiences to be specified (#1345)
+  * Allow configurable ProviderName (#1348)
+  * Support saml:Extensions in saml:SP authsources (#1349)
+  * The `attributename`-setting in the core:TargetedID authproc-filter has been deprecated in
+    favour of the `identifyingAttribute`-setting.
+  * Filter multiauth authentication sources from SP using AuthnContextClassRef (#1362)
+  * Allow easy enabling of SameSite = 'None' (#1382)
+  * Do not accept the hashed admin password for authentication (#1418)
+
 ## Version 1.18.8
 
 Released 2020-09-02
@@ -130,9 +182,9 @@ Released 2019-11-26
 
 Released 2019-11-26
 
-  * Fixed an issue that prevented custom themes from working (#1240).
-  * Fixed an issue with translations in the discovery service (#1244).
-  * Fixed an issue with schema validation.
+   * Fixed an issue that prevented custom themes from working (#1240).
+   * Fixed an issue with translations in the discovery service (#1244).
+   * Fixed an issue with schema validation.
 
 ## Version 1.18.0
 
@@ -149,10 +201,10 @@ Released 2019-11-19
   * Allow use of stream wrappers (e.g. s3://) in paths.
   * Improved 'update or insert' handling for different SQL drivers.
   * The default algorithm within the TimeLimitedToken class has been bumped from SHA-1 to SHA-256
-    as announced by deprecation notice in 1.15.
+    as announced by deprecation notice in 1.15-RC1.
   * Most modules have been externalized. They will not be included in our future releases by default,
-    but will be easily installable using composer. For now, they are still included in the package.
-  * Minor fixes to code, CSS and documentation.
+    but will be easily installable using Composer. For now, they are still included in the package.
+  * Many minor fixes to code, css, documentation
 
 ### metarefresh
   * The algorithm to compute the fingerprint of the certificate that signed
@@ -160,10 +212,22 @@ Released 2019-11-19
     configuration option.
 
 ### saml
-  * Make the id of the generated signed metadata change only when metadata content changes.
+  * Make the id of the generated signed metadata only change when metadata content changes.
   * New SP metadata configuration options `AssertionConsumerService` and `SingleLogoutServiceLocation`
     to allow overriding the default URL paths.
   * Added support for per-IDP configurable `AuthnContextClassRef`/`AuthnContextComparison`.
+
+## Version 1.17.8
+
+Released 2019-11-20
+
+  * Resolved a security issue that exposed host information to unauthenticated users. See
+    [SSPSA 201911-02](https://simplesamlphp.org/security/201911-02).
+
+### consentAdmin
+
+  * Fixed an issue with CSS and Javascript not loading for the module in the new user
+    interface.
 
 ## Version 1.17.7
 
@@ -196,7 +260,7 @@ Released 2019-08-02
 Released 2019-07-11
 
   * Fix an issue introduced in 1.17.3 with `enable.http_post`.
-
+  
 ## Version 1.17.3
 
 Released 2019-07-10
@@ -659,7 +723,7 @@ Released 2017-04-27
   * Resolved a security issue with unauthenticated encryption in the SimpleSAML\Utils\Crypto class. See [SSPSA 201704-01](https://simplesamlphp.org/security/201704-01).
   * Added requirement for the Multibyte String PHP extension and the corresponding checks.
   * Set a default name for SimpleSAMLphp sessions in the configuration template for the PHP session handler.
-
+  
 ## Version 1.14.12
 
 Released 2017-03-30
@@ -1050,7 +1114,7 @@ Released 2013-06-05.
   * Workaround for SSL SNI extension not being correctly set.
   * New language cookie and parameter config options.
   * Add 'module.enable' configuration option for enabling/disabling modules.
-  * Check for existence of memcache extension.
+  * Check for existence of memcache extension. 
   * Initial support for limiting redirects to trusted hosts.
   * Demo example now shows both friendly and canonical name of the attributes.
   * Other minor fixes for bugs and typos.
@@ -1842,8 +1906,8 @@ Updates to `config.php`. Please check for updates in your local modified configu
   * Documentation update. New authencation source API now default and documented.
   * New authentication source (new API):
     * LDAP
-    * LDAPMulti
-	* YubiKey authentication source. (Separate module)
+    * LDAPMulti  
+	* YubiKey authentication source. (Separate module)  
 	* Facebook authentication source. (Separate module)
   * New Authentication Processing Filter:
     * AttributeAlter
@@ -1866,7 +1930,7 @@ Updates to `config.php`. Please check for updates in your local modified configu
   * New module: Aggregator: Aggregates metadata. Used in Kalmar Union.
   * New module: Metarefresh, download, parses and consumes metadata.
   * New module: SanityCheck. Checks if things looks good and reports bad configuration etc.
-  * New module: Cron. Will perform tasks regularly.
+  * New module: Cron. Will perform tasks regularly. 
   * Module: SAML2.0. SAML 2.0 SP implemented as an module. Yet not documented how to use, but all SAML 2.0 SP functionality may be moved out to this module for better modularization.
   * New module: statistics. Parses STAT log files, and aggregates based on a generic rule system. Output is stored in aggregated text files, and a frontend is included to present statistics with tables and graphs. Used sanitycheck and cron.
   * Added support for IdP initiated SSO.
@@ -1892,7 +1956,7 @@ Updates to `config.php`. Please check for updates in your local modified configu
   * Added notes about how to aggregate and consume metadata. Just a start.
   * Large improvements to Configuration class, and config helper functions.
   * STAT logging is moved into separate authenticaion processing filter.
-  * Fix for NoPassive responses to Google Apps with alternative NameIDFormats.
+  * Fix for NoPassive responses to Google Apps with alternative NameIDFormats.  
   * LDAP module allows to search multiple searchbases.
   * All documentation is converted from docbook to markdown format.
   * Added headers to not allow google to index pages.
@@ -1906,7 +1970,7 @@ Updates to `config.php`. Please check for updates in your local modified configu
   * Improved UI on default theme
   * Fix for session duration in the Conditions element in the Assertion (SAML 2.0).
   * Updated with new Feide IdP metadata in metadata-templates
-
+  
 
 
 ## Version 1.3

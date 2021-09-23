@@ -15,8 +15,10 @@ namespace Symfony\Component\Config\Resource;
  * ComposerResource tracks the PHP version and Composer dependencies.
  *
  * @author Nicolas Grekas <p@tchwork.com>
+ *
+ * @final since Symfony 4.3
  */
-class ComposerResource implements SelfCheckingResourceInterface, \Serializable
+class ComposerResource implements SelfCheckingResourceInterface
 {
     private $vendors;
 
@@ -51,22 +53,6 @@ class ComposerResource implements SelfCheckingResourceInterface, \Serializable
         return array_values(self::$runtimeVendors) === array_values($this->vendors);
     }
 
-    /**
-     * @internal
-     */
-    public function serialize()
-    {
-        return serialize($this->vendors);
-    }
-
-    /**
-     * @internal
-     */
-    public function unserialize($serialized)
-    {
-        $this->vendors = unserialize($serialized);
-    }
-
     private static function refresh()
     {
         self::$runtimeVendors = [];
@@ -74,7 +60,7 @@ class ComposerResource implements SelfCheckingResourceInterface, \Serializable
         foreach (get_declared_classes() as $class) {
             if ('C' === $class[0] && 0 === strpos($class, 'ComposerAutoloaderInit')) {
                 $r = new \ReflectionClass($class);
-                $v = \dirname(\dirname($r->getFileName()));
+                $v = \dirname($r->getFileName(), 2);
                 if (file_exists($v.'/composer/installed.json')) {
                     self::$runtimeVendors[$v] = @filemtime($v.'/composer/installed.json');
                 }

@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\XML\ds;
 
+use DOMElement;
 use RobRichards\XMLSecLibs\XMLSecurityDSig;
+use Webmozart\Assert\Assert;
+
 use SAML2\XML\Chunk;
 use SAML2\XML\ds\X509Certificate;
-use Webmozart\Assert\Assert;
 
 /**
  * Class representing a ds:X509Data element.
@@ -22,7 +26,7 @@ class X509Data
      *
      * @var (\SAML2\XML\Chunk|\SAML2\XML\ds\X509Certificate)[]
      */
-    public $data = [];
+    private $data = [];
 
 
     /**
@@ -30,14 +34,14 @@ class X509Data
      *
      * @param \DOMElement|null $xml The XML element we should load.
      */
-    public function __construct(\DOMElement $xml = null)
+    public function __construct(DOMElement $xml = null)
     {
         if ($xml === null) {
             return;
         }
 
         for ($n = $xml->firstChild; $n !== null; $n = $n->nextSibling) {
-            if (!($n instanceof \DOMElement)) {
+            if (!($n instanceof DOMElement)) {
                 continue;
             }
 
@@ -59,9 +63,10 @@ class X509Data
 
     /**
      * Collect the value of the data-property
+     *
      * @return array
      */
-    public function getData()
+    public function getData() : array
     {
         return $this->data;
     }
@@ -69,10 +74,11 @@ class X509Data
 
     /**
      * Set the value of the data-property
+     *
      * @param array $data
      * @return void
      */
-    public function setData(array $data)
+    public function setData(array $data) : void
     {
         $this->data = $data;
     }
@@ -80,10 +86,11 @@ class X509Data
 
     /**
      * Add the value to the data-property
+     *
      * @param \SAML2\XML\Chunk|\SAML2\XML\ds\X509Certificate $data
      * @return void
      */
-    public function addData($data)
+    public function addData($data) : void
     {
         Assert::isInstanceOfAny($data, [Chunk::class, X509Certificate::class]);
         $this->data[] = $data;
@@ -96,10 +103,8 @@ class X509Data
      * @param \DOMElement $parent The element we should append this X509Data element to.
      * @return \DOMElement
      */
-    public function toXML(\DOMElement $parent)
+    public function toXML(DOMElement $parent) : DOMElement
     {
-        Assert::isArray($this->getData());
-
         $doc = $parent->ownerDocument;
 
         $e = $doc->createElementNS(XMLSecurityDSig::XMLDSIGNS, 'ds:X509Data');

@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\XML\ds;
 
+use DOMElement;
 use RobRichards\XMLSecLibs\XMLSecurityDSig;
+
 use SAML2\Utils;
-use Webmozart\Assert\Assert;
 
 /**
  * Class representing a ds:X509Certificate element.
@@ -18,7 +21,7 @@ class X509Certificate
      *
      * @var string
      */
-    public $certificate;
+    private $certificate;
 
 
     /**
@@ -26,7 +29,7 @@ class X509Certificate
      *
      * @param \DOMElement|null $xml The XML element we should load.
      */
-    public function __construct(\DOMElement $xml = null)
+    public function __construct(DOMElement $xml = null)
     {
         if ($xml === null) {
             return;
@@ -38,22 +41,23 @@ class X509Certificate
 
     /**
      * Collect the value of the certificate-property
+     *
      * @return string
      */
-    public function getCertificate()
+    public function getCertificate() : string
     {
-        return $this->certificate;
+        return str_replace(["\r\n", "\r", "\n", "\t", ' '], '', $this->certificate);
     }
 
 
     /**
      * Set the value of the certificate-property
+     *
      * @param string $certificate
      * @return void
      */
-    public function setCertificate($certificate)
+    public function setCertificate(string $certificate) : void
     {
-        Assert::string($certificate);
         $this->certificate = $certificate;
     }
 
@@ -64,9 +68,8 @@ class X509Certificate
      * @param \DOMElement $parent The element we should append this X509Certificate element to.
      * @return \DOMElement
      */
-    public function toXML(\DOMElement $parent)
+    public function toXML(DOMElement $parent) : DOMElement
     {
-        Assert::string($this->certificate);
         return Utils::addString($parent, XMLSecurityDSig::XMLDSIGNS, 'ds:X509Certificate', $this->getCertificate());
     }
 }

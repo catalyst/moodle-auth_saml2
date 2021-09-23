@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SimpleSAML\Test\Module\saml\Auth\Source;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use SAML2\AuthnRequest;
+use SAML2\Constants;
+use SAML2\Utils;
 use SimpleSAML\Configuration;
 use SimpleSAML\Module\saml\Error\NoAvailableIDP;
 use SimpleSAML\Module\saml\Error\NoSupportedIDP;
@@ -31,7 +35,7 @@ class SPTest extends ClearStateTestCase
     /**
      * @return \SimpleSAML\Configuration
      */
-    private function getIdpMetadata()
+    private function getIdpMetadata(): Configuration
     {
         if (!$this->idpMetadata) {
             $this->idpMetadata = new Configuration(
@@ -96,7 +100,7 @@ class SPTest extends ClearStateTestCase
      *
      * @return \SAML2\AuthnRequest The AuthnRequest generated.
      */
-    private function createAuthnRequest($state = [])
+    private function createAuthnRequest(array $state = []): AuthnRequest
     {
         $info = ['AuthId' => 'default-sp'];
         $config = [];
@@ -120,7 +124,7 @@ class SPTest extends ClearStateTestCase
      * @test
      * @return void
      */
-    public function testAuthnRequest()
+    public function testAuthnRequest(): void
     {
         /** @var \SAML2\AuthnRequest $ar */
         $ar = $this->createAuthnRequest();
@@ -130,13 +134,13 @@ class SPTest extends ClearStateTestCase
         $xml = $ar->toSignedXML();
 
         /** @var \DOMAttr[] $q */
-        $q = \SAML2\Utils::xpQuery($xml, '/samlp:AuthnRequest/@Destination');
+        $q = Utils::xpQuery($xml, '/samlp:AuthnRequest/@Destination');
         $this->assertEquals(
             $this->idpConfigArray['SingleSignOnService'][0]['Location'],
             $q[0]->value
         );
 
-        $q = \SAML2\Utils::xpQuery($xml, '/samlp:AuthnRequest/saml:Issuer');
+        $q = Utils::xpQuery($xml, '/samlp:AuthnRequest/saml:Issuer');
         $this->assertEquals(
             'http://localhost/simplesaml/module.php/saml/sp/metadata.php/default-sp',
             $q[0]->textContent
@@ -149,10 +153,10 @@ class SPTest extends ClearStateTestCase
      * @test
      * @return void
      */
-    public function testNameID()
+    public function testNameID(): void
     {
         $state = [
-            'saml:NameID' => ['Value' => 'user@example.org', 'Format' => \SAML2\Constants::NAMEID_UNSPECIFIED]
+            'saml:NameID' => ['Value' => 'user@example.org', 'Format' => Constants::NAMEID_UNSPECIFIED]
         ];
 
         /** @var \SAML2\AuthnRequest $ar */
@@ -167,13 +171,13 @@ class SPTest extends ClearStateTestCase
         $xml = $ar->toSignedXML();
 
         /** @var \DOMAttr[] $q */
-        $q = \SAML2\Utils::xpQuery($xml, '/samlp:AuthnRequest/saml:Subject/saml:NameID/@Format');
+        $q = Utils::xpQuery($xml, '/samlp:AuthnRequest/saml:Subject/saml:NameID/@Format');
         $this->assertEquals(
             $state['saml:NameID']['Format'],
             $q[0]->value
         );
 
-        $q = \SAML2\Utils::xpQuery($xml, '/samlp:AuthnRequest/saml:Subject/saml:NameID');
+        $q = Utils::xpQuery($xml, '/samlp:AuthnRequest/saml:Subject/saml:NameID');
         $this->assertEquals(
             $state['saml:NameID']['Value'],
             $q[0]->textContent
@@ -186,7 +190,7 @@ class SPTest extends ClearStateTestCase
      * @test
      * @return void
      */
-    public function testAuthnContextClassRef()
+    public function testAuthnContextClassRef(): void
     {
         $state = [
             'saml:AuthnContextClassRef' => 'http://example.com/myAuthnContextClassRef'
@@ -205,7 +209,7 @@ class SPTest extends ClearStateTestCase
         /** @var \DOMElement $xml */
         $xml = $ar->toSignedXML();
 
-        $q = \SAML2\Utils::xpQuery($xml, '/samlp:AuthnRequest/samlp:RequestedAuthnContext/saml:AuthnContextClassRef');
+        $q = Utils::xpQuery($xml, '/samlp:AuthnRequest/samlp:RequestedAuthnContext/saml:AuthnContextClassRef');
         $this->assertEquals(
             $state['saml:AuthnContextClassRef'],
             $q[0]->textContent
@@ -218,7 +222,7 @@ class SPTest extends ClearStateTestCase
      * @test
      * @return void
      */
-    public function testForcedAuthn()
+    public function testForcedAuthn(): void
     {
         /** @var bool $state['ForceAuthn'] */
         $state = [
@@ -237,7 +241,7 @@ class SPTest extends ClearStateTestCase
         $xml = $ar->toSignedXML();
 
         /** @var \DOMAttr[] $q */
-        $q = \SAML2\Utils::xpQuery($xml, '/samlp:AuthnRequest/@ForceAuthn');
+        $q = Utils::xpQuery($xml, '/samlp:AuthnRequest/@ForceAuthn');
         $this->assertEquals(
             $state['ForceAuthn'] ? 'true' : 'false',
             $q[0]->value
@@ -249,7 +253,7 @@ class SPTest extends ClearStateTestCase
      * Test specifying an IDPList where no metadata found for those idps is an error
      * @return void
      */
-    public function testIdpListWithNoMatchingMetadata()
+    public function testIdpListWithNoMatchingMetadata(): void
     {
         $this->expectException(NoSupportedIDP::class);
         $state = [
@@ -267,7 +271,7 @@ class SPTest extends ClearStateTestCase
      * Test specifying an IDPList where the list does not overlap with the Idp specified in SP config is an error
      * @return void
      */
-    public function testIdpListWithExplicitIdpNotMatch()
+    public function testIdpListWithExplicitIdpNotMatch(): void
     {
         $this->expectException(NoAvailableIDP::class);
         $entityId = "https://example.com";
@@ -295,7 +299,7 @@ class SPTest extends ClearStateTestCase
      * Test that IDPList overlaps with the IDP specified in SP config results in AuthnRequest
      * @return void
      */
-    public function testIdpListWithExplicitIdpMatch()
+    public function testIdpListWithExplicitIdpMatch(): void
     {
         $entityId = "https://example.com";
         $xml = MetaDataStorageSourceTest::generateIdpMetadataXml($entityId);
@@ -324,7 +328,7 @@ class SPTest extends ClearStateTestCase
             $xml = $ar->toSignedXML();
 
             /** @var \DOMAttr[] $q */
-            $q = \SAML2\Utils::xpQuery($xml, '/samlp:AuthnRequest/@Destination');
+            $q = Utils::xpQuery($xml, '/samlp:AuthnRequest/@Destination');
             $this->assertEquals(
                 'https://saml.idp/sso/',
                 $q[0]->value
@@ -337,7 +341,7 @@ class SPTest extends ClearStateTestCase
      * Test that IDPList with a single valid idp and no SP config idp results in AuthnRequest to that idp
      * @return void
      */
-    public function testIdpListWithSingleMatch()
+    public function testIdpListWithSingleMatch(): void
     {
         $entityId = "https://example.com";
         $xml = MetaDataStorageSourceTest::generateIdpMetadataXml($entityId);
@@ -364,7 +368,7 @@ class SPTest extends ClearStateTestCase
             $xml = $ar->toSignedXML();
 
             /** @var \DOMAttr[] $q */
-            $q = \SAML2\Utils::xpQuery($xml, '/samlp:AuthnRequest/@Destination');
+            $q = Utils::xpQuery($xml, '/samlp:AuthnRequest/@Destination');
             $this->assertEquals(
                 'https://saml.idp/sso/',
                 $q[0]->value
@@ -377,7 +381,7 @@ class SPTest extends ClearStateTestCase
      * Test that IDPList with multiple valid idp and no SP config idp results in discovery redirect
      * @return void
      */
-    public function testIdpListWithMultipleMatch()
+    public function testIdpListWithMultipleMatch(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Invalid URL: smtp://invalidurl');

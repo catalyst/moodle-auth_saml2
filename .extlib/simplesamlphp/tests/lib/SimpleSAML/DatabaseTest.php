@@ -1,8 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SimpleSAML\Test;
 
+use Exception;
+use PDO;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use SimpleSAML\Configuration;
 use SimpleSAML\Database;
 
@@ -39,7 +44,7 @@ class DatabaseTest extends TestCase
      */
     protected static function getMethod($getMethod)
     {
-        $class = new \ReflectionClass(Database::class);
+        $class = new ReflectionClass(Database::class);
         $method = $class->getMethod($getMethod);
         $method->setAccessible(true);
         return $method;
@@ -85,9 +90,9 @@ class DatabaseTest extends TestCase
      * @test
      * @return void
      */
-    public function connectionFailure()
+    public function connectionFailure(): void
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $config = [
             'database.dsn'        => 'mysql:host=localhost;dbname=saml',
             'database.username'   => 'notauser',
@@ -110,7 +115,7 @@ class DatabaseTest extends TestCase
      * @test
      * @return void
      */
-    public function instances()
+    public function instances(): void
     {
         $config = [
             'database.dsn'        => 'sqlite::memory:',
@@ -180,7 +185,7 @@ class DatabaseTest extends TestCase
      * @test
      * @return void
      */
-    public function slaves()
+    public function slaves(): void
     {
         $getSlave = self::getMethod('getSlave');
 
@@ -223,7 +228,7 @@ class DatabaseTest extends TestCase
      * @test
      * @return void
      */
-    public function prefix()
+    public function prefix(): void
     {
         $prefix = $this->config->getString('database.prefix');
         $table = "saml20_idp_hosted";
@@ -241,7 +246,7 @@ class DatabaseTest extends TestCase
      * @test
      * @return void
      */
-    public function querying()
+    public function querying(): void
     {
         $table = $this->db->applyPrefix("sspdbt");
         $this->assertEquals($this->config->getString('database.prefix') . "sspdbt", $table);
@@ -258,7 +263,7 @@ class DatabaseTest extends TestCase
         $ssp_value = md5(strval(rand(0, 10000)));
         $stmt = $this->db->write(
             "INSERT INTO $table (ssp_key, ssp_value) VALUES (:ssp_key, :ssp_value)",
-            ['ssp_key' => [$ssp_key, \PDO::PARAM_INT], 'ssp_value' => $ssp_value]
+            ['ssp_key' => [$ssp_key, PDO::PARAM_INT], 'ssp_value' => $ssp_value]
         );
         $this->assertEquals(1, $stmt, "Could not insert data into $table.");
 
@@ -275,9 +280,9 @@ class DatabaseTest extends TestCase
      * @test
      * @return void
      */
-    public function readFailure()
+    public function readFailure(): void
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $table = $this->db->applyPrefix("sspdbt");
         $this->assertEquals($this->config->getString('database.prefix') . "sspdbt", $table);
 
@@ -291,9 +296,9 @@ class DatabaseTest extends TestCase
      * @test
      * @return void
      */
-    public function noSuchTable()
+    public function noSuchTable(): void
     {
-        $this->expectException(\Exception::class);
+        $this->expectException(Exception::class);
         $this->db->write("DROP TABLE phpunit_nonexistent");
     }
 

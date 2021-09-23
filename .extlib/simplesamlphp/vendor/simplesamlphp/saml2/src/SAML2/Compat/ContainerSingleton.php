@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\Compat;
 
 use SAML2\Compat\Ssp\Container;
@@ -15,10 +17,10 @@ class ContainerSingleton
     /**
      * @return \SAML2\Compat\AbstractContainer
      */
-    public static function getInstance()
+    public static function getInstance() : AbstractContainer
     {
         if (!isset(self::$container)) {
-            self::setContainer(self::initSspContainer());
+            self::$container = self::initSspContainer();
         }
         return self::$container;
     }
@@ -28,19 +30,18 @@ class ContainerSingleton
      * Set a container to use.
      *
      * @param \SAML2\Compat\AbstractContainer $container
-     * @return \SAML2\Compat\AbstractContainer
+     * @return void
      */
-    public static function setContainer(AbstractContainer $container)
+    public static function setContainer(AbstractContainer $container) : void
     {
         self::$container = $container;
-        return $container;
     }
 
 
     /**
      * @return \SAML2\Compat\Ssp\Container
      */
-    public static function initSspContainer()
+    public static function initSspContainer() : Container
     {
         return new Container();
     }

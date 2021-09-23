@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\XML\mdrpi;
 
-use SAML2\Utils;
+use DOMElement;
 use Webmozart\Assert\Assert;
+
+use SAML2\Utils;
 
 /**
  * Class for handling the mdrpi:PublicationInfo element.
@@ -18,21 +22,21 @@ class PublicationInfo
      *
      * @var string
      */
-    public $publisher;
+    private $publisher = '';
 
     /**
      * The creation timestamp for the metadata, as a UNIX timestamp.
      *
      * @var int|null
      */
-    public $creationInstant;
+    private $creationInstant = null;
 
     /**
      * Identifier for this metadata publication.
      *
      * @var string|null
      */
-    public $publicationId;
+    private $publicationId = null;
 
     /**
      * Link to usage policy for this metadata.
@@ -41,7 +45,7 @@ class PublicationInfo
      *
      * @var array
      */
-    public $UsagePolicy = [];
+    private $UsagePolicy = [];
 
 
     /**
@@ -50,7 +54,7 @@ class PublicationInfo
      * @param \DOMElement|null $xml The XML element we should load.
      * @throws \Exception
      */
-    public function __construct(\DOMElement $xml = null)
+    public function __construct(DOMElement $xml = null)
     {
         if ($xml === null) {
             return;
@@ -59,25 +63,26 @@ class PublicationInfo
         if (!$xml->hasAttribute('publisher')) {
             throw new \Exception('Missing required attribute "publisher" in mdrpi:PublicationInfo element.');
         }
-        $this->setPublisher($xml->getAttribute('publisher'));
+        $this->publisher = $xml->getAttribute('publisher');
 
         if ($xml->hasAttribute('creationInstant')) {
-            $this->setCreationInstant(Utils::xsDateTimeToTimestamp($xml->getAttribute('creationInstant')));
+            $this->creationInstant = Utils::xsDateTimeToTimestamp($xml->getAttribute('creationInstant'));
         }
 
         if ($xml->hasAttribute('publicationId')) {
-            $this->setPublicationId($xml->getAttribute('publicationId'));
+            $this->publicationId = $xml->getAttribute('publicationId');
         }
 
-        $this->setUsagePolicy(Utils::extractLocalizedStrings($xml, Common::NS_MDRPI, 'UsagePolicy'));
+        $this->UsagePolicy = Utils::extractLocalizedStrings($xml, Common::NS_MDRPI, 'UsagePolicy');
     }
 
 
     /**
      * Collect the value of the publisher-property
+     *
      * @return string
      */
-    public function getPublisher()
+    public function getPublisher() : string
     {
         return $this->publisher;
     }
@@ -85,9 +90,10 @@ class PublicationInfo
 
     /**
      * Collect the value of the creationInstant-property
+     *
      * @return int|null
      */
-    public function getCreationInstant()
+    public function getCreationInstant() : ?int
     {
         return $this->creationInstant;
     }
@@ -95,9 +101,10 @@ class PublicationInfo
 
     /**
      * Collect the value of the publicationId-property
+     *
      * @return string|null
      */
-    public function getPublicationId()
+    public function getPublicationId() : ?string
     {
         return $this->publicationId;
     }
@@ -105,9 +112,10 @@ class PublicationInfo
 
     /**
      * Collect the value of the UsagePolicy-property
+     *
      * @return array
      */
-    public function getUsagePolicy()
+    public function getUsagePolicy() : array
     {
         return $this->UsagePolicy;
     }
@@ -115,46 +123,47 @@ class PublicationInfo
 
     /**
      * Set the value of the publisher-property
+     *
      * @param string $publisher
      * @return void
      */
-    public function setPublisher($publisher)
+    public function setPublisher(string $publisher) : void
     {
-        Assert::string($publisher);
         $this->publisher = $publisher;
     }
 
 
     /**
      * Set the value of the creationInstant-property
+     *
      * @param int|null $creationInstant
      * @return void
      */
-    public function setCreationInstant($creationInstant = null)
+    public function setCreationInstant(int $creationInstant = null) : void
     {
-        Assert::nullOrInteger($creationInstant);
         $this->creationInstant = $creationInstant;
     }
 
 
     /**
      * Set the value of the publicationId-property
+     *
      * @param string|null $publicationId
      * @return void
      */
-    public function setPublicationId($publicationId = null)
+    public function setPublicationId(string $publicationId = null) : void
     {
-        Assert::nullOrString($publicationId);
         $this->publicationId = $publicationId;
     }
 
 
     /**
      * Set the value of the UsagePolicy-property
+     *
      * @param array $usagePolicy
      * @return void
      */
-    public function setUsagePolicy(array $usagePolicy)
+    public function setUsagePolicy(array $usagePolicy) : void
     {
         $this->UsagePolicy = $usagePolicy;
     }
@@ -166,29 +175,26 @@ class PublicationInfo
      * @param \DOMElement $parent The element we should append to.
      * @return \DOMElement
      */
-    public function toXML(\DOMElement $parent)
+    public function toXML(DOMElement $parent) : DOMElement
     {
-        Assert::string($this->getPublisher());
-        Assert::nullOrInteger($this->getCreationInstant());
-        Assert::nullOrString($this->getPublicationId());
-        Assert::isArray($this->getUsagePolicy());
+        Assert::notEmpty($this->publisher, "Cannot convert PublicationInfo to XML without a publisher set.");
 
         $doc = $parent->ownerDocument;
 
         $e = $doc->createElementNS(Common::NS_MDRPI, 'mdrpi:PublicationInfo');
         $parent->appendChild($e);
 
-        $e->setAttribute('publisher', $this->getPublisher());
+        $e->setAttribute('publisher', $this->publisher);
 
-        if ($this->getCreationInstant() !== null) {
-            $e->setAttribute('creationInstant', gmdate('Y-m-d\TH:i:s\Z', $this->getCreationInstant()));
+        if ($this->creationInstant !== null) {
+            $e->setAttribute('creationInstant', gmdate('Y-m-d\TH:i:s\Z', $this->creationInstant));
         }
 
-        if ($this->getPublicationId() !== null) {
-            $e->setAttribute('publicationId', $this->getPublicationId());
+        if ($this->publicationId !== null) {
+            $e->setAttribute('publicationId', $this->publicationId);
         }
 
-        Utils::addStrings($e, Common::NS_MDRPI, 'mdrpi:UsagePolicy', true, $this->getUsagePolicy());
+        Utils::addStrings($e, Common::NS_MDRPI, 'mdrpi:UsagePolicy', true, $this->UsagePolicy);
 
         return $e;
     }

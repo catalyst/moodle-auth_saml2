@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\Assertion\Transformer;
 
 use SAML2\Assertion;
@@ -20,7 +22,7 @@ class DecodeBase64Transformer implements
      * @param IdentityProvider $identityProvider
      * @return void
      */
-    public function setIdentityProvider(IdentityProvider $identityProvider)
+    public function setIdentityProvider(IdentityProvider $identityProvider) : void
     {
         $this->identityProvider = $identityProvider;
     }
@@ -30,7 +32,7 @@ class DecodeBase64Transformer implements
      * @param Assertion $assertion
      * @return Assertion
      */
-    public function transform(Assertion $assertion)
+    public function transform(Assertion $assertion) : Assertion
     {
         if (!$this->identityProvider->hasBase64EncodedAttributes()) {
             return $assertion;
@@ -48,12 +50,10 @@ class DecodeBase64Transformer implements
 
 
     /**
-     * @param $value
-     *
+     * @param string $value
      * @return array
-     * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
      */
-    private function decodeValue($value)
+    private function decodeValue(string $value) : array
     {
         $elements = explode('_', $value);
         return array_map('base64_decode', $elements);

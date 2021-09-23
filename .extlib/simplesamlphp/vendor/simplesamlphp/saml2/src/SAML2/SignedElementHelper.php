@@ -1,7 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2;
 
+use DOMElement;
+use DOMNode;
 use RobRichards\XMLSecLibs\XMLSecurityKey;
 
 /**
@@ -11,24 +15,8 @@ use RobRichards\XMLSecLibs\XMLSecurityKey;
  *
  * @package SimpleSAMLphp
  */
-class SignedElementHelper implements SignedElement
+class SignedElementHelper extends SignedElement
 {
-    /**
-     * The private key we should use to sign the message.
-     *
-     * The private key can be null, in which case the message is sent unsigned.
-     *
-     * @var XMLSecurityKey|null
-     */
-    private $signatureKey;
-
-    /**
-     * List of certificates that should be included in the message.
-     *
-     * @var array
-     */
-    private $certificates;
-
     /**
      * Available methods for validating this message.
      *
@@ -36,13 +24,27 @@ class SignedElementHelper implements SignedElement
      */
     private $validators;
 
+    /**
+     * How long this element is valid, as a unix timestamp.
+     *
+     * @var int|null
+     */
+    public $validUntil;
+
+    /**
+     * The length of time this element can be cached, as string.
+     *
+     * @var string|null
+     */
+    public $cacheDuration;
+
 
     /**
      * Initialize the helper class.
      *
      * @param \DOMElement|null $xml The XML element which may be signed.
      */
-    protected function __construct(\DOMElement $xml = null)
+    protected function __construct(DOMElement $xml = null)
     {
         $this->certificates = [];
         $this->validators = [];
@@ -55,10 +57,10 @@ class SignedElementHelper implements SignedElement
         try {
             $sig = Utils::validateElement($xml);
 
-            if ($sig !== false) {
+            if ($sig) {
                 $this->certificates = $sig['Certificates'];
                 $this->validators[] = [
-                    'Function' => ['\SAML2\Utils', 'validateSignature'],
+                    'Function' => [Utils::class, 'validateSignature'],
                     'Data' => $sig,
                 ];
             }
@@ -73,11 +75,11 @@ class SignedElementHelper implements SignedElement
      *
      * This function is used for custom validation extensions
      *
-     * @param callback $function The function which should be called.
-     * @param mixed    $data     The data that should be included as the first parameter to the function.
+     * @param callable $function The function which should be called.
+     * @param mixed $data The data that should be included as the first parameter to the function.
      * @return void
      */
-    public function addValidator(callable $function, $data)
+    public function addValidator(callable $function, $data) : void
     {
         $this->validators[] = [
             'Function' => $function,
@@ -94,10 +96,11 @@ class SignedElementHelper implements SignedElement
      * validation fails.
      *
      * @param  XMLSecurityKey $key The key we should check against.
+     * @return bool True on success, false when we don't have a signature.
      * @throws \Exception
-     * @return boolean        true on success, false when we don't have a signature.
+     * @return bool        true on success, false when we don't have a signature.
      */
-    public function validate(XMLSecurityKey $key)
+    public function validate(XMLSecurityKey $key) : bool
     {
         if (count($this->validators) === 0) {
             return false;
@@ -129,7 +132,7 @@ class SignedElementHelper implements SignedElement
      *
      * @return XMLSecurityKey|null The key, or NULL if no key is specified.
      */
-    public function getSignatureKey()
+    public function getSignatureKey() : ?XMLSecurityKey
     {
         return $this->signatureKey;
     }
@@ -143,7 +146,7 @@ class SignedElementHelper implements SignedElement
      * @param XMLSecurityKey|null $signatureKey
      * @return void
      */
-    public function setSignatureKey(XMLSecurityKey $signatureKey = null)
+    public function setSignatureKey(XMLSecurityKey $signatureKey = null) : void
     {
         $this->signatureKey = $signatureKey;
     }
@@ -157,7 +160,7 @@ class SignedElementHelper implements SignedElement
      * @param array $certificates An array of certificates.
      * @return void
      */
-    public function setCertificates(array $certificates)
+    public function setCertificates(array $certificates) : void
     {
         $this->certificates = $certificates;
     }
@@ -168,7 +171,7 @@ class SignedElementHelper implements SignedElement
      *
      * @return array An array of certificates.
      */
-    public function getCertificates()
+    public function getCertificates() : array
     {
         return $this->certificates;
     }
@@ -179,7 +182,7 @@ class SignedElementHelper implements SignedElement
      *
      * @return array Array with certificates.
      */
-    public function getValidatingCertificates()
+    public function getValidatingCertificates() : array
     {
         $ret = [];
         foreach ($this->certificates as $cert) {
@@ -207,13 +210,58 @@ class SignedElementHelper implements SignedElement
 
 
     /**
+     * Collect the value of the validUntil property.
+     *
+     * @return int|null
+     */
+    public function getValidUntil() : ?int
+    {
+        return $this->validUntil;
+    }
+
+    /**
+     * Set the value of the validUntil property.
+     *
+     * @param int|null $validUntil
+     * @return void
+     */
+    public function setValidUntil(int $validUntil = null) : void
+    {
+        $this->validUntil = $validUntil;
+    }
+
+
+    /**
+     * Collect the value of the cacheDuration property.
+     *
+     * @return string|null
+     */
+    public function getCacheDuration() : ?string
+    {
+        return $this->cacheDuration;
+    }
+
+
+    /**
+     * Set the value of the cacheDuration property.
+     *
+     * @param string|null $cacheDuration
+     * @return void
+     */
+    public function setCacheDuration(string $cacheDuration = null) : void
+    {
+        $this->cacheDuration = $cacheDuration;
+    }
+
+
+    /**
      * Sign the given XML element.
      *
-     * @param \DOMElement      $root         The element we should sign.
-     * @param \DOMElement|null $insertBefore The element we should insert the signature node before.
+     * @param \DOMElement $root The element we should sign.
+     * @param \DOMNode|null $insertBefore The element we should insert the signature node before.
      * @return \DOMElement|null
      */
-    protected function signElement(\DOMElement $root, \DOMElement $insertBefore = null)
+    protected function signElement(DOMElement $root, DOMNode $insertBefore = null) : ?DOMElement
     {
         if ($this->signatureKey === null) {
             /* We cannot sign this element. */

@@ -1,9 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SAML2\Compat\Ssp;
 
+use Psr\Log\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use SimpleSAML\Logger as SspLogger;
+use Webmozart\Assert\Assert;
 
 class Logger implements LoggerInterface
 {
@@ -13,10 +18,13 @@ class Logger implements LoggerInterface
      * @param string $message
      * @param array $context
      * @return void
+     *
+     * Type hint not possible due to upstream method signature
      */
-    public function emergency($message, array $context = [])
+    public function emergency($message, array $context = []) : void
     {
-        \SimpleSAML\Logger::emergency($message.($context ? " ".var_export($context, true) : ""));
+        /** @psalm-suppress UndefinedClass */
+        SspLogger::emergency($message.($context ? " ".var_export($context, true) : ""));
     }
 
 
@@ -29,10 +37,13 @@ class Logger implements LoggerInterface
      * @param string $message
      * @param array $context
      * @return void
+     *
+     * Type hint not possible due to upstream method signature
      */
-    public function alert($message, array $context = [])
+    public function alert($message, array $context = []) : void
     {
-        \SimpleSAML\Logger::alert($message.($context ? " ".var_export($context, true) : ""));
+        /** @psalm-suppress UndefinedClass */
+        SspLogger::alert($message.($context ? " ".var_export($context, true) : ""));
     }
 
 
@@ -44,10 +55,13 @@ class Logger implements LoggerInterface
      * @param string $message
      * @param array $context
      * @return void
+     *
+     * Type hint not possible due to upstream method signature
      */
-    public function critical($message, array $context = [])
+    public function critical($message, array $context = []) : void
     {
-        \SimpleSAML\Logger::critical($message.($context ? " ".var_export($context, true) : ""));
+        /** @psalm-suppress UndefinedClass */
+        SspLogger::critical($message.($context ? " ".var_export($context, true) : ""));
     }
 
 
@@ -58,10 +72,13 @@ class Logger implements LoggerInterface
      * @param string $message
      * @param array $context
      * @return void
+     *
+     * Type hint not possible due to upstream method signature
      */
-    public function error($message, array $context = [])
+    public function error($message, array $context = []) : void
     {
-        \SimpleSAML\Logger::error($message.($context ? " ".var_export($context, true) : ""));
+        /** @psalm-suppress UndefinedClass */
+        SspLogger::error($message.($context ? " ".var_export($context, true) : ""));
     }
 
 
@@ -74,10 +91,13 @@ class Logger implements LoggerInterface
      * @param string $message
      * @param array $context
      * @return void
+     *
+     * Type hint not possible due to upstream method signature
      */
-    public function warning($message, array $context = [])
+    public function warning($message, array $context = []) : void
     {
-        \SimpleSAML\Logger::warning($message.($context ? " ".var_export($context, true) : ""));
+        /** @psalm-suppress UndefinedClass */
+        SspLogger::warning($message.($context ? " ".var_export($context, true) : ""));
     }
 
 
@@ -87,10 +107,13 @@ class Logger implements LoggerInterface
      * @param string $message
      * @param array $context
      * @return void
+     *
+     * Type hint not possible due to upstream method signature
      */
-    public function notice($message, array $context = [])
+    public function notice($message, array $context = []) : void
     {
-        \SimpleSAML\Logger::notice($message.($context ? " ".var_export($context, true) : ""));
+        /** @psalm-suppress UndefinedClass */
+        SspLogger::notice($message.($context ? " ".var_export($context, true) : ""));
     }
 
 
@@ -102,10 +125,13 @@ class Logger implements LoggerInterface
      * @param string $message
      * @param array $context
      * @return void
+     *
+     * Type hint not possible due to upstream method signature
      */
-    public function info($message, array $context = [])
+    public function info($message, array $context = []) : void
     {
-        \SimpleSAML\Logger::info($message.($context ? " ".var_export($context, true) : ""));
+        /** @psalm-suppress UndefinedClass */
+        SspLogger::info($message.($context ? " ".var_export($context, true) : ""));
     }
 
 
@@ -115,10 +141,13 @@ class Logger implements LoggerInterface
      * @param string $message
      * @param array $context
      * @return void
+     *
+     * Type hint not possible due to upstream method signature
      */
-    public function debug($message, array $context = [])
+    public function debug($message, array $context = []) : void
     {
-        \SimpleSAML\Logger::debug($message.($context ? " ".var_export($context, true) : ""));
+        /** @psalm-suppress UndefinedClass */
+        SspLogger::debug($message.($context ? " ".var_export($context, true) : ""));
     }
 
 
@@ -129,13 +158,18 @@ class Logger implements LoggerInterface
      * @param string $message
      * @param array $context
      * @return void
+     *
+     * Type hint not possible due to upstream method signature
      */
-    public function log($level, $message, array $context = [])
+    public function log($level, $message, array $context = []) : void
     {
+        /** @psalm-suppress RedundantConditionGivenDocblockType */
+        Assert::string($message);
+
         switch ($level) {
             /* From PSR:  Calling this method with one of the log level constants
-            MUST have the same result as calling the level-specific method
-            */
+             * MUST have the same result as calling the level-specific method
+             */
             case LogLevel::ALERT:
                 $this->alert($message, $context);
                 break;
@@ -161,7 +195,7 @@ class Logger implements LoggerInterface
                 $this->warning($message, $context);
                 break;
             default:
-                throw new \Psr\Log\InvalidArgumentException("Unrecognized log level '$level''");
+                throw new InvalidArgumentException("Unrecognized log level '$level''");
         }
     }
 }
