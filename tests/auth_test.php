@@ -653,7 +653,7 @@ class auth_test extends \advanced_testcase {
             'uid' => ['samluser'],
         ];
 
-        set_config('mdlattr', 'profile_field1', 'auth_saml2');
+        set_config('mdlattr', 'profile_field_field1', 'auth_saml2');
 
         $user = $this->getDataGenerator()->create_user(['auth' => 'saml2']);
         profile_save_data((object)['id' => $user->id, 'profile_field_' . $field1->shortname => 'samluser']);
