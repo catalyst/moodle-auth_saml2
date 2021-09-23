@@ -318,20 +318,6 @@ EOF;
                 addslashes_js($cookiename) . '=; expires=Thu, 01 Jan 1970 00:00:00 GMT";');
     }
 
-    /**
-     * Logs out of the system by clicking logout link.
-     *
-     * @Given /^I click log out$/
-     */
-    public function i_click_log_out() {
-
-        // Wait for page to be loaded.
-        $this->wait_for_pending_js();
-
-        // Click on logout link in footer, as it's much faster.
-        $this->execute('behat_general::i_click_on_in_the', array(get_string('logout'), 'link', '#page-footer', "css_element"));
-    }
-
     private function visit_saml2_login_page() {
         $this->getSession()->visit($this->locate_path('http://simplesamlphp.test:8001/module.php/core/authenticate.php'));
     }
