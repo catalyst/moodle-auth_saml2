@@ -1207,4 +1207,108 @@ class auth_test extends \advanced_testcase {
         $this->assertFalse($auth->is_email_taken(strtoupper($user->email), $user->username));
         $this->assertFalse($auth->is_email_taken(ucfirst($user->email), $user->username));
     }
+
+    /**
+     * Tests we can update username from any SAML attribute on user creation.
+     */
+    public function test_update_user_profile_fields_updates_username_on_creation(): void {
+        global $CFG;
+        require_once($CFG->dirroot . '/user/profile/lib.php');
+
+        $auth = get_auth_plugin('saml2');
+        $user = $this->getDataGenerator()->create_user();
+
+        $expected = 'updated_username';
+        $this->assertNotEquals($expected, $user->username);
+
+        set_config("field_map_username", 'field', 'auth_saml2');
+        set_config("field_updatelocal_username", 'onlogin', 'auth_saml2');
+        set_config("field_lock_username", 'locked', 'auth_saml2');
+
+        $attributes = [
+            'field' => [$expected]
+        ];
+
+        $this->assertTrue($auth->update_user_profile_fields($user, $attributes, true));
+        $this->assertEquals($expected, $user->username);
+    }
+
+    /**
+     * Tests we can't update username from any SAML attribute once a user already created.
+     */
+    public function test_update_user_profile_fields_does_not_update_username_on_update(): void {
+        global $CFG;
+        require_once($CFG->dirroot . '/user/profile/lib.php');
+
+        $auth = get_auth_plugin('saml2');
+        $user = $this->getDataGenerator()->create_user();
+
+        $expected = 'updated_username';
+        $this->assertNotEquals($expected, $user->username);
+
+        // Function print_auth_lock_options creates variables in the config object.
+        set_config("field_map_username", 'field', 'auth_saml2');
+        set_config("field_updatelocal_username", 'onlogin', 'auth_saml2');
+        set_config("field_lock_username", 'locked', 'auth_saml2');
+
+        $attributes = [
+            'field' => [$expected]
+        ];
+
+        $this->assertFalse($auth->update_user_profile_fields($user, $attributes, false));
+        $this->assertNotEquals($expected, $user->username);
+    }
+
+    /**
+     * Tests we can update configured mapping field from any SAML attribute on user creation.
+     */
+    public function test_update_user_profile_fields_updates_mapping_field_on_creation(): void {
+        global $CFG;
+        require_once($CFG->dirroot . '/user/profile/lib.php');
+
+        $auth = get_auth_plugin('saml2');
+        $user = $this->getDataGenerator()->create_user();
+
+        $expected = 'updated_alternatename';
+        $this->assertNotEquals($expected, $user->alternatename);
+
+        set_config("mdlattr", 'alternatename', 'auth_saml2');
+        set_config("field_map_alternatename", 'field', 'auth_saml2');
+        set_config("field_updatelocal_alternatename", 'onlogin', 'auth_saml2');
+        set_config("field_lock_alternatename", 'locked', 'auth_saml2');
+
+        $attributes = [
+            'field' => [$expected]
+        ];
+
+        $this->assertTrue($auth->update_user_profile_fields($user, $attributes, true));
+        $this->assertEquals($expected, $user->alternatename);
+    }
+
+    /**
+     * Tests we can't update configured mapping field from any SAML attribute when a user already created.
+     */
+    public function test_update_user_profile_fields_does_not_update_mapping_field_on_update(): void {
+        global $CFG;
+        require_once($CFG->dirroot . '/user/profile/lib.php');
+
+        set_config("mdlattr", 'alternatename', 'auth_saml2');
+        $auth = get_auth_plugin('saml2');
+
+        $user = $this->getDataGenerator()->create_user();
+
+        $expected = 'updated_alternatename';
+        $this->assertNotEquals($expected, $user->alternatename);
+
+        set_config("field_map_alternatename", 'field', 'auth_saml2');
+        set_config("field_updatelocal_alternatename", 'onlogin', 'auth_saml2');
+        set_config("field_lock_alternatename", 'locked', 'auth_saml2');
+
+        $attributes = [
+            'field' => [$expected]
+        ];
+
+        $this->assertFalse($auth->update_user_profile_fields($user, $attributes, false));
+        $this->assertNotEquals($expected, $user->alternatename);
+    }
 }

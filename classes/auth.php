@@ -90,6 +90,12 @@ class auth extends \auth_plugin_base {
      */
     public function __construct() {
         global $CFG, $DB;
+
+        // Add username field to the list of data mapping to be able to update it on user creation if required.
+        if (!in_array('username', $this->userfields)) {
+            array_unshift($this->userfields, "username");
+        }
+
         $this->defaults['idpdefaultname'] = get_string('idpnamedefault', 'auth_saml2');
         $this->defaults['flagmessage'] = get_string('flagmessage_default', 'auth_saml2');
         $this->authtype = 'saml2';
@@ -886,6 +892,16 @@ class auth extends \auth_plugin_base {
                                         // Warn user that we are not able to update his email.
                                         \core\notification::warning(get_string('emailtakenupdate', 'auth_saml2', $email));
 
+                                        continue;
+                                    }
+                                }
+
+                                // We don't want Mapping Moodle field or username to be updated once they are set on user creation.
+                                if (!$newuser) {
+                                    if ($field == $this->config->mdlattr || $field == 'username') {
+                                        $this->log(__FUNCTION__ .
+                                            " user '$user->username' $field can't be updated once set");
+                                        \core\notification::warning("Your $field wasn't updated");
                                         continue;
                                     }
                                 }
