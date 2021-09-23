@@ -43,6 +43,6 @@ Feature: Login
     And the mock SAML IdP allows login with the following attributes:          # auth_saml2
       | uid | student1 |
     Then I should see "You are logged in as Eigh Person"
-    And I log out
+    And I click log out
     And the mock SAML IdP confirms logout                                      # auth_saml2
     And I should see "You are not logged in."
