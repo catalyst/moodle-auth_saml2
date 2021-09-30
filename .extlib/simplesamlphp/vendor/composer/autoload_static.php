@@ -97,7 +97,6 @@ class ComposerStaticInitd18530eedf66a5e402e326441926f46e
             'Psr\\Log\\' => 8,
             'Psr\\Container\\' => 14,
             'Psr\\Cache\\' => 10,
-            'PHPMailer\\PHPMailer\\' => 20,
         ),
         'G' => 
         array (
@@ -366,10 +365,6 @@ class ComposerStaticInitd18530eedf66a5e402e326441926f46e
         'Psr\\Cache\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/cache/src',
-        ),
-        'PHPMailer\\PHPMailer\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
         ),
         'Gettext\\Languages\\' => 
         array (
