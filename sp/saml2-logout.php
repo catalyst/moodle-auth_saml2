@@ -54,6 +54,25 @@ try {
     // user out in Moodle.
     if (!is_null($session->getAuthState($saml2auth->spname))) {
         $session->registerLogoutHandler($saml2auth->spname, '\auth_saml2\api', 'logout_from_idp_front_channel');
+    } else {
+         try {
+            $binding = \SAML2\Binding::getCurrentBinding();
+        } catch (\Exception $e) {
+            // TODO: look for a specific exception
+            // This is dirty. Instead of checking the message of the exception, \SAML2\Binding::getCurrentBinding() should throw
+            // an specific exception when the binding is unknown, and we should capture that here
+            if ($e->getMessage() === 'Unable to find the current binding.') {
+                throw new \SimpleSAML\Error\Error('SLOSERVICEPARAMS', $e, 400);
+            } else {
+                throw $e; // do not ignore other exceptions!
+            }
+        }
+        $message = $binding->receive();
+
+        if ($message instanceof \SAML2\LogoutRequest) {
+            //Todo : parse xmlbody, get sp sessionid/moodle userid, and register logoutHandler from here ?
+            //For the time being the call to the specific logout function is done with 3 lines in extlib.. session.php
+        }
     }
 
     require('../.extlib/simplesamlphp/modules/saml/www/sp/saml2-logout.php');

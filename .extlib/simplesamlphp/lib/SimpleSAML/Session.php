@@ -736,7 +736,11 @@ class Session implements \Serializable, Utils\ClearableState
         assert(isset($this->authData[$authority]));
 
         if (empty($this->authData[$authority]['LogoutHandlers'])) {
-            return;
+            if (empty($this->authData[$authority]['Attributes']['username'][0])) {
+                return;
+            } else {
+                call_user_func(['\auth_saml2\api', 'logout_from_idp_back_channel'], $this->authData[$authority]['Attributes']['username'][0], $this->sessionId);
+            }
         }
         foreach ($this->authData[$authority]['LogoutHandlers'] as $handler) {
             // verify that the logout handler is a valid function
