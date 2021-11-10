@@ -30,8 +30,6 @@ global $saml2auth, $CFG, $SITE, $SESSION;
 
 $config = [];
 
-$baseurl = optional_param('baseurl', $CFG->wwwroot, PARAM_URL);
-
 if (!empty($SESSION->saml2idp) && array_key_exists($SESSION->saml2idp, $saml2auth->metadataentities)) {
     $idpentityid = $saml2auth->metadataentities[$SESSION->saml2idp]->entityid;
 } else {
@@ -41,7 +39,7 @@ if (!empty($SESSION->saml2idp) && array_key_exists($SESSION->saml2idp, $saml2aut
 
 $config[$saml2auth->spname] = [
     'saml:SP',
-    'entityID' => "$baseurl/auth/saml2/sp/metadata.php",
+    'entityID' => "$CFG->wwwroot/auth/saml2/sp/metadata.php",
     'discoURL' => !empty($CFG->auth_saml2_disco_url) ? $CFG->auth_saml2_disco_url : null,
     'idp' => empty($CFG->auth_saml2_disco_url) ? $idpentityid : null,
     'NameIDPolicy' => $saml2auth->config->nameidpolicy,
@@ -52,7 +50,7 @@ $config[$saml2auth->spname] = [
         'en' => $SITE->fullname,
     ),
     'OrganizationURL' => array(
-        'en' => $baseurl,
+        'en' => $CFG->wwwroot,
     ),
     'privatekey' => $saml2auth->spname . '.pem',
     'privatekey_pass' => get_config('auth_saml2', 'privatekeypass'),

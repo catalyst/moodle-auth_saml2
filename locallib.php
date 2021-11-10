@@ -33,12 +33,12 @@ defined('MOODLE_INTERNAL') || die();
  * to the SSPHP rules not moodles so we ignore it here. This is to make it
  * easier when upgrading SSPHP.
  */
-function auth_saml2_get_sp_metadata($baseurl = '') {
+function auth_saml2_get_sp_metadata() {
     global $saml2auth, $CFG;
 
     $sourceId = $saml2auth->spname;
 
-    $file = $saml2auth->get_file_sp_metadata_file($baseurl);
+    $file = $saml2auth->get_file_sp_metadata_file();
     if (file_exists($file)) {
         $xml = file_get_contents($file);
         return $xml;

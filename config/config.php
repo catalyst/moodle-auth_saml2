@@ -39,13 +39,10 @@ foreach ($saml2auth->metadataentities as $idpentity) {
 
 $remoteip = getremoteaddr();
 
-$baseurl = optional_param('baseurl', $CFG->wwwroot, PARAM_URL);
-
-
 $config = array(
-    'baseurlpath'       => $baseurl . '/auth/saml2/sp/',
+    'baseurlpath'       => $CFG->wwwroot . '/auth/saml2/sp/',
     'application'       => [
-      'baseURL'         => $baseurl . '/auth/saml2/sp/',
+      'baseURL'         => $CFG->wwwroot . '/auth/saml2/sp/',
     ],
     'certdir'           => $saml2auth->get_saml2_directory() . '/',
     'debug'             => $saml2auth->is_debugging(),
