@@ -39,13 +39,21 @@ if ($download) {
     header('Content-Disposition: attachment; filename=' . $saml2auth->spname . '.xml');
 }
 
+if (is_siteadmin()) {
+    // Allow generating SP metadata for a different domain which can
+    // be useful for setting up saml prior to a DNS cutover.
+    $baseurl = optional_param('baseurl', $CFG->wwwroot, PARAM_URL);
+} else {
+    $baseurl = $CFG->wwwroot;
+}
+
 $regenerate = is_siteadmin() && optional_param('regenerate', false, PARAM_BOOL);
 if ($regenerate) {
-    $file = $saml2auth->get_file_sp_metadata_file();
+    $file = $saml2auth->get_file_sp_metadata_file($baseurl);
     @unlink($file);
 }
 
-$xml = auth_saml2_get_sp_metadata();
+$xml = auth_saml2_get_sp_metadata($baseurl);
 
 if (array_key_exists('output', $_REQUEST) && $_REQUEST['output'] == 'xhtml') {
 
