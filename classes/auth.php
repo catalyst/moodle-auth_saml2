@@ -100,10 +100,13 @@ class auth extends \auth_plugin_base {
         $this->defaults['idpdefaultname'] = get_string('idpnamedefault', 'auth_saml2');
         $this->defaults['flagmessage'] = get_string('flagmessage_default', 'auth_saml2');
         $this->authtype = 'saml2';
-        $mdl = new moodle_url($CFG->wwwroot);
+
+        $baseurl = optional_param('baseurl', $CFG->wwwroot, PARAM_URL);
+        $mdl = new moodle_url($baseurl);
         $this->spname = $mdl->get_host();
         $this->certpem = $this->get_file("{$this->spname}.pem");
         $this->certcrt = $this->get_file("{$this->spname}.crt");
+
         $this->config = (object) array_merge($this->defaults, (array) get_config('auth_saml2') );
 
         // Parsed IdP metadata, either a list of IdP metadata urls or a single XML blob.
