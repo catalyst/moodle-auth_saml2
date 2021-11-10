@@ -31,12 +31,12 @@ use auth_saml2\event\cert_regenerated;
  * to the SSPHP rules not moodles so we ignore it here. This is to make it
  * easier when upgrading SSPHP.
  */
-function auth_saml2_get_sp_metadata() {
+function auth_saml2_get_sp_metadata($baseurl = '') {
     global $saml2auth, $CFG;
 
     $sourceId = $saml2auth->spname;
 
-    $file = $saml2auth->get_file_sp_metadata_file();
+    $file = $saml2auth->get_file_sp_metadata_file($baseurl);
     if (file_exists($file)) {
         $xml = file_get_contents($file);
         return $xml;
@@ -64,7 +64,7 @@ function auth_saml2_get_sp_metadata() {
     );
 
     $slob = $spconfig->getArray('SingleLogoutServiceBinding', $slosvcdefault);
-    $slol = "$CFG->wwwroot/auth/saml2/sp/saml2-logout.php/{$sourceId}";
+    $slol = "{$baseurl}/auth/saml2/sp/saml2-logout.php/{$sourceId}";
 
     foreach ($slob as $binding) {
         $metaArray20['SingleLogoutService'][] = array(
@@ -94,23 +94,23 @@ function auth_saml2_get_sp_metadata() {
         switch ($services) {
         case 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST':
             $acsArray['Binding'] = SAML2\Constants::BINDING_HTTP_POST;
-            $acsArray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml2-acs.php/{$sourceId}";
+            $acsArray['Location'] = "{$baseurl}/auth/saml2/sp/saml2-acs.php/{$sourceId}";
             break;
         case 'urn:oasis:names:tc:SAML:1.0:profiles:browser-post':
             $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:1.0:profiles:browser-post';
-            $acsArray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml1-acs.php/{$sourceId}";
+            $acsArray['Location'] = "{$baseurl}/auth/saml2/sp/saml1-acs.php/{$sourceId}";
             break;
         case 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact':
             $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact';
-            $acsArray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml2-acs.php/{$sourceId}";
+            $acsArray['Location'] = "{$baseurl}/auth/saml2/sp/saml2-acs.php/{$sourceId}";
             break;
         case 'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01':
             $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01';
-            $acsArray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml1-acs.php/{$sourceId}";
+            $acsArray['Location'] = "{$baseurl}/auth/saml2/sp/saml1-acs.php/{$sourceId}";
             break;
         case 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser':
             $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser';
-            $acsArray['Location'] = "$CFG->wwwroot/auth/saml2/sp/saml2-acs.php/{$sourceId}";
+            $acsArray['Location'] = "{$baseurl}/auth/saml2/sp/saml2-acs.php/{$sourceId}";
             $acsArray['hoksso:ProtocolBinding'] = SAML2\Constants::BINDING_HTTP_REDIRECT;
             break;
         }
