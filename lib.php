@@ -66,3 +66,21 @@ function auth_saml2_after_require_login() {
 function auth_saml2_before_http_headers() {
     \auth_saml2\auto_login::process();
 }
+
+/**
+ * Add service status checks
+ *
+ * @return array of check objects
+ */
+function auth_saml2_status_checks() : array {
+    global $saml2auth;
+    require_once(__DIR__ . '/setup.php');
+
+    // Only if saml is configured then check certificate expiry.
+    if ($saml2auth->is_configured()) {
+        return [
+            new \auth_saml2\check\certificateexpiry(),
+        ];
+    }
+    return [];
+}
