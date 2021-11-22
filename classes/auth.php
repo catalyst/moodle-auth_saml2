@@ -1086,7 +1086,11 @@ class auth extends \auth_plugin_base {
      * @return string
      */
     public function get_ssp_version() {
-        require_once(__DIR__.'/../setup.php');
+        // To get the version there is no need to create key files and
+        // perform the full initialization. For better performance
+        // we only make sure \SimpleSAML\Configuration is accessible
+        // through _autoload.php.
+        require_once(__DIR__ . '/../_autoload.php');
         $config = new \SimpleSAML\Configuration(array(), '');
         return $config->getVersion();
     }
