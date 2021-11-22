@@ -1043,6 +1043,7 @@ class auth extends \auth_plugin_base {
      * A simple GUI tester which shows the raw API output
      */
     public function test_settings() {
+        global $PAGE;
         include(__DIR__.'/../tester.php');
     }
 
