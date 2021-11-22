@@ -47,20 +47,10 @@ class testidpselect extends moodleform {
     public function definition() {
         $mform = $this->_form;
 
-        $idpentityids = $this->_customdata['idpentityids'];
-
+        $metadataentities = $this->_customdata['metadataentities'];
         $selectvalues = [];
-
-        foreach ($idpentityids as $idpentity) {
-            if (is_string($idpentity)) {
-                $selectvalues[md5($idpentity)] = $idpentity;
-            } else {
-                foreach ((array)$idpentity as $subidpentity => $active) {
-                    if ($active) {
-                        $selectvalues[md5($subidpentity)] = $subidpentity;
-                    }
-                }
-            }
+        foreach ($metadataentities as $idpentity) {
+            $selectvalues[$idpentity->md5entityid] = "{$idpentity->metadataurl} ({$idpentity->name})";
         }
 
         $mform->addElement('select', 'idp', get_string('test_auth_button_login', 'auth_saml2'), $selectvalues);

@@ -29,6 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 use moodle_url;
 use pix_icon;
 use auth_saml2\admin\saml2_settings;
+use core\output\notification;
 
 global $CFG;
 require_once($CFG->libdir.'/authlib.php');
@@ -1076,7 +1077,17 @@ class auth extends \auth_plugin_base {
      * A simple GUI tester which shows the raw API output
      */
     public function test_settings() {
-        include(__DIR__.'/../tester.php');
+        global $OUTPUT;
+
+        if ($this->is_configured() && $this->is_debugging() && api::is_enabled()) {
+            $action = new moodle_url('/auth/saml2/test.php');
+            $mform = new \auth_saml2\form\testidpselect($action, ['metadataentities' => $this->metadataentities]);
+            $mform->display();
+        } else {
+            echo $OUTPUT->render(new notification(get_string('test_noticetestrequirements', 'auth_saml2'),
+                notification::NOTIFY_WARNING, false));
+
+        }
     }
 
     /**
