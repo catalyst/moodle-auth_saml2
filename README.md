@@ -281,6 +281,22 @@ of [`openssl.cnf`](https://www.openssl.org/docs/manmaster/man5/config.html)
 within your environment.
 
 
+### Windows configuration for OpenSSL ###
+
+If you are running Moodle locally on a Windows machine, then on various Moodle screens including the admin page you may see errors related to the auth_saml2 plugin. For example:
+
+```
+Warning: openssl_csr_sign(): cannot get CSR from parameter 1 in C:\Users\sm449\workspace\ou-moodle2\auth\saml2\setuplib.php
+```
+
+This means you have not defined an openssl.cnf file.
+
+There are two ways to resolve this problem (you only need to do one of these, the first is probably more sensible):
+
+1. Set the OPENSSL_CONF environment variable to point to the full path and location of an openssl.cnf file (e.g. C:\tools\php73\extras\ssl\openssl.cnf) and restart Apache.
+2. (for PHP versions <= 7.3) Make a copy of that openssl.cnf file in the location C:\usr\local\ssl\openssl.cnf.
+
+
 ### OKTA configuration ###
 
 Okta has some weird names for settings which are confusing, this may help decipher them:
