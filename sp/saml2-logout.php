@@ -54,24 +54,72 @@ try {
     // user out in Moodle.
     if (!is_null($session->getAuthState($saml2auth->spname))) {
         $session->registerLogoutHandler($saml2auth->spname, '\auth_saml2\api', 'logout_from_idp_front_channel');
-    } else {
+    }  else {
+        // check if binding message exists and is logout request
          try {
-            $binding = \SAML2\Binding::getCurrentBinding();
-        } catch (\Exception $e) {
-            // TODO: look for a specific exception
-            // This is dirty. Instead of checking the message of the exception, \SAML2\Binding::getCurrentBinding() should throw
-            // an specific exception when the binding is unknown, and we should capture that here
-            if ($e->getMessage() === 'Unable to find the current binding.') {
-                throw new \SimpleSAML\Error\Error('SLOSERVICEPARAMS', $e, 400);
-            } else {
-                throw $e; // do not ignore other exceptions!
-            }
-        }
-        $message = $binding->receive();
+             $binding = \SAML2\Binding::getCurrentBinding();
+         } catch (\Exception $e) {
+             // TODO: look for a specific exception
+             // This is dirty. Instead of checking the message of the exception, \SAML2\Binding::getCurrentBinding() should throw
+             // an specific exception when the binding is unknown, and we should capture that here
+             if ($e->getMessage() === 'Unable to find the current binding.') {
+                 throw new \SimpleSAML\Error\Error('SLOSERVICEPARAMS', $e, 400);
+             } else {
+                 throw $e; // do not ignore other exceptions!
+             }
+         }
+         $message = $binding->receive();
+         if ($message instanceof \SAML2\LogoutRequest) {
+            $nameId = $message->getNameId();
+            $sessionIndexes = $message->getSessionIndexes();
 
-        if ($message instanceof \SAML2\LogoutRequest) {
-            //Todo : parse xmlbody, get sp sessionid/moodle userid, and register logoutHandler from here ?
-            //For the time being the call to the specific logout function is done with 3 lines in extlib.. session.php
+            // Getting session from $nameId and $sessionIndexes           
+            $authId = $saml2auth->spname;
+
+            assert(is_string($authId));
+
+            $store = \SimpleSAML\Store::getInstance();
+            if ($store === false) {
+                // We don't have a datastore
+                // TODO throw error
+            }
+    
+            // serialize and anonymize the NameID
+            $strNameId = serialize($nameId);
+            $strNameId = sha1($strNameId);
+
+            // Normalize SessionIndexes
+            foreach ($sessionIndexes as &$sessionIndex) {
+                assert(is_string($sessionIndex));
+                if (strlen($sessionIndex) > 50) {
+                    $sessionIndex = sha1($sessionIndex);
+                }
+            }
+  
+            // Remove reference
+            unset($sessionIndex);
+    
+            if ($store instanceof \SimpleSAML\Store\SQL) {
+                // TODO : ssp_sessions stored in db option
+                //$sessions = self::getSessionsSQL($store, $authId, $strNameId);
+            } else {
+                if (empty($sessionIndexes)) {
+                    // We cannot fetch all sessions without a SQL store
+                    return false;
+                }
+    
+                foreach ($sessionIndexes as $sessionIndex) {
+                    $sessionId = $store->get('saml.LogoutStore', $strNameId . ':' . $sessionIndex);
+                    if ($sessionId === null) {
+                        continue;
+                    }
+                    assert(is_string($sessionId));
+                    $session = \SimpleSAML\Session::getSession($sessionId);
+                    $session->registerLogoutHandler($authId, '\auth_saml2\api', 'logout_from_idp_back_channel');
+                    $sp_sessionId = $sessionId;
+                    continue; // only registering first session...
+                }
+            }
         }
     }
 

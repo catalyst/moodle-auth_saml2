@@ -39,17 +39,16 @@ class api {
         require_logout();
     }
 
-    public static function logout_from_idp_back_channel($username, $sessionId): void {
-        global $DB;
-        if (isset($sessionId)) {
-            $DB->delete_records('auth_saml2_kvstore', array('k' => $sessionId));
+    public static function logout_from_idp_back_channel(): void
+    {
+        global $DB, $sp_sessionId;
+
+        if (isset($sp_sessionId)) {
+            $DB->delete_records('auth_saml2_kvstore', array('k' => $sp_sessionId));
+            $session = \SimpleSAML\Session::getSession($sp_sessionId);
+            \core\session\manager::kill_session($session->moodle_session_id);
         }
 
-        $userid = $DB->get_record('user', array('username' => $username), 'id');        
-        $mdsessionids = $DB->get_records('sessions', array('userid' => $userid->id), 'sid DESC', 'sid');
-        foreach ($mdsessionids as $mdsessionid) {
-            $DB->delete_records('sessions', array('sid' => $mdsessionid->sid));
-        }
     }
 
     /**

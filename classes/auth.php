@@ -726,6 +726,12 @@ class auth extends \auth_plugin_base {
         $USER->site = $CFG->wwwroot;
         set_moodle_cookie($USER->username);
 
+        $moodle_session_id = session_id();
+        $saml_session = \SimpleSAML\Session::getSessionFromRequest();
+        $saml_session->moodle_session_id = $moodle_session_id;
+        $saml_session_handler = \SimpleSAML\SessionHandler::getSessionHandler();
+        $saml_session_handler->saveSession($saml_session);
+
         $wantsurl = core_login_get_return_url();
         // If we are not on the page we want, then redirect to it (unless this is CLI).
         if ( qualified_me() !== false && qualified_me() !== $wantsurl ) {
