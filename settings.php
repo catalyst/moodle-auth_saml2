@@ -241,11 +241,17 @@ if ($ADMIN->fulltree) {
             'username', $fields));
 
     // Lowercase.
+    $toloweroptions = [
+        saml2_settings::OPTION_TOLOWER_EXACT => get_string('tolower:exact', 'auth_saml2'),
+        saml2_settings::OPTION_TOLOWER_LOWER_CASE => get_string('tolower:lowercase', 'auth_saml2'),
+        saml2_settings::OPTION_TOLOWER_CASE_INSENSITIVE => get_string('tolower:caseinsensitive', 'auth_saml2'),
+    ];
     $settings->add(new admin_setting_configselect(
             'auth_saml2/tolower',
             get_string('tolower', 'auth_saml2'),
             get_string('tolower_help', 'auth_saml2'),
-            0, $yesno));
+            saml2_settings::OPTION_TOLOWER_EXACT,
+            $toloweroptions));
 
     // Autocreate Users.
     $settings->add(new admin_setting_configselect(

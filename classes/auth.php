@@ -63,7 +63,7 @@ class auth extends \auth_plugin_base {
         'anyauth'            => 1,
         'idpattr'            => 'uid',
         'mdlattr'            => 'username',
-        'tolower'            => 0,
+        'tolower'            => saml2_settings::OPTION_TOLOWER_EXACT,
         'autocreate'         => 0,
         'spmetadatasign'     => true,
         'showidplink'        => true,
@@ -596,11 +596,17 @@ class auth extends \auth_plugin_base {
 
         $user = null;
         foreach ($attributes[$attr] as $key => $uid) {
-            if ($this->config->tolower) {
+            if ($this->config->tolower == saml2_settings::OPTION_TOLOWER_LOWER_CASE) {
                 $this->log(__FUNCTION__ . " to lowercase for $key => $uid");
                 $uid = strtolower($uid);
             }
-            if ($user = $DB->get_record('user', array( $this->config->mdlattr => $uid, 'deleted' => 0 ))) {
+            if ($this->config->tolower == saml2_settings::OPTION_TOLOWER_CASE_INSENSITIVE) {
+                $this->log(__FUNCTION__ . " case insensitive compare for $key => $uid");
+                $user = $DB->get_record_select('user', "LOWER({$this->config->mdlattr}) = LOWER(:uid) AND deleted = 0", ['uid' => $uid]);
+            } else {
+                $user = $DB->get_record('user', [$this->config->mdlattr => $uid, 'deleted' => 0]);
+            }
+            if (!empty($user)) {
                 continue;
             }
         }
