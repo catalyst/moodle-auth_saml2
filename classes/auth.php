@@ -72,7 +72,7 @@ class auth extends \auth_plugin_base {
         'anyauth'            => 1,
         'idpattr'            => 'uid',
         'mdlattr'            => 'username',
-        'tolower'            => 0,
+        'tolower'            => saml2_settings::OPTION_TOLOWER_EXACT,
         'autocreate'         => 0,
         'spmetadatasign'     => true,
         'showidplink'        => true,
@@ -602,11 +602,16 @@ class auth extends \auth_plugin_base {
         // Find Moodle user.
         $user = null;
         foreach ($attributes[$attr] as $uid) {
-            if ($this->config->tolower) {
+            $insensitive = false;
+            if ($this->config->tolower == saml2_settings::OPTION_TOLOWER_LOWER_CASE) {
                 $this->log(__FUNCTION__ . " to lowercase for $uid");
                 $uid = strtolower($uid);
             }
-            if ($user = user_extractor::get_user($this->config->mdlattr, $uid)) {
+            if ($this->config->tolower == saml2_settings::OPTION_TOLOWER_CASE_INSENSITIVE) {
+                $this->log(__FUNCTION__ . " case insensitive compare for $key => $uid");
+                $insensitive = true;
+            }
+            if ($user = user_extractor::get_user($this->config->mdlattr, $uid, $insensitive)) {
                 // We found a user.
                 break;
             }
