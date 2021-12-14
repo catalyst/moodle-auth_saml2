@@ -506,18 +506,6 @@ class auth_saml2_locallib_testcase extends advanced_testcase {
         $this->assertFalse($auth->is_email_taken($user->email, $user->username));
         $this->assertFalse($auth->is_email_taken(strtoupper($user->email), $user->username));
         $this->assertFalse($auth->is_email_taken(ucfirst($user->email), $user->username));
-
-        // Create a new user with the same email, but different mnethostid.
-        $user2 = $this->getDataGenerator()->create_user(['email' => $user->email, 'mnethostid' => 777]);
-
-        // Delete original user.
-        delete_user($user);
-        $this->assertFalse($auth->is_email_taken($user->email));
-        $this->assertFalse($auth->is_email_taken(strtoupper($user->email)));
-        $this->assertFalse($auth->is_email_taken(ucfirst($user->email)));
-        $this->assertFalse($auth->is_email_taken($user->email, $user->username));
-        $this->assertFalse($auth->is_email_taken(strtoupper($user->email), $user->username));
-        $this->assertFalse($auth->is_email_taken(ucfirst($user->email), $user->username));
     }
 
     /**
