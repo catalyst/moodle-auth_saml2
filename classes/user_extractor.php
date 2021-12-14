@@ -42,10 +42,11 @@ class user_extractor {
      *
      * @param string $fieldname Field name to search by.
      * @param string $fieldvalue Field value to search by.
+     * @param bool $insensitive Whether to use case insensitive match.
      *
      * @return mixed False, or A {@link $USER} object.
      */
-    public static function get_user(string $fieldname, string $fieldvalue) {
+    public static function get_user(string $fieldname, string $fieldvalue, bool $insensitive = false) {
         global $DB, $CFG;
 
         if (user_fields::is_custom_profile_field($fieldname)) {
@@ -55,8 +56,11 @@ class user_extractor {
 
             $joins = " LEFT JOIN {user_info_field} f ON f.shortname = :fieldname ";
             $joins .= " LEFT JOIN {user_info_data} d ON d.fieldid = f.id AND d.userid = u.id ";
-            $fieldsql = " AND d.data = :fieldvalue";
-
+            if ($insensitive) {
+                $fieldsql = " AND LOWER(d.data) = LOWER(:fieldvalue)";
+            } else {
+                $fieldsql = " AND d.data = :fieldvalue";
+            }
             $params['fieldname'] = $fieldname;
             $params['fieldvalue'] = $fieldvalue;
             $params['mnethostid'] = $CFG->mnet_localhost_id;
