@@ -155,6 +155,40 @@ class auth_saml2_user_extractor_test extends advanced_testcase {
     }
 
     /**
+     * Tests for case insensitive match.
+     */
+    public function test_get_user_case_insensitive() {
+        $this->resetAfterTest();
+
+        // Arrange data
+        $field = $this->add_user_profile_field('vehicleplate', 'text', true);
+        $expecteduser = $this->getDataGenerator()->create_user();
+        profile_save_data((object)['id' => $expecteduser->id, 'profile_field_vehicleplate' => 'HD4999']);
+
+        // Should match with same case.
+        $actualuser = user_extractor::get_user('profile_field_vehicleplate', 'HD4999', true);
+        $this->assertNotFalse($actualuser);
+        $this->assertSame($expecteduser->id, $actualuser->id);
+
+        // Should match with different case.
+        $actualuser = user_extractor::get_user('profile_field_vehicleplate', 'hd4999', true);
+        $this->assertNotFalse($actualuser);
+        $this->assertSame($expecteduser->id, $actualuser->id);
+
+        // Should not match with different value (obviously).
+        $actualuser = user_extractor::get_user('profile_field_vehicleplate', 'Some other value entirely', true);
+        $this->assertFalse($actualuser);
+
+        // Should not match when case sensitive.
+        $actualuser = user_extractor::get_user('profile_field_vehicleplate', 'hd4999', false);
+        $this->assertFalse($actualuser);
+
+        // Should not match by default (case sensitive = false).
+        $actualuser = user_extractor::get_user('profile_field_vehicleplate', 'hd4999');
+        $this->assertFalse($actualuser);
+    }
+
+    /**
      * Test we can extract users using custom profile fields when found multiple users.
      */
     public function test_get_user_by_custom_profile_field_when_multiple_users_found() {
