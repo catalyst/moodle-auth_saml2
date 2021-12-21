@@ -171,8 +171,14 @@ $string['test_auth_button_logout'] = 'IdP Logout';
 $string['test_auth_str'] = 'Test isAuthenticated and login';
 $string['test_noticetestrequirements'] = 'In order to use this test, plugin needs to be configired, enabled and debugging mode should be enabled in plugin settings.';
 $string['test_passive_str'] = 'Test using isPassive';
-$string['tolower_help'] = 'Apply lowercase to IdP attribute before matching?';
-$string['tolower'] = 'Lowercase';
+$string['tolower'] = 'Case matching';
+$string['tolower:exact'] = 'Exact';
+$string['tolower:lowercase'] = 'Lower case';
+$string['tolower:caseinsensitive'] = 'Case insensitive';
+$string['tolower_help'] = '
+<p>Exact: match is case sensitive (default).</p>
+<p>Lower case: applies lower case to the IdP attribute before matching.</p>
+<p>Case insensitive: ignore case when matching.</p>';
 $string['wrongauth'] = 'You have logged in successfully as \'{$a}\' but are not authorized to access Moodle.';
 $string['auth_data_mapping'] = 'Data mapping';
 $string['auth_fieldlockfield'] = 'Lock value ({$a})';

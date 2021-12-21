@@ -51,4 +51,10 @@ abstract class saml2_settings {
     const OPTION_AUTO_LOGIN_SESSION = 1;
 
     const OPTION_AUTO_LOGIN_COOKIE = 2;
+
+    const OPTION_TOLOWER_EXACT = 0;
+
+    const OPTION_TOLOWER_LOWER_CASE = 1;
+
+    const OPTION_TOLOWER_CASE_INSENSITIVE = 2;
 }
