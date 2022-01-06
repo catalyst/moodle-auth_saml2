@@ -58,6 +58,7 @@ Features
 * Automatic certificate creation
 * Optionally auto create users
 * Support for multiple identity providers
+* Role mapping for admin, manager and course_creator system roles
 * Idp initiated flow / IdP first flow /  IdP unsolicited logins, eg:
 
 http://idp.local/simplesaml/saml2/idp/SSOService.php?spentityid=http://moodle.local/auth/saml2/sp/metadata.php&RelayState=http://moodle.local/course/view.php?id=2
@@ -66,7 +67,6 @@ http://idp.local/simplesaml/saml2/idp/SSOService.php?spentityid=http://moodle.lo
 Features not yet implemented:
 
 * Enrolment - this should be an enrol plugin and not in an auth plugin
-* Role mapping - not yet implemented
 
 Branches
 --------

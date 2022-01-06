@@ -724,6 +724,9 @@ class auth extends \auth_plugin_base {
             set_config('siteadmins', implode(',', $admins));
         }
 
+        // Synchronize IdP roles to moodle
+        sync_roles($user, $attributes, $this->config);
+
         // Make sure all user data is fetched.
         $user = get_complete_user_data('username', $user->username);
 
