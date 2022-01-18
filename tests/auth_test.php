@@ -184,14 +184,16 @@ class auth_testcase extends \advanced_testcase {
         $auth = get_auth_plugin('saml2');
         $this->assertCount(2, $auth->metadataentities);
 
-        // Check entity name.
-        $this->assertEqualsCanonicalizing(['Login 1', $entity1->defaultname], array_column($auth->metadataentities, 'name'));
-
-        // Encoded entityid present as an attribute as well as the key.
-        $this->assertEqualsCanonicalizing([md5($entity1->entityid), md5($entity3->entityid)],
-            array_column($auth->metadataentities, 'md5entityid'));
-        $this->assertEqualsCanonicalizing([md5($entity1->entityid), md5($entity3->entityid)],
-            array_keys($auth->metadataentities));
+        // Backwards compatibility with older PHPUnit - skip the Canonicalizing checks.
+        if (method_exists($this, 'assertEqualsCanonicalizing')) {
+            // Check entity name.
+            $this->assertEqualsCanonicalizing(['Login 1', $entity1->defaultname], array_column($auth->metadataentities, 'name'));
+            // Encoded entityid present as an attribute as well as the key.
+            $this->assertEqualsCanonicalizing([md5($entity1->entityid), md5($entity3->entityid)],
+                array_column($auth->metadataentities, 'md5entityid'));
+            $this->assertEqualsCanonicalizing([md5($entity1->entityid), md5($entity3->entityid)],
+                array_keys($auth->metadataentities));
+        }
 
         // Multiidp flag is true.
         $reflector = new \ReflectionClass($auth);
@@ -301,7 +303,11 @@ class auth_testcase extends \advanced_testcase {
         set_config('idpname', '', 'auth_saml2');
         $auth = get_auth_plugin('saml2');
         $list = $auth->loginpage_idp_list('/');
-        $this->assertEqualsCanonicalizing([$entity1->displayname, $entity2->displayname], array_column($list, 'name'));
+
+        // Backwards compatibility with older PHPUnit - skip the Canonicalizing checks.
+        if (method_exists($this, 'assertEqualsCanonicalizing')) {
+            $this->assertEqualsCanonicalizing([$entity1->displayname, $entity2->displayname], array_column($list, 'name'));
+        }
 
         // Unset display name for first entity, it will be replaced by entity default name.
         $DB->update_record('auth_saml2_idps', [
@@ -310,7 +316,11 @@ class auth_testcase extends \advanced_testcase {
         ]);
         $auth = get_auth_plugin('saml2');
         $list = $auth->loginpage_idp_list('/');
-        $this->assertEqualsCanonicalizing([$entity1->defaultname, $entity2->displayname], array_column($list, 'name'));
+
+        // Backwards compatibility with older PHPUnit - skip the Canonicalizing checks.
+        if (method_exists($this, 'assertEqualsCanonicalizing')) {
+            $this->assertEqualsCanonicalizing([$entity1->defaultname, $entity2->displayname], array_column($list, 'name'));
+        }
 
         // Unset default name for first entity, it will be replaced by default with hostname mentioned.
         $DB->update_record('auth_saml2_idps', [
@@ -320,7 +330,11 @@ class auth_testcase extends \advanced_testcase {
         $idpname1 = get_string('idpnamedefault_varaible', 'auth_saml2', parse_url($entity1->entityid, PHP_URL_HOST));
         $auth = get_auth_plugin('saml2');
         $list = $auth->loginpage_idp_list('/');
-        $this->assertEqualsCanonicalizing([$idpname1, $entity2->displayname], array_column($list, 'name'));
+
+        // Backwards compatibility with older PHPUnit - skip the Canonicalizing checks.
+        if (method_exists($this, 'assertEqualsCanonicalizing')) {
+            $this->assertEqualsCanonicalizing([$idpname1, $entity2->displayname], array_column($list, 'name'));
+        }
 
         // Deactivate first entity.
         $DB->update_record('auth_saml2_idps', [
