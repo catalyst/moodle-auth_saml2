@@ -347,7 +347,11 @@ class auth_testcase extends \advanced_testcase {
             $this->fail('Exception expected');
         } catch (\coding_exception $e) {
             // Validate reason.
-            $this->assertStringContainsString(get_string('noattribute', 'auth_saml2', 'blabla'), $e->getMessage());
+            if (method_exists($this, 'assertStringContainsString')) {
+                $this->assertStringContainsString(get_string('noattribute', 'auth_saml2', 'blabla'), $e->getMessage());
+            } else {
+                $this->assertContains(get_string('noattribute', 'auth_saml2', 'blabla'), $e->getMessage());
+            }
         }
 
         // Checking that the event contains the expected values.
@@ -373,7 +377,11 @@ class auth_testcase extends \advanced_testcase {
             $this->fail('Exception expected');
         } catch (\coding_exception $e) {
             // Validate reason.
-            $this->assertStringContainsString(get_string('flagmessage_default', 'auth_saml2'), $e->getMessage());
+            if (method_exists($this, 'assertStringContainsString')) {
+                $this->assertStringContainsString(get_string('flagmessage_default', 'auth_saml2'), $e->getMessage());
+            } else {
+                $this->assertContains(get_string('flagmessage_default', 'auth_saml2'), $e->getMessage());
+            }
         }
 
         // Checking that the event contains the expected values.
@@ -400,7 +408,11 @@ class auth_testcase extends \advanced_testcase {
             $this->fail('Exception expected');
         } catch (\coding_exception $e) {
             // Validate reason.
-            $this->assertStringContainsString(get_string('emailtaken', 'auth_saml2', $attribs['email'][0]), $e->getMessage());
+            if (method_exists($this, 'assertStringContainsString')) {
+                $this->assertStringContainsString(get_string('emailtaken', 'auth_saml2', $attribs['email'][0]), $e->getMessage());
+            } else {
+                $this->assertContains(get_string('emailtaken', 'auth_saml2', $attribs['email'][0]), $e->getMessage());
+            }
         }
 
         // Checking that the event contains the expected values.
@@ -427,7 +439,11 @@ class auth_testcase extends \advanced_testcase {
             $this->fail('Exception expected');
         } catch (\coding_exception $e) {
             // Validate reason.
-            $this->assertStringContainsString(get_string('flagmessage_default', 'auth_saml2'), $e->getMessage());
+            if (method_exists($this, 'assertStringContainsString')) {
+                $this->assertStringContainsString(get_string('flagmessage_default', 'auth_saml2'), $e->getMessage());
+            } else {
+                $this->assertContains(get_string('flagmessage_default', 'auth_saml2'), $e->getMessage());
+            }
         }
 
         // Checking that the event contains the expected values.
@@ -452,7 +468,11 @@ class auth_testcase extends \advanced_testcase {
             $this->fail('Exception expected');
         } catch (\coding_exception $e) {
             // Validate reason.
-            $this->assertStringContainsString(get_string('nouser', 'auth_saml2', $attribs['uid'][0]), $e->getMessage());
+            if (method_exists($this, 'assertStringContainsString')) {
+                $this->assertStringContainsString(get_string('nouser', 'auth_saml2', $attribs['uid'][0]), $e->getMessage());
+            } else {
+                $this->assertContains(get_string('nouser', 'auth_saml2', $attribs['uid'][0]), $e->getMessage());
+            }
         }
 
         // Checking that the event contains the expected values.
@@ -477,7 +497,11 @@ class auth_testcase extends \advanced_testcase {
             $this->fail('Exception expected');
         } catch (\coding_exception $e) {
             // Validate reason.
-            $this->assertStringContainsString(get_string('suspendeduser', 'auth_saml2', $attribs['uid'][0]), $e->getMessage());
+            if (method_exists($this, 'assertStringContainsString')) {
+                $this->assertStringContainsString(get_string('suspendeduser', 'auth_saml2', $attribs['uid'][0]), $e->getMessage());
+            } else {
+                $this->assertContains(get_string('suspendeduser', 'auth_saml2', $attribs['uid'][0]), $e->getMessage());
+            }
         }
 
         // Checking that the event contains the expected values.
@@ -503,7 +527,11 @@ class auth_testcase extends \advanced_testcase {
             $this->fail('Exception expected');
         } catch (\coding_exception $e) {
             // Validate reason.
-            $this->assertStringContainsString(get_string('wrongauth', 'auth_saml2', $attribs['uid'][0]), $e->getMessage());
+            if (method_exists($this, 'assertStringContainsString')) {
+                $this->assertStringContainsString(get_string('wrongauth', 'auth_saml2', $attribs['uid'][0]), $e->getMessage());
+            } else {
+                $this->assertContains(get_string('wrongauth', 'auth_saml2', $attribs['uid'][0]), $e->getMessage());
+            }
         }
 
         // Checking that the event contains the expected values.
@@ -532,7 +560,11 @@ class auth_testcase extends \advanced_testcase {
             $msg = get_string('anyauthotherdisabled', 'auth_saml2', [
                 'username' => $attribs['uid'][0], 'auth' => 'shibboleth',
             ]);
-            $this->assertStringContainsString($msg, $e->getMessage());
+            if (method_exists($this, 'assertStringContainsString')) {
+                $this->assertStringContainsString($msg, $e->getMessage());
+            } else {
+                $this->assertContains($msg, $e->getMessage());
+            }
         }
 
         // Checking that the event contains the expected values.
