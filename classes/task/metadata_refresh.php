@@ -31,8 +31,6 @@ use auth_saml2\metadata_parser;
 use auth_saml2\metadata_writer;
 use moodle_exception;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Auth SAML2 metadata refresh scheduled task.
  *

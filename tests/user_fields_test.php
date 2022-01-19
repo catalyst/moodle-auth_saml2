@@ -25,8 +25,6 @@
 
 use auth_saml2\user_fields;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Test for user fields class.
  *

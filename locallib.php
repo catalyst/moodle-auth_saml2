@@ -24,8 +24,6 @@
 
 use auth_saml2\event\cert_regenerated;
 
-defined('MOODLE_INTERNAL') || die();
-
 // @codingStandardsIgnoreStart
 /**
  * This function is mostly a direct cut and paste from SimpleSAMLPHP with

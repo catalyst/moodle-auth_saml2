@@ -25,8 +25,6 @@
 
 namespace auth_saml2\check;
 
-defined('MOODLE_INTERNAL') || die();
-
 use core\check\check;
 use core\check\result;
 

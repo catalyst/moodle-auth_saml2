@@ -24,8 +24,6 @@
  */
 use auth_saml2\redis_store;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Testcase class for auth/saml2 Redis store.
  *

@@ -23,8 +23,6 @@
 
 use auth_saml2\form\regenerate;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * auth_saml2 form submission unit tests
  *

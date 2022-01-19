@@ -24,8 +24,6 @@
  */
 use auth_saml2\metadata_fetcher;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Testcase class for metadata_fetcher class.
  *

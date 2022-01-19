@@ -23,8 +23,6 @@
 
 namespace auth_saml2\admin;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * @package     auth_saml2
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>

@@ -16,8 +16,6 @@
 
 namespace auth_saml2;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Unit tests for auth class.
  *
