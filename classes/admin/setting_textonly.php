@@ -25,8 +25,6 @@
 namespace auth_saml2\admin;
 use admin_setting_heading;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Settings for label type admin setting.
  *

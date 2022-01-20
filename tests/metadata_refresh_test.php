@@ -25,8 +25,6 @@
 
 use auth_saml2\task\metadata_refresh;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Testcase class for metadata_refresh task class.
  *

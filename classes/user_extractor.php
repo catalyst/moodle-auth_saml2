@@ -25,8 +25,6 @@
 
 namespace auth_saml2;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * The class responsible for retrieving a user based on identifier.
  *

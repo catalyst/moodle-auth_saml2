@@ -25,8 +25,6 @@
 use auth_saml2\task\metadata_refresh;
 use auth_saml2\ssl_algorithms;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Upgrade script
  *

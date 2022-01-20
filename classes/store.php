@@ -24,8 +24,6 @@
 
 namespace auth_saml2;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * A moodle DB datastore
  *

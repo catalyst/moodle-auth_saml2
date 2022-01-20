@@ -26,8 +26,6 @@ namespace auth_saml2;
 
 use auth_saml2\admin\saml2_settings;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Auto-login class.
  */

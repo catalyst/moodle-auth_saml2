@@ -25,7 +25,5 @@ namespace auth_saml2\admin;
 
 use Exception;
 
-defined('MOODLE_INTERNAL') || die();
-
 class setting_idpmetadata_exception extends Exception {
 }

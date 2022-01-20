@@ -24,8 +24,6 @@
  */
 use auth_saml2\metadata_writer;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Testcase class for metadata_writer class.
  *

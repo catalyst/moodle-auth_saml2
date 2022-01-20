@@ -23,8 +23,6 @@
 
 use auth_saml2\ssl_algorithms;
 
-defined('MOODLE_INTERNAL') || die();
-
 class auth_saml2_ssl_algorithms_test extends basic_testcase {
     public function test_default_saml_signature_algorithm_is_valid_saml_signature_algorithm() {
         $this->assertTrue(array_key_exists(ssl_algorithms::get_default_saml_signature_algorithm(),

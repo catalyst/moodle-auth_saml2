@@ -20,8 +20,6 @@
  * @copyright Catalyst IT
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Check if we have the saml=on param set. If so, disable guest access and force the user to log in with saml.
  *

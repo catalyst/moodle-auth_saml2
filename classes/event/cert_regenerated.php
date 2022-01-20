@@ -27,8 +27,6 @@ namespace auth_saml2\event;
 use core\event\base;
 use moodle_url;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * cert_regenerated class.
  *

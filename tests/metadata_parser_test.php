@@ -24,8 +24,6 @@
  */
 use auth_saml2\metadata_parser;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Testcase class for metadata_parser class.
  *
