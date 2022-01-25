@@ -49,13 +49,14 @@ class auth_saml2_simplesamlphp_upgrade_testcase extends advanced_testcase {
      * Test to ensure that PHPMailer are removed from autoloaded files.
      */
     public function test_remove_phpmailer_from_autoloaded_files() {
+        global $CFG;
         $this->resetAfterTest();
 
         $filenames = [
-            "auth/saml2/.extlib/simplesamlphp/vendor/composer/autoload_psr4.php",
-            "auth/saml2/.extlib/simplesamlphp/vendor/composer/autoload_static.php",
-            "auth/saml2/.extlib/simplesamlphp/vendor/composer/installed.json",
-            "auth/saml2/.extlib/simplesamlphp/vendor/phpmailer/phpmailer/composer.json",
+            $CFG->dirroot."/auth/saml2/.extlib/simplesamlphp/vendor/composer/autoload_psr4.php",
+            $CFG->dirroot."/auth/saml2/.extlib/simplesamlphp/vendor/composer/autoload_static.php",
+            $CFG->dirroot."/auth/saml2/.extlib/simplesamlphp/vendor/composer/installed.json",
+            $CFG->dirroot."/auth/saml2/.extlib/simplesamlphp/vendor/phpmailer/phpmailer/composer.json",
         ];
 
         foreach ($filenames as $filename) {

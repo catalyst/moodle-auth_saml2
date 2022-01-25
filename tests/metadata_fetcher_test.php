@@ -45,6 +45,13 @@ class auth_saml2_metadata_fetcher_testcase extends advanced_testcase {
         }
     }
 
+    /**
+     * Tear down after every test.
+     */
+    protected function tearDown(): void {
+        $this->prophet = null; // Required for Totara 12+ support (see issue #578).
+    }
+
     public function test_fetch_metadata_404() {
         $url = $this->getExternalTestFileUrl('/test404.xml');
         $fetcher = new metadata_fetcher();
