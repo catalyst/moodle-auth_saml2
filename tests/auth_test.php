@@ -36,6 +36,18 @@ class auth_test extends \advanced_testcase {
     }
 
     /**
+     * Clean up after each test.
+     */
+    protected function tearDown(): void {
+        global $SESSION;
+
+        parent::tearDown();
+        unset($SESSION->notifications);
+        unset($SESSION->saml);
+        unset($_GET['saml']);
+    }
+
+    /**
      * A helper function to create a custom profile field.
      *
      * @param string $shortname Short name of the field.
@@ -748,9 +760,6 @@ class auth_test extends \advanced_testcase {
         $result = $auth->should_login_redirect();
 
         $this->assertEquals($expected, $result);
-
-        unset($_GET['saml']);
-        unset($SESSION->saml);
     }
 
     /**
