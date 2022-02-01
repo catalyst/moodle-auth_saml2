@@ -992,7 +992,7 @@ class auth extends \auth_plugin_base {
      * 3) The IdP session, if the IdP supports SingleSignout.
      */
     public function logoutpage_hook() {
-        global $SESSION, $redirect;
+        global $CFG, $SESSION, $redirect, $saml2config;
 
         $this->execute_callback('auth_saml2_logoutpage_hook');
 
@@ -1007,9 +1007,22 @@ class auth extends \auth_plugin_base {
         // gets called by the normal core process.
         require_logout();
 
+        require_once(__DIR__.'/../setup.php');
+
+        // We just loaded the SP session which replaces the Moodle so we lost
+        // the session data, lets temporarily restore the IdP.
+        $SESSION->saml2idp = $idp;
+        $auth = new \SimpleSAML\Auth\Simple($this->spname);
+
+        // Regardless of wether we contact the IdP for Single Signout lets
+        // still delete the local SP cookie so we force auth again next time.
+        $cookiename = $saml2config['session.cookie.name'];
+        $cookiesecure = is_moodle_cookie_secure();
+        setcookie($cookiename, '', time() - HOURSECS, $CFG->sessioncookiepath, $CFG->sessioncookiedomain,
+              $cookiesecure, $CFG->cookiehttponly);
+
         // Do not attempt to log out of the IdP.
         if (!$this->config->attemptsignout) {
-
             $alterlogout = $this->config->alterlogout;
             if (!empty($alterlogout)) {
                 // If we don't sign out of the IdP we still want to honor the
@@ -1019,13 +1032,6 @@ class auth extends \auth_plugin_base {
             }
             return;
         }
-
-        require_once(__DIR__.'/../setup.php');
-
-        // We just loaded the SP session which replaces the Moodle so we lost
-        // the session data, lets temporarily restore the IdP.
-        $SESSION->saml2idp = $idp;
-        $auth = new \SimpleSAML\Auth\Simple($this->spname);
 
         // Only log out of the IdP if we logged in via the IdP. TODO check session timeouts.
         if ($auth->isAuthenticated()) {
