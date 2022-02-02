@@ -52,6 +52,13 @@ Commit the changes directly into the repo.
 ### Cherry-pick previous changes.
 Look at the previous history on /.extlib/simplesaml and cherry-pick our custom changes.
 
+
+### Make sure you fix README.md
+
+Update the version of SSP in the supported branches. Make sure you do this is ALL supported branches
+even if you have only updated SSP in one branch. It shouldn't matter which README you look at they
+should be consistent.
+
 # Using a published release 
 Sometimes you might get away with using a published release with the following instructions.
 
