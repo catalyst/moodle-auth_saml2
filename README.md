@@ -3,8 +3,7 @@
 
 https://moodle.org/plugins/auth_saml2
 
-100% Moodle SAML fast, simple, secure
-=====================================
+# 100% Moodle SAML fast, simple, secure
 
 ![Churchill quote](/pix/churchill.jpg?raw=true)
 
@@ -22,14 +21,13 @@ https://moodle.org/plugins/auth_saml2
 * [Support](#support)
 * [Warm thanks](#warm-thanks)
 
-What is this?
--------------
 
-This plugin does authentication, user auto creation with field mapping.
+## What is this?
+
+This plugin does SAML authentication and user auto creation with field mapping.
 
 
-Why is it better?
------------------
+## Why is it better?
 
 * 100% configured in the Moodle GUI - no installation of a whole separate app,
   and no touching of config files or generating certificates.
@@ -39,28 +37,26 @@ Why is it better?
 * Supports Single Logout via the HTTP-Redirect binding which many organisations require
 
 
-How does it work?
------------------
+## How does it work?
 
-It completely embeds a SimpleSamlPHP instance as an internal dependancy which
-is dynamically configured the way it should be and inherits almost all of it's
+It completely embeds a SimpleSamlPHP instance as an internal dependency, which
+is dynamically configured the way it should be by inheriting almost all of its
 configuration from Moodle configuration. In the future we should be able to
 swap to a different internal SAML implementation and the plugin GUI shouldn't
 need to change at all.
 
-Features
---------
 
-* Dual login VS forced login for all as an option, with ?saml=off on the login
-  page for manual accounts, and ?saml=on supported everywhere to deep link and
-  force login via saml if dual auth is on.
+## Features
+
+* Dual login vs. forced login for all as an option, with `?saml=off` on the login
+  page for manual accounts, and `?saml=on` supported everywhere to deep link and
+  force login via SAML if dual auth is on.
 * SAML attributes to Moodle user field mapping
 * Automatic certificate creation
 * Optionally auto create users
 * Support for multiple identity providers
-* Idp initiated flow / IdP first flow /  IdP unsolicited logins, eg:
-
-http://idp.local/simplesaml/saml2/idp/SSOService.php?spentityid=http://moodle.local/auth/saml2/sp/metadata.php&RelayState=http://moodle.local/course/view.php?id=2
+* IdP initiated flow / IdP first flow / IdP unsolicited logins, eg:
+  http://idp.local/simplesaml/saml2/idp/SSOService.php?spentityid=http://moodle.local/auth/saml2/sp/metadata.php&RelayState=http://moodle.local/course/view.php?id=2
 
 
 Features not yet implemented:
@@ -68,66 +64,59 @@ Features not yet implemented:
 * Enrolment - this should be an enrol plugin and not in an auth plugin
 * Role mapping - not yet implemented
 
-Branches
---------
 
-| Moodle version    | Branch           | PHP  | SimpleSAMLphp |
-| ----------------- | ---------------- | ---- | ------------- |
-| Moodle 3.9+       | MOODLE_39_STABLE | 7.2+ | v1.19.1       |
-| Moodle 3.5 to 3.8 | MOODLE_35_STABLE | 7.2+ | v1.18.8       |
-| Totara 12+        | MOODLE_35_STABLE | 7.2+ | v1.18.8       |
-| Moodle 2.7 to 3.4 | 27_34STABLE      | 5.5+ | v1.15.4       |
-| Totara up to 11   | 27_34STABLE      | 5.5+ | v1.15.4       |
+## Branches
 
-Installation
-------------
+| Moodle version    | Branch             | PHP  | SimpleSAMLphp |
+| ----------------- | ------------------ | ---- | ------------- |
+| Moodle 3.9+       | `MOODLE_39_STABLE` | 7.2+ | v1.19.1       |
+| Moodle 3.5 to 3.8 | `MOODLE_35_STABLE` | 7.2+ | v1.18.8       |
+| Totara 12+        | `MOODLE_35_STABLE` | 7.2+ | v1.18.8       |
+| Moodle 2.7 to 3.4 | `27_34STABLE`      | 5.5+ | v1.15.4       |
+| Totara up to 11   | `27_34STABLE`      | 5.5+ | v1.15.4       |
 
-1. Install the plugin the same as any standard moodle plugin either via the
-Moodle plugin directory, or you can use git to clone it into your source:
+## Installation
+
+1. Install the plugin the same as any standard Moodle plugin, either via the
+[Moodle plugin directory](https://moodle.org/plugins/auth_saml2), or you can use
+git to clone it into your source:
 
    ```sh
    git clone git@github.com:catalyst/moodle-auth_saml2.git auth/saml2
    ```
 
-   Or install via the Moodle plugin directory:
-
-   https://moodle.org/plugins/auth_saml2
-
 2. Then run the Moodle upgrade
 
-3. If your IdP has a publicly available XML descriptor, copy it's url into
-   the SAML2 auth config settings page. Otherwise copy the XML verbatum into
+3. If your IdP has a publicly available XML descriptor, copy its URL into
+   the SAML2 auth config settings page. Otherwise copy the XML verbatim into
    the settings textarea instead.
 
-4. If your IdP requires whitelisting each SP then in the settings page is
-   links to download the XML, or you can provide that url to your IdP
-   administrator.
+4. If your IdP requires whitelisting each SP, use the links in the settings page
+   to download the XML, or you can provide that URL to your IdP administrator.
 
-For most simple setups this is enough to get authentication working, there are
+For most simple setups, this is enough to get authentication working. There are
 many more settings to define how to handle new accounts, dual authentication,
 and to easily debug the plugin if things are not working.
 
 
-Configuration
--------------
-For setting up a new SAML integration, see the Quick Start Guide here:
-https://github.com/catalyst/moodle-auth_saml2/wiki/Quick-start-Guide
+## Configuration
 
-There are a few extra configuration items which are currently don't have a GUI and should be added
-to your moodle config.php file:
+For setting up a new SAML integration, see the
+[Quick Start Guide](https://github.com/catalyst/moodle-auth_saml2/wiki/Quick-start-Guide).
+
+Most of the configuration is done in the Moodle admin GUI and should be self
+explanatory for someone familiar with SAML generally. There are a few extra
+configuration items which currently don't have a GUI and should be added
+to your Moodle config.php file:
 
 ```php
 $CFG->auth_saml2_disco_url = '';
-
 $CFG->auth_saml2_store = '\\auth_saml2\\redis_store'; # Use an alternate store
-
 $CFG->auth_saml2_redis_server = ''; # Required for the redis_store above
-
 ```
 
 
-Testing
--------
+## Testing
 
 This plugin has been tested against:
 
@@ -153,90 +142,92 @@ Home ► Site administration ► Plugins ► Authentication ► SAML2
 7. Logout and login, you should see 'TestShib Test IdP' as an alternate login method
    and be able to login via the example credentials.
 
-Debugging
----------
+
+## Debugging
 
 If you are having any issues, turn on debugging inside the SAML2 auth plugin, as well
-as turning on the moodle level debugging. This will give in depth debugging on the SAML
-xml and errors, as well as stack traces. Please include this in any github issue you
+as turning on the Moodle level debugging. This will give in depth debugging on the SAML
+XML and errors, as well as stack traces. Please include this in any GitHub issue you
 create if you are having trouble.
 
-There is also a standalone test page which authenticates but isn't a 'moodle' page. All
-this page does is echo the saml attributes which have been provided by the IDP. This can
-be very handy for setting up the mappings, ie for when the IDP might be providing the
+There is also a stand-alone test page which authenticates but isn't a 'Moodle' page. All
+this page does is echo the SAML attributes which have been provided by the IDP. This can
+be very handy for setting up the mappings, e.g. when the IDP might be providing the
 right attributes but under an unexpected key name.
 
 ```
 /auth/saml2/test.php
 ```
 
-If you can succesfully do a saml login using this page then is narrows down where the
-issues lies. Some common issues are:
+If you can succesfully do a SAML login using this page then it narrows down where the
+issues lie. Some common issues are:
 
-1) You received a valid set of saml attributes, but the attribute(s) needed are not
-   present. ie often with say ADFS you may have to specify to 'release' the username.
+1. You received a valid set of SAML attributes, but the attribute(s) needed are not
+   present. For example, often in ADFS configuration you may need to 'release' the username.
 
-2) You have got a valid set of attributes, but the key for the username isn't what
-   you expected. Cut and paste the correct key name into the Moodle auth_saml2 config
+2. You have got a valid set of attributes, but the key for the username isn't what
+   you expected. Cut and paste the correct key name into the Moodle auth saml2 config
    page to correctly map the 'idpattr' value.
 
-3) The attribute key name might be a really crazy long looking string. This is common
-   with ADFS. If that long string contains certain characters then moodle will not
+3. The attribute key name might be a really crazy long looking string. This is common
+   with ADFS. If that long string contains certain characters then Moodle will not
    accept it, and this is an issue in Moodle itself and applies to all auth plugins.
    You can add a custom claim in ADFS to rename this attribute to something nicer.
-   See this for more: https://github.com/catalyst/moodle-auth_saml2/issues/124
+   See: [GitHub issue #124](https://github.com/catalyst/moodle-auth_saml2/issues/124).
 
-4) If it is bringing across all the attributes properly, but you are getting:
+4. If it is bringing across all the attributes properly, but you are getting:
    "You have logged in succesfully as 'xyz' but do not have an account in Moodle"
    then you either need to change your user provisioning process to ensure users are
-   created ahead of time, or you need to enable the 'autocreate' setting. If you do
-   auto create then you need to be very careful that autocreated users, and users
-   provisioned via other means, and consistently setup.
+   created ahead of time, or you need to enable the `autocreate` setting. If you do
+   auto create then you need to be very careful that auto-created users, and users
+   provisioned via other means, are set up consistently.
 
 
-Gotchas
--------
+## Gotchas
 
-### Bitnami Moodle ###
+### Bitnami Moodle
 
-We get lots of compaints in many plugins that end up being issues with Bitnami. It does a very
+We get lots of complaints in many plugins that end up being issues with Bitnami. It does a very
 poor job and does not properly configure Moodle with some quite basic things and we strongly
-recommend you don't use it at all, not just for saml issues.  In particular it dynamicaly
-detects the domain that Moodle is on, which is not supported by Moodle. ```$CFG->wwwroot```
-MUST be manually set to a static value in ```config.php```.
+recommend you don't use it at all, not just for SAML issues. In particular it dynamically
+detects the domain that Moodle is on, which is not supported by Moodle. `$CFG->wwwroot`
+MUST be manually set to a static value in `config.php`.
 
-### Multiple IdPs ###
+
+### Multiple IdPs
 
 When using multiple IdPs the system will force enable the dual login setting. This is so
 that a list of possible identity providers will be presented to the user when logging in.
 
-To enable multiple IdPs you can use the 'IdP metadata xml OR public xml URL' configuration
-field.  An example might look like this,
+To enable multiple IdPs you can use the 'IdP metadata XML OR public XML URL' configuration
+field. An example might look like this:
 
 ```
-Identity Provider Name http://ssp1.local/simplesaml/saml2/idp/metadata.php
-http://ssp2.local/simplesaml/saml2/idp/metadata.php
+Identity Provider Name https://ssp1.local/simplesaml/saml2/idp/metadata.php
+https://ssp2.local/simplesaml/saml2/idp/metadata.php
 ```
 
-If there is any text before the http scheme then it will be used as the override name.
+If there is any text before the `https` scheme then it will be used as the override name.
 
 It is not be recommended to use the 'IdP label override' configuration option with
 multiple IdPs.
 
-### Deep linking saml=on URL param ###
 
-For most use cases, this parameter should work on all supported moodle versions. However, to make
-this paramater force a saml login redirect even when users are already logged in as a guest we
-use a moodle hook https://docs.moodle.org/dev/Login_callbacks#after_config that is only available
-in moodle >= 3.8.
+### Deep linking saml=on URL parameter
+
+For most use cases, this parameter should work on all supported Moodle versions. However, to make
+this paramater force a SAML login redirect, even when users are already logged in as a guest, we
+use a [Moodle hook](https://docs.moodle.org/dev/Login_callbacks#after_config) that is only available
+in Moodle >= 3.8.
 
 To make guest user redirecting work on moodle 3.7 and below, you will need to backport
-the changes from https://tracker.moodle.org/browse/MDL-66340.
+the changes from [MDL-66340](https://tracker.moodle.org/browse/MDL-66340).
 
-### OpenAM ###
+
+### OpenAM
 
 If you are getting signature issues with OpenAM then you may need to manually
-yank out the contents of the ds:X509Certificate element into a file and then
+yank out the contents of the `ds:X509Certificate` element into a file and then
 import it into OpenAM's certificate store:
 
 ```bash
@@ -249,13 +240,14 @@ $ keytool -import -trustcacerts -alias moodle.edu -file moodle.edu.crt -keystore
 
 Then follow the prompts and restart OpenAM.
 
-### Certificate Locking ###
 
-It is possible to lock the certificates in the admin UI which prevents inadvertant
+### Certificate Locking
+
+It is possible to lock the certificates in the admin UI which prevents inadvertent
 overwriting of them. They can also be unlocked in the UI. If you really want to
-protect them then chown the files so that your webserver user cannot modify them at all.
+protect them, `chown` the files so that your webserver user cannot modify them at all.
 
-These certificates are located in the $CFG->dataroot/saml2 directory.
+These certificates are located in the `$CFG->dataroot/saml2` directory.
 
 To manually unlock the certificates please restore the write permissions to the required files.
 ```bash
@@ -264,7 +256,8 @@ $ chmod 0660 site.example.crt
 $ chmod 0660 site.example.pem
 ```
 
-### OpenSSL errors during certificate regeneration ###
+
+### Windows configuration for OpenSSL
 
 Some environments, particularly Windows-based, may not provide an OpenSSL
 configuration file at the default location, producing errors like the
@@ -276,60 +269,61 @@ error:2006D080:BIO routines:BIO_new_file:no such file
 error:0E064002:configuration file routines:CONF_load:system lib
 ```
 
-To work around this, set the `OPENSSL_CONF` environment variable to the location
-of [`openssl.cnf`](https://www.openssl.org/docs/manmaster/man5/config.html)
-within your environment.
-
-
-### Windows configuration for OpenSSL ###
-
-If you are running Moodle locally on a Windows machine, then on various Moodle screens including the admin page you may see errors related to the auth_saml2 plugin. For example:
+You may also see OpenSSL errors in various Moodle screens (including the admin
+page) related to the `auth_saml2` plugin. For example:
 
 ```
-Warning: openssl_csr_sign(): cannot get CSR from parameter 1 in C:\Users\sm449\workspace\ou-moodle2\auth\saml2\setuplib.php
+Warning: openssl_csr_sign(): cannot get CSR from parameter 1 in
+C:\path\to\moodle\auth\saml2\setuplib.php
 ```
 
-This means you have not defined an openssl.cnf file.
+There are two ways to resolve this problem (you only need to do one of these,
+the first is probably more sensible):
 
-There are two ways to resolve this problem (you only need to do one of these, the first is probably more sensible):
+1. Set the `OPENSSL_CONF` environment variable to point to the full path and
+   location of an [`openssl.cnf`](https://www.openssl.org/docs/manmaster/man5/config.html)
+   file (e.g. `C:\tools\php73\extras\ssl\openssl.cnf`) and restart Apache.
 
-1. Set the OPENSSL_CONF environment variable to point to the full path and location of an openssl.cnf file (e.g. C:\tools\php73\extras\ssl\openssl.cnf) and restart Apache.
-2. (for PHP versions <= 7.3) Make a copy of that openssl.cnf file in the location C:\usr\local\ssl\openssl.cnf.
+2. (for PHP versions <= 7.3) Make a copy of that `openssl.cnf` file in the
+   location `C:\usr\local\ssl\openssl.cnf`.
 
 
-### OKTA configuration ###
+### OKTA configuration
 
 Okta has some weird names for settings which are confusing, this may help decipher them:
 
-|Okta name|Sane name|Value|
-|---|---|---|
-|Single sign on URL|ACS URL|`https://example.com/auth/saml2/sp/saml2-acs.php/example.com`|
-|Audience URI|Entity ID|`https://example.com/auth/saml2/sp/metadata.php`|
-|Enable Single Log Out|Enable Single Log Out|True|
-|Single Logout URL|Single Logout URL|`https://example.com/auth/saml2/sp/saml2-logout.php/example.com`|
-|Assertion Encryption|Assertion Encryption|Encrypted|
+| Okta name             | Sane name             | Value                                                            |
+| --------------------- | --------------------- | ---------------------------------------------------------------- |
+| Single sign on URL    | ACS URL               | `https://example.com/auth/saml2/sp/saml2-acs.php/example.com`    |
+| Audience URI          | Entity ID             | `https://example.com/auth/saml2/sp/metadata.php`                 |
+| Enable Single Log Out | Enable Single Log Out | True                                                             |
+| Single Logout URL     | Single Logout URL     | `https://example.com/auth/saml2/sp/saml2-logout.php/example.com` |
+| Assertion Encryption  | Assertion Encryption  | Encrypted                                                        |
 
 Suggested attribute mappings:
 
-|Name|Value|
-|---|---|
-|`Login`|`user.login`|
-|`FirstName`|`user.firstName`|
-|`LastName`|`user.lastName`|
-|`Email`|`user.email`|
+| Name        | Value            |
+| ----------- | ---------------- |
+| `Login`     | `user.login`     |
+| `FirstName` | `user.firstName` |
+| `LastName`  | `user.lastName`  |
+| `Email`     | `user.email`     |
 
 
-### Auth Proc Filter Hooks ###
+### Auth Proc Filter Hooks
 
 Other plugins may hook into SAML2 and create custom Auth Proc Filters.
-Auth Proc Filters allows you to mutate of the attributes passed back from the IdP before Moodle handles them and does the profile field mappings
+Auth Proc Filters allow you to mutate the attributes passed back from the IdP
+before Moodle handles them and maps them to profile fields.
 
 Steps to implement the hook:
-* Create a plugin that will implement the hook (e.g local_hookimplement)
-* Define the hook function 'local_hookimplement_extend_auth_saml2_proc' in plugin's lib.php
-* The function should return array of SimpleSaml Auth Proc Filters.
+
+1. Create a plugin that will implement the hook (e.g `local_hookimplement`)
+2. Define the hook function `local_hookimplement_extend_auth_saml2_proc` in the plugin's `lib.php` file.
+3. The function should return an array of SimpleSaml Auth Proc Filters.
 
 Examples:
+
 ```php
 function local_hookimplement_extend_auth_saml2_proc() {
    return [
@@ -341,7 +335,8 @@ function local_hookimplement_extend_auth_saml2_proc() {
 }
 ```
 
-Custom Code
+Custom code:
+
 ```php
 function local_hookimplement_extend_auth_saml2_proc() {
    return [
@@ -360,7 +355,8 @@ function update_attributes($attributes) {
 }
 ```
 
-Multiple IdP Filter
+Multiple IdP filter:
+
 ```php
 function local_hookimplement_extend_auth_saml2_proc() {
    return [
@@ -389,94 +385,82 @@ function update_attributes($attributes) {
 ```
 
 
-
-Other SAML plugins
-------------------
+## Other SAML plugins
 
 The diversity and variable quality and features of SAML moodle plugins is a
 reflection of a great need for a solid SAML plugin, but the neglect to do
 it properly in core. SAML2 is by far the most robust and supported protocol
-across the internet and should be fully integrated into moodle core as both
+across the internet and should be fully integrated into Moodle core as both
 a Service Provider and as an Identity Provider, and without any external
 dependencies to manage.
 
 Here is a quick run down of the alternatives:
 
-### Moodle Core ###
+### Moodle Core
 
-* /auth/shibboleth - This requires a separately installed and configured
-  Shibbolleth install
+* `auth/shibboleth` - This requires a separately installed and configured
+  Shibboleth install.
 
-One big issue with this, and the category below, is as there is a whole extra
-application between moodle and the IdP, so the login and logout processes have
-more latency due to extra redirects. Latency on potentially slow mobile
-networks is by far the biggest bottle neck for login speed and the biggest
-complaint by end users in our experience.
+    One big issue with this, and the category below, is the extra
+    application between Moodle and the IdP, so the login and logout processes have
+    more latency due to extra redirects. Latency on potentially slow mobile
+    networks is by far the biggest bottleneck for login speed, and the biggest
+    complaint by end users in our experience.
 
-* /auth/oauth2
+* `auth/oauth2`
 
-OAuth2 has direct support in Moodle
+    OAuth2 has direct support in Moodle.
 
 
-### Plugins that require SimpleSamlPHP ###
+### Plugins that require SimpleSamlPHP
 
 These are all forks of each other, and unfortunately have diverged quite early
-or have no common git history making it difficult to cross port features or
+or have no common git history, making it difficult to cross port features or
 fixes between them.
 
-* https://moodle.org/plugins/view/auth_saml
+* [moodle.org/plugins/auth_saml](https://moodle.org/plugins/auth_saml)
 
-* https://moodle.org/plugins/view/auth_zilink_saml
+* [moodle.org/plugins/auth_zilink_saml](https://moodle.org/plugins/auth_zilink_saml)
 
-* https://github.com/piersharding/moodle-auth_saml
+* [github.com/piersharding/moodle-auth_saml](https://github.com/piersharding/moodle-auth_saml)
 
-### Plugins which embed a SAML client lib ###
+
+### Plugins which embed a SAML client library
 
 These are generally much easier to manage and configure as they are standalone.
 
-* https://moodle.org/plugins/view/auth_onelogin_saml - This one uses it's own
-  embedded saml library which is great and promising, however it doesn't support
+* [moodle.org/plugins/auth_onelogin_saml](https://moodle.org/plugins/auth_onelogin_saml) - This one uses its own
+  embedded SAML library which is great and promising, however it doesn't support
   'back channel logout' which is critical for security in any large organisation.
 
-* This plugin, with an embedded and dynamically configured SimpleSamlPHP
-  instance under the hood
+* This `auth_saml2` plugin, with an embedded and dynamically configured SimpleSamlPHP
+  instance under the hood.
 
 
-Support
--------
+## Support
 
-If you have issues please log them in github here
-
-https://github.com/catalyst/moodle-auth_saml2/issues
+If you have issues please log them in
+[GitHub](https://github.com/catalyst/moodle-auth_saml2/issues).
 
 Please note our time is limited, so if you need urgent support or want to
-sponsor a new feature then please contact Catalyst IT Australia:
+sponsor a new feature then please contact
+[Catalyst IT Australia](https://www.catalyst-au.net/contact-us).
 
-https://www.catalyst-au.net/contact-us
 
-
-Warm thanks
------------
+## Warm thanks
 
 Thanks to the various authors and contributors to the other plugins above.
 
-Thanks to LaTrobe university in Melbourne for sponsoring the initial creation
-of this plugin:
-
-http://www.latrobe.edu.au
+Thanks to [La Trobe University](https://www.latrobe.edu.au/) in Melbourne for
+sponsoring the initial creation of this plugin.
 
 ![LaTrobe](/pix/latrobe.png?raw=true)
 
-Thanks to Centre de gestion informatique de l’éducation in Luxembourg for
-sponsoring the user autocreation and field mapping work:
-
-http://www.cgie.lu
+Thanks to [Centre de gestion informatique de l’éducation (CGIE)](https://portal.education.lu/cgie/)
+in Luxembourg for sponsoring the user autocreation and field mapping work.
 
 ![CGIE](/pix/cgie.png?raw=true)
 
-This plugin was developed by Catalyst IT Australia:
-
-https://www.catalyst-au.net/
+This plugin was developed by [Catalyst IT Australia](https://www.catalyst-au.net/).
 
 <img alt="Catalyst IT" src="https://cdn.rawgit.com/CatalystIT-AU/moodle-auth_saml2/MOODLE_39_STABLE/pix/catalyst-logo.svg" width="400">
-
