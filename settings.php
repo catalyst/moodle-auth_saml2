@@ -166,6 +166,50 @@ if ($ADMIN->fulltree) {
             get_string('spmetadatasign_help', 'auth_saml2'),
             0, $yesno));
 
+    $settings->add(new admin_setting_configtext(
+        'auth_saml2/entityid',
+        get_string('entityid', 'auth_saml2'),
+        get_string('entityid_help', 'auth_saml2'),
+        ''
+    ));
+
+    $settings->add(new admin_setting_configselect(
+        'auth_saml2/wantassertionssigned',
+        get_string('wantassertionssigned', 'auth_saml2'),
+        get_string('wantassertionssigned_help', 'auth_saml2'),
+        0, $yesno
+    ));
+
+    $assertionsconsumerservices = [
+        'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST' => 'HTTP Post',
+        'urn:oasis:names:tc:SAML:1.0:profiles:browser-post' => 'Browser post profile',
+        'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact' => 'HTTP Artifact',
+        'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01' => 'Artifact 01 profile',
+        'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser' => 'Holder-of-Key Web Browser SSO',
+    ];
+
+    $settings->add(new admin_setting_configmultiselect(
+        'auth_saml2/assertionsconsumerservices',
+        get_string('assertionsconsumerservices', 'auth_saml2'),
+        get_string('assertionsconsumerservices_help', 'auth_saml2'),
+        array(),
+        $assertionsconsumerservices
+    ));
+
+    $settings->add(new admin_setting_configselect(
+        'auth_saml2/allowcreate',
+        get_string('allowcreate', 'auth_saml2'),
+        get_string('allowcreate_help', 'auth_saml2'),
+        0, $yesno
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'auth_saml2/authncontext',
+        get_string('authncontext', 'auth_saml2'),
+        get_string('authncontext_help', 'auth_saml2'),
+        '', PARAM_TEXT
+    ));
+
     $settings->add(new admin_setting_configselect(
         'auth_saml2/signaturealgorithm',
         get_string('signaturealgorithm', 'auth_saml2'),
