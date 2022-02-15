@@ -70,10 +70,15 @@ class auth_test extends \advanced_testcase {
     /**
      * Get generator
      *
-     * @return auth_saml2_generator
+     * @return auth_saml2_generator|auth_saml2\testing\generator
      */
-    protected function get_generator(): \auth_saml2_generator {
-        return $this->getDataGenerator()->get_plugin_generator('auth_saml2');
+
+    protected function get_generator() {
+        if (class_exists('\core\testing\component_generator')) { // Required for Totara 15 support
+            return $generator = \auth_saml2\testing\generator::instance();
+        } else {
+            return $this->getDataGenerator()->get_plugin_generator('auth_saml2');
+        }
     }
 
     /**
