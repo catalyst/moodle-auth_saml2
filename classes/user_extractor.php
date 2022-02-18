@@ -47,8 +47,9 @@ class user_extractor {
     public static function get_user(string $fieldname, string $fieldvalue, bool $insensitive = false) {
         global $DB, $CFG;
 
+        $user = false;
+
         if (user_fields::is_custom_profile_field($fieldname)) {
-            $user = false;
 
             $fieldname = user_fields::get_field_short_name($fieldname);
 
@@ -75,7 +76,11 @@ class user_extractor {
                 }
             }
         } else {
-            $user = get_complete_user_data($fieldname, $fieldvalue);
+            // Check if requested field exists, required for Totara compatibility.
+            $fields = array_merge(\core_user::AUTHSYNCFIELDS, ['id', 'username']);
+            if (in_array($fieldname, $fields)) {
+                $user = get_complete_user_data($fieldname, $fieldvalue);
+            }
         }
 
         return $user;
