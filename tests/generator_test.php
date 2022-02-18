@@ -124,7 +124,12 @@ class generator_testcase extends \advanced_testcase {
             'xml' => $auth->get_file(md5($entity1->metadataurl) . '.idp.xml'),
         );
         foreach ($files as $file) {
-            $this->assertFileNotExists($file);
+            // Backwards compatibility with older PHPUnit - use old assertFile method.
+            if (method_exists($this, 'assertFileDoesNotExist')) {
+                $this->assertFileDoesNotExist($file);
+            } else {
+                $this->assertFileNotExists($file);
+            }
         }
     }
 }

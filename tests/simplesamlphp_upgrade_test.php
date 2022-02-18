@@ -43,7 +43,14 @@ class auth_saml2_simplesamlphp_upgrade_testcase extends advanced_testcase {
         ];
 
         foreach ($filenames as $filename) {
-            $this->assertFileNotExists($filename);
+            foreach ($filenames as $filename) {
+                // Backwards compatibility with older PHPUnit - use old assertFile method.
+                if (method_exists($this, 'assertFileDoesNotExist')) {
+                    $this->assertFileDoesNotExist($filename);
+                } else {
+                    $this->assertFileNotExists($filename);
+                }
+            }
         }
     }
 
