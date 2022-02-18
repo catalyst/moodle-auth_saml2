@@ -67,7 +67,12 @@ class auth_saml2_metadata_writer_testcase extends basic_testcase {
         $writer = new metadata_writer($nondatarootpath);
         $writer->write($filename, $content);
 
-        $this->assertFileNotExists("/temp/yada/blah/idp.xml");
+        // Backwards compatibility with older PHPUnit - use old assertFile method.
+        if (method_exists($this, 'assertFileDoesNotExist')) {
+            $this->assertFileDoesNotExist("/temp/yada/blah/idp.xml");
+        } else {
+            $this->assertFileNotExists("/temp/yada/blah/idp.xml");
+        }
         $this->assertEquals($content, file_get_contents("$CFG->dataroot/saml2/idp.xml"));
     }
 
