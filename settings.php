@@ -167,9 +167,9 @@ if ($ADMIN->fulltree) {
             0, $yesno));
 
     $settings->add(new admin_setting_configtext(
-        'auth_saml2/entityid',
-        get_string('entityid', 'auth_saml2'),
-        get_string('entityid_help', 'auth_saml2'),
+        'auth_saml2/spentityid',
+        get_string('spentityid', 'auth_saml2'),
+        get_string('spentityid_help', 'auth_saml2'),
         ''
     ));
 
