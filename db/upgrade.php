@@ -368,5 +368,13 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2020082100, 'auth', 'saml2');
     }
 
+    if ($oldversion < 2022030300) {
+        // Delete old configuration value that is no longer used, to prevent any future conflicts.
+        unset_config('entityid', 'auth_saml2');
+
+        upgrade_plugin_savepoint(true, 2022030300, 'auth', 'saml2');
+        // Saml2 savepoint reached.
+    }
+
     return true;
 }
