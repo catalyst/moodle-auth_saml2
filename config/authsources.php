@@ -39,7 +39,7 @@ if (!empty($SESSION->saml2idp) && array_key_exists($SESSION->saml2idp, $saml2aut
 
 $config[$saml2auth->spname] = [
     'saml:SP',
-    'entityID' => !empty($saml2auth->config->entityid) ? $saml2auth->config->entityid : "$CFG->wwwroot/auth/saml2/sp/metadata.php",
+    'entityID' => !empty($saml2auth->config->spentityid) ? $saml2auth->config->spentityid : "$CFG->wwwroot/auth/saml2/sp/metadata.php",
     'discoURL' => !empty($CFG->auth_saml2_disco_url) ? $CFG->auth_saml2_disco_url : null,
     'idp' => empty($CFG->auth_saml2_disco_url) ? $idpentityid : null,
     'NameIDPolicy' => $saml2auth->config->nameidpolicy,
