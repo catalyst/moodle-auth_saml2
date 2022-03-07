@@ -625,8 +625,11 @@ class auth extends \auth_plugin_base {
         }
 
         // Moodle Workplace - Check IdP's tenant availability, for new user pre-allocate to tenant.
-        component_class_callback('\tool_tenant\local\auth\saml2\manager', 'complete_login_hook',
-            [$SESSION->saml2idp ?? '', $uid, $user]);
+        // Check if function exists required for Totara 12 compatibility.
+        if (class_exists(\tool_tenant\local\auth\saml2\manager::class)) {
+            component_class_callback('\tool_tenant\local\auth\saml2\manager', 'complete_login_hook',
+                [$SESSION->saml2idp ?? '', $uid, $user]);
+        }
 
         $newuser = false;
         if (!$user) {
