@@ -23,7 +23,7 @@ Feature: Automatically log in
     And the mock SAML IdP allows passive login with the following attributes: # auth_saml2
       | uid | student1 |
     Then I should see "Course 1"
-    And I should see "Eigh Person" in the ".userbutton" "css_element"
+    And I should see "Eigh Person"
 
     # Future requests should not contact the IdP (obviously, because logged in).
     When I follow "Course 1"
@@ -45,7 +45,7 @@ Feature: Automatically log in
 
     # Future requests should not contact the IdP.
     When I follow "Course 1"
-    Then I should see "Forgotten your username or password?"
+    Then I should see "Log in"
 
   Scenario: Autologin on cookie change
     Given the authentication plugin saml2 is enabled # auth_saml2
@@ -83,16 +83,16 @@ Feature: Automatically log in
     And I am on site homepage
     And the mock SAML IdP allows passive login with the following attributes: # auth_saml2
       | uid | student1 |
-    Then I should see "Eigh Person" in the ".userbutton" "css_element"
+    Then I should see "Eigh Person"
 
     # No login attempt on another page request, even if the cookie changes
     # or is removed, because the user is logged in now.
     When the cookie "frog" is set to "Kermit" # auth_saml2
     And I am on site homepage
-    Then I should see "Eigh Person" in the ".userbutton" "css_element"
+    Then I should see "Eigh Person"
     When the cookie "frog" is removed # auth_saml2
     And I am on site homepage
-    Then I should see "Eigh Person" in the ".userbutton" "css_element"
+    Then I should see "Eigh Person"
 
   Scenario: Autologin to activity page within a course
     Given the authentication plugin saml2 is enabled # auth_saml2
@@ -117,7 +117,7 @@ Feature: Automatically log in
     And the mock SAML IdP allows passive login with the following attributes: # auth_saml2
       | uid | student1 |
     Then I should see "Test page description"
-    And I should see "Eigh Person" in the ".userbutton" "css_element"
+    And I should see "Eigh Person"
 
   Scenario: Situations which are excluded from autologin
     Given the authentication plugin saml2 is enabled # auth_saml2
@@ -153,11 +153,11 @@ Feature: Automatically log in
 
     # Set up the homepage so that we can test POST requests
     When I log in as "admin"
-    And I follow "Site home"
+    And I am on site homepage
     And I navigate to "Edit settings" in current page administration
     And I set the field "summary" to "<form method='post' action='.'><div><button type='submit'>PostTest</button></div></form>"
     And I press "Save changes"
-    And I follow "Site home"
+    And I am on site homepage
     And I navigate to "Turn editing on" in current page administration
     And I add the "Course/site summary" block
     And I click on "Log out" "link" in the "#page-footer" "css_element"
