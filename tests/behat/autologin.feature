@@ -129,6 +129,9 @@ Feature: Automatically log in
       | auth            | saml2 |            |
       | autologin       | 2     | auth_saml2 |
       | autologincookie | frog  | auth_saml2 |
+    And the following "blocks" exist:
+      | blockname     | contextlevel | reference | pagetypepattern | defaultregion |
+      | html | System       | 1         | site-index       | side-post     |
     And I am on site homepage
 
     # With this config, changing the cookie would usually result in an autologin attempt.
@@ -154,12 +157,10 @@ Feature: Automatically log in
     # Set up the homepage so that we can test POST requests
     When I log in as "admin"
     And I am on site homepage
-    And I navigate to "Edit settings" in current page administration
-    And I set the field "summary" to "<form method='post' action='.'><div><button type='submit'>PostTest</button></div></form>"
+    And I turn editing mode on
+    And I configure the "block_html" block
+    And I set the field "Content" to "<form method='post' action='.'><div><button type='submit'>PostTest</button></div></form>"
     And I press "Save changes"
-    And I am on site homepage
-    And I navigate to "Turn editing on" in current page administration
-    And I add the "Course/site summary" block
     And I click on "Log out" "link" in the "#page-footer" "css_element"
 
     # Situation 4: Autologin does not run on POST requests.
