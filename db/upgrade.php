@@ -376,5 +376,17 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         // Saml2 savepoint reached.
     }
 
+    if ($oldversion < 2022031503) {
+        if (in_array($CFG->dbtype, ['mysqli', 'mariadb'])) {
+            $tolower = get_config('auth_saml2', 'tolower');
+            if (empty($tolower) || $tolower == auth_saml2\admin\saml2_settings::OPTION_TOLOWER_EXACT) {
+                // Previous versions of the code meant that mariadb operated in a case-insensitive manner set to prevent issues.
+                set_config('tolower', auth_saml2\admin\saml2_settings::OPTION_TOLOWER_CASE_INSENSITIVE, 'auth_saml2');
+            }
+        }
+
+        upgrade_plugin_savepoint(true, 2022031503, 'auth', 'saml2');
+    }
+
     return true;
 }
