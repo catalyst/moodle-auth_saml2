@@ -156,6 +156,7 @@ class auth_saml2_user_extractor_test extends advanced_testcase {
      * Tests for case insensitive match.
      */
     public function test_get_user_case_insensitive() {
+        global $CFG;
         $this->resetAfterTest();
 
         // Arrange data
