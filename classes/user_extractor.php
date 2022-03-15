@@ -55,11 +55,8 @@ class user_extractor {
 
             $joins = " LEFT JOIN {user_info_field} f ON f.shortname = :fieldname ";
             $joins .= " LEFT JOIN {user_info_data} d ON d.fieldid = f.id AND d.userid = u.id ";
-            if ($insensitive) {
-                $fieldsql = " AND LOWER(d.data) = LOWER(:fieldvalue)";
-            } else {
-                $fieldsql = " AND d.data = :fieldvalue";
-            }
+
+            $fieldsql = " AND ". $DB->sql_equal('d.data', ':fieldvalue', !$insensitive);
             $params['fieldname'] = $fieldname;
             $params['fieldvalue'] = $fieldvalue;
             $params['mnethostid'] = $CFG->mnet_localhost_id;
