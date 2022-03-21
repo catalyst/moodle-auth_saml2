@@ -616,7 +616,7 @@ class auth extends \auth_plugin_base {
                 $uid = strtolower($uid);
             }
             if ($this->config->tolower == saml2_settings::OPTION_TOLOWER_CASE_INSENSITIVE) {
-                $this->log(__FUNCTION__ . " case insensitive compare for $key => $uid");
+                $this->log(__FUNCTION__ . " case insensitive compare for $uid");
                 $insensitive = true;
             }
             if ($user = user_extractor::get_user($this->config->mdlattr, $uid, $insensitive)) {
