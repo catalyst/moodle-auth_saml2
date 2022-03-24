@@ -181,6 +181,7 @@ $string['test_auth_button_logout'] = 'IdP Logout';
 $string['test_auth_str'] = 'Test isAuthenticated and login';
 $string['test_noticetestrequirements'] = 'In order to use this test, plugin needs to be configured, enabled and debugging mode should be enabled in plugin settings.';
 $string['test_passive_str'] = 'Test using isPassive';
+$string['testdebuggingdisabled'] = 'To use this testing page SAML debugging must be on';
 $string['tolower'] = 'Case matching';
 $string['tolower:exact'] = 'Exact';
 $string['tolower:lowercase'] = 'Lower case';

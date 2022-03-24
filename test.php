@@ -29,7 +29,7 @@ require('setup.php');
 
 // Check we are in debug mode to use this tool.
 if (!$saml2auth->is_debugging()) {
-    redirect('/');
+    throw new \moodle_exception('testdebuggingdisabled', 'auth_saml2');
 }
 
 if (!\auth_saml2\api::is_enabled()) {
