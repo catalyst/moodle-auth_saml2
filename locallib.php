@@ -279,7 +279,10 @@ function auth_saml2_get_sp_metadata($baseurl = '') {
  *
  */
 function auth_saml2_update_sp_metadata() {
-    global $saml2auth;
+    global $CFG, $saml2auth;
+
+    // Require the setup file to initialise the creation of any missing cert files and/or directories.
+    require_once $CFG->dirroot . '/auth/saml2/setup.php';
 
     $file = $saml2auth->get_file_sp_metadata_file();
     @unlink($file);
