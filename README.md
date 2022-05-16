@@ -69,7 +69,7 @@ Features not yet implemented:
 
 | Moodle version    | Branch             | PHP  | SimpleSAMLphp |
 | ----------------- | ------------------ | ---- | ------------- |
-| Moodle 3.9+       | `MOODLE_39_STABLE` | 7.2+ | v1.19.1       |
+| Moodle 3.9+       | `MOODLE_39_STABLE` | 7.2+ | v1.19.5       |
 | Totara 12+        | `MOODLE_39_STABLE` | 7.2+ | v1.19.1       |
 | Moodle 3.5 to 3.8 | `MOODLE_35_STABLE` | 7.2+ | v1.18.8       |
 | Moodle 2.7 to 3.4 | `27_34STABLE`      | 5.5+ | v1.15.4       |
