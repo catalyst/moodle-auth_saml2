@@ -72,16 +72,13 @@ Features not yet implemented:
 Branches
 --------
 
-| Moodle version    | Branch           | PHP  | SimpleSAMLphp |
-| ----------------- | ---------------- | ---- | ------------- |
-| Moodle 3.9+       | MOODLE_39_STABLE | 7.2+ | v1.19.1      |
-| Totara 12+        | MOODLE_39_STABLE | 7.2+ | v1.19.1       |
-| Moodle 3.5 to 3.8 | MOODLE_35_STABLE | 7.2+ | v1.18.8       |
-| Moodle 2.7 to 3.4 | 27_34STABLE      | 5.5+ | v1.15.4       |
-| Totara up to 11   | 27_34STABLE      | 5.5+ | v1.15.4       |
-
-Installation
-------------
+| Moodle version    | Branch             | PHP  | SimpleSAMLphp |
+| ----------------- | ------------------ | ---- | ------------- |
+| Moodle 3.9+       | `MOODLE_39_STABLE` | 7.2+ | v1.19.5       |
+| Totara 12+        | `MOODLE_39_STABLE` | 7.2+ | v1.19.1       |
+| Moodle 3.5 to 3.8 | `MOODLE_35_STABLE` | 7.2+ | v1.18.8       |
+| Moodle 2.7 to 3.4 | `27_34STABLE`      | 5.5+ | v1.15.4       |
+| Totara up to 11   | `27_34STABLE`      | 5.5+ | v1.15.4       |
 
 1. Install the plugin the same as any standard moodle plugin either via the
 Moodle plugin directory, or you can use git to clone it into your source:
