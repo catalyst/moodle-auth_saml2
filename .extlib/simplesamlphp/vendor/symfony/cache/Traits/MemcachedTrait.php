@@ -106,7 +106,7 @@ trait MemcachedTrait
                 if (\is_array($dsn)) {
                     continue;
                 }
-                if (0 !== strpos($dsn, 'memcached:')) {
+                if (!str_starts_with($dsn, 'memcached:')) {
                     throw new InvalidArgumentException(sprintf('Invalid Memcached DSN: "%s" does not start with "memcached:".', $dsn));
                 }
                 $params = preg_replace_callback('#^memcached:(//)?(?:([^@]*+)@)?#', function ($m) use (&$username, &$password) {
@@ -255,7 +255,7 @@ trait MemcachedTrait
     protected function doFetch(array $ids)
     {
         try {
-            $encodedIds = array_map('self::encodeKey', $ids);
+            $encodedIds = array_map([__CLASS__, 'encodeKey'], $ids);
 
             $encodedResult = $this->checkResultCode($this->getClient()->getMulti($encodedIds));
 
@@ -284,7 +284,7 @@ trait MemcachedTrait
     protected function doDelete(array $ids)
     {
         $ok = true;
-        $encodedIds = array_map('self::encodeKey', $ids);
+        $encodedIds = array_map([__CLASS__, 'encodeKey'], $ids);
         foreach ($this->checkResultCode($this->getClient()->deleteMulti($encodedIds)) as $result) {
             if (\Memcached::RES_SUCCESS !== $result && \Memcached::RES_NOTFOUND !== $result) {
                 $ok = false;

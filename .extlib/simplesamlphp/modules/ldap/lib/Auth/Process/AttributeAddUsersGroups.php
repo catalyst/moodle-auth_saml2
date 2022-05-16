@@ -2,6 +2,7 @@
 
 namespace SimpleSAML\Module\ldap\Auth\Process;
 
+use SimpleSAML\Logger;
 use SimpleSAML\Utils\Arrays;
 
 /**
@@ -14,6 +15,22 @@ use SimpleSAML\Utils\Arrays;
  */
 class AttributeAddUsersGroups extends BaseFilter
 {
+    /**
+     * LDAP search filters to be added to the base filters for this authproc-filter.
+     * It's an array of key => value pairs that will be translated to (key=value) in the ldap query.
+     *
+     * @var array
+     */
+    protected $additional_filters;
+
+    /**
+     * A flag whether to escape the additional filter values or not. Defaults to TRUE
+     *
+     * @var bool
+     */
+    protected $escape;
+
+
     /**
      * This is run when the filter is processed by SimpleSAML.
      * It will attempt to find the current users groups using
@@ -34,12 +51,20 @@ class AttributeAddUsersGroups extends BaseFilter
             $this->title.'Attempting to get the users groups...'
         );
 
+        $this->additional_filters = $this->config->getArray('additional_filters', []);
+        $this->escape = $this->config->getBoolean('escape', true);
+
         // Reference the attributes, just to make the names shorter
         $attributes = &$request['Attributes'];
         $map = &$this->attribute_map;
 
         // Get the users groups from LDAP
         $groups = $this->getGroups($attributes);
+
+        // If there are none, do not proceed
+        if (empty($groups)) {
+            return;
+        }
 
         // Make the array if it is not set already
         if (!isset($attributes[$map['groups']])) {
@@ -164,8 +189,13 @@ class AttributeAddUsersGroups extends BaseFilter
              */
             $all_groups = $this->getLdap()->searchformultiple(
                 $openldap_base,
-                [$map['memberof'] => $attributes[$map['username']][0]],
-                [$map['member']]
+                array_merge(
+                    [
+                        $map['memberof'] => $attributes[$map['username']][0]
+                    ],
+                    $this->additional_filters
+                ),
+                [$map['return']]
             );
         } catch (\SimpleSAML\Error\UserNotFound $e) {
             return $groups; // if no groups found return with empty (still just initialized) groups array
@@ -173,7 +203,7 @@ class AttributeAddUsersGroups extends BaseFilter
 
         // run through all groups and add each to our groups array
         foreach ($all_groups as $group_entry) {
-            $groups[] = $group_entry[$map['member']][0];
+            $groups[] = $group_entry[$map['return']][0];
         }
 
         return $groups;
@@ -314,14 +344,15 @@ class AttributeAddUsersGroups extends BaseFilter
         $map = &$this->attribute_map;
 
         // Log the search
-        \SimpleSAML\Logger::debug(
-            $this->title.'Searching ActiveDirectory group membership.'.
-            ' DN: '.$dn.
-            ' DN Attribute: '.$map['dn'].
-            ' Member Attribute: '.$map['member'].
-            ' Type Attribute: '.$map['type'].
-            ' Type Value: '.$this->type_map['group'].
-            ' Base: '.implode('; ', Arrays::Arrayize($this->base_dn))
+        Logger::debug(
+            $this->title . 'Searching ActiveDirectory group membership.' .
+            ' DN: ' . $dn .
+            ' DN Attribute: ' . $map['dn'] .
+            ' Return Attribute: ' . $map['return'] .
+            ' Member Attribute: ' . $map['member'] .
+            ' Type Attribute: ' . $map['type'] .
+            ' Type Value: ' . $this->type_map['group'] .
+            ' Base: ' . implode('; ', Arrays::arrayize($this->base_dn))
         );
 
         // AD connections should have this set
@@ -331,8 +362,20 @@ class AttributeAddUsersGroups extends BaseFilter
         try {
             $entries = $this->getLdap()->searchformultiple(
                 $this->base_dn,
-                [$map['type'] => $this->type_map['group'], $map['member'].':1.2.840.113556.1.4.1941:' => $dn],
-                [$map['dn']]
+                array_merge(
+                    $this->getLdap()::escape_filter_value(
+                        [
+                            $map['type'] => $this->type_map['group'],
+                            $map['member'] . ':1.2.840.113556.1.4.1941:' => $dn
+                        ],
+                        false
+                    ),
+                    $this->additional_filters
+                ),
+                [$map['return']], // attributes
+                [], // binary attributes
+                true, // AND
+                $this->escape // escape filter values
             );
 
         // The search may throw an exception if no entries
@@ -347,14 +390,14 @@ class AttributeAddUsersGroups extends BaseFilter
         // Check each entry..
         foreach ($entries as $entry) {
             // Check for the DN using the original attribute name
-            if (isset($entry[$map['dn']][0])) {
-                $groups[] = $entry[$map['dn']][0];
+            if (isset($entry[$map['return']][0])) {
+                $groups[] = $entry[$map['return']][0];
                 continue;
             }
 
             // Sometimes the returned attribute names are lowercase
-            if (isset($entry[strtolower($map['dn'])][0])) {
-                $groups[] = $entry[strtolower($map['dn'])][0];
+            if (isset($entry[strtolower($map['return'])][0])) {
+                $groups[] = $entry[strtolower($map['return'])][0];
                 continue;
             }
 
@@ -366,9 +409,9 @@ class AttributeAddUsersGroups extends BaseFilter
 
             // Could not find DN, log and continue
             \SimpleSAML\Logger::notice(
-                $this->title.'The DN attribute ['.
-                implode(', ', [$map['dn'], strtolower($map['dn']), 'dn']).
-                '] could not be found in the entry. '.$this->var_export($entry)
+                $this->title . 'The return attribute [' .
+                implode(', ', [$map['return'], strtolower($map['return'])]) .
+                '] could not be found in the entry. ' . $this->var_export($entry)
             );
         }
 

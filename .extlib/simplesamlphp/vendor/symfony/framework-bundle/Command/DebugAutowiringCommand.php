@@ -50,7 +50,7 @@ class DebugAutowiringCommand extends ContainerDebugCommand
                 new InputArgument('search', InputArgument::OPTIONAL, 'A search filter'),
                 new InputOption('all', null, InputOption::VALUE_NONE, 'Show also services that are not aliased'),
             ])
-            ->setDescription('Lists classes/interfaces you can use for autowiring')
+            ->setDescription('List classes/interfaces you can use for autowiring')
             ->setHelp(<<<'EOF'
 The <info>%command.name%</info> command displays the classes and interfaces that
 you can use as type-hints for autowiring:
@@ -80,7 +80,7 @@ EOF
 
         if ($search = $input->getArgument('search')) {
             $serviceIds = array_filter($serviceIds, function ($serviceId) use ($search) {
-                return false !== stripos(str_replace('\\', '', $serviceId), $search) && 0 !== strpos($serviceId, '.');
+                return false !== stripos(str_replace('\\', '', $serviceId), $search) && !str_starts_with($serviceId, '.');
             });
 
             if (empty($serviceIds)) {
@@ -104,7 +104,7 @@ EOF
         foreach ($serviceIds as $serviceId) {
             $text = [];
             $resolvedServiceId = $serviceId;
-            if (0 !== strpos($serviceId, $previousId)) {
+            if (!str_starts_with($serviceId, $previousId)) {
                 $text[] = '';
                 if ('' !== $description = Descriptor::getClassDescription($serviceId, $resolvedServiceId)) {
                     if (isset($hasAlias[$serviceId])) {

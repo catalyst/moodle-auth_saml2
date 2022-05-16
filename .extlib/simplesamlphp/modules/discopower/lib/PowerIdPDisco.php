@@ -275,13 +275,15 @@ class PowerIdPDisco extends \SimpleSAML\XHTML\IdPDisco
             }
         }
 
-        if (!is_null($t->data['faventry'])) {
+        if (isset($t->data['faventry'])) {
             $t->data['autofocus'] = 'favouritesubmit';
         }
 
         /* store the tab list in the session */
         $session = Session::getSessionFromRequest();
-        $session->setData('discopower:tabList', 'faventry', $t->data['faventry']);
+        if (array_key_exists('faventry', $t->data)) {
+            $session->setData('discopower:tabList', 'faventry', $t->data['faventry']);
+        }
         $session->setData('discopower:tabList', 'tabs', array_keys($idpList));
         $session->setData('discopower:tabList', 'defaulttab', $t->data['defaulttab']);
 

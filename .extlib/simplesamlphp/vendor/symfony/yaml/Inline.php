@@ -58,7 +58,7 @@ class Inline
      *
      * @throws ParseException
      */
-    public static function parse(string $value = null, int $flags = 0, array $references = [])
+    public static function parse(string $value = null, int $flags = 0, array &$references = [])
     {
         self::initialize($flags);
 
@@ -127,6 +127,8 @@ class Inline
                 return self::dumpNull($flags);
             case $value instanceof \DateTimeInterface:
                 return $value->format('c');
+            case $value instanceof \UnitEnum:
+                return sprintf('!php/const %s::%s', \get_class($value), $value->name);
             case \is_object($value):
                 if ($value instanceof TaggedValue) {
                     return '!'.$value->getTag().' '.self::dump($value->getValue(), $flags);
@@ -159,9 +161,9 @@ class Inline
                 return 'true';
             case false === $value:
                 return 'false';
-            case ctype_digit($value):
-                return \is_string($value) ? "'$value'" : (int) $value;
-            case is_numeric($value) && false === strpos($value, "\f") && false === strpos($value, "\n") && false === strpos($value, "\r") && false === strpos($value, "\t") && false === strpos($value, "\v"):
+            case \is_int($value):
+                return $value;
+            case is_numeric($value) && false === strpbrk($value, "\f\n\r\t\v"):
                 $locale = setlocale(\LC_NUMERIC, 0);
                 if (false !== $locale) {
                     setlocale(\LC_NUMERIC, 'C');
@@ -267,10 +269,11 @@ class Inline
      *
      * @throws ParseException When malformed inline YAML string is parsed
      */
-    public static function parseScalar(string $scalar, int $flags = 0, array $delimiters = null, int &$i = 0, bool $evaluate = true, array $references = [])
+    public static function parseScalar(string $scalar, int $flags = 0, array $delimiters = null, int &$i = 0, bool $evaluate = true, array &$references = [], bool &$isQuoted = null)
     {
         if (\in_array($scalar[$i], ['"', "'"])) {
             // quoted scalar
+            $isQuoted = true;
             $output = self::parseQuotedScalar($scalar, $i);
 
             if (null !== $delimiters) {
@@ -284,6 +287,8 @@ class Inline
             }
         } else {
             // "normal" string
+            $isQuoted = false;
+
             if (!$delimiters) {
                 $output = substr($scalar, $i);
                 $i += \strlen($output);
@@ -306,7 +311,7 @@ class Inline
             }
 
             if ($evaluate) {
-                $output = self::evaluateScalar($output, $flags, $references);
+                $output = self::evaluateScalar($output, $flags, $references, $isQuoted);
             }
         }
 
@@ -318,7 +323,7 @@ class Inline
      *
      * @throws ParseException When malformed inline YAML string is parsed
      */
-    private static function parseQuotedScalar(string $scalar, int &$i): string
+    private static function parseQuotedScalar(string $scalar, int &$i = 0): string
     {
         if (!Parser::preg_match('/'.self::REGEX_QUOTED_STRING.'/Au', substr($scalar, $i), $match)) {
             throw new ParseException(sprintf('Malformed inline YAML string: "%s".', substr($scalar, $i)), self::$parsedLineNumber + 1, $scalar, self::$parsedFilename);
@@ -343,7 +348,7 @@ class Inline
      *
      * @throws ParseException When malformed inline YAML string is parsed
      */
-    private static function parseSequence(string $sequence, int $flags, int &$i = 0, array $references = []): array
+    private static function parseSequence(string $sequence, int $flags, int &$i = 0, array &$references = []): array
     {
         $output = [];
         $len = \strlen($sequence);
@@ -371,8 +376,7 @@ class Inline
                     $value = self::parseMapping($sequence, $flags, $i, $references);
                     break;
                 default:
-                    $isQuoted = \in_array($sequence[$i], ['"', "'"]);
-                    $value = self::parseScalar($sequence, $flags, [',', ']'], $i, null === $tag, $references);
+                    $value = self::parseScalar($sequence, $flags, [',', ']'], $i, null === $tag, $references, $isQuoted);
 
                     // the value can be an array if a reference has been resolved to an array var
                     if (\is_string($value) && !$isQuoted && false !== strpos($value, ': ')) {
@@ -383,6 +387,11 @@ class Inline
                         } catch (\InvalidArgumentException $e) {
                             // no, it's not
                         }
+                    }
+
+                    if (!$isQuoted && \is_string($value) && '' !== $value && '&' === $value[0] && Parser::preg_match(Parser::REFERENCE_PATTERN, $value, $matches)) {
+                        $references[$matches['ref']] = $matches['value'];
+                        $value = $matches['value'];
                     }
 
                     --$i;
@@ -407,7 +416,7 @@ class Inline
      *
      * @throws ParseException When malformed inline YAML string is parsed
      */
-    private static function parseMapping(string $mapping, int $flags, int &$i = 0, array $references = [])
+    private static function parseMapping(string $mapping, int $flags, int &$i = 0, array &$references = [])
     {
         $output = [];
         $len = \strlen($mapping);
@@ -433,14 +442,14 @@ class Inline
             // key
             $offsetBeforeKeyParsing = $i;
             $isKeyQuoted = \in_array($mapping[$i], ['"', "'"], true);
-            $key = self::parseScalar($mapping, $flags, [':', ' '], $i, false, []);
+            $key = self::parseScalar($mapping, $flags, [':', ' '], $i, false);
 
             if ($offsetBeforeKeyParsing === $i) {
                 throw new ParseException('Missing mapping key.', self::$parsedLineNumber + 1, $mapping);
             }
 
             if ('!php/const' === $key) {
-                $key .= ' '.self::parseScalar($mapping, $flags, [':'], $i, false, []);
+                $key .= ' '.self::parseScalar($mapping, $flags, [':'], $i, false);
                 $key = self::evaluateScalar($key, $flags);
             }
 
@@ -514,7 +523,7 @@ class Inline
                         }
                         break;
                     default:
-                        $value = self::parseScalar($mapping, $flags, [',', '}', "\n"], $i, null === $tag, $references);
+                        $value = self::parseScalar($mapping, $flags, [',', '}', "\n"], $i, null === $tag, $references, $isValueQuoted);
                         // Spec: Keys MUST be unique; first one wins.
                         // Parser cannot abort this mapping earlier, since lines
                         // are processed sequentially.
@@ -522,6 +531,11 @@ class Inline
                         if ('<<' === $key) {
                             $output += $value;
                         } elseif ($allowOverwrite || !isset($output[$key])) {
+                            if (!$isValueQuoted && \is_string($value) && '' !== $value && '&' === $value[0] && Parser::preg_match(Parser::REFERENCE_PATTERN, $value, $matches)) {
+                                $references[$matches['ref']] = $matches['value'];
+                                $value = $matches['value'];
+                            }
+
                             if (null !== $tag) {
                                 $output[$key] = new TaggedValue($tag, $value);
                             } else {
@@ -548,8 +562,9 @@ class Inline
      *
      * @throws ParseException when object parsing support was disabled and the parser detected a PHP object or when a reference could not be resolved
      */
-    private static function evaluateScalar(string $scalar, int $flags, array $references = [])
+    private static function evaluateScalar(string $scalar, int $flags, array &$references = [], bool &$isQuotedString = null)
     {
+        $isQuotedString = false;
         $scalar = trim($scalar);
         $scalarLower = strtolower($scalar);
 
@@ -584,7 +599,14 @@ class Inline
             case '!' === $scalar[0]:
                 switch (true) {
                     case 0 === strpos($scalar, '!!str '):
-                        return (string) substr($scalar, 6);
+                        $s = (string) substr($scalar, 6);
+
+                        if (\in_array($s[0] ?? '', ['"', "'"], true)) {
+                            $isQuotedString = true;
+                            $s = self::parseQuotedScalar($s);
+                        }
+
+                        return $s;
                     case 0 === strpos($scalar, '! '):
                         return substr($scalar, 2);
                     case 0 === strpos($scalar, '!php/object'):
@@ -631,7 +653,7 @@ class Inline
             // no break
             case '+' === $scalar[0] || '-' === $scalar[0] || '.' === $scalar[0] || is_numeric($scalar[0]):
                 if (Parser::preg_match('{^[+-]?[0-9][0-9_]*$}', $scalar)) {
-                    $scalar = str_replace('_', '', (string) $scalar);
+                    $scalar = str_replace('_', '', $scalar);
                 }
 
                 switch (true) {
@@ -664,17 +686,22 @@ class Inline
                     case Parser::preg_match('/^(-|\+)?[0-9][0-9_]*(\.[0-9_]+)?$/', $scalar):
                         return (float) str_replace('_', '', $scalar);
                     case Parser::preg_match(self::getTimestampRegex(), $scalar):
+                        // When no timezone is provided in the parsed date, YAML spec says we must assume UTC.
+                        $time = new \DateTime($scalar, new \DateTimeZone('UTC'));
+
                         if (Yaml::PARSE_DATETIME & $flags) {
-                            // When no timezone is provided in the parsed date, YAML spec says we must assume UTC.
-                            return new \DateTime($scalar, new \DateTimeZone('UTC'));
+                            return $time;
                         }
 
-                        $timeZone = date_default_timezone_get();
-                        date_default_timezone_set('UTC');
-                        $time = strtotime($scalar);
-                        date_default_timezone_set($timeZone);
+                        try {
+                            if (false !== $scalar = $time->getTimestamp()) {
+                                return $scalar;
+                            }
+                        } catch (\ValueError $e) {
+                            // no-op
+                        }
 
-                        return $time;
+                        return $time->format('U');
                 }
         }
 
@@ -694,7 +721,7 @@ class Inline
         $nextOffset += strspn($value, ' ', $nextOffset);
 
         if ('' === $tag && (!isset($value[$nextOffset]) || \in_array($value[$nextOffset], [']', '}', ','], true))) {
-            throw new ParseException(sprintf('Using the unquoted scalar value "!" is not supported. You must quote it.', $value), self::$parsedLineNumber + 1, $value, self::$parsedFilename);
+            throw new ParseException('Using the unquoted scalar value "!" is not supported. You must quote it.', self::$parsedLineNumber + 1, $value, self::$parsedFilename);
         }
 
         // Is followed by a scalar and is a built-in tag

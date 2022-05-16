@@ -133,9 +133,9 @@ class HeaderBag implements \IteratorAggregate, \Countable
     /**
      * Sets a header by name.
      *
-     * @param string          $key     The key
-     * @param string|string[] $values  The value or an array of values
-     * @param bool            $replace Whether to replace the actual value or not (true by default)
+     * @param string               $key     The key
+     * @param string|string[]|null $values  The value or an array of values
+     * @param bool                 $replace Whether to replace the actual value or not (true by default)
      */
     public function set($key, $values, $replace = true)
     {
@@ -228,8 +228,8 @@ class HeaderBag implements \IteratorAggregate, \Countable
     /**
      * Adds a custom Cache-Control directive.
      *
-     * @param string $key   The Cache-Control directive name
-     * @param mixed  $value The Cache-Control directive value
+     * @param string      $key   The Cache-Control directive name
+     * @param bool|string $value The Cache-Control directive value
      */
     public function addCacheControlDirective($key, $value = true)
     {
@@ -255,11 +255,11 @@ class HeaderBag implements \IteratorAggregate, \Countable
      *
      * @param string $key The directive name
      *
-     * @return mixed|null The directive value if defined, null otherwise
+     * @return bool|string|null The directive value if defined, null otherwise
      */
     public function getCacheControlDirective($key)
     {
-        return \array_key_exists($key, $this->cacheControl) ? $this->cacheControl[$key] : null;
+        return $this->cacheControl[$key] ?? null;
     }
 
     /**
@@ -279,6 +279,7 @@ class HeaderBag implements \IteratorAggregate, \Countable
      *
      * @return \ArrayIterator An \ArrayIterator instance
      */
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         return new \ArrayIterator($this->headers);
@@ -289,6 +290,7 @@ class HeaderBag implements \IteratorAggregate, \Countable
      *
      * @return int The number of headers
      */
+    #[\ReturnTypeWillChange]
     public function count()
     {
         return \count($this->headers);

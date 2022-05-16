@@ -64,7 +64,7 @@ class Container implements ResettableContainerInterface
 
     public function __construct(ParameterBagInterface $parameterBag = null)
     {
-        $this->parameterBag = $parameterBag ?: new EnvPlaceholderParameterBag();
+        $this->parameterBag = $parameterBag ?? new EnvPlaceholderParameterBag();
     }
 
     /**
@@ -109,7 +109,7 @@ class Container implements ResettableContainerInterface
      *
      * @param string $name The parameter name
      *
-     * @return array|bool|float|int|string|null The parameter value
+     * @return array|bool|string|int|float|null
      *
      * @throws InvalidArgumentException if the parameter is not defined
      */
@@ -133,8 +133,8 @@ class Container implements ResettableContainerInterface
     /**
      * Sets a parameter.
      *
-     * @param string $name  The parameter name
-     * @param mixed  $value The parameter value
+     * @param string                           $name  The parameter name
+     * @param array|bool|string|int|float|null $value The parameter value
      */
     public function setParameter($name, $value)
     {
@@ -281,7 +281,7 @@ class Container implements ResettableContainerInterface
                     continue;
                 }
                 $lev = levenshtein($id, $knownId);
-                if ($lev <= \strlen($id) / 3 || false !== strpos($knownId, $id)) {
+                if ($lev <= \strlen($id) / 3 || str_contains($knownId, $id)) {
                     $alternatives[] = $knownId;
                 }
             }
@@ -404,9 +404,7 @@ class Container implements ResettableContainerInterface
             $this->set($id, new ServiceLocator([]));
         }
         if (!$this->getEnv) {
-            $this->getEnv = new \ReflectionMethod($this, __FUNCTION__);
-            $this->getEnv->setAccessible(true);
-            $this->getEnv = $this->getEnv->getClosure($this);
+            $this->getEnv = \Closure::fromCallable([$this, 'getEnv']);
         }
         $processors = $this->get($id);
 

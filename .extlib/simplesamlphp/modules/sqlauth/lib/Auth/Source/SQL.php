@@ -2,6 +2,12 @@
 
 namespace SimpleSAML\Module\sqlauth\Auth\Source;
 
+use Exception;
+use PDO;
+use PDOException;
+use SimpleSAML\Error;
+use SimpleSAML\Logger;
+
 /**
  * Simple SQL authentication source
  *
@@ -57,12 +63,12 @@ class SQL extends \SimpleSAML\Module\core\Auth\UserPassBase
         // Make sure that all required parameters are present.
         foreach (['dsn', 'username', 'password', 'query'] as $param) {
             if (!array_key_exists($param, $config)) {
-                throw new \Exception('Missing required attribute \''.$param.
+                throw new Exception('Missing required attribute \''.$param.
                     '\' for authentication source '.$this->authId);
             }
 
             if (!is_string($config[$param])) {
-                throw new \Exception('Expected parameter \''.$param.
+                throw new Exception('Expected parameter \''.$param.
                     '\' for authentication source '.$this->authId.
                     ' to be a string. Instead it was: '.
                     var_export($config[$param], true));
@@ -92,11 +98,11 @@ class SQL extends \SimpleSAML\Module\core\Auth\UserPassBase
             // Obfuscate the password if it's part of the dsn
             $obfuscated_dsn =  preg_replace('/(user|password)=(.*?([;]|$))/', '${1}=***', $this->dsn);
 
-            throw new \Exception('sqlauth:' . $this->authId . ': - Failed to connect to \'' .
+            throw new Exception('sqlauth:' . $this->authId . ': - Failed to connect to \'' .
                 $obfuscated_dsn . '\': ' . $e->getMessage());
         }
 
-        $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         $driver = explode(':', $this->dsn, 2);
         $driver = strtolower($driver[0]);
@@ -139,33 +145,33 @@ class SQL extends \SimpleSAML\Module\core\Auth\UserPassBase
 
         try {
             $sth = $db->prepare($this->query);
-        } catch (\PDOException $e) {
-            throw new \Exception('sqlauth:'.$this->authId.
+        } catch (PDOException $e) {
+            throw new Exception('sqlauth:'.$this->authId.
                 ': - Failed to prepare query: '.$e->getMessage());
         }
 
         try {
             $sth->execute(['username' => $username, 'password' => $password]);
-        } catch (\PDOException $e) {
-            throw new \Exception('sqlauth:'.$this->authId.
+        } catch (PDOException $e) {
+            throw new Exception('sqlauth:'.$this->authId.
                 ': - Failed to execute query: '.$e->getMessage());
         }
 
         try {
-            $data = $sth->fetchAll(\PDO::FETCH_ASSOC);
-        } catch (\PDOException $e) {
-            throw new \Exception('sqlauth:'.$this->authId.
+            $data = $sth->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            throw new Exception('sqlauth:'.$this->authId.
                 ': - Failed to fetch result set: '.$e->getMessage());
         }
 
-        \SimpleSAML\Logger::info('sqlauth:'.$this->authId.': Got '.count($data).
+        Logger::info('sqlauth:'.$this->authId.': Got '.count($data).
             ' rows from database');
 
         if (count($data) === 0) {
             // No rows returned - invalid username/password
-            \SimpleSAML\Logger::error('sqlauth:'.$this->authId.
+            Logger::error('sqlauth:'.$this->authId.
                 ': No rows in result set. Probably wrong username/password.');
-            throw new \SimpleSAML\Error\Error('WRONGUSERPASS');
+            throw new Error\Error('WRONGUSERPASS');
         }
 
         /* Extract attributes. We allow the resultset to consist of multiple rows. Attributes
@@ -194,7 +200,7 @@ class SQL extends \SimpleSAML\Module\core\Auth\UserPassBase
             }
         }
 
-        \SimpleSAML\Logger::info('sqlauth:'.$this->authId.': Attributes: '.
+        Logger::info('sqlauth:'.$this->authId.': Attributes: '.
             implode(',', array_keys($attributes)));
 
         return $attributes;

@@ -296,9 +296,10 @@ class Negotiate extends \SimpleSAML\Auth\Source
 
         $url = htmlspecialchars(\SimpleSAML\Module::getModuleURL('negotiate/backend.php', $params));
 
+        header('HTTP/1.1 401 Unauthorized');
+        header('WWW-Authenticate: Negotiate', false);
+
         $t = new \SimpleSAML\XHTML\Template($config, 'negotiate:redirect.php');
-        $t->setStatusCode(401);
-        $t->headers->set('WWW-Authenticate', 'Negotiate');
         $t->data['baseurlpath'] = \SimpleSAML\Module::getModuleURL('negotiate');
         $t->data['url'] = $url;
         $t->show();

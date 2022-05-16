@@ -13,5 +13,5 @@ class Constants
     /**
      * The namespace for WS-FED protocol.
      */
-    const NS_FED = 'http://docs.oasis-open.org/wsfed/federation/200706';
+    public const NS_FED = 'http://docs.oasis-open.org/wsfed/federation/200706';
 }

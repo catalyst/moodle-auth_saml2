@@ -22,6 +22,8 @@ use Symfony\Component\DependencyInjection\Exception\OutOfBoundsException;
  */
 class Definition
 {
+    private const DEFAULT_DEPRECATION_TEMPLATE = 'The "%service_id%" service is deprecated. You should stop using it, as it will be removed in the future.';
+
     private $class;
     private $file;
     private $factory;
@@ -46,8 +48,6 @@ class Definition
     private $errors = [];
 
     protected $arguments = [];
-
-    private static $defaultDeprecationTemplate = 'The "%service_id%" service is deprecated. You should stop using it, as it will be removed in the future.';
 
     /**
      * @internal
@@ -102,7 +102,7 @@ class Definition
     /**
      * Sets a factory.
      *
-     * @param string|array|Reference $factory A PHP function, reference or an array containing a class/Reference and a method to call
+     * @param string|array|Reference|null $factory A PHP function, reference or an array containing a class/Reference and a method to call
      *
      * @return $this
      */
@@ -110,7 +110,7 @@ class Definition
     {
         $this->changes['factory'] = true;
 
-        if (\is_string($factory) && false !== strpos($factory, '::')) {
+        if (\is_string($factory) && str_contains($factory, '::')) {
             $factory = explode('::', $factory, 2);
         } elseif ($factory instanceof Reference) {
             $factory = [$factory, '__invoke'];
@@ -765,7 +765,7 @@ class Definition
                 throw new InvalidArgumentException('Invalid characters found in deprecation template.');
             }
 
-            if (false === strpos($template, '%service_id%')) {
+            if (!str_contains($template, '%service_id%')) {
                 throw new InvalidArgumentException('The deprecation template must contain the "%service_id%" placeholder.');
             }
 
@@ -799,13 +799,13 @@ class Definition
      */
     public function getDeprecationMessage($id)
     {
-        return str_replace('%service_id%', $id, $this->deprecationTemplate ?: self::$defaultDeprecationTemplate);
+        return str_replace('%service_id%', $id, $this->deprecationTemplate ?: self::DEFAULT_DEPRECATION_TEMPLATE);
     }
 
     /**
      * Sets a configurator to call after the service is fully initialized.
      *
-     * @param string|array|Reference $configurator A PHP function, reference or an array containing a class/Reference and a method to call
+     * @param string|array|Reference|null $configurator A PHP function, reference or an array containing a class/Reference and a method to call
      *
      * @return $this
      */
@@ -813,7 +813,7 @@ class Definition
     {
         $this->changes['configurator'] = true;
 
-        if (\is_string($configurator) && false !== strpos($configurator, '::')) {
+        if (\is_string($configurator) && str_contains($configurator, '::')) {
             $configurator = explode('::', $configurator, 2);
         } elseif ($configurator instanceof Reference) {
             $configurator = [$configurator, '__invoke'];

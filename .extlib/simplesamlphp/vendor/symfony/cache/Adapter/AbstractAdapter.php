@@ -25,13 +25,13 @@ use Symfony\Contracts\Cache\CacheInterface;
  */
 abstract class AbstractAdapter implements AdapterInterface, CacheInterface, LoggerAwareInterface, ResettableInterface
 {
+    use AbstractAdapterTrait;
+    use ContractsTrait;
+
     /**
      * @internal
      */
     protected const NS_SEPARATOR = ':';
-
-    use AbstractAdapterTrait;
-    use ContractsTrait;
 
     private static $apcuSupported;
     private static $phpFilesSupported;
@@ -51,7 +51,7 @@ abstract class AbstractAdapter implements AdapterInterface, CacheInterface, Logg
                 // Detect wrapped values that encode for their expiry and creation duration
                 // For compactness, these values are packed in the key of an array using
                 // magic numbers in the form 9D-..-..-..-..-00-..-..-..-5F
-                if (\is_array($v) && 1 === \count($v) && 10 === \strlen($k = (string) key($v)) && "\x9D" === $k[0] && "\0" === $k[5] && "\x5F" === $k[9]) {
+                if (\is_array($v) && 1 === \count($v) && 10 === \strlen($k = (string) array_key_first($v)) && "\x9D" === $k[0] && "\0" === $k[5] && "\x5F" === $k[9]) {
                     $item->value = $v[$k];
                     $v = unpack('Ve/Nc', substr($k, 1, -1));
                     $item->metadata[CacheItem::METADATA_EXPIRY] = $v['e'] + CacheItem::METADATA_EXPIRY_OFFSET;
@@ -74,7 +74,7 @@ abstract class AbstractAdapter implements AdapterInterface, CacheInterface, Logg
                     $key = (string) $key;
                     if (null === $item->expiry) {
                         $ttl = 0 < $defaultLifetime ? $defaultLifetime : 0;
-                    } elseif (0 === $item->expiry) {
+                    } elseif (!$item->expiry) {
                         $ttl = 0;
                     } elseif (0 >= $ttl = (int) (0.1 + $item->expiry - $now)) {
                         $expiredIds[] = $getId($key);
@@ -121,7 +121,7 @@ abstract class AbstractAdapter implements AdapterInterface, CacheInterface, Logg
             return $opcache;
         }
 
-        $apcu = new ApcuAdapter($namespace, (int) $defaultLifetime / 5, $version);
+        $apcu = new ApcuAdapter($namespace, intdiv($defaultLifetime, 5), $version);
         if (null !== $logger) {
             $apcu->setLogger($logger);
         }
@@ -134,10 +134,10 @@ abstract class AbstractAdapter implements AdapterInterface, CacheInterface, Logg
         if (!\is_string($dsn)) {
             throw new InvalidArgumentException(sprintf('The "%s()" method expect argument #1 to be string, "%s" given.', __METHOD__, \gettype($dsn)));
         }
-        if (0 === strpos($dsn, 'redis:') || 0 === strpos($dsn, 'rediss:')) {
+        if (str_starts_with($dsn, 'redis:') || str_starts_with($dsn, 'rediss:')) {
             return RedisAdapter::createConnection($dsn, $options);
         }
-        if (0 === strpos($dsn, 'memcached:')) {
+        if (str_starts_with($dsn, 'memcached:')) {
             return MemcachedAdapter::createConnection($dsn, $options);
         }
 

@@ -67,7 +67,7 @@ class FlattenException
         $e->setStatusCode($statusCode);
         $e->setHeaders($headers);
         $e->setTraceFromThrowable($exception);
-        $e->setClass($exception instanceof FatalThrowableError ? $exception->getOriginalClassName() : get_debug_type($exception));
+        $e->setClass($exception instanceof FatalThrowableError ? $exception->getOriginalClassName() : \get_class($exception));
         $e->setFile($exception->getFile());
         $e->setLine($exception->getLine());
 

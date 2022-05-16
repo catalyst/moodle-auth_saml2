@@ -36,9 +36,6 @@ use Symfony\Component\WebLink\HttpHeaderSerializer;
 
 /**
  * FrameworkExtension configuration structure.
- *
- * @author Jeremy Mikola <jmikola@gmail.com>
- * @author Grégoire Pineau <lyrixx@lyrixx.info>
  */
 class Configuration implements ConfigurationInterface
 {
@@ -1015,13 +1012,14 @@ class Configuration implements ConfigurationInterface
                             ->prototype('array')
                                 ->fixXmlConfig('adapter')
                                 ->beforeNormalization()
-                                    ->ifTrue(function ($v) { return (isset($v['adapters']) || \is_array($v['adapter'] ?? null)) && isset($v['provider']); })
-                                    ->thenInvalid('Pool cannot have a "provider" while "adapter" is set to a map')
+                                    ->ifTrue(function ($v) { return isset($v['provider']) && \is_array($v['adapters'] ?? $v['adapter'] ?? null) && 1 < \count($v['adapters'] ?? $v['adapter']); })
+                                    ->thenInvalid('Pool cannot have a "provider" while more than one adapter is defined')
                                 ->end()
                                 ->children()
                                     ->arrayNode('adapters')
                                         ->performNoDeepMerging()
                                         ->info('One or more adapters to chain for creating the pool, defaults to "cache.app".')
+                                        ->beforeNormalization()->castToArray()->end()
                                         ->beforeNormalization()
                                             ->always()->then(function ($values) {
                                                 if ([0] === array_keys($values) && \is_array($values[0])) {

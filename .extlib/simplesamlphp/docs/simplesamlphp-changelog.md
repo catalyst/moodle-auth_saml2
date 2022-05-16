@@ -6,6 +6,82 @@ SimpleSAMLphp changelog
 This document lists the changes between versions of SimpleSAMLphp.
 See the upgrade notes for specific information about upgrading.
 
+## Version 1.19.5
+
+Released 24-01-2021
+
+  * Fix composer-file to prevent warnings
+  * Fix database persistency (#1555)
+  * Dropped dependency on jquery-ui and selectize
+
+### adfs
+  * Bump the module version to the 1.0.x branch;  the 0.9 branch only works with versions before 1.19
+
+### saml2 library
+  * Fix an issue with PHP 7.x support that was introduced in 1.19.4 (#1559)
+
+## Version 1.19.4
+
+Released 13-12-2021
+
+### core
+  * Fix translations for included templates (i.e. metadata not found error)
+
+### ldap
+  * Added the possibility to escape the additional search filters that were introduced in 1.19.2
+
+### saml2 library
+  * The library has been quick-fixed to support PHP 8.1 (#1545)
+
+### metarefresh
+  * Reverted an unintended update of the module. The v1,0-branch is intended for use with SSP 2.0 (dev-master) only
+
+## Version 1.19.3
+
+Released 2021-10-28
+
+  * Fixed a wrong variable name introduced in v1.19.2 (#1480) that rendered the PHP session handler useless.
+
+## Version 1.19.2
+
+Released 2021-10-27
+
+  * Restored PHP 8.0 compatibility (#1461), also on the saml2 library (v4.2.3)
+  * Revert #1435; should not have ended up in a bugfix release. If you need the authproc-filters, please install the
+    simplesamlphp-module-subjectidattrs module.
+  * Fixed a bug in the logger that would break encoded urls in the message
+  * Return a proper HTTP/405 code when incorrect method is used (#1400)
+  * Fixed the 'rememberenabled' config setting of the built-in IdP discovery.
+  * Fixed a bug where code from external modules would run even though the module is explicitly enabled (#1463)
+  * Fix unsolicited response with no RelayState (#1473)
+  * Fix statistics being logged despire a configured loglevel that excludes statistics.
+  * Fixed an issue with the PHP session handler (#1480, #1350, #1478) causing superfluous log messages.
+  * Fixed the MetaDataStorageHandlerPdo for MySQL backends (#1392)
+  * Use getVersion instead of getStats to determine whether a memcache-server is up (#1528)
+
+### adfs
+  * Fixed several issues that rendered the old UI useless for this module (v0.9.8)
+
+### admin
+  * Fix warning in FederationController (#1475)
+  * Fix displayed metadata for hosted entities differing from actual metadata.
+
+### consent
+  * Add posibility to set the sameSite flag on cookies set by this module (v0.9.7)
+
+### discopower
+  * Fixed a dependency issue that caused the module to not install under some PHP-versions (v0.10.0)
+
+### ldap
+  * Added search-filters to AttributeAddUserGroups and made the return-attribute configurable (v0.9.11)
+
+### negotiate
+  * Fixed a regression that rendered the new UI useless for this module (v0.9.11)
+
+### sqlauth
+  * Fixed a bug that rendered the module useless due to missing use-statements.
+
+
 ## Version 1.19.1
 
 Released 2021-04-29
@@ -29,6 +105,9 @@ Released 2021-04-29
 
 ### negotiate
   * Fix a bug that was breaking the module when using the old UI
+
+### oauth
+  * Fixed a namespace bug that was breaking the module
 
 ### statistics
   * Fix a bug in the Twig-template that causes an exception on newer Twig-versions

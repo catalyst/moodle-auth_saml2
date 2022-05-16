@@ -618,6 +618,7 @@ class Finder implements \IteratorAggregate, \Countable
      *
      * @throws \LogicException if the in() method has not been called
      */
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         if (0 === \count($this->dirs) && 0 === \count($this->iterators)) {
@@ -669,7 +670,7 @@ class Finder implements \IteratorAggregate, \Countable
             $this->iterators[] = $iterator->getIterator();
         } elseif ($iterator instanceof \Iterator) {
             $this->iterators[] = $iterator;
-        } elseif ($iterator instanceof \Traversable || \is_array($iterator)) {
+        } elseif (is_iterable($iterator)) {
             $it = new \ArrayIterator();
             foreach ($iterator as $file) {
                 $file = $file instanceof \SplFileInfo ? $file : new \SplFileInfo($file);
@@ -702,6 +703,7 @@ class Finder implements \IteratorAggregate, \Countable
      *
      * @return int
      */
+    #[\ReturnTypeWillChange]
     public function count()
     {
         return iterator_count($this->getIterator());

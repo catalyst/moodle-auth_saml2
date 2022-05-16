@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace SAML2\XML\saml;
 
 use DOMElement;
-
 use SAML2\Constants;
 use SAML2\DOMDocumentFactory;
 
@@ -47,11 +46,6 @@ abstract class BaseIDType
      */
     protected $nodeName;
 
-    /**
-     * @var \DOMElement
-     */
-    protected $element;
-
 
     /**
      * Initialize a saml:BaseID, either from scratch or from an existing \DOMElement.
@@ -63,8 +57,6 @@ abstract class BaseIDType
         if ($xml === null) {
             return;
         }
-
-        $this->element = $xml;
 
         if ($xml->hasAttribute('NameQualifier')) {
             $this->NameQualifier = $xml->getAttribute('NameQualifier');

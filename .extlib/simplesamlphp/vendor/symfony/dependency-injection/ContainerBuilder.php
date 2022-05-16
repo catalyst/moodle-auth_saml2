@@ -362,7 +362,7 @@ class ContainerBuilder extends Container implements TaggedContainerInterface
 
         if ($this->trackResources) {
             if (!$classReflector) {
-                $this->addResource($resource ?: new ClassExistenceResource($class, false));
+                $this->addResource($resource ?? new ClassExistenceResource($class, false));
             } elseif (!$classReflector->isInternal()) {
                 $path = $classReflector->getFileName();
 
@@ -883,8 +883,6 @@ class ContainerBuilder extends Container implements TaggedContainerInterface
     }
 
     /**
-     * Gets all defined aliases.
-     *
      * @return Alias[] An array of aliases
      */
     public function getAliases()
@@ -1632,7 +1630,7 @@ class ContainerBuilder extends Container implements TaggedContainerInterface
      */
     private function shareService(Definition $definition, $service, ?string $id, array &$inlineServices)
     {
-        $inlineServices[null !== $id ? $id : spl_object_hash($definition)] = $service;
+        $inlineServices[$id ?? spl_object_hash($definition)] = $service;
 
         if (null !== $id && $definition->isShared()) {
             $this->services[$id] = $service;
@@ -1660,7 +1658,7 @@ class ContainerBuilder extends Container implements TaggedContainerInterface
         $path = realpath($path) ?: $path;
 
         foreach ($this->vendors as $vendor) {
-            if (0 === strpos($path, $vendor) && false !== strpbrk(substr($path, \strlen($vendor), 1), '/'.\DIRECTORY_SEPARATOR)) {
+            if (str_starts_with($path, $vendor) && false !== strpbrk(substr($path, \strlen($vendor), 1), '/'.\DIRECTORY_SEPARATOR)) {
                 $this->addResource(new FileResource($vendor.'/composer/installed.json'));
 
                 return true;
