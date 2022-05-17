@@ -225,6 +225,9 @@ EOF;
         // Allow insecure cookies for Behat testing.
         set_config('cookiesecure', '0');
 
+        // Turn auth_saml2 debugging on, required for self-test feature.
+        set_config('debug', '1', 'auth_saml2');
+
         $auth = get_auth_plugin('saml2');
         if (!$auth->is_configured()) {
             require_once(__DIR__ . '/../../setuplib.php');
