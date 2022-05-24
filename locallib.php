@@ -280,6 +280,7 @@ function auth_saml2_get_sp_metadata($baseurl = '') {
  */
 function auth_saml2_update_sp_metadata() {
     global $saml2auth;
+    require_once(__DIR__ . '/setup.php');
 
     $file = $saml2auth->get_file_sp_metadata_file();
     @unlink($file);

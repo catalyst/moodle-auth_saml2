@@ -160,25 +160,31 @@ if ($ADMIN->fulltree) {
            ));
 
     // SP Metadata signature.
-    $settings->add(new admin_setting_configselect(
+    $spmetadatasign = new admin_setting_configselect(
             'auth_saml2/spmetadatasign',
             get_string('spmetadatasign', 'auth_saml2'),
             get_string('spmetadatasign_help', 'auth_saml2'),
-            0, $yesno));
+            0, $yesno);
+    $spmetadatasign->set_updatedcallback('auth_saml2_update_sp_metadata');
+    $settings->add($spmetadatasign);
 
-    $settings->add(new admin_setting_configtext(
+    $entityid = new admin_setting_configtext(
         'auth_saml2/spentityid',
         get_string('spentityid', 'auth_saml2'),
         get_string('spentityid_help', 'auth_saml2'),
         ''
-    ));
+    );
+    $entityid->set_updatedcallback('auth_saml2_update_sp_metadata');
+    $settings->add($entityid);
 
-    $settings->add(new admin_setting_configselect(
+    $wantassertionssigned = new admin_setting_configselect(
         'auth_saml2/wantassertionssigned',
         get_string('wantassertionssigned', 'auth_saml2'),
         get_string('wantassertionssigned_help', 'auth_saml2'),
         0, $yesno
-    ));
+    );
+    $wantassertionssigned->set_updatedcallback('auth_saml2_update_sp_metadata');
+    $settings->add($wantassertionssigned);
 
     $assertionsconsumerservices = [
         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST' => 'HTTP Post',
@@ -188,13 +194,15 @@ if ($ADMIN->fulltree) {
         'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser' => 'Holder-of-Key Web Browser SSO',
     ];
 
-    $settings->add(new admin_setting_configmultiselect(
+    $acssetting = new admin_setting_configmultiselect(
         'auth_saml2/assertionsconsumerservices',
         get_string('assertionsconsumerservices', 'auth_saml2'),
         get_string('assertionsconsumerservices_help', 'auth_saml2'),
         array(),
         $assertionsconsumerservices
-    ));
+    );
+    $acssetting->set_updatedcallback('auth_saml2_update_sp_metadata');
+    $settings->add($acssetting);
 
     $settings->add(new admin_setting_configselect(
         'auth_saml2/allowcreate',
