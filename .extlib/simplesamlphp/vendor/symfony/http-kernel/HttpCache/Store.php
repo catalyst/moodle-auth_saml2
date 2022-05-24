@@ -298,7 +298,7 @@ class Store implements StoreInterface
             return [];
         }
 
-        return unserialize($entries);
+        return unserialize($entries) ?: [];
     }
 
     /**
@@ -349,7 +349,7 @@ class Store implements StoreInterface
     {
         $path = $this->getPath($key);
 
-        return file_exists($path) && false !== ($contents = file_get_contents($path)) ? $contents : null;
+        return file_exists($path) && false !== ($contents = @file_get_contents($path)) ? $contents : null;
     }
 
     /**

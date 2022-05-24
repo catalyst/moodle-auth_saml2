@@ -193,7 +193,7 @@ final class ProgressBar
 
     public function getBarOffset(): int
     {
-        return floor($this->max ? $this->percent * $this->barWidth : (null === $this->redrawFreq ? min(5, $this->barWidth / 15) * $this->writeCount : $this->step) % $this->barWidth);
+        return floor($this->max ? $this->percent * $this->barWidth : (null === $this->redrawFreq ? (int) (min(5, $this->barWidth / 15) * $this->writeCount) : $this->step) % $this->barWidth);
     }
 
     public function setBarWidth(int $size)
@@ -249,7 +249,7 @@ final class ProgressBar
     /**
      * Sets the redraw frequency.
      *
-     * @param int|float $freq The frequency in steps
+     * @param int|null $freq The frequency in steps
      */
     public function setRedrawFrequency(?int $freq)
     {
@@ -441,8 +441,15 @@ final class ProgressBar
         if ($this->overwrite) {
             if (null !== $this->previousMessage) {
                 if ($this->output instanceof ConsoleSectionOutput) {
-                    $lines = floor(Helper::strlen($message) / $this->terminal->getWidth()) + $this->formatLineCount + 1;
-                    $this->output->clear($lines);
+                    $messageLines = explode("\n", $message);
+                    $lineCount = \count($messageLines);
+                    foreach ($messageLines as $messageLine) {
+                        $messageLineLength = Helper::strlenWithoutDecoration($this->output->getFormatter(), $messageLine);
+                        if ($messageLineLength > $this->terminal->getWidth()) {
+                            $lineCount += floor($messageLineLength / $this->terminal->getWidth());
+                        }
+                    }
+                    $this->output->clear($lineCount);
                 } else {
                     // Erase previous lines
                     if ($this->formatLineCount > 0) {

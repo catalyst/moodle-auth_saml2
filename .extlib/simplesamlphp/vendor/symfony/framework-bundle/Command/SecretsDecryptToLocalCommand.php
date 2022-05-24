@@ -42,8 +42,8 @@ final class SecretsDecryptToLocalCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Decrypts all secrets and stores them in the local vault.')
-            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Forces overriding of secrets that already exist in the local vault')
+            ->setDescription('Decrypt all secrets and stores them in the local vault.')
+            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force overriding of secrets that already exist in the local vault')
             ->setHelp(<<<'EOF'
 The <info>%command.name%</info> command decrypts all secrets and copies them in the local vault.
 
@@ -77,9 +77,8 @@ EOF
 
         foreach ($secrets as $k => $v) {
             if (null === $v) {
-                $io->error($this->vault->getLastMessage());
-
-                return 1;
+                $io->error($this->vault->getLastMessage() ?? sprintf('Secret "%s" has been skipped as there was an error reading it.', $k));
+                continue;
             }
 
             $this->localVault->seal($k, $v);

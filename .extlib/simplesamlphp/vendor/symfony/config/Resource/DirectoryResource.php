@@ -39,9 +39,6 @@ class DirectoryResource implements SelfCheckingResourceInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function __toString()
     {
         return md5(serialize([$this->resource, $this->pattern]));
@@ -86,7 +83,7 @@ class DirectoryResource implements SelfCheckingResourceInterface
 
             // always monitor directories for changes, except the .. entries
             // (otherwise deleted files wouldn't get detected)
-            if ($file->isDir() && '/..' === substr($file, -3)) {
+            if ($file->isDir() && str_ends_with($file, '/..')) {
                 continue;
             }
 

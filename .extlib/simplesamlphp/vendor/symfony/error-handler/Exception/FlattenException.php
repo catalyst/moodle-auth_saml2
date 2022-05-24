@@ -26,24 +26,53 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
  */
 class FlattenException extends LegacyFlattenException
 {
+    /** @var string */
     private $message;
+
+    /** @var int|string */
     private $code;
+
+    /** @var self|null */
     private $previous;
+
+    /** @var array */
     private $trace;
+
+    /** @var string */
     private $traceAsString;
+
+    /** @var string */
     private $class;
+
+    /** @var int */
     private $statusCode;
+
+    /** @var string */
     private $statusText;
+
+    /** @var array */
     private $headers;
+
+    /** @var string */
     private $file;
+
+    /** @var int */
     private $line;
+
+    /** @var string|null */
     private $asString;
 
+    /**
+     * @return static
+     */
     public static function create(\Exception $exception, $statusCode = null, array $headers = []): self
     {
         return static::createFromThrowable($exception, $statusCode, $headers);
     }
 
+    /**
+     * @return static
+     */
     public static function createFromThrowable(\Throwable $exception, int $statusCode = null, array $headers = []): self
     {
         $e = new static();
@@ -71,7 +100,7 @@ class FlattenException extends LegacyFlattenException
         $e->setStatusCode($statusCode);
         $e->setHeaders($headers);
         $e->setTraceFromThrowable($exception);
-        $e->setClass($exception instanceof FatalThrowableError ? $exception->getOriginalClassName() : get_debug_type($exception));
+        $e->setClass($exception instanceof FatalThrowableError ? $exception->getOriginalClassName() : \get_class($exception));
         $e->setFile($exception->getFile());
         $e->setLine($exception->getLine());
 
@@ -104,6 +133,8 @@ class FlattenException extends LegacyFlattenException
     }
 
     /**
+     * @param int $code
+     *
      * @return $this
      */
     public function setStatusCode($code): self
@@ -134,6 +165,8 @@ class FlattenException extends LegacyFlattenException
     }
 
     /**
+     * @param string $class
+     *
      * @return $this
      */
     public function setClass($class): self
@@ -149,6 +182,8 @@ class FlattenException extends LegacyFlattenException
     }
 
     /**
+     * @param string $file
+     *
      * @return $this
      */
     public function setFile($file): self
@@ -164,6 +199,8 @@ class FlattenException extends LegacyFlattenException
     }
 
     /**
+     * @param int $line
+     *
      * @return $this
      */
     public function setLine($line): self
@@ -191,6 +228,8 @@ class FlattenException extends LegacyFlattenException
     }
 
     /**
+     * @param string $message
+     *
      * @return $this
      */
     public function setMessage($message): self
@@ -215,6 +254,8 @@ class FlattenException extends LegacyFlattenException
     }
 
     /**
+     * @param int|string $code
+     *
      * @return $this
      */
     public function setCode($code): self
@@ -235,7 +276,7 @@ class FlattenException extends LegacyFlattenException
     /**
      * @return $this
      */
-    final public function setPrevious(LegacyFlattenException $previous): self
+    final public function setPrevious(?LegacyFlattenException $previous): self
     {
         $this->previous = $previous;
 
@@ -282,6 +323,10 @@ class FlattenException extends LegacyFlattenException
     }
 
     /**
+     * @param array       $trace
+     * @param string|null $file
+     * @param int|null    $line
+     *
      * @return $this
      */
     public function setTrace($trace, $file, $line): self

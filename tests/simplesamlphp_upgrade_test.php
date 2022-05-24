@@ -59,11 +59,12 @@ class auth_saml2_simplesamlphp_upgrade_testcase extends advanced_testcase {
         global $CFG;
         $this->resetAfterTest();
 
+        $this->assertDirectoryNotExists($CFG->dirroot."/auth/saml2/.extlib/simplesamlphp/vendor/phpmailer");
+
         $filenames = [
             $CFG->dirroot."/auth/saml2/.extlib/simplesamlphp/vendor/composer/autoload_psr4.php",
             $CFG->dirroot."/auth/saml2/.extlib/simplesamlphp/vendor/composer/autoload_static.php",
             $CFG->dirroot."/auth/saml2/.extlib/simplesamlphp/vendor/composer/installed.json",
-            $CFG->dirroot."/auth/saml2/.extlib/simplesamlphp/vendor/phpmailer/phpmailer/composer.json",
         ];
 
         foreach ($filenames as $filename) {

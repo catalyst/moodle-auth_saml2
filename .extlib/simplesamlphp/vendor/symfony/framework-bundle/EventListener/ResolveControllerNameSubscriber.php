@@ -48,14 +48,14 @@ class ResolveControllerNameSubscriber implements EventSubscriberInterface
 
     public function __call(string $method, array $args)
     {
-        if ('onKernelRequest' !== $method && 'onKernelRequest' !== strtolower($method)) {
+        if ('onKernelRequest' !== $method && 'onkernelrequest' !== strtolower($method)) {
             throw new \Error(sprintf('Error: Call to undefined method "%s::%s()".', static::class, $method));
         }
 
         $event = $args[0];
 
         $controller = $event->getRequest()->attributes->get('_controller');
-        if (\is_string($controller) && false === strpos($controller, '::') && 2 === substr_count($controller, ':')) {
+        if (\is_string($controller) && !str_contains($controller, '::') && 2 === substr_count($controller, ':')) {
             // controller in the a:b:c notation then
             $event->getRequest()->attributes->set('_controller', $parsedNotation = $this->parser->parse($controller, false));
 
