@@ -660,8 +660,14 @@ class auth extends \auth_plugin_base {
                     $this->handle_blocked_access();
                 }
 
-                $this->log(__FUNCTION__ . " user '$uid' is not in moodle so autocreating");
-                $user = create_user_record($uid, '', 'saml2');
+                $username = $this->get_username_from_attributes($attributes);
+                if (empty($username)) {
+                    // Just in case username field not set, use uid.
+                    $username = $uid;
+                }
+
+                $this->log(__FUNCTION__ . " user '$username' is not in moodle so autocreating");
+                $user = create_user_record($username, '', 'saml2');
                 $newuser = true;
             } else {
                 // Moodle user does not exist and settings prevent creating new accounts.
@@ -952,11 +958,26 @@ class auth extends \auth_plugin_base {
      *
      * @param array $attributes A list of attributes.
      *
-     * @return bool
+     * @return bool|string
      */
     public function get_email_from_attributes(array $attributes) {
         if (!empty($this->config->field_map_email) && !empty($attributes[$this->config->field_map_email])) {
             return $attributes[$this->config->field_map_email][0];
+        }
+
+        return false;
+    }
+
+    /**
+     * Get lowercase username from attributes, force as lowercase because Moodle requires it.
+     *
+     * @param array $attributes A list of attributes.
+     *
+     * @return bool|string
+     */
+    private function get_username_from_attributes(array $attributes) {
+        if (!empty($this->config->field_map_username) && !empty($attributes[$this->config->field_map_username])) {
+            return strtolower($attributes[$this->config->field_map_username][0]);
         }
 
         return false;
