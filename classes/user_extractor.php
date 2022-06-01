@@ -48,6 +48,9 @@ class user_extractor {
         global $DB, $CFG;
 
         $user = false;
+        $joins = '';
+        $params['fieldvalue'] = $fieldvalue;
+        $params['mnethostid'] = $CFG->mnet_localhost_id;
 
         if (user_fields::is_custom_profile_field($fieldname)) {
 
@@ -58,13 +61,21 @@ class user_extractor {
 
             $fieldsql = " AND ". $DB->sql_equal('d.data', ':fieldvalue', !$insensitive);
             $params['fieldname'] = $fieldname;
-            $params['fieldvalue'] = $fieldvalue;
-            $params['mnethostid'] = $CFG->mnet_localhost_id;
 
+        } else {
+            // Check if requested field exists, required for Totara compatibility.
+            $fields = array_merge(\core_user::AUTHSYNCFIELDS, ['id', 'username']);
+            if (in_array($fieldname, $fields)) {
+                $fieldsql = " AND ". $DB->sql_equal('u.' . $fieldname, ':fieldvalue', !$insensitive);
+                $params['fieldname'] = $fieldname;
+            }
+        }
+
+        if (!empty($fieldsql)) {
             $sql = "SELECT u.id
                       FROM {user} u $joins
-                     WHERE u.deleted <> 1 AND
-                           u.mnethostid = :mnethostid $fieldsql";
+                     WHERE u.deleted <> 1
+                       AND u.mnethostid = :mnethostid $fieldsql";
 
             if ($records = $DB->get_records_sql($sql, $params)) {
                 if (count($records) == 1) {
@@ -72,15 +83,7 @@ class user_extractor {
                     $user = get_complete_user_data('id', $record->id);
                 }
             }
-        } else {
-            // Check if requested field exists, required for Totara compatibility.
-            $fields = array_merge(\core_user::AUTHSYNCFIELDS, ['id', 'username']);
-            if (in_array($fieldname, $fields)) {
-                $user = get_complete_user_data($fieldname, $fieldvalue);
-            }
         }
-
         return $user;
     }
-
 }
