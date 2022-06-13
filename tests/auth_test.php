@@ -1358,6 +1358,32 @@ class auth_test extends \advanced_testcase {
     }
 
     /**
+     * Tests we can update username with invalid case from any SAML attribute on user creation.
+     */
+    public function test_update_user_profile_fields_updates_username_on_creation_case_insensitive(): void {
+        global $CFG;
+        require_once($CFG->dirroot . '/user/profile/lib.php');
+
+        $auth = get_auth_plugin('saml2');
+        $user = $this->getDataGenerator()->create_user();
+
+        $expected = 'updated_username';
+        $uppercaseusername = strtoupper($expected);
+        $this->assertNotEquals($expected, $user->username);
+
+        set_config("field_map_username", 'field', 'auth_saml2');
+        set_config("field_updatelocal_username", 'onlogin', 'auth_saml2');
+        set_config("field_lock_username", 'locked', 'auth_saml2');
+
+        $attributes = [
+            'field' => [$uppercaseusername]
+        ];
+
+        $this->assertTrue($auth->update_user_profile_fields($user, $attributes, true));
+        $this->assertEquals($expected, $user->username);
+    }
+
+    /**
      * Tests we can't update username from any SAML attribute once a user already created.
      */
     public function test_update_user_profile_fields_does_not_update_username_on_update(): void {
