@@ -59,7 +59,12 @@ class auth_saml2_simplesamlphp_upgrade_testcase extends advanced_testcase {
         global $CFG;
         $this->resetAfterTest();
 
-        $this->assertDirectoryNotExists($CFG->dirroot."/auth/saml2/.extlib/simplesamlphp/vendor/phpmailer");
+        // Backwards compatibility with older PHPUnit - use old assertDirectory method.
+        if (method_exists($this, 'assertDirectoryDoesNotExist')) {
+            $this->assertDirectoryDoesNotExist($CFG->dirroot."/auth/saml2/.extlib/simplesamlphp/vendor/phpmailer");
+        } else {
+            $this->assertDirectoryNotExists($CFG->dirroot."/auth/saml2/.extlib/simplesamlphp/vendor/phpmailer");
+        }
 
         $filenames = [
             $CFG->dirroot."/auth/saml2/.extlib/simplesamlphp/vendor/composer/autoload_psr4.php",
