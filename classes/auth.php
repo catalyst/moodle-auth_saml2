@@ -925,9 +925,12 @@ class auth extends \auth_plugin_base {
                                         continue;
                                     }
                                 }
-
-                                // Custom profile fields have the prefix profile_field_ and will be saved as profile field data.
-                                $user->$field = $attributes[$attr][0];
+                                if ($field == 'username') {
+                                    $user->$field = strtolower($attributes[$attr][0]);
+                                } else {
+                                    // Custom profile fields have the prefix profile_field_ and will be saved as profile field data.
+                                    $user->$field = $attributes[$attr][0];
+                                }
                                 $update = true;
                             }
                         }
