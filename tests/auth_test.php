@@ -27,7 +27,7 @@ namespace auth_saml2;
  * @copyright   2021 Moodle Pty Ltd <support@moodle.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class auth_test extends \advanced_testcase {
+class auth_saml2_test extends \advanced_testcase {
     /**
      * Set up
      */
@@ -1460,5 +1460,46 @@ class auth_test extends \advanced_testcase {
 
         $this->assertFalse($auth->update_user_profile_fields($user, $attributes, false));
         $this->assertNotEquals($expected, $user->alternatename);
+    }
+
+
+    /**
+     * Tests multi-value attributes can be saved to user profile fields.
+     */
+    public function test_update_user_profile_fields_multi(): void {
+        global $CFG;
+        require_once($CFG->dirroot . '/user/profile/lib.php');
+
+        $this->resetAfterTest();
+
+        // Set up the initials.
+        $generator = $this->getDataGenerator();
+        $field1 = $generator->create_custom_profile_field(['datatype' => 'text',
+                'shortname' => 'specialities', 'name' => 'Specialities',
+                'visible' => PROFILE_VISIBLE_ALL]);
+        $user = $generator->create_user(['auth' => 'saml2']);
+        $auth = get_auth_plugin($user->auth);
+
+        // Map IdP provided attributes to user profile fields.
+        set_config("mdlattr", 'alternatename', 'auth_saml2');
+        set_config("field_map_alternatename", 'field', 'auth_saml2');
+        set_config("field_updatelocal_alternatename", 'onlogin', 'auth_saml2');
+        set_config("field_lock_alternatename", 'locked', 'auth_saml2');
+
+        set_config("mdlattr", 'specialities', 'auth_saml2');
+        set_config("field_map_specialities", 'specialities', 'auth_saml2');
+        set_config("field_updatelocal_specialities", 'onlogin', 'auth_saml2');
+        set_config("field_lock_specialities", 'locked', 'auth_saml2');
+
+        // False payload from IdP.
+        $attributes = [
+                'field' => ['single_value'],
+                'specialities' => ['running', 'jumping', 'knitting']
+        ];
+
+        // Assert all the things.
+        $this->assertTrue($auth->update_user_profile_fields($user, $attributes, true));
+        $this->assertEquals('single_value', $user->alternatename);
+        $this->assertEquals('running,jumping,knitting', $user->specialities);
     }
 }
