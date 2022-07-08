@@ -1467,17 +1467,15 @@ class auth_saml2_test extends \advanced_testcase {
      * Tests multi-value attributes can be saved to user profile fields.
      */
     public function test_update_user_profile_fields_multi(): void {
-        global $CFG;
+        global $CFG, $DB;
         require_once($CFG->dirroot . '/user/profile/lib.php');
 
         $this->resetAfterTest();
 
         // Set up the initials.
-        $generator = $this->getDataGenerator();
-        $field1 = $generator->create_custom_profile_field(['datatype' => 'text',
-                'shortname' => 'specialities', 'name' => 'Specialities',
-                'visible' => PROFILE_VISIBLE_ALL]);
-        $user = $generator->create_user(['auth' => 'saml2']);
+        $DB->insert_record('user_info_field', ['shortname' => 'specialities', 'name' => 'Specialities', 'required' => 1,
+                'visible' => 1, 'locked' => 0, 'categoryid' => 1, 'datatype' => 'text']);
+        $user = $this->getDataGenerator()->create_user(['auth' => 'saml2']);
         $auth = get_auth_plugin($user->auth);
 
         // Map IdP provided attributes to user profile fields.
