@@ -1499,5 +1499,11 @@ class auth_saml2_test extends \advanced_testcase {
         $this->assertTrue($auth->update_user_profile_fields($user, $attributes, true));
         $this->assertEquals('single_value', $user->alternatename);
         $this->assertEquals('running,jumping,knitting', $user->specialities);
+
+        // Set the delimiter to something nonstandard.
+        set_config('fielddelimiter', '|', 'auth_saml2');
+        $this->assertTrue($auth->update_user_profile_fields($user, $attributes, true));
+        $this->assertEquals('single_value', $user->alternatename);
+        $this->assertEquals('running|jumping|knitting', $user->specialities);
     }
 }

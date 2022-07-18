@@ -401,4 +401,13 @@ if ($ADMIN->fulltree) {
         display_auth_lock_options($settings, $authplugin->authtype, $authplugin->userfields, $help, true, true,
             $authplugin->get_custom_user_profile_fields());
     }
+
+    // The field delimiter to use for multiple value fields from IdP.
+    $settings->add(new admin_setting_configtext(
+            'auth_saml2/fielddelimiter',
+            get_string('fielddelimiter', 'auth_saml2'),
+            get_string('fielddelimiter_help', 'auth_saml2'),
+            ',',
+            PARAM_TEXT,
+            5));
 }

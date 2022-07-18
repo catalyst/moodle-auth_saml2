@@ -929,7 +929,8 @@ class auth extends \auth_plugin_base {
                                     $user->$field = strtolower($attributes[$attr][0]);
                                 } else {
                                     // Custom profile fields have the prefix profile_field_ and will be saved as profile field data.
-                                    $user->$field = implode(',', (array) $attributes[$attr]);
+                                    $delimiter = $mapconfig->fielddelimiter;
+                                    $user->$field = implode($delimiter, (array) $attributes[$attr]);
                                 }
                                 $update = true;
                             }
