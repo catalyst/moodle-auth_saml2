@@ -38,7 +38,7 @@ class auth_saml2_autoloader_test extends advanced_testcase {
             \SAML2\Utils::class,
             \SimpleSAML\Configuration::class,
             \RobRichards\XMLSecLibs\XMLSecEnc::class,
-            Twig_Loader_Filesystem::class,
+            Twig\Loader\FilesystemLoader::class,
         ];
         foreach ($classes as $class) {
             $found = class_exists($class) || interface_exists($class);
