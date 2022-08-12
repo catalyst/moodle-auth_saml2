@@ -673,12 +673,9 @@ class auth_saml2_test extends \advanced_testcase {
 
         // Checking that the events contain the expected values.
         $events = $sink->get_events();
-        $this->assertCount(4, $events);
+        $this->assertCount(2, $events);
         $event = array_pop($events);
         $this->assertInstanceOf('\core\event\user_loggedin', $event);
-        $this->assertEquals($USER->id, $event->get_data()['objectid']);
-        $event = array_pop($events);
-        $this->assertInstanceOf('\core\event\user_updated', $event);
         $this->assertEquals($USER->id, $event->get_data()['objectid']);
         $event = array_pop($events);
         $this->assertInstanceOf('\core\event\user_created', $event);
