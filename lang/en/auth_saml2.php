@@ -187,6 +187,7 @@ $string['testdebuggingdisabled'] = 'To use this testing page SAML debugging must
 $string['tolower'] = 'Case matching';
 $string['tolower:exact'] = 'Exact';
 $string['tolower:lowercase'] = 'Lower case';
+$string['tolower:caseandaccentinsensitive'] = 'Case and accent insensitive';
 $string['tolower:caseinsensitive'] = 'Case insensitive';
 $string['tolower_help'] = '
 <p>Exact: match is case sensitive (default).</p>

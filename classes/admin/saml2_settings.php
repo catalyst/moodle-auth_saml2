@@ -55,4 +55,6 @@ abstract class saml2_settings {
     const OPTION_TOLOWER_LOWER_CASE = 1;
 
     const OPTION_TOLOWER_CASE_INSENSITIVE = 2;
+
+    const OPTION_TOLOWER_CASE_AND_ACCENT_INSENSITIVE = 3;
 }

@@ -44,7 +44,12 @@ class user_extractor {
      *
      * @return mixed False, or A {@link $USER} object.
      */
-    public static function get_user(string $fieldname, string $fieldvalue, bool $insensitive = false) {
+    public static function get_user(
+        string $fieldname,
+        string $fieldvalue,
+        bool $insensitive = false,
+        bool $accentsensitive = true
+    ) {
         global $DB, $CFG;
 
         $user = false;
@@ -59,14 +64,14 @@ class user_extractor {
             $joins = " LEFT JOIN {user_info_field} f ON f.shortname = :fieldname ";
             $joins .= " LEFT JOIN {user_info_data} d ON d.fieldid = f.id AND d.userid = u.id ";
 
-            $fieldsql = " AND ". $DB->sql_equal('d.data', ':fieldvalue', !$insensitive);
+            $fieldsql = " AND " . $DB->sql_equal('d.data', ':fieldvalue', !$insensitive, $accentsensitive);
             $params['fieldname'] = $fieldname;
 
         } else {
             // Check if requested field exists, required for Totara compatibility.
             $fields = array_merge(\core_user::AUTHSYNCFIELDS, ['id', 'username']);
             if (in_array($fieldname, $fields)) {
-                $fieldsql = " AND ". $DB->sql_equal('u.' . $fieldname, ':fieldvalue', !$insensitive);
+                $fieldsql = " AND " . $DB->sql_equal('u.' . $fieldname, ':fieldvalue', !$insensitive, $accentsensitive);
                 $params['fieldname'] = $fieldname;
             }
         }
