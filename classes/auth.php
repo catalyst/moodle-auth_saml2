@@ -614,6 +614,7 @@ class auth extends \auth_plugin_base {
         $user = false;
         foreach ($attributes[$attr] as $uid) {
             $insensitive = false;
+            $accentsensitive = true;
             if ($this->config->tolower == saml2_settings::OPTION_TOLOWER_LOWER_CASE) {
                 $this->log(__FUNCTION__ . " to lowercase for $uid");
                 $uid = strtolower($uid);
@@ -622,7 +623,12 @@ class auth extends \auth_plugin_base {
                 $this->log(__FUNCTION__ . " case insensitive compare for $uid");
                 $insensitive = true;
             }
-            if ($user = user_extractor::get_user($this->config->mdlattr, $uid, $insensitive)) {
+            if ($this->config->tolower == saml2_settings::OPTION_TOLOWER_CASE_AND_ACCENT_INSENSITIVE) {
+                $this->log(__FUNCTION__ . " case and accent insensitive compare for $uid");
+                $insensitive = true;
+                $accentsensitive = false;
+            }
+            if ($user = user_extractor::get_user($this->config->mdlattr, $uid, $insensitive, $accentsensitive)) {
                 // We found a user.
                 break;
             }

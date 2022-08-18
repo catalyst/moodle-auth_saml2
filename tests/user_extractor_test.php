@@ -188,6 +188,49 @@ class auth_saml2_user_extractor_test extends advanced_testcase {
     }
 
     /**
+     * Tests for case and accent insensitive match on custom user fields.
+     */
+    public function test_get_user_case_and_accent_insensitive_custom_fields() {
+        $this->resetAfterTest();
+
+        // Arrange data.
+        $field = $this->add_user_profile_field('vehicleplate', 'text', true);
+        $expecteduser = $this->getDataGenerator()->create_user();
+        profile_save_data((object)['id' => $expecteduser->id, 'profile_field_vehicleplate' => 'HD4999á']);
+
+        // Should match with same case and accent.
+        $actualuser = user_extractor::get_user('profile_field_vehicleplate', 'HD4999á', true, true);
+        $this->assertNotFalse($actualuser);
+        $this->assertSame($expecteduser->id, $actualuser->id);
+
+        // Should not match with same case and without accent.
+        $actualuser = user_extractor::get_user('profile_field_vehicleplate', 'HD4999a', true, true);
+        $this->assertFalse($actualuser);
+
+        // Should match with same case and accent.
+        $actualuser = user_extractor::get_user('profile_field_vehicleplate', 'HD4999á', true, false);
+        $this->assertNotFalse($actualuser);
+        $this->assertSame($expecteduser->id, $actualuser->id);
+
+        // Should match with different case and accent.
+        $actualuser = user_extractor::get_user('profile_field_vehicleplate', 'hd4999á', true, true);
+        $this->assertNotFalse($actualuser);
+        $this->assertSame($expecteduser->id, $actualuser->id);
+
+        // Should not match with different case and without accent.
+        $actualuser = user_extractor::get_user('profile_field_vehicleplate', 'hd4999a', true, true);
+        $this->assertFalse($actualuser);
+
+        // Should not match with different value (obviously).
+        $actualuser = user_extractor::get_user('profile_field_vehicleplate', 'Some other value entirely', true, false);
+        $this->assertFalse($actualuser);
+
+        // Should not match by default (case sensitive = false).
+        $actualuser = user_extractor::get_user('profile_field_vehicleplate', 'hd4999á');
+        $this->assertFalse($actualuser);
+    }
+
+    /**
      * Tests for case insensitive match on core user fields.
      */
     public function test_get_user_case_insensitive_core_fields() {
@@ -218,6 +261,56 @@ class auth_saml2_user_extractor_test extends advanced_testcase {
 
             // Should not match by default (case sensitive = false).
             $actualuser = user_extractor::get_user('idnumber', 'nb256');
+            $this->assertFalse($actualuser);
+        }
+    }
+
+    /**
+     * Tests for case insensitive match on core user fields.
+     */
+    public function test_get_user_case_and_accent_insensitive_core_fields() {
+        global $CFG;
+        $this->resetAfterTest();
+
+        // Arrange data.
+        $expecteduser = $this->getDataGenerator()->create_user(['idnumber' => 'NB256á']);
+
+        // Should match with same case and with accent (accentsensitive = true).
+        $actualuser = user_extractor::get_user('idnumber', 'NB256á', true);
+        $this->assertNotFalse($actualuser);
+        $this->assertSame($expecteduser->id, $actualuser->id);
+
+        // Should match with different case and with accent (accentsensitive = true).
+        $actualuser = user_extractor::get_user('idnumber', 'nb256á', true);
+        $this->assertNotFalse($actualuser);
+        $this->assertSame($expecteduser->id, $actualuser->id);
+
+        // Should not match with different case and accent  (accentsensitive = true).
+        $actualuser = user_extractor::get_user('idnumber', 'nb256á', false);
+        $this->assertFalse($actualuser);
+
+        // Should not match with different value (obviously).
+        $actualuser = user_extractor::get_user('idnumber', 'Some other value entirely', true);
+        $this->assertFalse($actualuser);
+
+        if (in_array($CFG->dbtype, ['mysqli', 'mariadb'])) {
+            // Should match with different case and without accent.
+            $actualuser = user_extractor::get_user('idnumber', 'nb256a', true, false);
+            $this->assertNotFalse($actualuser);
+            $this->assertSame($expecteduser->id, $actualuser->id);
+        }
+
+        if (!in_array($CFG->dbtype, ['mysqli', 'mariadb'])) {
+            // Should not match when case sensitive.
+            $actualuser = user_extractor::get_user('idnumber', 'nb256á', false);
+            $this->assertFalse($actualuser);
+
+            // Should not match by default (case sensitive = false).
+            $actualuser = user_extractor::get_user('idnumber', 'nb256á');
+            $this->assertFalse($actualuser);
+
+            // Should not match with different case and without accent.
+            $actualuser = user_extractor::get_user('idnumber', 'nb256a', true, false);
             $this->assertFalse($actualuser);
         }
     }
