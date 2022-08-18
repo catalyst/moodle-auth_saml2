@@ -41,6 +41,7 @@ class user_extractor {
      * @param string $fieldname Field name to search by.
      * @param string $fieldvalue Field value to search by.
      * @param bool $insensitive Whether to use case insensitive match.
+     * @param bool $accentsensitive Whether to use accent sensitive match.
      *
      * @return mixed False, or A {@link $USER} object.
      */
