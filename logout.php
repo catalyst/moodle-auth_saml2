@@ -27,8 +27,8 @@ require_once(__DIR__ . '/../../config.php');
 // @codingStandardsIgnoreEnd
 require('setup.php');
 
-// Generally this page is not used as the normla moodle logout_hook
-// doe everything needed. This page is used when someone is logged
+// Generally this page is not used as the normal moodle logout_hook
+// does everything needed. This page is used when someone is logged
 // into SAML, but not into Moodle, and needs to logout of SAML in
 // order to properly re-log into Moodle. It's a rare edge case
 // probably only used when configuring or testing but nice to have.
