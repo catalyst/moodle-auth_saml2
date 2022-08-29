@@ -29,7 +29,12 @@ defined('MOODLE_INTERNAL') || die();
 use moodle_url;
 use pix_icon;
 use auth_saml2\admin\saml2_settings;
+use coding_exception;
 use core\output\notification;
+use dml_exception;
+use Exception;
+use moodle_exception;
+use stdClass;
 
 global $CFG;
 require_once($CFG->libdir.'/authlib.php');
@@ -666,15 +671,33 @@ class auth extends \auth_plugin_base {
                     $this->handle_blocked_access();
                 }
 
-                $username = $this->get_username_from_attributes($attributes);
-                if (empty($username)) {
+                // Generate the users information from the attribute map.
+                $user = new stdClass();
+                $this->update_user_record_from_attribute_map($user, $attributes, true);
+                if (empty($user->username)) {
                     // Just in case username field not set, use uid.
-                    $username = $uid;
+                    $user->username = $uid;
+                }
+                // Set the auth to saml2 if it's not set from the attributes.
+                if (empty($user->auth)) {
+                    $user->auth = 'saml2';
                 }
 
-                $this->log(__FUNCTION__ . " user '$username' is not in moodle so autocreating");
-                $user = create_user_record($username, '', 'saml2');
-                $newuser = true;
+                $this->log(__FUNCTION__ . " user '$user->username' is not in moodle so autocreating");
+                require_once($CFG->dirroot.'/user/lib.php');
+
+                // Various values that user_create_user doesn't validate or set.
+                $user->confirmed = 1;
+                $user->lastip = getremoteaddr();
+                $user->timecreated = time();
+                $user->timemodified = $user->timecreated;
+                $user->mnethostid = $CFG->mnet_localhost_id;
+
+                $user->id = \user_create_user($user, true, true);
+                // Store any custom profile fields.
+                profile_save_data($user);
+                // Make sure all user data is fetched.
+                $user = \core_user::get_user($user->id);
             } else {
                 // Moodle user does not exist and settings prevent creating new accounts.
                 $event = \core\event\user_login_failed::create(['other' => ['username' => $uid,
@@ -733,7 +756,7 @@ class auth extends \auth_plugin_base {
 
         // Do we need to update any user fields? Unlike ldap, we can only do
         // this now. We cannot query the IdP at any time.
-        $this->update_user_profile_fields($user, $attributes, $newuser);
+        $this->update_user_profile_fields($user, $attributes, false);
 
         // If admin has been set for this IdP we make the user an admin.
         if (!empty($SESSION->saml2idp) && $this->metadataentities[$SESSION->saml2idp]->adminidp) {
@@ -745,8 +768,7 @@ class auth extends \auth_plugin_base {
         }
 
         // Make sure all user data is fetched.
-        $user = get_complete_user_data('username', $user->username);
-
+        $user = get_complete_user_data('username', $user->username, null, false);
         complete_user_login($user);
         $USER->loggedin = true;
         $USER->site = $CFG->wwwroot;
@@ -882,16 +904,19 @@ class auth extends \auth_plugin_base {
     }
 
     /**
-     * Checks the field map config for values that update onlogin or when a new user is created
-     * and returns true when the fields have been merged into the user object.
+     * Given a user record, updates the fields on that user as per the mappings in the
+     * saml2 configuration. Uses the attributes array as the source of data for updating each field.
      *
-     * @param $attributes
-     * @param bool $newuser
-     * @return bool true on success
+     * This is split into it's own function so update and creating users can use it
+     * @param mixed $user The user record to update
+     * @param mixed $attributes The attribute array (from the SAML Login)
+     * @param bool $newuser If this user does not yet exist in the database
+     * @return void
+     * @throws dml_exception
+     * @throws Exception
+     * @throws coding_exception
      */
-    public function update_user_profile_fields(&$user, $attributes, $newuser = false) {
-        global $CFG;
-
+    public function update_user_record_from_attribute_map(&$user, $attributes, $newuser= false) {
         $mapconfig = get_config('auth_saml2');
         $allkeys = array_keys(get_object_vars($mapconfig));
         $update = false;
@@ -945,8 +970,20 @@ class auth extends \auth_plugin_base {
                 }
             }
         }
+        return $update;
+    }
 
-        if ($update) {
+    /**
+     * Checks the field map config for values that update onlogin or when a new user is created
+     * and returns true when the fields have been merged into the user object.
+     *
+     * @param $attributes
+     * @param bool $newuser
+     * @return bool true on success
+     */
+    public function update_user_profile_fields(&$user, $attributes, $newuser = false) {
+        global $CFG;
+        if ($this->update_user_record_from_attribute_map($user, $attributes, $newuser)) {
             require_once($CFG->dirroot.'/user/lib.php');
             if ($user->description === true) {
                 // Function get_complete_user_data() sets description = true to avoid keeping in memory.
@@ -958,9 +995,9 @@ class auth extends \auth_plugin_base {
             // plugins listen to so they have the correct user data.
             profile_save_data($user);
             user_update_user($user, false);
+            return true;
         }
-
-        return $update;
+        return false;
     }
 
     /**
