@@ -234,7 +234,7 @@ class auth_saml2_user_extractor_test extends advanced_testcase {
      * Tests for case insensitive match on core user fields.
      */
     public function test_get_user_case_insensitive_core_fields() {
-        global $CFG;
+        global $CFG, $DB;
         $this->resetAfterTest();
 
         // Arrange data.
@@ -254,7 +254,7 @@ class auth_saml2_user_extractor_test extends advanced_testcase {
         $actualuser = user_extractor::get_user('idnumber', 'Some other value entirely', true);
         $this->assertFalse($actualuser);
 
-        if (!in_array($CFG->dbtype, ['mysqli', 'mariadb'])) {
+        if ($DB->get_dbfamily() !== 'mysql') {
             // Should not match when case sensitive.
             $actualuser = user_extractor::get_user('idnumber', 'nb256', false);
             $this->assertFalse($actualuser);
@@ -269,7 +269,7 @@ class auth_saml2_user_extractor_test extends advanced_testcase {
      * Tests for case insensitive match on core user fields.
      */
     public function test_get_user_case_and_accent_insensitive_core_fields() {
-        global $CFG;
+        global $CFG, $DB;
         $this->resetAfterTest();
 
         // Arrange data.
@@ -293,14 +293,14 @@ class auth_saml2_user_extractor_test extends advanced_testcase {
         $actualuser = user_extractor::get_user('idnumber', 'Some other value entirely', true);
         $this->assertFalse($actualuser);
 
-        if (in_array($CFG->dbtype, ['mysqli', 'mariadb'])) {
+        if ($DB->get_dbfamily() === 'mysql') {
             // Should match with different case and without accent.
             $actualuser = user_extractor::get_user('idnumber', 'nb256a', true, false);
             $this->assertNotFalse($actualuser);
             $this->assertSame($expecteduser->id, $actualuser->id);
         }
 
-        if (!in_array($CFG->dbtype, ['mysqli', 'mariadb'])) {
+        if ($DB->get_dbfamily() !== 'mysql') {
             // Should not match when case sensitive.
             $actualuser = user_extractor::get_user('idnumber', 'nb256á', false);
             $this->assertFalse($actualuser);
