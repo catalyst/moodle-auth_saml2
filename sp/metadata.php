@@ -44,11 +44,9 @@ if ($download) {
 // Needs to be public so an IdP can load it ahead of time.
 $baseurl = optional_param('baseurl', $CFG->wwwroot, PARAM_URL);
 
-$regenerate = is_siteadmin() && optional_param('regenerate', false, PARAM_BOOL);
-if ($regenerate) {
-    $file = $saml2auth->get_file_sp_metadata_file($baseurl);
-    @unlink($file);
-}
+// To keep it simple, every time you visit this page, it should rebuild the SP XML.
+$file = $saml2auth->get_file_sp_metadata_file($baseurl);
+@unlink($file);
 
 $xml = auth_saml2_get_sp_metadata($baseurl);
 

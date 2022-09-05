@@ -41,6 +41,23 @@ if (!empty($SESSION->saml2idp) && array_key_exists($SESSION->saml2idp, $saml2aut
 
 $defaultspentityid = "$baseurl/auth/saml2/sp/metadata.php";
 
+// Process requested attributes.
+$attributes = [];
+$attributesrequired = [];
+
+foreach (explode(PHP_EOL, $saml2auth->config->requestedattributes) as $attr) {
+    $attr = trim($attr);
+    if (empty($attr)) {
+        continue;
+    }
+    if (substr($attr, -2, 2) === ' *') {
+        $attr = substr($attr, 0, -2);
+        $attributesrequired[] = $attr;
+    }
+    
+    $attributes[] = $attr;
+}
+
 $config[$saml2auth->spname] = [
     'saml:SP',
     'entityID' => !empty($saml2auth->config->spentityid) ? $saml2auth->config->spentityid : $defaultspentityid,
@@ -48,13 +65,13 @@ $config[$saml2auth->spname] = [
     'idp' => empty($CFG->auth_saml2_disco_url) ? $idpentityid : null,
     'NameIDPolicy' => $saml2auth->config->nameidpolicy,
     'OrganizationName' => array(
-        'en' => $SITE->shortname,
+        $CFG->lang => $SITE->shortname,
     ),
     'OrganizationDisplayName' => array(
-        'en' => $SITE->fullname,
+        $CFG->lang => $SITE->fullname,
     ),
     'OrganizationURL' => array(
-        'en' => $baseurl,
+        $CFG->lang => $baseurl,
     ),
     'privatekey' => $saml2auth->spname . '.pem',
     'privatekey_pass' => get_config('auth_saml2', 'privatekeypass'),
@@ -63,6 +80,12 @@ $config[$saml2auth->spname] = [
     'redirect.sign' => true,
     'signature.algorithm' => $saml2auth->config->signaturealgorithm,
     'WantAssertionsSigned' => $saml2auth->config->wantassertionssigned == 1,
+
+    'name' => [
+        $CFG->lang => $SITE->fullname,
+    ],
+    'attributes' => $attributes,
+    'attributes.required' => $attributesrequired,
 ];
 
 if (!empty($saml2auth->config->assertionsconsumerservices)) {
