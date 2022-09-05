@@ -53,10 +53,9 @@ foreach (explode(PHP_EOL, $saml2auth->config->requestedattributes) as $attr) {
     if (substr($attr, -2, 2) === ' *') {
         $attr = substr($attr, 0, -2);
         $attributesrequired[] = $attr;
-        $attributes[] = $attr;
-    } else {
-        $attributes[] = $attr;
     }
+    
+    $attributes[] = $attr;
 }
 
 $config[$saml2auth->spname] = [
