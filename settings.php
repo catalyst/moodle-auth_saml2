@@ -35,6 +35,27 @@ global $CFG;
 if ($ADMIN->fulltree) {
     require_once($CFG->dirroot.'/auth/saml2/locallib.php');
 
+    $sections = [
+        'idpsettings',
+        'spsettings',
+        'usersettings',
+        'logoutsettings',
+        'groupsettings',
+        'debugsettings',
+    ];
+    $toc = '<ol>';
+    foreach ($sections as $key => $section) {
+        $toc .= '<li>';
+        $toc .= '<a href="#:~:text=' . ($key+1) . '. ' . get_string($section, 'auth_saml2');
+        $toc .= '">';
+        $toc .= get_string($section, 'auth_saml2');
+        $toc .= '</a>';
+    }
+    $toc .= '</ol>';
+    $settings->add(new admin_setting_heading('samltoc', 'SAML settings', $toc));
+
+    // ----------------------------------------------------------------------------------- //
+    $settings->add(new admin_setting_heading('samlidp', '1. ' . get_string('idpsettings', 'auth_saml2'), ''));
     $yesno = array(
             new lang_string('no'),
             new lang_string('yes'),
@@ -80,45 +101,21 @@ if ($ADMIN->fulltree) {
             get_string('idpmetadatarefresh_help', 'auth_saml2'),
             1, $yesno));
 
-    // Debugging.
-    $settings->add(new admin_setting_configselect(
-            'auth_saml2/debug',
-            get_string('debug', 'auth_saml2'),
-            get_string('debug_help', 'auth_saml2', $CFG->wwwroot . '/auth/saml2/debug.php'),
-            0, $yesno));
-
-    // Logging.
-    $settings->add(new admin_setting_configselect(
-            'auth_saml2/logtofile',
-            get_string('logtofile', 'auth_saml2'),
-            get_string('logtofile_help', 'auth_saml2'),
-            0, $yesno));
-    $settings->add(new admin_setting_configtext(
-            'auth_saml2/logdir',
-            get_string('logdir', 'auth_saml2'),
-            get_string('logdir_help', 'auth_saml2'),
-            get_string('logdirdefault', 'auth_saml2'),
-            PARAM_TEXT));
-
-    // See section 8.3 from http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf for more information.
-    $nameidlist = [
-        'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
-        'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
-        'urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName',
-        'urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName',
-        'urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos',
-        'urn:oasis:names:tc:SAML:2.0:nameid-format:entity',
-        'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
-        'urn:oasis:names:tc:SAML:2.0:nameid-format:transient',
+    // Multi IdP display type.
+    $multiidpdisplayoptions = [
+        saml2_settings::OPTION_MULTI_IDP_DISPLAY_DROPDOWN => get_string('multiidpdropdown', 'auth_saml2'),
+        saml2_settings::OPTION_MULTI_IDP_DISPLAY_BUTTONS => get_string('multiidpbuttons', 'auth_saml2')
     ];
-    $nameidpolicy = new admin_setting_configselect(
-        'auth_saml2/nameidpolicy',
-        get_string('nameidpolicy', 'auth_saml2'),
-        get_string('nameidpolicy_help', 'auth_saml2'),
-        'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
-        array_combine($nameidlist, $nameidlist));
-    $nameidpolicy->set_updatedcallback('auth_saml2_update_sp_metadata');
-    $settings->add($nameidpolicy);
+    $settings->add(new admin_setting_configselect(
+        'auth_saml2/multiidpdisplay',
+        get_string('multiidpdisplay', 'auth_saml2'),
+        get_string('multiidpdisplay_help', 'auth_saml2'),
+        saml2_settings::OPTION_MULTI_IDP_DISPLAY_DROPDOWN,
+        $multiidpdisplayoptions));
+
+
+    // ----------------------------------------------------------------------------------- //
+    $settings->add(new admin_setting_heading('samluser', '2. ' . get_string('spsettings', 'auth_saml2'), ''));
 
     // Add NameID as attribute.
     $settings->add(new admin_setting_configselect(
@@ -225,6 +222,30 @@ if ($ADMIN->fulltree) {
         ssl_algorithms::get_default_saml_signature_algorithm(),
         ssl_algorithms::get_valid_saml_signature_algorithms()));
 
+    // ----------------------------------------------------------------------------------- //
+    $settings->add(new admin_setting_heading('samlusersettings', '3. ' . get_string('usersettings', 'auth_saml2'), ''));
+
+    // See section 8.3 from http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf for more information.
+    $nameidlist = [
+        'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
+        'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
+        'urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName',
+        'urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName',
+        'urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos',
+        'urn:oasis:names:tc:SAML:2.0:nameid-format:entity',
+        'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
+        'urn:oasis:names:tc:SAML:2.0:nameid-format:transient',
+    ];
+    $nameidpolicy = new admin_setting_configselect(
+        'auth_saml2/nameidpolicy',
+        get_string('nameidpolicy', 'auth_saml2'),
+        get_string('nameidpolicy_help', 'auth_saml2'),
+        'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
+        array_combine($nameidlist, $nameidlist));
+    $nameidpolicy->set_updatedcallback('auth_saml2_update_sp_metadata');
+    $settings->add($nameidpolicy);
+
+
     // Dual Login.
     $dualloginoptions = [
         saml2_settings::OPTION_DUAL_LOGIN_NO      => get_string('no'),
@@ -318,13 +339,25 @@ urn:mace:dir:attribute-def:mail *</pre>"]),
             get_string('autocreate_help', 'auth_saml2'),
             0, $yesno));
 
-    // Group access rules.
+    // Requested Attributes.
     $settings->add(new admin_setting_configtextarea(
-        'auth_saml2/grouprules',
-        get_string('grouprules', 'auth_saml2'),
-        get_string('grouprules_help', 'auth_saml2'),
+        'auth_saml2/requestedattributes',
+        get_string('requestedattributes', 'auth_saml2'),
+        get_string('requestedattributes_help', 'auth_saml2', ['example' => "<pre>
+urn:mace:dir:attribute-def:eduPersonPrincipalName
+urn:mace:dir:attribute-def:mail *</pre>"]),
         '',
         PARAM_TEXT));
+
+    // Formats for request attributes.
+    $settings->add(new admin_setting_configtext(
+            'auth_saml2/requestedattributesformat',
+            get_string('requestedattributesformat', 'auth_saml2'),
+            get_string('requestedattributesformat_help', 'auth_saml2'),
+            'urn:oasis:names:tc:SAML:2.0:attrname-format:uri'));
+
+    // ----------------------------------------------------------------------------------- //
+    $settings->add(new admin_setting_heading('samllogoutsettings', '4. ' . get_string('logoutsettings', 'auth_saml2'), ''));
 
     // Alternative Logout URL.
     $settings->add(new admin_setting_configtext(
@@ -334,18 +367,6 @@ urn:mace:dir:attribute-def:mail *</pre>"]),
             '',
             PARAM_URL));
 
-    // Multi IdP display type.
-    $multiidpdisplayoptions = [
-        saml2_settings::OPTION_MULTI_IDP_DISPLAY_DROPDOWN => get_string('multiidpdropdown', 'auth_saml2'),
-        saml2_settings::OPTION_MULTI_IDP_DISPLAY_BUTTONS => get_string('multiidpbuttons', 'auth_saml2')
-    ];
-    $settings->add(new admin_setting_configselect(
-        'auth_saml2/multiidpdisplay',
-        get_string('multiidpdisplay', 'auth_saml2'),
-        get_string('multiidpdisplay_help', 'auth_saml2'),
-        saml2_settings::OPTION_MULTI_IDP_DISPLAY_DROPDOWN,
-        $multiidpdisplayoptions));
-
     // Attempt Single Sign out.
     $settings->add(new admin_setting_configselect(
         'auth_saml2/attemptsignout',
@@ -354,23 +375,18 @@ urn:mace:dir:attribute-def:mail *</pre>"]),
         1,
         $yesno));
 
-    // SAMLPHP version.
-    $authplugin = get_auth_plugin('saml2');
-    $settings->add(new setting_textonly(
-            'auth_saml2/sspversion',
-            get_string('sspversion', 'auth_saml2'),
-            $authplugin->get_ssp_version()
-            ));
-
-
-    // Display locking / mapping of profile fields.
-    $help = get_string('auth_updatelocal_expl', 'auth');
-    $help .= get_string('auth_fieldlock_expl', 'auth');
-    $help .= get_string('auth_updateremote_expl', 'auth');
-
+    // ----------------------------------------------------------------------------------- //
     // User block and redirect feature setting section.
-    $settings->add(new admin_setting_heading('auth_saml2/blockredirectheading', get_string('blockredirectheading', 'auth_saml2'),
+    $settings->add(new admin_setting_heading('auth_saml2/groupsettings', '5. ' . get_string('groupsettings', 'auth_saml2'),
         new lang_string('auth_saml2blockredirectdescription', 'auth_saml2')));
+
+    // Group access rules.
+    $settings->add(new admin_setting_configtextarea(
+        'auth_saml2/grouprules',
+        get_string('grouprules', 'auth_saml2'),
+        get_string('grouprules_help', 'auth_saml2'),
+        '',
+        PARAM_TEXT));
 
     // Flagged login response options.
     $flaggedloginresponseoptions = [
@@ -404,6 +420,44 @@ urn:mace:dir:attribute-def:mail *</pre>"]),
         PARAM_TEXT,
         50,
         3));
+
+    // ----------------------------------------------------------------------------------- //
+    $settings->add(new admin_setting_heading('samldebugsettings', '6. ' . get_string('debugsettings', 'auth_saml2'), ''));
+
+    // Debugging.
+    $settings->add(new admin_setting_configselect(
+            'auth_saml2/debug',
+            get_string('debug', 'auth_saml2'),
+            get_string('debug_help', 'auth_saml2', $CFG->wwwroot . '/auth/saml2/debug.php'),
+            0, $yesno));
+
+    // Logging.
+    $settings->add(new admin_setting_configselect(
+            'auth_saml2/logtofile',
+            get_string('logtofile', 'auth_saml2'),
+            get_string('logtofile_help', 'auth_saml2'),
+            0, $yesno));
+    $settings->add(new admin_setting_configtext(
+            'auth_saml2/logdir',
+            get_string('logdir', 'auth_saml2'),
+            get_string('logdir_help', 'auth_saml2'),
+            get_string('logdirdefault', 'auth_saml2'),
+            PARAM_TEXT));
+
+    // SAMLPHP version.
+    $authplugin = get_auth_plugin('saml2');
+    $settings->add(new setting_textonly(
+            'auth_saml2/sspversion',
+            get_string('sspversion', 'auth_saml2'),
+            $authplugin->get_ssp_version()
+            ));
+
+    // ----------------------------------------------------------------------------------- //
+
+    // Display locking / mapping of profile fields.
+    $help = get_string('auth_updatelocal_expl', 'auth');
+    $help .= get_string('auth_fieldlock_expl', 'auth');
+    $help .= get_string('auth_updateremote_expl', 'auth');
 
     if (moodle_major_version() < '3.3') {
         auth_saml2_display_auth_lock_options($settings, $authplugin->authtype, $authplugin->userfields, $help, true, true,

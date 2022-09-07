@@ -80,11 +80,11 @@ $config[$saml2auth->spname] = [
     'redirect.sign' => true,
     'signature.algorithm' => $saml2auth->config->signaturealgorithm,
     'WantAssertionsSigned' => $saml2auth->config->wantassertionssigned == 1,
-
     'name' => [
         $CFG->lang => $SITE->fullname,
     ],
     'attributes' => $attributes,
+    'attributes.NameFormat' => $saml2auth->config->requestedattributesformat,
     'attributes.required' => $attributesrequired,
 ];
 
