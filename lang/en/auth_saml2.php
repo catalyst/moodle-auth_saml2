@@ -63,7 +63,7 @@ $string['certificate'] = 'Regenerate certificate';
 $string['commonname'] = 'Common Name';
 $string['countryname'] = 'Country';
 $string['debug'] = 'Debugging';
-$string['debugsettings'] = 'Debug settings';
+$string['debugsettings'] = 'Debug and logging';
 $string['debug_help'] = '<p>This adds extra debugging to the normal moodle log | <a href=\'{$a}\'>View SSP config</a></p>';
 $string['duallogin'] = 'Dual login';
 $string['duallogin_help'] = '
