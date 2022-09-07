@@ -322,16 +322,6 @@ if ($ADMIN->fulltree) {
             saml2_settings::OPTION_TOLOWER_EXACT,
             $toloweroptions));
 
-    // Requested Attributes.
-    $settings->add(new admin_setting_configtextarea(
-        'auth_saml2/requestedattributes',
-        get_string('requestedattributes', 'auth_saml2'),
-        get_string('requestedattributes_help', 'auth_saml2', ['example' => "<pre>
-urn:mace:dir:attribute-def:eduPersonPrincipalName
-urn:mace:dir:attribute-def:mail *</pre>"]),
-        '',
-        PARAM_TEXT));
-
     // Autocreate Users.
     $settings->add(new admin_setting_configselect(
             'auth_saml2/autocreate',
@@ -344,7 +334,7 @@ urn:mace:dir:attribute-def:mail *</pre>"]),
         'auth_saml2/requestedattributes',
         get_string('requestedattributes', 'auth_saml2'),
         get_string('requestedattributes_help', 'auth_saml2', ['example' => "<pre>
-urn:mace:dir:attribute-def:eduPersonPrincipalName
+eduPersonPrincipalName urn:mace:dir:attribute-def:eduPersonPrincipalName
 urn:mace:dir:attribute-def:mail *</pre>"]),
         '',
         PARAM_TEXT));

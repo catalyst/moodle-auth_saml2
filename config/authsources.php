@@ -54,8 +54,14 @@ foreach (explode(PHP_EOL, $saml2auth->config->requestedattributes) as $attr) {
         $attr = substr($attr, 0, -2);
         $attributesrequired[] = $attr;
     }
-    
-    $attributes[] = $attr;
+
+    // If the line has a space in it then first part is FriendlyName.
+    if (strpos($attr, ' ') !== false) {
+        $parts = explode(' ', $attr, 2);
+        $attributes[$parts[0]] = $parts[1];
+    } else {
+        $attributes[] = $attr;
+    }
 }
 
 $config[$saml2auth->spname] = [
