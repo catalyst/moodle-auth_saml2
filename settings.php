@@ -46,7 +46,7 @@ if ($ADMIN->fulltree) {
     $toc = '<ol>';
     foreach ($sections as $key => $section) {
         $toc .= '<li>';
-        $toc .= '<a href="#:~:text=' . ($key+1) . '. ' . get_string($section, 'auth_saml2');
+        $toc .= '<a href="#:~:text=' . ($key + 1) . '. ' . get_string($section, 'auth_saml2');
         $toc .= '">';
         $toc .= get_string($section, 'auth_saml2');
         $toc .= '</a>';
@@ -54,7 +54,7 @@ if ($ADMIN->fulltree) {
     $toc .= '</ol>';
     $settings->add(new admin_setting_heading('samltoc', 'SAML settings', $toc));
 
-    // ----------------------------------------------------------------------------------- //
+    // -----------------------------------------------------------------------------------------------------
     $settings->add(new admin_setting_heading('samlidp', '1. ' . get_string('idpsettings', 'auth_saml2'), ''));
     $yesno = array(
             new lang_string('no'),
@@ -114,7 +114,7 @@ if ($ADMIN->fulltree) {
         $multiidpdisplayoptions));
 
 
-    // ----------------------------------------------------------------------------------- //
+    // -----------------------------------------------------------------------------------------------------
     $settings->add(new admin_setting_heading('samluser', '2. ' . get_string('spsettings', 'auth_saml2'), ''));
 
     // Add NameID as attribute.
@@ -222,7 +222,7 @@ if ($ADMIN->fulltree) {
         ssl_algorithms::get_default_saml_signature_algorithm(),
         ssl_algorithms::get_valid_saml_signature_algorithms()));
 
-    // ----------------------------------------------------------------------------------- //
+    // -----------------------------------------------------------------------------------------------------
     $settings->add(new admin_setting_heading('samlusersettings', '3. ' . get_string('usersettings', 'auth_saml2'), ''));
 
     // See section 8.3 from http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf for more information.
@@ -346,7 +346,7 @@ urn:mace:dir:attribute-def:mail *</pre>"]),
             get_string('requestedattributesformat_help', 'auth_saml2'),
             'urn:oasis:names:tc:SAML:2.0:attrname-format:uri'));
 
-    // ----------------------------------------------------------------------------------- //
+    // -----------------------------------------------------------------------------------------------------
     $settings->add(new admin_setting_heading('samllogoutsettings', '4. ' . get_string('logoutsettings', 'auth_saml2'), ''));
 
     // Alternative Logout URL.
@@ -365,7 +365,7 @@ urn:mace:dir:attribute-def:mail *</pre>"]),
         1,
         $yesno));
 
-    // ----------------------------------------------------------------------------------- //
+    // -----------------------------------------------------------------------------------------------------
     // User block and redirect feature setting section.
     $settings->add(new admin_setting_heading('auth_saml2/groupsettings', '5. ' . get_string('groupsettings', 'auth_saml2'),
         new lang_string('auth_saml2blockredirectdescription', 'auth_saml2')));
@@ -411,7 +411,7 @@ urn:mace:dir:attribute-def:mail *</pre>"]),
         50,
         3));
 
-    // ----------------------------------------------------------------------------------- //
+    // -----------------------------------------------------------------------------------------------------
     $settings->add(new admin_setting_heading('samldebugsettings', '6. ' . get_string('debugsettings', 'auth_saml2'), ''));
 
     // Debugging.
@@ -442,7 +442,7 @@ urn:mace:dir:attribute-def:mail *</pre>"]),
             $authplugin->get_ssp_version()
             ));
 
-    // ----------------------------------------------------------------------------------- //
+    // -----------------------------------------------------------------------------------------------------
 
     // Display locking / mapping of profile fields.
     $help = get_string('auth_updatelocal_expl', 'auth');
