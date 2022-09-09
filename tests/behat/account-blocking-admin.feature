@@ -8,7 +8,7 @@ Feature: SAML2 Account blocking settings
     Given the authentication plugin saml2 is enabled                            # auth_saml2
     And I am an administrator                                                   # auth_saml2
     When I navigate to "Plugins > Authentication > SAML2" in site administration
-    Then I should see "Account blocking actions"
+    Then I should see "Group rules and blocking"
     And I should see "Redirect or display message to SAML2 logins based on configured group restrictions"
 
   Scenario Outline: I can change the Account blocking response type options

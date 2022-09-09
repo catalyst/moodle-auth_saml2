@@ -233,7 +233,8 @@ class auth extends \auth_plugin_base {
 
             // Moodle Workplace - Check IdP's tenant availability.
             // Check if function exists required for Totara 12 compatibility.
-            if (class_exists(\tool_tenant\local\auth\saml2\manager::class) && !component_class_callback('\tool_tenant\local\auth\saml2\manager',
+            if (class_exists(\tool_tenant\local\auth\saml2\manager::class)
+                && !component_class_callback('\tool_tenant\local\auth\saml2\manager',
                     'issuer_available', [$idp->md5entityid], true)) {
                 continue;
             }
