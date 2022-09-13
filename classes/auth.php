@@ -676,7 +676,7 @@ class auth extends \auth_plugin_base {
                 $this->update_user_record_from_attribute_map($user, $attributes, true);
                 if (empty($user->username)) {
                     // Just in case username field not set, use uid.
-                    $user->username = $uid;
+                    $user->username = strtolower($uid);
                 }
                 // Set the auth to saml2 if it's not set from the attributes.
                 if (empty($user->auth)) {
