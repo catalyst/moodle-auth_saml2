@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+namespace auth_saml2;
 
 /**
  * IdP metadata parser class.
@@ -22,8 +23,6 @@
  * @copyright Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace auth_saml2;
-
 class idp_parser {
     /**
      * @var array
@@ -39,7 +38,7 @@ class idp_parser {
      * "https://idpurl https://idpicon"
      * "https://idpurl"
      *
-     * @param $data
+     * @param string $data
      * @return \auth_saml2\idp_data[]
      */
     public function parse($data) {
@@ -56,6 +55,8 @@ class idp_parser {
 
     /**
      * Does the field *look* like xml, mostly?
+     *
+     * @param string $xml
      */
     public function check_xml($xml) {
 
@@ -74,12 +75,22 @@ class idp_parser {
         return false;
     }
 
+    /**
+     * Parse the xml
+     *
+     * @param string $xml
+     */
     public function parse_xml($xml) {
         $singleidp = new \auth_saml2\idp_data(null, 'xml', null);
         $singleidp->set_rawxml(trim($xml));
         $this->idps[] = $singleidp;
     }
 
+    /**
+     * Parse the urls
+     *
+     * @param string $urls
+     */
     public function parse_urls($urls) {
         // First split the contents based on newlines.
         $lines = preg_split('#\R#', $urls);

@@ -52,7 +52,10 @@ class metadata_fetcher {
     private $curlerrorno = 0;
 
     /**
-     * @param $url
+     * Fetch metadata
+     *
+     * @param string $url
+     * @param \curl $curl
      * @return bool
      * @throws \moodle_exception
      */
@@ -99,6 +102,8 @@ class metadata_fetcher {
     }
 
     /**
+     * Get curl info
+     *
      * @return array
      */
     public function get_curlinfo() {
@@ -106,6 +111,8 @@ class metadata_fetcher {
     }
 
     /**
+     * Get curl error no
+     *
      * @return int
      */
     public function get_curlerrorno() {
@@ -113,6 +120,8 @@ class metadata_fetcher {
     }
 
     /**
+     * Get curl error
+     *
      * @return string
      */
     public function get_curlerror() {

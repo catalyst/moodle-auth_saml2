@@ -14,15 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+use auth_saml2\ssl_algorithms;
+
 /**
+ * Test Saml2 SSL Algorithms.
+ *
  * @package    auth_saml2
  * @author     Adam Lynam <adam.lynam@catalyst.net.nz>
  * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-use auth_saml2\ssl_algorithms;
-
 class auth_saml2_ssl_algorithms_test extends basic_testcase {
     public function test_default_saml_signature_algorithm_is_valid_saml_signature_algorithm() {
         $this->assertTrue(array_key_exists(ssl_algorithms::get_default_saml_signature_algorithm(),

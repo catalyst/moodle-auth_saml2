@@ -55,7 +55,10 @@ class setting_button extends admin_setting_heading {
     }
 
     /**
-     * {@inheritdoc}
+     * Returns an HTML string
+     * @param mixed $data
+     * @param string $query
+     * @return string Returns an HTML string
      */
     public function output_html($data, $query = '') {
         if (moodle_major_version() < '3.3') {

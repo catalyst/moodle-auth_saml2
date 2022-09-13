@@ -13,22 +13,22 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
-/**
- * @package    auth_saml2
- * @author     Adam Lynam <adam.lynam@catalyst.net.nz>
- * @copyright  Catalyst IT
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace auth_saml2;
 
 defined('MOODLE_INTERNAL') || die();
 
 global $saml2auth;
 
+/**
+ * SSL Algorithms class
+ *
+ * @package    auth_saml2
+ * @author     Adam Lynam <adam.lynam@catalyst.net.nz>
+ * @copyright  Catalyst IT
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 abstract class ssl_algorithms {
-    /*
+    /**
      * Return a sensible default signature algorithm for simplesamlphp config.
      */
     public static function get_default_saml_signature_algorithm() {
@@ -36,7 +36,7 @@ abstract class ssl_algorithms {
         return 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256';
     }
 
-    /*
+    /**
      * Return an array of signature algorithms in a form suitable for feeding into a dropdown form.
      */
     public static function get_valid_saml_signature_algorithms() {
@@ -48,8 +48,11 @@ abstract class ssl_algorithms {
         return $return;
     }
 
-    /*
+    /**
      * Return an array of digest algorithms in a form suitable for feeding into a dropdown form.
+     *
+     * @param string $signaturealgorithm
+     * @return string
      */
     public static function convert_signature_algorithm_to_digest_alg_format($signaturealgorithm) {
         switch($signaturealgorithm) {

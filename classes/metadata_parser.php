@@ -43,6 +43,8 @@ class metadata_parser {
     private $idpdefaultname = '';
 
     /**
+     * Parse raw xml.
+     *
      * @param string $rawxml
      * @throws \moodle_exception
      */
@@ -69,6 +71,8 @@ class metadata_parser {
     }
 
     /**
+     * Get entity.
+     *
      * @return string
      */
     public function get_entityid() {
@@ -76,6 +80,8 @@ class metadata_parser {
     }
 
     /**
+     * Get idp defaultname.
+     *
      * @return string
      */
     public function get_idpdefaultname() {

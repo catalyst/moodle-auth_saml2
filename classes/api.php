@@ -30,7 +30,7 @@ class api {
 
     /**
      * IdP logout callback. Called only when logout is initiated from IdP.
-     * {@see saml2-logout.php}
+     * {@see \auth_saml2\sp\saml2-logout}
      */
     public static function logout_from_idp_front_channel(): void {
         // The SP session will be cleaned up. Log user out of Moodle.

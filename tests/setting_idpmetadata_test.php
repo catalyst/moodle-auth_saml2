@@ -14,13 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * @package     auth_saml2
- * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
- * @copyright   2018 Catalyst IT Australia {@link http://www.catalyst-au.net}
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 use auth_saml2\admin\setting_idpmetadata;
 use auth_saml2\idp_data;
 
@@ -28,6 +21,14 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/../_autoload.php');
 
+/**
+ * Test setting idp Metadata.
+ *
+ * @package     auth_saml2
+ * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
+ * @copyright   2018 Catalyst IT Australia {@link http://www.catalyst-au.net}
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class setting_idpmetadata_test extends advanced_testcase {
     /** @var setting_idpmetadata */
     private static $config;
@@ -37,6 +38,11 @@ class setting_idpmetadata_test extends advanced_testcase {
         self::$config = new setting_idpmetadata();
     }
 
+    /**
+     * Get test metadata URL.
+     *
+     * @return string
+     */
     private function get_test_metadata_url() {
         if (!defined('AUTH_SAML2_TEST_IDP_METADATA')) {
             $this->markTestSkipped();
@@ -147,6 +153,8 @@ class setting_idpmetadata_test extends advanced_testcase {
     }
 
     /**
+     * Validate idp data array.
+     *
      * @param idp_data[] $idps
      */
     private function validate_idp_data_array($idps) {
@@ -159,7 +167,6 @@ class setting_idpmetadata_test extends advanced_testcase {
     /**
      * Cleanup after all tests are executed.
      *
-     * @static
      * @return void
      */
     public static function tearDownAfterClass(): void {  // @codingStandardsIgnoreLine - ignore case of function.

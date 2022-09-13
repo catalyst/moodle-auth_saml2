@@ -145,6 +145,11 @@ class auth extends \auth_plugin_base {
         return (bool) $this->config->debug;
     }
 
+    /**
+     * Get saml2 directory.
+     *
+     * @return string
+     */
     public function get_saml2_directory() {
         global $CFG;
         $directory = "{$CFG->dataroot}/saml2";
@@ -154,15 +159,28 @@ class auth extends \auth_plugin_base {
         return $directory;
     }
 
+    /**
+     * Get file.
+     *
+     * @param string $file
+     * @return string
+     */
     public function get_file($file) {
         return $this->get_saml2_directory() . '/' . $file;
     }
 
+    /**
+     * Get metadata file.
+     *
+     * @return string
+     */
     public function get_file_sp_metadata_file() {
         return $this->get_file($this->spname . '.xml');
     }
 
     /**
+     * Get idp Metadata file.
+     *
      * @param string|array $url The string with the URL or an array with all URLs as keys.
      * @return string Metadata file path.
      */
@@ -343,7 +361,7 @@ class auth extends \auth_plugin_base {
     public function error_page($msg) {
         global $PAGE, $OUTPUT, $SESSION;
 
-        // Clean up $SESSION->wantsurl that was set explicitly in {@see login.php},
+        // Clean up $SESSION->wantsurl that was set explicitly in {@see auth_saml2\login},
         // we don't go anywhere.
         unset($SESSION->wantsurl);
 
@@ -590,6 +608,8 @@ class auth extends \auth_plugin_base {
      * The user has done the SAML handshake now we can log them in
      *
      * This is split so we can handle SP and IdP first login flows.
+     *
+     * @param array $attributes
      */
     public function saml_login_complete($attributes) {
         global $CFG, $USER, $SESSION;
@@ -890,6 +910,8 @@ class auth extends \auth_plugin_base {
      * detects long key names which contain non word characters and then
      * grabs the last useful component of the string. Note it creates new
      * keys, doesn't remove the old ones, and will not overwrite keys either.
+     *
+     * @param array $attributes A list of attributes from the request
      */
     public function simplify_attr($attributes) {
 
@@ -977,8 +999,9 @@ class auth extends \auth_plugin_base {
      * Checks the field map config for values that update onlogin or when a new user is created
      * and returns true when the fields have been merged into the user object.
      *
-     * @param $attributes
-     * @param bool $newuser
+     * @param mixed $user The user record to update
+     * @param mixed $attributes The attribute array (from the SAML Login)
+     * @param bool $newuser If this user does not yet exist in the database
      * @return bool true on success
      */
     public function update_user_profile_fields(&$user, $attributes, $newuser = false) {
@@ -1033,8 +1056,8 @@ class auth extends \auth_plugin_base {
     /**
      * Check if given email is taken by other user(s).
      *
-     * @param string | bool $email Email to check.
-     * @param string | null $excludeusername A user name to exclude.
+     * @param string|bool $email Email to check.
+     * @param string|null $excludeusername A user name to exclude.
      *
      * @return bool
      */
@@ -1132,6 +1155,9 @@ class auth extends \auth_plugin_base {
 
     /**
      * {@inheritdoc}
+     *
+     * @param string $username
+     * @param string $password
      */
     public function user_login($username, $password) {
         return false;
@@ -1195,7 +1221,6 @@ class auth extends \auth_plugin_base {
     /**
      * Allow saml2 auth method to be manually set for users e.g. bulk uploading users.
      */
-
     public function can_be_manually_set() {
         return true;
     }
@@ -1250,7 +1275,7 @@ class auth extends \auth_plugin_base {
 
     /**
      * Execute callback function
-     * @param $function name of the callback function to be executed
+     * @param string $function name of the callback function to be executed
      * @param string $file file to find the function
      */
     private function execute_callback($function, $file = 'lib.php') {

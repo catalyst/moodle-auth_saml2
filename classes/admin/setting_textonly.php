@@ -34,7 +34,10 @@ use admin_setting_heading;
  */
 class setting_textonly extends admin_setting_heading {
     /**
-     * {@inheritdoc}
+     * Returns an HTML string
+     * @param mixed $data
+     * @param string $query
+     * @return string Returns an HTML string
      */
     public function output_html($data, $query = '') {
         return format_admin_setting($this, $this->visiblename, '', $this->description);

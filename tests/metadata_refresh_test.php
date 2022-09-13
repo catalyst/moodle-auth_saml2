@@ -88,9 +88,6 @@ XML;
         self::assertFalse($refreshtask->execute());
     }
 
-    /**
-     * @expectedException \moodle_exception
-     */
     public function test_metadata_refresh_fetch_fails() {
         $this->markTestSkipped('This test needs to be fixed or removed.');
 
@@ -109,9 +106,6 @@ XML;
         $refreshtask->execute();
     }
 
-    /**
-     * @expectedException \moodle_exception
-     */
     public function test_metadata_refresh_parse_fails() {
         $this->markTestSkipped('This test needs to be fixed or removed.');
 
@@ -182,9 +176,6 @@ XML;
         $this->assertEquals(get_string('idpnamedefault', 'auth_saml2'), $idpmduinames['http://somefakeidpurl.local']);
     }
 
-    /**
-     * @expectedException \coding_exception
-     */
     public function test_metadata_refresh_write_fails() {
         $this->markTestSkipped('This test needs to be fixed or removed.');
 

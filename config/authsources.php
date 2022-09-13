@@ -54,7 +54,6 @@ foreach (explode(PHP_EOL, $saml2auth->config->requestedattributes) as $attr) {
         $attr = substr($attr, 0, -2);
         $attributesrequired[] = $attr;
     }
-    
     $attributes[] = $attr;
 }
 

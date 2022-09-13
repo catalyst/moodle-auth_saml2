@@ -13,13 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
-/**
- * @package     auth_saml2
- * @copyright   Matt Porritt <mattp@catalyst-au.net>
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace auth_saml2\admin;
 
 use admin_setting_configtextarea;
@@ -43,6 +36,9 @@ require_once("{$CFG->libdir}/adminlib.php");
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class setting_idpmetadata extends admin_setting_configtextarea {
+    /**
+     * Constructor
+     */
     public function __construct() {
         // All parameters are hardcoded because there can be only one instance:
         // When it validates, it saves extra configs, preventing this component from being reused as is.
@@ -80,6 +76,8 @@ class setting_idpmetadata extends admin_setting_configtextarea {
     }
 
     /**
+     * Process all idps metadata.
+     *
      * @param idp_data[] $idps
      */
     private function process_all_idps_metadata($idps) {
@@ -103,6 +101,13 @@ class setting_idpmetadata extends admin_setting_configtextarea {
         $this->remove_old_idps($oldidps);
     }
 
+    /**
+     * Process idp metadata.
+     *
+     * @param idp_data $idp
+     * @param mixed $oldidps
+     * @throws setting_idpmetadata_exception
+     */
     private function process_idp_metadata(idp_data $idp, &$oldidps) {
         $xpath = $this->get_idp_xml_path($idp);
         $idpelements = $this->find_all_idp_sso_descriptors($xpath);
@@ -118,6 +123,15 @@ class setting_idpmetadata extends admin_setting_configtextarea {
         $this->save_idp_metadata_xml($idp->idpurl, $idp->get_rawxml());
     }
 
+    /**
+     * Process idp metadata.
+     *
+     * @param idp_data $idp
+     * @param DOMElement $idpelements
+     * @param DOMXPath $xpath
+     * @param mixed $oldidps
+     * @param int $activedefault
+     */
     private function process_idp_xml(idp_data $idp, DOMElement $idpelements, DOMXPath $xpath,
                                         &$oldidps, $activedefault = 0) {
         global $DB;
@@ -168,6 +182,11 @@ class setting_idpmetadata extends admin_setting_configtextarea {
         }
     }
 
+    /**
+     * Process idp metadata.
+     *
+     * @param mixed $oldidps
+     */
     private function remove_old_idps($oldidps) {
         global $DB;
 
@@ -179,7 +198,9 @@ class setting_idpmetadata extends admin_setting_configtextarea {
     }
 
     /**
-     * @param $value
+     * Get idps data.
+     *
+     * @param string $value
      * @return idp_data[]
      */
     public function get_idps_data($value) {
@@ -209,8 +230,10 @@ class setting_idpmetadata extends admin_setting_configtextarea {
     }
 
     /**
+     * Get idp xml path.
+     *
      * @param idp_data $idp
-     * @return
+     * @return DOMXPath
      */
     private function get_idp_xml_path(idp_data $idp) {
         $xml = new DOMDocument();
@@ -238,6 +261,8 @@ class setting_idpmetadata extends admin_setting_configtextarea {
     }
 
     /**
+     * Find all idp SSO descriptors.
+     *
      * @param DOMXPath $xpath
      * @return DOMNodeList
      */
@@ -246,6 +271,12 @@ class setting_idpmetadata extends admin_setting_configtextarea {
         return $idpelements;
     }
 
+    /**
+     * Save idp metadata xml.
+     *
+     * @param string $url
+     * @param string $xml
+     */
     private function save_idp_metadata_xml($url, $xml) {
         global $CFG, $saml2auth;
         require_once("{$CFG->dirroot}/auth/saml2/setup.php");

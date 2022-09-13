@@ -70,6 +70,16 @@ class selectidp_buttons extends moodleform {
         }
     }
 
+    /**
+     * Get IPD Button.
+     *
+     * @param string $idpentityid
+     * @param string $idpname
+     * @param string $logourl
+     * @param bool $rememberedidp
+     *
+     * @return string
+     */
     private function get_idpbutton($idpentityid, $idpname, $logourl, $rememberedidp = false) {
         $logo = !is_null($logourl) ? "<img src=\"{$logourl}\"> " : "";
         $extraclasses = $rememberedidp ? "rememberedidp" : "";

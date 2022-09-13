@@ -19,6 +19,7 @@
  *
  * @package    auth_saml2
  * @author     Kristian Ringer <kristianringer@catalyst-au.net>
+ * @copyright  2021 Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

@@ -29,7 +29,6 @@ use coding_exception;
  * @copyright Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 final class generator extends \core\testing\component_generator {
 
     use tests_generator;
