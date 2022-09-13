@@ -1,5 +1,4 @@
-![Build Status](https://github.com/catalyst/moodle-auth_saml2/actions/workflows/39-master.yml/badge.svg?branch=MOODLE_39_STABLE)
-
+![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/catalyst/moodle-auth_saml2/ci/MOODLE_39_STABLE?label=ci)
 
 https://moodle.org/plugins/auth_saml2
 
