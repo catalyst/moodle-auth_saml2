@@ -48,6 +48,11 @@ class redis_store extends \SimpleSAML\Store {
      */
     protected $prefix;
 
+    /**
+     * Constructs the redis store
+     *
+     * @param \Redis $redis
+     */
     public function __construct($redis = null) {
         global $CFG;
 
@@ -60,6 +65,8 @@ class redis_store extends \SimpleSAML\Store {
     }
 
     /**
+     * Set the redis key details
+     *
      * @param string   $type
      * @param string   $key
      * @param mixed    $value
@@ -70,6 +77,8 @@ class redis_store extends \SimpleSAML\Store {
     }
 
     /**
+     * Get the redis key details
+     *
      * @param string $type
      * @param string $key
      * @return mixed|null
@@ -84,6 +93,8 @@ class redis_store extends \SimpleSAML\Store {
     }
 
     /**
+     * Delete the redis key
+     *
      * @param string $type
      * @param string $key
      */
@@ -124,6 +135,8 @@ class redis_store extends \SimpleSAML\Store {
     }
 
     /**
+     * Make the redis key
+     *
      * @param string $type
      * @param string $key
      * @return string
@@ -133,6 +146,8 @@ class redis_store extends \SimpleSAML\Store {
     }
 
     /**
+     * Get/set expiry option
+     *
      * @param null|int $expire
      * @return array
      */

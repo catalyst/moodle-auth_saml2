@@ -18,6 +18,7 @@
  * auth_saml2 create/edit page unit tests
  *
  * @package    auth_saml2
+ * @copyright  Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

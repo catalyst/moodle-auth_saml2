@@ -13,11 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
-namespace auth_saml2\testing;
-
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Methods common to Moodle and Totara tests generators
  *
@@ -25,8 +20,10 @@ defined('MOODLE_INTERNAL') || die();
  * @author    Noemie Ariste <noemie.ariste@catalyst.net.nz>
  * @copyright Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @internal
  */
+namespace auth_saml2\testing;
+
+defined('MOODLE_INTERNAL') || die();
 
 trait tests_generator {
 
@@ -42,9 +39,9 @@ trait tests_generator {
     /**
      * Creates new IdP entity
      *
-     * @param array|stdClass $idprecord
+     * @param array|\stdClass $idprecord
      * @param bool $createfiles
-     * @return stdClass record from db
+     * @return \stdClass record from db
      */
     public function create_idp_entity($idprecord = [], $createfiles = true) : \stdClass {
         global $DB;

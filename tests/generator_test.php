@@ -39,7 +39,6 @@ class generator_testcase extends \advanced_testcase {
      *
      * @return auth_saml2_generator|auth_saml2\testing\generator
      */
-
     protected function get_generator() {
         if (class_exists('\core\testing\component_generator')) { // Required for Totara 15 support
             return $generator = \auth_saml2\testing\generator::instance();

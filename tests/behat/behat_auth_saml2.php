@@ -15,11 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Behat tests for auth_saml2
+ *
  * @package     auth_saml2
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2018 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @codingStandardsIgnoreFile
  */
 
 // NOTE: no MOODLE_INTERNAL test here, this file may be required by behat before including /config.php.
@@ -33,17 +34,21 @@ use Behat\Gherkin\Node\TableNode;
 require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 
 /**
+ * Behat tests for auth_saml2
+ *
  * @package     auth_saml2
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2018 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @SuppressWarnings(public) Allow as many methods as needed.
  */
 class behat_auth_saml2 extends behat_base {
     /**
+     * Confirms the Authentication plugin is enabled
+     *
+     * @param bool $enabled
      * @Given /^the authentication plugin saml2 is (disabled|enabled) +\# auth_saml2$/
      */
-    public function theAuthenticationPluginIsEnabledAuth_saml($enabled = true) {
+    public function the_authentication_plugin_is_enabled_auth_saml($enabled = true) {
         // If using SAML2 functionality, ensure all sessions are reset.
         $this->reset_moodle_session();
 
@@ -59,58 +64,77 @@ class behat_auth_saml2 extends behat_base {
     }
 
     /**
+     * Goes to the login/self test page
+     *
+     * @param string $page
      * @Given /^I go to the (login|self-test) page +\# auth_saml2$/
      */
-    public function iGoToTheLoginPageAuth_saml($page) {
+    public function i_go_to_the_login_page_auth_saml($page) {
         switch ($page){
             case 'login':
                 $page = '/login/index.php';
                 break;
             case 'self-test':
-                $page='/auth/saml2/test.php';
+                $page = '/auth/saml2/test.php';
                 break;
         }
-
-
         $this->getSession()->visit($this->locate_path($page));
     }
 
     /**
+     * Go to the auth_saml2 login page.
+     *
+     * @param string $parameters
      * @When /^I go to the login page with "([^"]*)" +\# auth_saml2$/
      */
-    public function iGoToTheLoginPageWithAuth_saml($parameters) {
+    public function i_go_to_the_login_page_with_auth_saml($parameters) {
         $this->getSession()->visit($this->locate_path("login/index.php?{$parameters}"));
     }
 
     /**
+     * Log in as admin.
+     *
      * @Given /^I am an administrator +\# auth_saml2$/
      */
-    public function iAmAnAdministratorAuth_saml() {
+    public function im_an_administrator_auth_saml() {
         return $this->execute('behat_auth::i_log_in_as', ['admin']);
     }
 
     /**
+     * Go to the saml2 settings page.
+     *
      * @Given /^I am on the saml2 settings page +\# auth_saml2$/
      * @Then /^I go to the saml2 settings page (?:again) +\# auth_saml2$/
      */
-    public function iGoToTheSamlsettingsPageAuth_saml() {
+    public function i_go_to_the_samlsettings_page_auth_saml() {
         $this->getSession()->visit($this->locate_path('/admin/settings.php?section=authsettingsaml2'));
     }
 
     /**
+     * Change the setting to auth_saml
+     *
+     * @param string $field
+     * @param string $value
      * @When /^I change the setting "([^"]*)" to "([^"]*)" +\# auth_saml2$/
      */
-    public function iChangeTheSettingToAuth_saml($field, $value) {
+    public function i_change_the_setting_to_auth_saml($field, $value) {
         $this->execute('behat_forms::i_set_the_field_to', [$field, $value]);
     }
 
     /**
+     * The setting should be auth_saml
+     *
+     * @param string $field
+     * @param string $expectedvalue
      * @Given /^the setting "([^"]*)" should be "([^"]*)" +\# auth_saml2$/
      */
-    public function theSettingShouldBeAuth_saml($field, $expectedvalue) {
+    public function the_setting_should_be_auth_saml($field, $expectedvalue) {
         $this->execute('behat_forms::the_field_matches_value', [$field, $expectedvalue]);
     }
 
+    /**
+     * Apply defaults
+     */
     private function apply_defaults() {
         global $CFG;
 
@@ -141,15 +165,22 @@ class behat_auth_saml2 extends behat_base {
         }
     }
 
+    /**
+     * Initialise saml2
+     */
     private function initialise_saml2() {
         $this->apply_defaults();
         require(__DIR__ . '/../../setup.php');
     }
 
     /**
+     * Saml setting is set to auth_saml
+     *
+     * @param string $setting
+     * @param string $value
      * @Given /^the saml2 setting "([^"]*)" is set to "([^"]*)" +\# auth_saml2$/
      */
-    public function theSamlsettingIsSetToAuth_saml($setting, $value) {
+    public function the_saml_setting_is_set_to_auth_saml($setting, $value) {
         $map = [];
 
         if ($setting == 'Dual Login') {
@@ -240,6 +271,7 @@ EOF;
      *
      * This step must be used while at the mock IdP 'login' screen.
      *
+     * @param mixed $passive
      * @param TableNode $data Table of attributes
      * @When /^the mock SAML IdP allows ((?:passive )?)login with the following attributes: +\# auth_saml2$/
      */
@@ -304,6 +336,8 @@ EOF;
     /**
      * Sets a cookie (for use testing the autologin based on cookie).
      *
+     * @param string $cookiename
+     * @param array $value
      * @When /^the cookie "([^"]+)" is set to "([^"]+)" +\# auth_saml2$/
      */
     public function the_cookie_is_set_to($cookiename, $value) {
@@ -314,27 +348,42 @@ EOF;
     /**
      * Clears a cookie (for use testing the autologin based on cookie).
      *
+     * @param string $cookiename
      * @When /^the cookie "([^"]+)" is removed +\# auth_saml2$/
      */
     public function the_cookie_is_removed($cookiename) {
         $this->getSession()->getDriver()->executeScript('document.cookie = "' .
                 addslashes_js($cookiename) . '=; expires=Thu, 01 Jan 1970 00:00:00 GMT";');
     }
-
+    /**
+     * Visist saml2 login page.
+     */
     private function visit_saml2_login_page() {
         $this->getSession()->visit($this->locate_path('http://simplesamlphp.test:8001/module.php/core/authenticate.php'));
     }
 
+    /**
+     * Reset saml2 session.
+     */
     private function reset_saml2_session() {
         $this->visit_saml2_login_page();
         $this->getSession()->reset();
     }
 
+    /**
+     * Reset moodle session.
+     */
     private function reset_moodle_session() {
-        $this->iGoToTheLoginPageWithAuth_saml('saml=off');
+        $this->i_go_to_the_login_page_with_auth_saml('saml=off');
         $this->getSession()->reset();
     }
 
+    /**
+     * Execute.
+     *
+     * @param string $contextapi context in which api is defined.
+     * @param array $params list of params to pass.
+     */
     protected function execute($contextapi, $params = []) {
         global $CFG;
 

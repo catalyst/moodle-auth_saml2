@@ -43,7 +43,7 @@ class user_extractor {
      * @param bool $insensitive Whether to use case insensitive match.
      * @param bool $accentsensitive Whether to use accent sensitive match.
      *
-     * @return mixed False, or A {@link $USER} object.
+     * @return mixed False, or A {$USER} object.
      */
     public static function get_user(
         string $fieldname,

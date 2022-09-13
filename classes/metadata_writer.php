@@ -51,6 +51,8 @@ class metadata_writer {
     }
 
     /**
+     * Write IDP metadata.
+     *
      * @param string $filename
      * @param string $content
      * @throws \coding_exception

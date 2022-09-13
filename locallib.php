@@ -30,6 +30,9 @@ use auth_saml2\event\cert_regenerated;
  * only minor bootstrapping differences. As such it is formatted according
  * to the SSPHP rules not moodles so we ignore it here. This is to make it
  * easier when upgrading SSPHP.
+ *
+ *
+ * @param string $baseurl
  */
 function auth_saml2_get_sp_metadata($baseurl = '') {
     global $saml2auth, $CFG;
@@ -453,7 +456,7 @@ function auth_saml2_get_idps($active = false, $asarray = false) {
  * This helper function processes the regenerate form.
  * Moved here so we can use it in a unit test.
  *
- * @param $fromform
+ * @param auth_saml2\form\ $fromform
  * @return void|string
  */
 function auth_saml2_process_regenerate_form($fromform) {
@@ -493,6 +496,9 @@ function auth_saml2_process_regenerate_form($fromform) {
 
 /**
  * Common shared admin nav
+ *
+ * @param string $title
+ * @param string $url
  */
 function auth_saml2_admin_nav($title, $url) {
     global $PAGE, $SITE;

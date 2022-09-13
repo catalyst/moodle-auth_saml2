@@ -24,22 +24,25 @@ namespace auth_saml2;
  * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 class idp_data {
+    /** @var string $idpname */
     public $idpname;
 
+    /** @var string $idpurl */
     public $idpurl;
 
+    /** @var string $idpicon */
     public $idpicon;
 
+    /** @var string $rawxml */
     public $rawxml;
 
     /**
      * idp_data constructor.
      *
-     * @param $idpname
-     * @param $idpicon
-     * @param $idpurl
+     * @param string $idpname
+     * @param string $idpurl
+     * @param string $idpicon
      */
     public function __construct($idpname, $idpurl, $idpicon) {
         $this->idpname = $idpname;
@@ -48,10 +51,20 @@ class idp_data {
         $this->rawxml = null;
     }
 
+    /**
+     * Get raw xml.
+     *
+     * @return string
+     */
     public function get_rawxml() {
         return $this->rawxml;
     }
 
+    /**
+     * Set raw xml.
+     *
+     * @param string $rawxml
+     */
     public function set_rawxml($rawxml) {
         $this->rawxml = $rawxml;
     }

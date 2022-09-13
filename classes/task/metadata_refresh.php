@@ -64,10 +64,20 @@ class metadata_refresh extends \core\task\scheduled_task {
      */
     private $idpmetadata;
 
+    /**
+     * Get name.
+     *
+     * @return string
+     */
     public function get_name() {
         return get_string('taskmetadatarefresh', 'auth_saml2');
     }
 
+    /**
+     * Execute refresh of metadata.
+     *
+     * @param bool $force
+     */
     public function execute($force = false) {
         $config = get_config('auth_saml2');
 
@@ -102,6 +112,8 @@ class metadata_refresh extends \core\task\scheduled_task {
     }
 
     /**
+     * Set fetcher.
+     *
      * @param metadata_fetcher $fetcher
      */
     public function set_fetcher(metadata_fetcher $fetcher) {
@@ -109,6 +121,8 @@ class metadata_refresh extends \core\task\scheduled_task {
     }
 
     /**
+     * Set parser.
+     *
      * @param metadata_parser $parser
      */
     public function set_parser(metadata_parser $parser) {
@@ -116,6 +130,8 @@ class metadata_refresh extends \core\task\scheduled_task {
     }
 
     /**
+     * Set writer.
+     *
      * @param metadata_writer $writer
      */
     public function set_writer(metadata_writer $writer) {
@@ -123,6 +139,8 @@ class metadata_refresh extends \core\task\scheduled_task {
     }
 
     /**
+     * Set idp metadata.
+     *
      * @param setting_idpmetadata $idpmetadata
      */
     public function set_idpmetadata(setting_idpmetadata $idpmetadata) {

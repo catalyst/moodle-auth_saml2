@@ -13,17 +13,17 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+namespace auth_saml2\admin;
+
+use Exception;
 
 /**
+ * Class for setting idpmetadata exception.
+ *
  * @package     auth_saml2
  * @author      Daniel Thee Roperto <daniel.roperto@catalyst-au.net>
  * @copyright   2018 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-namespace auth_saml2\admin;
-
-use Exception;
-
 class setting_idpmetadata_exception extends Exception {
 }

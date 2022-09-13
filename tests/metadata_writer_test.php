@@ -45,8 +45,6 @@ class auth_saml2_metadata_writer_testcase extends basic_testcase {
         $this->assertEquals($content, file_get_contents("$CFG->dataroot/saml2/idp.xml"));
     }
 
-    /**
-     */
     public function test_write_empty_filename() {
         $filename = '';
         $content = 'Test data';

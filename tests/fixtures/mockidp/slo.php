@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Test to mock the logout behaviour of the IdP.
+ *
  * This test fixture mocks the logout behaviour of the IdP behaviour by providing a basic user
  * interface that can be manipulated with specific Behat steps.
  *
