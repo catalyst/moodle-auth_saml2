@@ -714,6 +714,7 @@ class auth extends \auth_plugin_base {
                 $user->mnethostid = $CFG->mnet_localhost_id;
 
                 $user->id = \user_create_user($user, true, true);
+                $newuser = true;
                 // Store any custom profile fields.
                 profile_save_data($user);
                 // Make sure all user data is fetched.
@@ -776,7 +777,7 @@ class auth extends \auth_plugin_base {
 
         // Do we need to update any user fields? Unlike ldap, we can only do
         // this now. We cannot query the IdP at any time.
-        $this->update_user_profile_fields($user, $attributes, false);
+        $this->update_user_profile_fields($user, $attributes, $newuser);
 
         // If admin has been set for this IdP we make the user an admin.
         if (!empty($SESSION->saml2idp) && $this->metadataentities[$SESSION->saml2idp]->adminidp) {
