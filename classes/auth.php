@@ -960,7 +960,7 @@ class auth extends \auth_plugin_base {
                                 // If can't have accounts with the same emails, check if email is taken before update a new user.
                                 if ($field == 'email' && empty($CFG->allowaccountssameemail)) {
                                     $email = $attributes[$attr][0];
-                                    if ($this->is_email_taken($email, $user->username)) {
+                                    if ($this->is_email_taken($email, $user->username ?? null)) {
                                         $this->log(__FUNCTION__ .
                                             " user '$user->username' email can't be updated as '$email' is taken");
                                         // Warn user that we are not able to update his email.
