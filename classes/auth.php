@@ -940,6 +940,8 @@ class auth extends \auth_plugin_base {
      * @throws coding_exception
      */
     public function update_user_record_from_attribute_map(&$user, $attributes, $newuser= false) {
+        global $CFG;
+
         $mapconfig = get_config('auth_saml2');
         $allkeys = array_keys(get_object_vars($mapconfig));
         $update = false;
