@@ -153,14 +153,6 @@ class Session implements \Serializable, Utils\ClearableState
     {
         $this->setConfiguration(Configuration::getInstance());
 
-         // Moodle custom: Try saving session BEFORE $DB gets destroyed. The __destructor() call to save will be clean.
-        \core_shutdown_manager::register_function(
-            function($session) {
-                $session->save();
-            },
-            [$this]
-        );
-
         if (php_sapi_name() === 'cli' || defined('STDIN')) {
             $this->trackid = 'CL' . bin2hex(openssl_random_pseudo_bytes(4));
             Logger::setTrackId($this->trackid);
@@ -205,17 +197,28 @@ class Session implements \Serializable, Utils\ClearableState
         self::$config = $config;
     }
 
-
     /**
      * Serialize this session object.
      *
      * This method will be invoked by any calls to serialize().
      *
      * @return string The serialized representation of this session object.
+     * @deprecated This method will be removed in SSP 2.0.
      */
-    public function serialize()
+    public function serialize() {
+        return serialize($this->__serialize());
+    }
+
+    /**
+     * Serialize this session object.
+     *
+     * This method will be invoked by any calls to serialize().
+     *
+     * @return array The serialized representation of this session object.
+     */
+    public function __serialize()
     {
-        return serialize(get_object_vars($this));
+        return get_object_vars($this);
     }
 
     /**
@@ -225,14 +228,25 @@ class Session implements \Serializable, Utils\ClearableState
      * be serializable in its original form (e.g.: DOM objects).
      *
      * @param string $serialized The serialized representation of a session that we want to restore.
+     * @deprecated This method will be removed in SSP 2.0.
      */
     public function unserialize($serialized)
     {
-        $session = unserialize($serialized);
-        if (is_array($session)) {
-            foreach ($session as $k => $v) {
-                $this->$k = $v;
-            }
+        $this->__unserialize(unserialize($serialized));
+    }
+
+    /**
+     * Unserialize a session object and load it..
+     *
+     * This method will be invoked by any calls to unserialize(), allowing us to restore any data that might not
+     * be serializable in its original form (e.g.: DOM objects).
+     *
+     * @param array $session The session that we want to restore.
+     */
+    public function __unserialize($session)
+    {
+        foreach ($session as $k => $v) {
+            $this->$k = $v;
         }
         self::$config = Configuration::getInstance();
 
@@ -509,10 +523,6 @@ class Session implements \Serializable, Utils\ClearableState
 
         $this->dirty = true;
 
-        // Moodle auth_saml2 hack, because we register a shutdown handler in
-        // moodle in the constructor we don't need to register a callback here.
-        return;
-
         if ($this->callback_registered) {
             // we already have a shutdown callback registered for this object, no need to add another one
             return;
@@ -530,9 +540,7 @@ class Session implements \Serializable, Utils\ClearableState
      */
     public function __destruct()
     {
-        // Moodle auth_saml2 hack, we don't need to save here because we have
-        // a custom shutdown handle registered with moodle.
-        // $this->save();
+        $this->save();
     }
 
     /**

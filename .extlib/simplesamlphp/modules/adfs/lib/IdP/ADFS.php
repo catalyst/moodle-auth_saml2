@@ -6,6 +6,7 @@ use RobRichards\XMLSecLibs\XMLSecurityDSig;
 use RobRichards\XMLSecLibs\XMLSecurityKey;
 use SAML2\Constants;
 
+use SimpleSAML\Module;
 use SimpleSAML\Utils\Config\Metadata;
 use SimpleSAML\Utils\Crypto;
 use SimpleSAML\Utils\HTTP;
@@ -185,14 +186,30 @@ MSG;
      */
     private static function postResponse($url, $wresult, $wctx)
     {
-        $config = \SimpleSAML\Configuration::getInstance();
-        $t = new \SimpleSAML\XHTML\Template($config, 'adfs:postResponse.twig');
-        $t->data['baseurlpath'] = \SimpleSAML\Module::getModuleURL('adfs');
-        $t->data['url'] = $url;
-        $t->data['wresult'] = $wresult;
-        $t->data['wctx'] = $wctx;
-        $t->show();
+        $wresult = htmlspecialchars($wresult);
+        $wctx = htmlspecialchars($wctx);
+        $javaScript = Module::getModuleURL('adfs/assets/js/postResponse.js');
 
+        $post = <<<MSG
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="$javaScript"></script>
+    </head>
+    <body>
+        <form method="post" action="$url">
+            <input type="hidden" name="wa" value="wsignin1.0">
+            <input type="hidden" name="wresult" value="$wresult">
+            <input type="hidden" name="wctx" value="$wctx">
+            <noscript>
+                <input type="submit" value="Continue">
+            </noscript>
+        </form>
+    </body>
+</html>
+MSG;
+
+        echo $post;
         exit;
     }
 

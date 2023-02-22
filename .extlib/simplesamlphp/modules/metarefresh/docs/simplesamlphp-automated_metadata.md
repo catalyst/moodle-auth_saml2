@@ -202,6 +202,12 @@ Each metadata source has the following options:
 :   This is an array which will be combined with the metadata fetched to
     generate the final metadata array.
 
+`regex-template`
+:   This is an array of arrays that allows metadata elements to be added or changed for al entities matching a regular
+    expression. The key of each element is a regular expression that will be matched against all entity IDs in metadata.
+    If the regular expression matches, the value array will be combined with the metadata fetched to generate the final
+    metadata array.
+
 `types`
 :   Same as the option with the same name at the metadata set level. This option has precedence when both are specified,
     allowing a more fine grained configuration for every metadata source.

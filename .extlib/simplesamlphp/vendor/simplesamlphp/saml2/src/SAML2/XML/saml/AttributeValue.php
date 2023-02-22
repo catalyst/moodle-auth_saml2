@@ -10,13 +10,14 @@ use Webmozart\Assert\Assert;
 use SAML2\Constants;
 use SAML2\DOMDocumentFactory;
 use SAML2\Utils;
+use Serializable;
 
 /**
  * Serializable class representing an AttributeValue.
  *
  * @package SimpleSAMLphp
  */
-class AttributeValue implements \Serializable
+class AttributeValue implements Serializable
 {
     /**
      * The raw \DOMElement representing this value.
@@ -50,12 +51,13 @@ class AttributeValue implements \Serializable
             return;
         }
 
+        $doc = DOMDocumentFactory::create();
         if ($value->namespaceURI === Constants::NS_SAML && $value->localName === 'AttributeValue') {
-            $this->element = Utils::copyElement($value);
+            $doc->appendChild($doc->importNode($value, true));
+            $this->element = $doc->documentElement;
             return;
         }
 
-        $doc = DOMDocumentFactory::create();
         $this->element = $doc->createElementNS(Constants::NS_SAML, 'saml:AttributeValue');
         Utils::copyElement($value, $this->element);
     }
@@ -95,7 +97,7 @@ class AttributeValue implements \Serializable
         Assert::same($this->getElement()->namespaceURI, Constants::NS_SAML);
         Assert::same($this->getElement()->localName, "AttributeValue");
 
-        return Utils::copyElement($this->element, $parent);
+        return $parent->appendChild($parent->ownerDocument->importNode($this->element, true));
     }
 
 
@@ -151,7 +153,36 @@ class AttributeValue implements \Serializable
      */
     public function unserialize($serialized) : void
     {
-        $doc = DOMDocumentFactory::fromString(unserialize($serialized));
-        $this->element = $doc->documentElement;
+        $element = DOMDocumentFactory::fromString(unserialize($serialized));
+        $this->setElement($element->documentElement);
+    }
+
+
+
+    /**
+     * Serialize this XML chunk.
+     *
+     * This method will be invoked by any calls to serialize().
+     *
+     * @return array The serialized representation of this XML object.
+     */
+    public function __serialize(): array
+    {
+        return [serialize($this->element->ownerDocument->saveXML($this->element))];
+    }
+
+
+    /**
+     * Unserialize an XML object and load it..
+     *
+     * This method will be invoked by any calls to unserialize(), allowing us to restore any data that might not
+     * be serializable in its original form (e.g.: DOM objects).
+     *
+     * @param array $vars The XML object that we want to restore.
+     */
+    public function __unserialize(array $serialized): void
+    {
+        $element = DOMDocumentFactory::fromString(unserialize(array_pop($serialized)));
+        $this->setElement($element->documentElement);
     }
 }

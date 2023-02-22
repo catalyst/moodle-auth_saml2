@@ -39,11 +39,10 @@ abstract class KernelTestCase extends TestCase
 
     protected static $booted = false;
 
-    private static $kernelContainer;
-
     private function doTearDown()
     {
         static::ensureKernelShutdown();
+        static::$class = null;
         static::$kernel = null;
         static::$booted = false;
     }
@@ -76,11 +75,12 @@ abstract class KernelTestCase extends TestCase
     {
         static::ensureKernelShutdown();
 
-        static::$kernel = static::createKernel($options);
-        static::$kernel->boot();
+        $kernel = static::createKernel($options);
+        $kernel->boot();
+        static::$kernel = $kernel;
         static::$booted = true;
 
-        self::$kernelContainer = $container = static::$kernel->getContainer();
+        $container = static::$kernel->getContainer();
         static::$container = $container->has('test.service_container') ? $container->get('test.service_container') : $container;
 
         return static::$kernel;
@@ -131,14 +131,16 @@ abstract class KernelTestCase extends TestCase
     protected static function ensureKernelShutdown()
     {
         if (null !== static::$kernel) {
+            static::$kernel->boot();
+            $container = static::$kernel->getContainer();
             static::$kernel->shutdown();
             static::$booted = false;
+
+            if ($container instanceof ResetInterface) {
+                $container->reset();
+            }
         }
 
-        if (self::$kernelContainer instanceof ResetInterface) {
-            self::$kernelContainer->reset();
-        }
-
-        static::$container = self::$kernelContainer = null;
+        static::$container = null;
     }
 }

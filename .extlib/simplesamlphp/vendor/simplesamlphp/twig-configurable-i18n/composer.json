@@ -24,7 +24,7 @@
         "sensiolabs/security-checker": "~6.0.3",
         "simplesamlphp/simplesamlphp-test-framework": "~0.1.2",
         "squizlabs/php_codesniffer": "^3.5",
-        "twig/twig": "^2.13"
+        "twig/twig": "^2.15.3"
     },
     "support": {
         "issues": "https://github.com/simplesamlphp/twig-configurable-i18n/issues",

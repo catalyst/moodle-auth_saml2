@@ -14,6 +14,11 @@ class MetaLoaderTest extends TestCase
     private $source = [
         'outputFormat' => 'flatfile',
         'conditionalGET' => false,
+        'regex-template' => [
+            "#^https://idp\.example\.com/idp/shibboleth$#" => [
+            'tags' => [ 'my-tag' ],
+            ],
+        ],
     ];
     private $expected = [
         'entityid' => 'https://idp.example.com/idp/shibboleth',
@@ -54,6 +59,7 @@ class MetaLoaderTest extends TestCase
             'DisplayName' => ['en' => 'DisplayName',],
             'Description' => ['en' => 'Description',],
         ],
+        'tags' => ['my-tag'],
     ];
 
     protected function setUp()
