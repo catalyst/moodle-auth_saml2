@@ -30,6 +30,8 @@ abstract class saml2_settings {
     const OPTION_DUAL_LOGIN_YES = 1;
     /** @var int Option dual passive */
     const OPTION_DUAL_LOGIN_PASSIVE = 2;
+    /** @var int Option dual passive */
+    const OPTION_DUAL_LOGIN_TEST = 3;
     /** @var int Option multi IDP Display dropdown */
     const OPTION_MULTI_IDP_DISPLAY_DROPDOWN = 0;
     /** @var int Option multi IDP Display buttons */

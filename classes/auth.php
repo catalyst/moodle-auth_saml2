@@ -486,6 +486,17 @@ class auth extends \auth_plugin_base {
             $this->log(__FUNCTION__ . ' skipping due to dual auth');
             return false;
         }
+        
+        if ($this->config->duallogin == saml2_settings::OPTION_DUAL_LOGIN_TEST && $saml == 0) {
+            $this->log(__FUNCTION__ . ' skipping to test connectivity first');
+            # Inject JS to test connectivity to the login endpoint. Some networks may not be aware of the IdP.
+            global $PAGE, $ME;
+            $PAGE->requires->js_call_amd('auth_saml2/connectivity_test', 'init', [
+                $this->config->test_endpoint,
+                (new moodle_url($ME, ['saml' => 'on']))->out(),
+            ]);
+            return false;
+        }
 
         // If ?saml=on even when duallogin is on, go directly to IdP.
         if ($saml == 1) {

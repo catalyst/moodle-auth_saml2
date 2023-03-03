@@ -230,6 +230,7 @@ if ($ADMIN->fulltree) {
         saml2_settings::OPTION_DUAL_LOGIN_NO      => get_string('no'),
         saml2_settings::OPTION_DUAL_LOGIN_YES     => get_string('yes'),
         saml2_settings::OPTION_DUAL_LOGIN_PASSIVE => get_string('passivemode', 'auth_saml2'),
+        saml2_settings::OPTION_DUAL_LOGIN_TEST    => get_string('test_idp_conn', 'auth_saml2')
     ];
     $dualloginoptions = $yesno;
     $dualloginoptions[] = get_string('passivemode', 'auth_saml2');
@@ -239,6 +240,15 @@ if ($ADMIN->fulltree) {
             get_string('duallogin_help', 'auth_saml2'),
             saml2_settings::OPTION_DUAL_LOGIN_YES,
             $dualloginoptions));
+
+    if (get_config('auth_saml2', 'duallogin') == saml2_settings::OPTION_DUAL_LOGIN_TEST) {
+        $settings->add(new admin_setting_configtext('auth_saml2\test_endpoint',
+            get_string('test_endpont', 'auth_saml2'),
+            get_string('test_endpoint_desc', 'auth_saml2'),
+            'https://example.com',
+            PARAM_URL
+        ));
+    }
 
     // Auto login.
     $autologinoptions = [
