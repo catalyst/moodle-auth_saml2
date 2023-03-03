@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2022111700;    // The current plugin version (Date: YYYYMMDDXX).
-$plugin->release   = 2022111700;    // Match release exactly to version.
+$plugin->version   = 2022111701;    // The current plugin version (Date: YYYYMMDDXX).
+$plugin->release   = 2022111701;    // Match release exactly to version.
 $plugin->requires  = 2017051509;    // Requires PHP 7, 2017051509 = T12. M3.3
                                     // Strictly we require either Moodle 3.5 OR
                                     // we require Totara 3.3, but the version number
