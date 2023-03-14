@@ -240,8 +240,8 @@ if ($ADMIN->fulltree) {
             $dualloginoptions));
 
     if (get_config('auth_saml2', 'duallogin') == saml2_settings::OPTION_DUAL_LOGIN_TEST) {
-        $settings->add(new admin_setting_configtext('auth_saml2\test_endpoint',
-            get_string('test_endpont', 'auth_saml2'),
+        $settings->add(new admin_setting_configtext('auth_saml2\testendpoint',
+            get_string('test_endpoint', 'auth_saml2'),
             get_string('test_endpoint_desc', 'auth_saml2'),
             'https://example.com',
             PARAM_URL
