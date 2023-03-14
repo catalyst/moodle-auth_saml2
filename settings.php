@@ -232,8 +232,6 @@ if ($ADMIN->fulltree) {
         saml2_settings::OPTION_DUAL_LOGIN_PASSIVE => get_string('passivemode', 'auth_saml2'),
         saml2_settings::OPTION_DUAL_LOGIN_TEST    => get_string('test_idp_conn', 'auth_saml2')
     ];
-    $dualloginoptions = $yesno;
-    $dualloginoptions[] = get_string('passivemode', 'auth_saml2');
     $settings->add(new admin_setting_configselect(
             'auth_saml2/duallogin',
             get_string('duallogin', 'auth_saml2'),
