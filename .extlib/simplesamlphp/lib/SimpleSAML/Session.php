@@ -153,14 +153,6 @@ class Session implements \Serializable, Utils\ClearableState
     {
         $this->setConfiguration(Configuration::getInstance());
 
-         // Moodle custom: Try saving session BEFORE $DB gets destroyed. The __destructor() call to save will be clean.
-        \core_shutdown_manager::register_function(
-            function($session) {
-                $session->save();
-            },
-            [$this]
-        );
-
         if (php_sapi_name() === 'cli' || defined('STDIN')) {
             $this->trackid = 'CL' . bin2hex(openssl_random_pseudo_bytes(4));
             Logger::setTrackId($this->trackid);
@@ -531,10 +523,6 @@ class Session implements \Serializable, Utils\ClearableState
 
         $this->dirty = true;
 
-        // Moodle auth_saml2 hack, because we register a shutdown handler in
-        // moodle in the constructor we don't need to register a callback here.
-        return;
-
         if ($this->callback_registered) {
             // we already have a shutdown callback registered for this object, no need to add another one
             return;
@@ -552,9 +540,7 @@ class Session implements \Serializable, Utils\ClearableState
      */
     public function __destruct()
     {
-        // Moodle auth_saml2 hack, we don't need to save here because we have
-        // a custom shutdown handle registered with moodle.
-        // $this->save();
+        $this->save();
     }
 
     /**
