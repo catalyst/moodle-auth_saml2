@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitb7bafae2842758d35834f2518b68c286
+class ComposerStaticInit2d28db333e9108046055f5c5b00c0c2f
 {
     public static $files = array (
         'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
@@ -597,6 +597,7 @@ class ComposerStaticInitb7bafae2842758d35834f2518b68c286
         'Gettext\\Utils\\StringReader' => __DIR__ . '/..' . '/gettext/gettext/src/Utils/StringReader.php',
         'JsonException' => __DIR__ . '/..' . '/symfony/polyfill-php73/Resources/stubs/JsonException.php',
         'Normalizer' => __DIR__ . '/..' . '/symfony/polyfill-intl-normalizer/Resources/stubs/Normalizer.php',
+        'PhpToken' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/PhpToken.php',
         'Psr\\Cache\\CacheException' => __DIR__ . '/..' . '/psr/cache/src/CacheException.php',
         'Psr\\Cache\\CacheItemInterface' => __DIR__ . '/..' . '/psr/cache/src/CacheItemInterface.php',
         'Psr\\Cache\\CacheItemPoolInterface' => __DIR__ . '/..' . '/psr/cache/src/CacheItemPoolInterface.php',
@@ -680,6 +681,7 @@ class ComposerStaticInitb7bafae2842758d35834f2518b68c286
         'SAML2\\DOMDocumentFactory' => __DIR__ . '/..' . '/simplesamlphp/saml2/src/SAML2/DOMDocumentFactory.php',
         'SAML2\\EncryptedAssertion' => __DIR__ . '/..' . '/simplesamlphp/saml2/src/SAML2/EncryptedAssertion.php',
         'SAML2\\Exception\\InvalidArgumentException' => __DIR__ . '/..' . '/simplesamlphp/saml2/src/SAML2/Exception/InvalidArgumentException.php',
+        'SAML2\\Exception\\MetadataExpiredException' => __DIR__ . '/..' . '/simplesamlphp/saml2/src/SAML2/Exception/MetadataExpiredException.php',
         'SAML2\\Exception\\ProtocolViolationException' => __DIR__ . '/..' . '/simplesamlphp/saml2/src/SAML2/Exception/ProtocolViolationException.php',
         'SAML2\\Exception\\Protocol\\AuthnFailedException' => __DIR__ . '/..' . '/simplesamlphp/saml2/src/SAML2/Exception/Protocol/AuthnFailedException.php',
         'SAML2\\Exception\\Protocol\\InvalidAttrNameOrValueException' => __DIR__ . '/..' . '/simplesamlphp/saml2/src/SAML2/Exception/Protocol/InvalidAttrNameOrValueException.php',
@@ -1927,6 +1929,7 @@ class ComposerStaticInitb7bafae2842758d35834f2518b68c286
         'Symfony\\Component\\VarDumper\\Caster\\IntlCaster' => __DIR__ . '/..' . '/symfony/var-dumper/Caster/IntlCaster.php',
         'Symfony\\Component\\VarDumper\\Caster\\LinkStub' => __DIR__ . '/..' . '/symfony/var-dumper/Caster/LinkStub.php',
         'Symfony\\Component\\VarDumper\\Caster\\MemcachedCaster' => __DIR__ . '/..' . '/symfony/var-dumper/Caster/MemcachedCaster.php',
+        'Symfony\\Component\\VarDumper\\Caster\\MysqliCaster' => __DIR__ . '/..' . '/symfony/var-dumper/Caster/MysqliCaster.php',
         'Symfony\\Component\\VarDumper\\Caster\\PdoCaster' => __DIR__ . '/..' . '/symfony/var-dumper/Caster/PdoCaster.php',
         'Symfony\\Component\\VarDumper\\Caster\\PgSqlCaster' => __DIR__ . '/..' . '/symfony/var-dumper/Caster/PgSqlCaster.php',
         'Symfony\\Component\\VarDumper\\Caster\\ProxyManagerCaster' => __DIR__ . '/..' . '/symfony/var-dumper/Caster/ProxyManagerCaster.php',
@@ -2024,6 +2027,7 @@ class ComposerStaticInitb7bafae2842758d35834f2518b68c286
         'Symfony\\Polyfill\\Php72\\Php72' => __DIR__ . '/..' . '/symfony/polyfill-php72/Php72.php',
         'Symfony\\Polyfill\\Php73\\Php73' => __DIR__ . '/..' . '/symfony/polyfill-php73/Php73.php',
         'Symfony\\Polyfill\\Php80\\Php80' => __DIR__ . '/..' . '/symfony/polyfill-php80/Php80.php',
+        'Symfony\\Polyfill\\Php80\\PhpToken' => __DIR__ . '/..' . '/symfony/polyfill-php80/PhpToken.php',
         'Symfony\\Polyfill\\Php81\\Php81' => __DIR__ . '/..' . '/symfony/polyfill-php81/Php81.php',
         'Twig\\Cache\\CacheInterface' => __DIR__ . '/..' . '/twig/twig/src/Cache/CacheInterface.php',
         'Twig\\Cache\\FilesystemCache' => __DIR__ . '/..' . '/twig/twig/src/Cache/FilesystemCache.php',
@@ -2420,10 +2424,10 @@ class ComposerStaticInitb7bafae2842758d35834f2518b68c286
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitb7bafae2842758d35834f2518b68c286::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitb7bafae2842758d35834f2518b68c286::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInitb7bafae2842758d35834f2518b68c286::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInitb7bafae2842758d35834f2518b68c286::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit2d28db333e9108046055f5c5b00c0c2f::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit2d28db333e9108046055f5c5b00c0c2f::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit2d28db333e9108046055f5c5b00c0c2f::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit2d28db333e9108046055f5c5b00c0c2f::$classMap;
 
         }, null, ClassLoader::class);
     }

@@ -6,12 +6,41 @@ SimpleSAMLphp changelog
 This document lists the changes between versions of SimpleSAMLphp.
 See the upgrade notes for specific information about upgrading.
 
+## Version 1.19.7
+
+Released 5-12-2022
+
+  * Backported fix to error report page (#1637)
+  * Many doc fixes
+  * Fixed the handling of SAML AttributeQuery and SOAP-binding (#314 @ saml2)
+  * Fixed serialization of complex AttributeValue structures
+  * Bump composer + npm dependencies (includes a fix for CVE-2022-39261)
+  * Many updated translations
+  * Handle ETag/If-None-Match logic (#1672 + #1673)
+  
+## Version 1.19.6
+
+Released 1-7-2022
+
+  * Fix several translations (#1572, #1573, #1577, #1578, #1603)
+  * Fix HTTP status code for error pages (#1585)
+  * \SimpleSAML\Utils\HTTP::getFirstPathElement() was marked deprecated
+  * Bumped twig and minimist dependencies due to known vulnerabilities (CVE-2022-23614 and CVE-2021-44906)
+  * Minor fixes to the old UI (#1632)
+  * Fix several translations (#1572, #1573, #1577, #1578)
+
+### saml2 library
+  * A mis-use of a constant was fixed (#249) that caused an error with HTTP-Artifact binding.
+
+### metarefresh
+  * Added regex-template config keyword to apply a template to entityIDs matching a pattern. (v0.10)
+
 ## Version 1.19.5
 
 Released 24-01-2021
 
   * Fix composer-file to prevent warnings
-  * Fix database persistency (#1555)
+  * Fix database persistence (#1555)
   * Dropped dependency on jquery-ui and selectize
 
 ### adfs
@@ -54,7 +83,7 @@ Released 2021-10-27
   * Fixed the 'rememberenabled' config setting of the built-in IdP discovery.
   * Fixed a bug where code from external modules would run even though the module is explicitly enabled (#1463)
   * Fix unsolicited response with no RelayState (#1473)
-  * Fix statistics being logged despire a configured loglevel that excludes statistics.
+  * Fix statistics being logged despite a configured loglevel that excludes statistics.
   * Fixed an issue with the PHP session handler (#1480, #1350, #1478) causing superfluous log messages.
   * Fixed the MetaDataStorageHandlerPdo for MySQL backends (#1392)
   * Use getVersion instead of getStats to determine whether a memcache-server is up (#1528)
@@ -67,7 +96,7 @@ Released 2021-10-27
   * Fix displayed metadata for hosted entities differing from actual metadata.
 
 ### consent
-  * Add posibility to set the sameSite flag on cookies set by this module (v0.9.7)
+  * Add possibility to set the sameSite flag on cookies set by this module (v0.9.7)
 
 ### discopower
   * Fixed a dependency issue that caused the module to not install under some PHP-versions (v0.10.0)
@@ -80,7 +109,6 @@ Released 2021-10-27
 
 ### sqlauth
   * Fixed a bug that rendered the module useless due to missing use-statements.
-
 
 ## Version 1.19.1
 

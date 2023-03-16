@@ -227,7 +227,7 @@ class FrameworkExtension extends Extension
                 // mark any env vars found in the ide setting as used
                 $container->resolveEnvPlaceholders($ide);
 
-                $container->setParameter('templating.helper.code.file_link_format', str_replace('%', '%%', ini_get('xdebug.file_link_format') ?: get_cfg_var('xdebug.file_link_format')) ?: ($links[$ide] ?? $ide));
+                $container->setParameter('templating.helper.code.file_link_format', str_replace('%', '%%', \ini_get('xdebug.file_link_format') ?: get_cfg_var('xdebug.file_link_format')) ?: ($links[$ide] ?? $ide));
             }
             $container->setParameter('debug.file_link_format', '%templating.helper.code.file_link_format%');
         }
@@ -469,6 +469,8 @@ class FrameworkExtension extends Extension
             ->addTag('routing.route_loader');
 
         $container->setParameter('container.behavior_describing_tags', [
+            'annotations.cached_reader',
+            'container.do_not_inline',
             'container.service_locator',
             'container.service_subscriber',
             'kernel.event_subscriber',
@@ -494,6 +496,10 @@ class FrameworkExtension extends Extension
         }
 
         if ($this->isConfigEnabled($container, $config['form']['csrf_protection'])) {
+            if (!$container->hasDefinition('security.csrf.token_generator')) {
+                throw new \LogicException('To use form CSRF protection, "framework.csrf_protection" must be enabled.');
+            }
+
             $loader->load('form_csrf.xml');
 
             $container->setParameter('form.type_extension.csrf.enabled', true);
@@ -717,7 +723,7 @@ class FrameworkExtension extends Extension
                 $markingStoreDefinition = new ChildDefinition('workflow.marking_store.'.$workflow['marking_store']['type']);
                 if ('method' === $workflow['marking_store']['type']) {
                     $markingStoreDefinition->setArguments([
-                        'state_machine' === $type, //single state
+                        'state_machine' === $type, // single state
                         $workflow['marking_store']['property'] ?? 'marking',
                     ]);
                 } else {
@@ -1464,9 +1470,8 @@ class FrameworkExtension extends Extension
             $container
                 ->getDefinition('annotations.cached_reader')
                 ->replaceArgument(2, $config['debug'])
-                // temporary property to lazy-reference the cache provider without using it until AddAnnotationsCachedReaderPass runs
-                ->setProperty('cacheProviderBackup', new ServiceClosureArgument(new Reference($cacheService)))
-                ->addTag('annotations.cached_reader')
+                // reference the cache provider without using it until AddAnnotationsCachedReaderPass runs
+                ->addArgument(new ServiceClosureArgument(new Reference($cacheService)))
             ;
 
             $container->setAlias('annotation_reader', 'annotations.cached_reader')->setPrivate(true);
@@ -1675,11 +1680,11 @@ class FrameworkExtension extends Extension
 
             // Generate stores
             $storeDefinitions = [];
-            foreach ($resourceStores as $storeDsn) {
-                $storeDsn = $container->resolveEnvPlaceholders($storeDsn, null, $usedEnvs);
+            foreach ($resourceStores as $resourceStore) {
+                $storeDsn = $container->resolveEnvPlaceholders($resourceStore, null, $usedEnvs);
                 $storeDefinition = new Definition(interface_exists(StoreInterface::class) ? StoreInterface::class : PersistingStoreInterface::class);
                 $storeDefinition->setFactory([StoreFactory::class, 'createStore']);
-                $storeDefinition->setArguments([$storeDsn]);
+                $storeDefinition->setArguments([$resourceStore]);
 
                 $container->setDefinition($storeDefinitionId = '.lock.'.$resourceName.'.store.'.$container->hash($storeDsn), $storeDefinition);
 
@@ -1962,7 +1967,8 @@ class FrameworkExtension extends Extension
                 if (method_exists(TagAwareAdapter::class, 'setLogger')) {
                     $container
                         ->getDefinition($name)
-                        ->addMethodCall('setLogger', [new Reference('logger', ContainerInterface::IGNORE_ON_INVALID_REFERENCE)]);
+                        ->addMethodCall('setLogger', [new Reference('logger', ContainerInterface::IGNORE_ON_INVALID_REFERENCE)])
+                        ->addTag('monolog.logger', ['channel' => 'cache']);
                 }
 
                 $pool['name'] = $name;

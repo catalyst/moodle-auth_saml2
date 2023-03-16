@@ -26,7 +26,7 @@ $configdir = \SimpleSAML\Utils\Config::getConfigDir();
 \SimpleSAML\Configuration::setConfigDir($configdir);
 
 // $outputDir contains the directory we will store the generated metadata in
-$outputDir = $baseDir.'/metadata-generated';
+$outputDir = \SimpleSAML\Utils\System::resolvePath('metadata-generated');
 
 
 /* $toStdOut is a boolean telling us wheter we will print the output to stdout instead
@@ -115,7 +115,7 @@ foreach ($argv as $a) {
                 echo 'Please run `'.$progName.' --help` for usage information.'."\n";
                 exit(1);
             }
-            $outputDir = $baseDir.($v[0] == '/' ? $v : '/'.$v);
+            $outputDir = \SimpleSAML\Utils\System::resolvePath($v);
             break;
         case '--stdout':
             $toStdOut = true;

@@ -1,15 +1,7 @@
 Setting up a SimpleSAMLphp SAML 2.0 IdP to use with Google Workspace (G Suite / Google Apps) for Education
 ============================================
 
-<!-- 
-	This file is written in Markdown syntax. 
-	For more information about how to use the Markdown syntax, read here:
-	http://daringfireball.net/projects/markdown/syntax
--->
-
-
-
-<!-- {{TOC}} -->
+[TOC]
 
 SimpleSAMLphp news and documentation
 ------------------------------------
@@ -76,7 +68,7 @@ The next step is to configure the way users authenticate on your IdP. Various mo
 `exampleauth:Static`
 : Automatically log in as a user with a set of attributes.
 
-[`ldap:LDAP`](./ldap:ldap)
+[`ldap:LDAP`](/docs/contrib_modules/ldap/ldap.html)
 : Authenticates an user to a LDAP server.
 
 For more authentication modules, see [SimpleSAMLphp Identity Provider QuickStart](simplesamlphp-idp).
@@ -204,15 +196,8 @@ like this:
 
 	https://dev2.andreas.feide.no/simplesaml/saml2/idp/SSOService.php
 
-You must also configure the IdP initiated Single LogOut endpoint of your server.
-You will find this in your metadata XML in the tag
-`<md:SingleLogoutService>`. It will look something like:
-
-	http://dev2.andreas.feide.no/simplesaml/saml2/idp/SingleLogoutService.php
-
-again, using the host name of your IdP server.
-
 The Sign-out page or change password URL can be static pages on your server.
+(Google does not support SAML Single Log Out.)
 
 The network mask determines which IP addresses will be asked for SSO login.
 IP addresses not matching this mask will be presented with the normal Google Workspace login page.

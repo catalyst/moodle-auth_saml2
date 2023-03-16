@@ -79,7 +79,7 @@ class RedisSessionHandler extends AbstractSessionHandler
      */
     protected function doWrite($sessionId, $data): bool
     {
-        $result = $this->redis->setEx($this->prefix.$sessionId, (int) ($this->ttl ?? ini_get('session.gc_maxlifetime')), $data);
+        $result = $this->redis->setEx($this->prefix.$sessionId, (int) ($this->ttl ?? \ini_get('session.gc_maxlifetime')), $data);
 
         return $result && !$result instanceof ErrorInterface;
     }
@@ -97,6 +97,7 @@ class RedisSessionHandler extends AbstractSessionHandler
     /**
      * {@inheritdoc}
      */
+    #[\ReturnTypeWillChange]
     public function close(): bool
     {
         return true;
@@ -116,8 +117,9 @@ class RedisSessionHandler extends AbstractSessionHandler
     /**
      * @return bool
      */
+    #[\ReturnTypeWillChange]
     public function updateTimestamp($sessionId, $data)
     {
-        return (bool) $this->redis->expire($this->prefix.$sessionId, (int) ($this->ttl ?? ini_get('session.gc_maxlifetime')));
+        return (bool) $this->redis->expire($this->prefix.$sessionId, (int) ($this->ttl ?? \ini_get('session.gc_maxlifetime')));
     }
 }

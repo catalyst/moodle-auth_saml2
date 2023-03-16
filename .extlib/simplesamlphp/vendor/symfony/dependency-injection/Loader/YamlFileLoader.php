@@ -277,7 +277,7 @@ class YamlFileLoader extends FileLoader
                 }
 
                 foreach ($tag as $attribute => $value) {
-                    if (!is_scalar($value) && null !== $value) {
+                    if (!\is_scalar($value) && null !== $value) {
                         throw new InvalidArgumentException(sprintf('Tag "%s", attribute "%s" in "_defaults" must be of a scalar-type in "%s". Check your YAML syntax.', $name, $attribute, $file));
                     }
                 }
@@ -534,7 +534,7 @@ class YamlFileLoader extends FileLoader
             }
 
             foreach ($tag as $attribute => $value) {
-                if (!is_scalar($value) && null !== $value) {
+                if (!\is_scalar($value) && null !== $value) {
                     throw new InvalidArgumentException(sprintf('A "tags" attribute must be of a scalar-type for service "%s", tag "%s", attribute "%s" in "%s". Check your YAML syntax.', $id, $name, $attribute, $file));
                 }
             }
@@ -822,6 +822,10 @@ class YamlFileLoader extends FileLoader
                 $value[$k] = $this->resolveServices($v, $file, $isParameter);
             }
         } elseif (\is_string($value) && str_starts_with($value, '@=')) {
+            if ($isParameter) {
+                throw new InvalidArgumentException(sprintf('Using expressions in parameters is not allowed in "%s".', $file));
+            }
+
             if (!class_exists(Expression::class)) {
                 throw new \LogicException('The "@=" expression syntax cannot be used without the ExpressionLanguage component. Try running "composer require symfony/expression-language".');
             }

@@ -87,11 +87,11 @@ class TextDescriptor extends Descriptor
             ['Route Name', $options['name'] ?? ''],
             ['Path', $route->getPath()],
             ['Path Regex', $route->compile()->getRegex()],
-            ['Host', ('' !== $route->getHost() ? $route->getHost() : 'ANY')],
-            ['Host Regex', ('' !== $route->getHost() ? $route->compile()->getHostRegex() : '')],
-            ['Scheme', ($route->getSchemes() ? implode('|', $route->getSchemes()) : 'ANY')],
-            ['Method', ($route->getMethods() ? implode('|', $route->getMethods()) : 'ANY')],
-            ['Requirements', ($route->getRequirements() ? $this->formatRouterConfig($route->getRequirements()) : 'NO CUSTOM')],
+            ['Host', '' !== $route->getHost() ? $route->getHost() : 'ANY'],
+            ['Host Regex', '' !== $route->getHost() ? $route->compile()->getHostRegex() : ''],
+            ['Scheme', $route->getSchemes() ? implode('|', $route->getSchemes()) : 'ANY'],
+            ['Method', $route->getMethods() ? implode('|', $route->getMethods()) : 'ANY'],
+            ['Requirements', $route->getRequirements() ? $this->formatRouterConfig($route->getRequirements()) : 'NO CUSTOM'],
             ['Class', \get_class($route)],
             ['Defaults', $this->formatRouterConfig($route->getDefaults())],
             ['Options', $this->formatRouterConfig($route->getOptions())],
@@ -309,7 +309,7 @@ class TextDescriptor extends Descriptor
                 if ($factory[0] instanceof Reference) {
                     $tableRows[] = ['Factory Service', $factory[0]];
                 } elseif ($factory[0] instanceof Definition) {
-                    throw new \InvalidArgumentException('Factory is not describable.');
+                    $tableRows[] = ['Factory Service', sprintf('inline factory service (%s)', $factory[0]->getClass() ?? 'class not configured')];
                 } else {
                     $tableRows[] = ['Factory Class', $factory[0]];
                 }
@@ -342,6 +342,8 @@ class TextDescriptor extends Descriptor
                     $argumentsInformation[] = sprintf('Service locator (%d element(s))', \count($argument->getValues()));
                 } elseif ($argument instanceof Definition) {
                     $argumentsInformation[] = 'Inlined Service';
+                } elseif ($argument instanceof \UnitEnum) {
+                    $argumentsInformation[] = ltrim(var_export($argument, true), '\\');
                 } else {
                     $argumentsInformation[] = \is_array($argument) ? sprintf('Array (%d element(s))', \count($argument)) : $argument;
                 }

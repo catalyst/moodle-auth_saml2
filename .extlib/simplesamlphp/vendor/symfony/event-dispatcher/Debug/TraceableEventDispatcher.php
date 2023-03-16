@@ -75,7 +75,7 @@ class TraceableEventDispatcher implements TraceableEventDispatcherInterface
     {
         if (isset($this->wrappedListeners[$eventName])) {
             foreach ($this->wrappedListeners[$eventName] as $index => $wrappedListener) {
-                if ($wrappedListener->getWrappedListener() === $listener) {
+                if ($wrappedListener->getWrappedListener() === $listener || ($listener instanceof \Closure && $wrappedListener->getWrappedListener() == $listener)) {
                     $listener = $wrappedListener;
                     unset($this->wrappedListeners[$eventName][$index]);
                     break;
@@ -110,8 +110,8 @@ class TraceableEventDispatcher implements TraceableEventDispatcherInterface
         // we might have wrapped listeners for the event (if called while dispatching)
         // in that case get the priority by wrapper
         if (isset($this->wrappedListeners[$eventName])) {
-            foreach ($this->wrappedListeners[$eventName] as $index => $wrappedListener) {
-                if ($wrappedListener->getWrappedListener() === $listener) {
+            foreach ($this->wrappedListeners[$eventName] as $wrappedListener) {
+                if ($wrappedListener->getWrappedListener() === $listener || ($listener instanceof \Closure && $wrappedListener->getWrappedListener() == $listener)) {
                     return $this->dispatcher->getListenerPriority($eventName, $wrappedListener);
                 }
             }
@@ -133,7 +133,7 @@ class TraceableEventDispatcher implements TraceableEventDispatcherInterface
      *
      * @param string|null $eventName
      */
-    public function dispatch($event/*, string $eventName = null*/)
+    public function dispatch($event/* , string $eventName = null */)
     {
         if (null === $this->callStack) {
             $this->callStack = new \SplObjectStorage();

@@ -116,6 +116,7 @@ class Client extends HttpKernelBrowser
         // avoid shutting down the Kernel if no request has been performed yet
         // WebTestCase::createClient() boots the Kernel but do not handle a request
         if ($this->hasPerformedRequest && $this->reboot) {
+            $this->kernel->boot();
             $this->kernel->shutdown();
         } else {
             $this->hasPerformedRequest = true;
