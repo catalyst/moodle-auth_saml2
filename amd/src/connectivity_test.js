@@ -25,8 +25,8 @@
 export const init = (checkTarget, redirURL) => {
     var http = new XMLHttpRequest();
     http.open('HEAD', checkTarget);
-    http.addEventListener('loadend', () => {
+    http.addEventListener('load', () => {
         window.location = redirURL;
     });
     http.send();
-}
+};
