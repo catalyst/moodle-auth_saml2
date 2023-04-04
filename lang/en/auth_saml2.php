@@ -69,7 +69,8 @@ $string['duallogin_help'] = '
 <p>If on, then users will see both manual and a SAML login button. If off they will always be taken directly to the IdP login page.</p>
 <p>If passive, then the users that are already authenticated into the IDP will be automatically logged in, otherwise they will be sent to Moodle login page.</p>
 <p>If off, then admins can still see the manual login page via /login/index.php?saml=off</p>
-<p>If on, then external pages can deep link into moodle using saml eg /course/view.php?id=45&saml=on</p>';
+<p>If on, then external pages can deep link into moodle using saml eg /course/view.php?id=45&saml=on</p>
+<p>If set to test IdP connection, the network will be checked for connectivity, and if functional, SAML login will be initiated.<p/>';
 $string['emailtaken'] = 'Can\'t create a new account, because {$a} email address is already registered';
 $string['emailtakenupdate'] = 'Your email wasn\'t updated, because email address {$a} is already registered';
 $string['errorinvalidautologin'] = 'Invalid autologin request';
@@ -183,6 +184,9 @@ $string['taskmetadatarefresh'] = 'Metadata refresh task';
 $string['test_auth_button_login'] = 'IdP Login';
 $string['test_auth_button_logout'] = 'IdP Logout';
 $string['test_auth_str'] = 'Test isAuthenticated and login';
+$string['test_endpoint'] = 'Connection test URL';
+$string['test_endpoint_desc'] = 'Enter a URL to test connection against for IdP redirection from the client browser. Some users or networks may not have connectivity to the IdP based on account or network permissions.';
+$string['test_idp_conn'] = 'Test IdP connection';
 $string['test_noticetestrequirements'] = 'In order to use this test, plugin needs to be configured, enabled and debugging mode should be enabled in plugin settings.';
 $string['test_passive_str'] = 'Test using isPassive';
 $string['testdebuggingdisabled'] = 'To use this testing page SAML debugging must be on';
