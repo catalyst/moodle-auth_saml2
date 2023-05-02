@@ -862,7 +862,7 @@ class auth extends \auth_plugin_base {
      */
     protected function check_whitelisted_ip_redirect() {
         foreach ($this->metadataentities as $idpentity) {
-            if (\core\ip_utils::is_ip_in_subnet_list(getremoteaddr(), $idpentity->whitelist)) {
+            if (\core\ip_utils::is_ip_in_subnet_list(getremoteaddr(), $idpentity->whitelist ?? '')) {
                 return $idpentity->md5entityid;
             }
         }
