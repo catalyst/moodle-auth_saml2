@@ -1136,6 +1136,11 @@ class SP extends \SimpleSAML\Auth\Source
         // Moodle hack to handle IdP unsolicited logins.
         $wantsurl = (new \moodle_url($redirectTo))->out(false);
         $SESSION->wantsurl = $wantsurl;
+        if (!empty($state['saml:sp:IdP'])) {
+            $SESSION->saml2idp = md5($state['saml:sp:IdP']);
+        } else {
+            unset($SESSION->saml2idp);
+        }
         $saml2auth->saml_login_complete($state['Attributes']);
         // Should never get to here.
 
