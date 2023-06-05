@@ -28,6 +28,7 @@ namespace auth_saml2;
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/../.extlib/simplesamlphp/lib/SimpleSAML/Store.php');
+require_once(__DIR__ . '/sentinel.php');
 
 /**
  * Redis store simpleSAMLphp class for auth/saml2.
@@ -113,14 +114,28 @@ class redis_store extends \SimpleSAML\Store {
 
         if (!class_exists('Redis')) {
             throw new \coding_exception('Redis class not found, Redis PHP Extension is probably not installed');
-        }
-        if (empty($CFG->auth_saml2_redis_server)) {
-            throw new \coding_exception('Redis connection string is not configured in $CFG->auth_saml2_redis_server');
+        }        
+        if (!empty($CFG->auth_saml2_redissentinel_servers) && !empty($CFG->auth_saml2_redissentinel_group)) {
+            $servers = explode(',',$CFG->auth_saml2_redissentinel_servers);
+            try {
+                $sentinel = new \sentinel($servers);
+                $master = $sentinel->get_master_addr($CFG->auth_saml2_redissentinel_group);
+            } catch(Exception $e) {
+                    debugging('Unable to connect to Redis Sentinel servers: '.$CFG->auth_saml2_redissentinel_servers, DEBUG_ALL);
+                return;
+            }
+        }   
+
+        if (!empty($CFG->auth_saml2_redis_server)) {
+            $server = explode(':',$CFG->auth_saml2_redis_server);
+            $master = new \stdClass();
+            $master->ip = $server[0];
+            $master->port = (count($server)>1)?$server[1]:"6379";
         }
 
         try {
             $redis = new \Redis();
-            $redis->connect($CFG->auth_saml2_redis_server);
+            $redis->connect($master->ip, $master->port);
         } catch (\RedisException $e) {
             throw new \coding_exception("RedisException caught with message: {$e->getMessage()}");
         }
@@ -162,3 +177,4 @@ class redis_store extends \SimpleSAML\Store {
         return $options;
     }
 }
+
