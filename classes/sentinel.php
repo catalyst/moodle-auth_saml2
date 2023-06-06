@@ -17,12 +17,19 @@
 /**
  * Redis Sentinel class
  *
- * @package   cachestore_redissentinelsentinel
+ * @package   auth_saml2
  * @copyright 2017 Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace auth_saml2;
 
+/**
+ * Redis Sentinel class
+ *
+ * @package   auth_saml2
+ * @copyright 2017 Catalyst IT
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class sentinel {
 
     private $sentinels = array();
@@ -39,6 +46,11 @@ class sentinel {
 
     private $pingonconnect = false;
 
+    /**
+     * Constructs Sentinel
+     * @param array $sentinels
+     */
+
     public function __construct($sentinels) {
 
         $this->sentinels = $sentinels;
@@ -49,12 +61,20 @@ class sentinel {
 
     }
 
+    /**
+     * Destructs Sentinel
+     */
     public function __destruct() {
         if (!$this->persistent && $this->connected) {
             $this->disconnect();
         }
     }
 
+    /**
+     * Try to connect to one of the sentinel servers defined in $this->sentinels
+     * @return boolean 
+     * @throws \Exception 
+     */
     public function connecttopool() {
         if ($this->connected) {
             return true;
@@ -69,7 +89,11 @@ class sentinel {
         throw new \Exception('Unable to connect to sentinel pool');
     }
 
-
+    /**
+     * Connects to one sentinel server
+     * @param string $sentinel
+     * @return boolean    
+     */
     private function connect($sentinel) {        
 
         if ($this->persistent) {
@@ -101,19 +125,26 @@ class sentinel {
     }
 
     
-
+    /**
+     * Disconnects from sentinel socket
+     */
     public function disconnect() {
         fclose($this->socket);
         $this->connected = false;
 
     }
 
+    /**
+     * Returns ip:port of the redis master of a redis sentinel group named $name
+     * @param string $name 
+     * @return string 
+     */
     public function get_master_addr($name) {
 
         $cmd = "get-master-addr-by-name $name";
 
         $this->command($cmd);
-        if (!$resp = $this->cachestore_redissentinelsentinel()) {
+        if (!$resp = $this->read_response()) {
             return false;
         }
 
@@ -125,6 +156,12 @@ class sentinel {
     }
 
 
+    /**
+     * Send a command to redis cluster
+     * @param string $command
+     * @return boolean
+     * @throws \Exception
+     */
     private function command($command) {
         if (!$this->connected) {
             $this->connecttopool();
@@ -150,7 +187,12 @@ class sentinel {
     }
     
 
-    private function cachestore_redissentinelsentinel() {
+    /**
+     * Read the response of a command
+     * @return string
+     * @throws \Exception
+     */
+    private function read_response() {
         if (!$this->connected) {
             return false;
         }
@@ -190,7 +232,7 @@ class sentinel {
             $size = (int) substr($resp, 1);
 
             for ($i=0;$i<$size; $i++) {
-                $multireponse[] = $this->cachestore_redissentinelsentinel();
+                $multireponse[] = $this->read_response();
             }
             return($multireponse);
 
