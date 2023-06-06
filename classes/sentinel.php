@@ -189,7 +189,7 @@ class sentinel {
 
     /**
      * Read the response of a command
-     * @return string
+     * @return mixed
      * @throws \Exception
      */
     private function read_response() {
