@@ -21,12 +21,15 @@
  * @copyright  2023 Peter Burnett <peterburnett@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-export const init = (checkTarget, redirURL) => {
-    const http = new XMLHttpRequest();
-    http.open('HEAD', checkTarget);
-    http.addEventListener('load', () => {
-        window.location = redirURL;
-    });
-    http.send();
-};
+define([], function() {
+    return {
+        init: function(checkTarget, redirURL) {
+            const http = new XMLHttpRequest();
+            http.open('HEAD', checkTarget);
+            http.addEventListener('load', function() {
+                window.location = redirURL;
+            });
+            http.send();
+        }
+    };
+});
