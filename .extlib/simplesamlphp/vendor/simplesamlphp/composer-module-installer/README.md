@@ -1,10 +1,14 @@
-SimpleSAMLphp Composer module installer
-=======================================
+# SimpleSAMLphpSimpleSAMLphp Composer module installer
+
+![Build Status](https://github.com/simplesamlphp/composer-module-installer/workflows/CI/badge.svg?branch=master)
+[![Coverage Status](https://codecov.io/gh/simplesamlphp/composer-module-installer/branch/master/graph/badge.svg)](https://codecov.io/gh/simplesamlphp/composer-module-installer)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/simplesamlphp/composer-module-installer/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/simplesamlphp/composer-module-installer/?branch=master) 
+[![Type coverage](https://shepherd.dev/github/simplesamlphp/composer-module-installer/coverage.svg)](https://shepherd.dev/github/simplesamlphp/composer-module-installer)
 
 This package is a Composer plugin that allows a SimpleSAMLphp module to be
 installed through Composer. Installation can be as easy as executing:
 
-```
+```bash
 composer.phar require vendor/simplesamlphp-module-mymodule 1.*
 ```
 
@@ -12,8 +16,7 @@ That command would install `vendor/simplesamlphp-module-mymodule` matching
 version `1.*`.
 
 
-Making a module installable through Composer
---------------------------------------------
+## Making a module installable through Composer
 
 To make a module installable through Composer, you need to add a
 `composer.json`-file to the root of the module. It should look
@@ -32,7 +35,7 @@ something like:
 
 The package name must be on the form:
 
-```
+```bash
 <vendor>/simplesamlphp-module-<module name>
 ```
 
@@ -41,8 +44,14 @@ of your module. Your module will be installed in the `modules/<module name>`
 directory in the SimpleSAMLphp installation directory.
 
 
-Installing your custom module
------------------------------
+## Assets modules
+
+Asset modules are a special kidn of module that will install pre-built assets in
+SimpleSAMLphp's `public/` directory. These modules follow a slightly different
+naming convention `simplesamlphp-assets-<module name>`
+
+
+## Installing your custom module
 
 If you publish your module on [Packagist](https://packagist.org/), no special
 configuration is required to install your module. However, if your module is
@@ -87,7 +96,7 @@ The `repositories array may look something like:
 Once you have added the repository, you should be able to install your module
 by executing:
 
-```
+```bash
 composer.phar require vendor/simplesamlphp-module-mymodule:dev-master
 ```
 
@@ -98,8 +107,7 @@ See the [Composer Repository documentation](https://getcomposer.org/doc/05-repos
 for more information about adding your own custom repositories to Composer.
 
 
-Module names that contain uppercase letters
--------------------------------------------
+## Module names that contain uppercase letters
 
 New modules should only have lowercase letters in the module name, however a
 lot of existing module names contain uppercase letters. Since Composer package

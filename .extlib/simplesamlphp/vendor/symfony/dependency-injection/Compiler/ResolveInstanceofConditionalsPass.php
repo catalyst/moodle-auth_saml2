@@ -42,10 +42,6 @@ class ResolveInstanceofConditionalsPass implements CompilerPassInterface
         }
 
         foreach ($container->getDefinitions() as $id => $definition) {
-            if ($definition instanceof ChildDefinition) {
-                // don't apply "instanceof" to children: it will be applied to their parent
-                continue;
-            }
             $container->setDefinition($id, $this->processDefinition($container, $id, $definition, $tagsToKeep));
         }
 
@@ -69,11 +65,12 @@ class ResolveInstanceofConditionalsPass implements CompilerPassInterface
         $conditionals = $this->mergeConditionals($autoconfiguredInstanceof, $instanceofConditionals, $container);
 
         $definition->setInstanceofConditionals([]);
-        $parent = $shared = null;
+        $shared = null;
         $instanceofTags = [];
         $instanceofCalls = [];
         $instanceofBindings = [];
         $reflectionClass = null;
+        $parent = $definition instanceof ChildDefinition ? $definition->getParent() : null;
 
         foreach ($conditionals as $interface => $instanceofDefs) {
             if ($interface !== $class && !($reflectionClass ?? $reflectionClass = $container->getReflectionClass($class, false) ?: false)) {
@@ -90,7 +87,7 @@ class ResolveInstanceofConditionalsPass implements CompilerPassInterface
                 $instanceofDef->setAbstract(true)->setParent($parent ?: '.abstract.instanceof.'.$id);
                 $parent = '.instanceof.'.$interface.'.'.$key.'.'.$id;
                 $container->setDefinition($parent, $instanceofDef);
-                $instanceofTags[] = $instanceofDef->getTags();
+                $instanceofTags[] = [$interface, $instanceofDef->getTags()];
                 $instanceofBindings = $instanceofDef->getBindings() + $instanceofBindings;
 
                 foreach ($instanceofDef->getMethodCalls() as $methodCall) {
@@ -110,12 +107,14 @@ class ResolveInstanceofConditionalsPass implements CompilerPassInterface
         if ($parent) {
             $bindings = $definition->getBindings();
             $abstract = $container->setDefinition('.abstract.instanceof.'.$id, $definition);
-
-            // cast Definition to ChildDefinition
             $definition->setBindings([]);
             $definition = serialize($definition);
-            $definition = substr_replace($definition, '53', 2, 2);
-            $definition = substr_replace($definition, 'Child', 44, 0);
+
+            if (Definition::class === \get_class($abstract)) {
+                // cast Definition to ChildDefinition
+                $definition = substr_replace($definition, '53', 2, 2);
+                $definition = substr_replace($definition, 'Child', 44, 0);
+            }
             /** @var ChildDefinition $definition */
             $definition = unserialize($definition);
             $definition->setParent($parent);
@@ -127,8 +126,9 @@ class ResolveInstanceofConditionalsPass implements CompilerPassInterface
             // Don't add tags to service decorators
             $i = \count($instanceofTags);
             while (0 <= --$i) {
-                foreach ($instanceofTags[$i] as $k => $v) {
-                    if (null === $definition->getDecoratedService() || \in_array($k, $tagsToKeep, true)) {
+                [$interface, $tags] = $instanceofTags[$i];
+                foreach ($tags as $k => $v) {
+                    if (null === $definition->getDecoratedService() || $interface === $definition->getClass() || \in_array($k, $tagsToKeep, true)) {
                         foreach ($v as $v) {
                             if ($definition->hasTag($k) && \in_array($v, $definition->getTag($k))) {
                                 continue;

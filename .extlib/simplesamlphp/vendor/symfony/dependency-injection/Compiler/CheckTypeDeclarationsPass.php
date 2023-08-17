@@ -78,7 +78,7 @@ final class CheckTypeDeclarationsPass extends AbstractRecursivePass
     /**
      * {@inheritdoc}
      */
-    protected function processValue($value, $isRoot = false)
+    protected function processValue($value, bool $isRoot = false)
     {
         if (isset($this->skippedIds[$this->currentId])) {
             return $value;
@@ -210,7 +210,7 @@ final class CheckTypeDeclarationsPass extends AbstractRecursivePass
         $class = null;
 
         if ($value instanceof Definition) {
-            if ($value->getFactory()) {
+            if ($value->hasErrors() || $value->getFactory()) {
                 return;
             }
 
@@ -308,6 +308,10 @@ final class CheckTypeDeclarationsPass extends AbstractRecursivePass
             if (false === $value) {
                 return;
             }
+        } elseif ('true' === $type) {
+            if (true === $value) {
+                return;
+            }
         } elseif ($reflectionType->isBuiltin()) {
             $checkFunction = sprintf('is_%s', $type);
             if ($checkFunction($value)) {
@@ -315,7 +319,7 @@ final class CheckTypeDeclarationsPass extends AbstractRecursivePass
             }
         }
 
-        throw new InvalidParameterTypeException($this->currentId, \is_object($value) ? $class : \gettype($value), $parameter);
+        throw new InvalidParameterTypeException($this->currentId, \is_object($value) ? $class : get_debug_type($value), $parameter);
     }
 
     private function getExpressionLanguage(): ExpressionLanguage
