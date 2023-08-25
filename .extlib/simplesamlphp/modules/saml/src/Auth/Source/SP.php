@@ -663,7 +663,7 @@ class SP extends \SimpleSAML\Auth\Source
         $session = \SimpleSAML\Session::getSessionFromRequest();
         $session->save();
 
-        $this->sendSAML2AuthnRequest($state, $b, $ar);
+        $this->sendSAML2AuthnRequest($b, $ar);
 
         Assert::true(false);
     }
