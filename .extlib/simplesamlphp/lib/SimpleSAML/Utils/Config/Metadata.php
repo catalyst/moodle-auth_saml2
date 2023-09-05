@@ -330,10 +330,10 @@ class Metadata
                 'Format'      => $nameIdPolicy_cf->getString('Format', Constants::NAMEID_TRANSIENT),
                 'AllowCreate' => $nameIdPolicy_cf->getBoolean('AllowCreate', true),
             ];
-            $spNameQualifier = $nameIdPolicy_cf->getString('SPNameQualifier', false);
-            if ($spNameQualifier !== false) {
-                $policy['SPNameQualifier'] = $spNameQualifier;
-            }
+            //$spNameQualifier = $nameIdPolicy_cf->getString('SPNameQualifier', false);
+            //if ($spNameQualifier !== false) {
+            //    $policy['SPNameQualifier'] = $spNameQualifier;
+            //}
         } elseif ($nameIdPolicy === null) {
             // when NameIDPolicy is unset or set to null, default to transient as before
             $policy = ['Format' => Constants::NAMEID_TRANSIENT, 'AllowCreate' => true];

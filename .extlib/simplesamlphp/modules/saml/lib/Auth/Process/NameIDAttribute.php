@@ -124,12 +124,12 @@ class NameIDAttribute extends \SimpleSAML\Auth\ProcessingFilter
         if ($rep->getFormat() === null) {
             $rep->setFormat(Constants::NAMEID_UNSPECIFIED);
         }
-        if ($rep->getSPNameQualifier() === null) {
+        /*if ($rep->getSPNameQualifier() === null) {
             $rep->setSPNameQualifier($state['Source']['entityid']);
         }
         if ($rep->getNameQualifier() === null) {
             $rep->setNameQualifier($state['Destination']['entityid']);
-        }
+        }*/
 
         $value = '';
         $isString = true;

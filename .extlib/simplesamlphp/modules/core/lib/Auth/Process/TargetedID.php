@@ -145,10 +145,10 @@ class TargetedID extends \SimpleSAML\Auth\ProcessingFilter
             $nameId->setFormat(Constants::NAMEID_PERSISTENT);
 
             if (isset($state['Source']['entityid'])) {
-                $nameId->setNameQualifier($state['Source']['entityid']);
+                //$nameId->setNameQualifier($state['Source']['entityid']);
             }
             if (isset($state['Destination']['entityid'])) {
-                $nameId->setSPNameQualifier($state['Destination']['entityid']);
+                //$nameId->setSPNameQualifier($state['Destination']['entityid']);
             }
         } else {
             $nameId = $uid;

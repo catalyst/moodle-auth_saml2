@@ -101,7 +101,7 @@ abstract class BaseNameIDGenerator extends \SimpleSAML\Auth\ProcessingFilter
         $nameId->setValue($value);
         $nameId->setFormat($this->format);
 
-        if ($this->nameQualifier === true) {
+        /*if ($this->nameQualifier === true) {
             if (isset($state['IdPMetadata']['entityid'])) {
                 $nameId->setNameQualifier($state['IdPMetadata']['entityid']);
             } else {
@@ -119,7 +119,7 @@ abstract class BaseNameIDGenerator extends \SimpleSAML\Auth\ProcessingFilter
             }
         } elseif (is_string($this->spNameQualifier)) {
             $nameId->setSPNameQualifier($this->spNameQualifier);
-        }
+        }*/
 
         $state['saml:NameID'][$this->format] = $nameId;
     }

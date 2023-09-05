@@ -1267,10 +1267,10 @@ class SAML2
             $nameId = $state['saml:NameID'][$nameIdFormat];
             $nameId->setFormat($nameIdFormat);
         } else {
-            $spNameQualifier = $spMetadata->getString('SPNameQualifier', null);
-            if ($spNameQualifier === null) {
-                $spNameQualifier = $spMetadata->getString('entityid');
-            }
+            //$spNameQualifier = $spMetadata->getString('SPNameQualifier', null);
+            //if ($spNameQualifier === null) {
+            //    $spNameQualifier = $spMetadata->getString('entityid');
+            //}
 
             if ($nameIdFormat === Constants::NAMEID_TRANSIENT) {
                 // generate a random id
@@ -1289,7 +1289,7 @@ class SAML2
             $nameId = new NameID();
             $nameId->setFormat($nameIdFormat);
             $nameId->setValue($nameIdValue);
-            $nameId->setSPNameQualifier($spNameQualifier);
+            //$nameId->setSPNameQualifier($spNameQualifier);
         }
 
         $state['saml:idp:NameID'] = $nameId;

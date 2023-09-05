@@ -595,12 +595,12 @@ class SP extends \SimpleSAML\Auth\Source
                 }
 
                 $nid->setValue($nameId['Value']);
-                if (array_key_exists('NameQualifier', $nameId) && $nameId['NameQualifier'] !== null) {
+                /*if (array_key_exists('NameQualifier', $nameId) && $nameId['NameQualifier'] !== null) {
                     $nid->setNameQualifier($nameId['NameQualifier']);
                 }
                 if (array_key_exists('SPNameQualifier', $nameId) && $nameId['SPNameQualifier'] !== null) {
                     $nid->setSPNameQualifier($nameId['SPNameQualifier']);
-                }
+                }*/
                 if (array_key_exists('SPProvidedID', $nameId) && $nameId['SPProvidedId'] !== null) {
                     $nid->setSPProvidedID($nameId['SPProvidedID']);
                 }
