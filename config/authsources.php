@@ -63,7 +63,7 @@ $config[$saml2auth->spname] = [
     'entityID' => !empty($saml2auth->config->spentityid) ? $saml2auth->config->spentityid : $defaultspentityid,
     'discoURL' => !empty($CFG->auth_saml2_disco_url) ? $CFG->auth_saml2_disco_url : null,
     'idp' => empty($CFG->auth_saml2_disco_url) ? $idpentityid : null,
-    'NameIDPolicy' => $saml2auth->config->nameidpolicy,
+    'NameIDPolicy' => ['Format' => $saml2auth->config->nameidpolicy, 'AllowCreate' => true],
     'OrganizationName' => array(
         $lang => $SITE->shortname,
     ),

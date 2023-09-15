@@ -70,7 +70,7 @@ class auth extends \auth_plugin_base {
         'idpname'            => '',
         'idpdefaultname'     => '', // Set in constructor.
         'idpmetadata'        => '',
-        'debug'              => 0,
+        'debug'              => null,
         'duallogin'          => saml2_settings::OPTION_DUAL_LOGIN_YES,
         'autologin'          => saml2_settings::OPTION_AUTO_LOGIN_NO,
         'autologincookie'    => '',

@@ -46,7 +46,7 @@ $config = array(
       'baseURL'         => $baseurl . '/auth/saml2/sp/',
     ],
     'certdir'           => $saml2auth->get_saml2_directory() . '/',
-    'debug'             => $saml2auth->is_debugging(),
+    'debug'             => ['saml' => $saml2auth->is_debugging()],
     'logging.level'     => $saml2auth->is_debugging() ? SimpleSAML\Logger::DEBUG : SimpleSAML\Logger::ERR,
     'logging.handler'   => $saml2auth->config->logtofile ? 'file' : 'errorlog',
 
