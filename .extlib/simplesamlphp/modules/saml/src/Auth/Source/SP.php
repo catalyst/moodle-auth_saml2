@@ -647,9 +647,10 @@ class SP extends \SimpleSAML\Auth\Source
             $dst = $idpMetadata->getEndpointPrioritizedByBinding(
                 'SingleSignOnService',
                 [
-                    Constants::BINDING_HTTP_ARTIFACT,
                     Constants::BINDING_HTTP_REDIRECT,
                     Constants::BINDING_HTTP_POST,
+                    // auth_saml2 modification - Reordered to maintain existing  functionality.
+                    Constants::BINDING_HTTP_ARTIFACT,
                 ]
             );
         }
