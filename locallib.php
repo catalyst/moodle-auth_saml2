@@ -78,9 +78,7 @@ function auth_saml2_get_sp_metadata($baseurl = '') {
 
     $assertionsconsumerservicesdefault = array(
         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
-        'urn:oasis:names:tc:SAML:1.0:profiles:browser-post',
         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact',
-        'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01',
     );
 
     if ($spconfig->getOptionalString('ProtocolBinding', '') == 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser') {
@@ -99,17 +97,9 @@ function auth_saml2_get_sp_metadata($baseurl = '') {
             $acsArray['Binding'] = SAML2\Constants::BINDING_HTTP_POST;
             $acsArray['Location'] = "{$baseurl}/auth/saml2/sp/saml2-acs.php/{$sourceId}";
             break;
-        case 'urn:oasis:names:tc:SAML:1.0:profiles:browser-post':
-            $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:1.0:profiles:browser-post';
-            $acsArray['Location'] = "{$baseurl}/auth/saml2/sp/saml1-acs.php/{$sourceId}";
-            break;
         case 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact':
             $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact';
             $acsArray['Location'] = "{$baseurl}/auth/saml2/sp/saml2-acs.php/{$sourceId}";
-            break;
-        case 'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01':
-            $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01';
-            $acsArray['Location'] = "{$baseurl}/auth/saml2/sp/saml1-acs.php/{$sourceId}";
             break;
         case 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser':
             $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser';
@@ -243,7 +233,7 @@ function auth_saml2_get_sp_metadata($baseurl = '') {
         $metaArray20['validate.authnrequest'] = $spconfig->getBoolean('sign.authnrequest');
     }
 
-    $supported_protocols = array('urn:oasis:names:tc:SAML:1.1:protocol', SAML2\Constants::NS_SAMLP);
+    $supported_protocols = array(SAML2\Constants::NS_SAMLP);
 
     $metaArray20['metadata-set'] = 'saml20-sp-remote';
     $metaArray20['entityid'] = $entityId;
