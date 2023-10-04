@@ -130,6 +130,7 @@ if ($message instanceof \SAML2\LogoutResponse) {
     $dst = $idpMetadata->getEndpointPrioritizedByBinding(
         'SingleLogoutService',
         [
+            \SAML2\Constants::BINDING_SOAP,
             \SAML2\Constants::BINDING_HTTP_REDIRECT,
             \SAML2\Constants::BINDING_HTTP_POST
         ]
@@ -143,8 +144,9 @@ if ($message instanceof \SAML2\LogoutResponse) {
             $dst = $dst['Location'];
         }
         $binding->setDestination($dst);
+    } else {
+        $lr->setDestination($dst['Location']);
     }
-    $lr->setDestination($dst);
 
     $binding->send($lr);
 } else {

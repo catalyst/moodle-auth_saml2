@@ -760,6 +760,7 @@ class Session implements \Serializable, Utils\ClearableState
         if (empty($this->authData[$authority]['LogoutHandlers'])) {
             return;
         }
+        
         foreach ($this->authData[$authority]['LogoutHandlers'] as $handler) {
             // verify that the logout handler is a valid function
             if (!is_callable($handler)) {
@@ -768,10 +769,9 @@ class Session implements \Serializable, Utils\ClearableState
 
                 throw new \Exception(
                     'Logout handler is not a valid function: ' . $classname . '::' .
-                    $functionname
+                        $functionname
                 );
             }
-
             // call the logout handler
             call_user_func($handler);
         }
