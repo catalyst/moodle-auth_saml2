@@ -8,15 +8,15 @@
  */
 
 // This is the base directory of the SimpleSAMLphp installation
-$baseDir = dirname(dirname(dirname(dirname(__FILE__))));
+$baseDir = dirname(__FILE__, 4);
 
 // Add library autoloader.
-require_once($baseDir . '/lib/_autoload.php');
+require_once($baseDir . '/src/_autoload.php');
 
 if (!SimpleSAML\Module::isModuleEnabled('cron')) {
     echo "You need to enable the cron module before this script can be used.\n";
-    echo "You can enable it by running the following command:\n";
-    echo '  echo >"' . $baseDir . '/modules/cron/enable' . "\"\n";
+    echo "You can enable it by editing your config.php file. Example:\n";
+    echo '  echo \'$config["module.enable"]["cron"] = true;\' >> "' . $baseDir . '/config/config.php' . "\"\n";
     exit(1);
 }
 

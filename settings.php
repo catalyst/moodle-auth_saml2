@@ -102,10 +102,6 @@ if ($ADMIN->fulltree) {
 
     // See section 8.3 from http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf for more information.
     $nameidlist = [
-        'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
-        'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
-        'urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName',
-        'urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName',
         'urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos',
         'urn:oasis:names:tc:SAML:2.0:nameid-format:entity',
         'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
@@ -115,7 +111,7 @@ if ($ADMIN->fulltree) {
         'auth_saml2/nameidpolicy',
         get_string('nameidpolicy', 'auth_saml2'),
         get_string('nameidpolicy_help', 'auth_saml2'),
-        'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
+        'urn:oasis:names:tc:SAML:2.0:nameid-format:transient',
         array_combine($nameidlist, $nameidlist));
     $nameidpolicy->set_updatedcallback('auth_saml2_update_sp_metadata');
     $settings->add($nameidpolicy);
@@ -188,9 +184,7 @@ if ($ADMIN->fulltree) {
 
     $assertionsconsumerservices = [
         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST' => 'HTTP Post',
-        'urn:oasis:names:tc:SAML:1.0:profiles:browser-post' => 'Browser post profile',
         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact' => 'HTTP Artifact',
-        'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01' => 'Artifact 01 profile',
         'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser' => 'Holder-of-Key Web Browser SSO',
     ];
 

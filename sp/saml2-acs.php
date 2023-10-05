@@ -31,7 +31,11 @@ require('../setup.php');
 $_SERVER['PATH_INFO'] = '/' . $saml2auth->spname;
 
 try {
-    require($CFG->dirroot.'/auth/saml2/.extlib/simplesamlphp/modules/saml/www/sp/saml2-acs.php');
+    $config = \SimpleSAML\Configuration::getInstance();
+    $session = \SimpleSAML\Session::getSessionFromRequest();
+    $controller = new \SimpleSAML\Module\saml\Controller\ServiceProvider($config, $session);
+    $acs = $controller->assertionConsumerService($saml2auth->spname);
+    $acs->sendContent();
 } catch (Exception $e) {
     throw new saml2_exception($e->getMessage(), $e->getTraceAsString());
 }

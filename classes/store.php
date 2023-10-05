@@ -33,7 +33,7 @@ namespace auth_saml2;
  * @copyright  2016 Brendan Heywood <brendan@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class store extends \SimpleSAML\Store {
+class store implements \SimpleSAML\Store\StoreInterface {
     /**
      * Retrieve a value from the datastore.
      *
@@ -88,12 +88,10 @@ class store extends \SimpleSAML\Store {
      * @param mixed    $value  The value.
      * @param int|null $expire The expiration time (unix timestamp), or NULL if it never expires.
      */
-    public function set($type, $key, $value, $expire = null) {
+    public function set(string $type, string $key, $value, ?int $expire = null): void {
         global $DB;
 
-        assert(is_string($type));
-        assert(is_string($key));
-        assert(is_null($expire) || (is_int($expire) && $expire > 2592000));
+        assert($expire > 2592000);
 
         if (rand(0, 1000) < 10) {
             $this->delete_expired(); // TODO convert to task.
@@ -133,11 +131,8 @@ class store extends \SimpleSAML\Store {
      * @param string $type The datatype.
      * @param string $key  The key.
      */
-    public function delete($type, $key) {
+    public function delete(string $type, string $key): void {
         global $DB;
-
-        assert(is_string($type));
-        assert(is_string($key));
 
         if (strlen($key) > 50) {
             $key = sha1($key);

@@ -55,8 +55,11 @@ try {
     if (!is_null($session->getAuthState($saml2auth->spname))) {
         $session->registerLogoutHandler($saml2auth->spname, '\auth_saml2\api', 'logout_from_idp_front_channel');
     }
-
-    require('../.extlib/simplesamlphp/modules/saml/www/sp/saml2-logout.php');
+    $config = \SimpleSAML\Configuration::getInstance();
+    $session = \SimpleSAML\Session::getSessionFromRequest();
+    $controller = new \SimpleSAML\Module\saml\Controller\ServiceProvider($config, $session);
+    $acs = $controller->singleLogoutService($saml2auth->spname);
+    $acs->sendContent();
 } catch (Exception $e) {
     // TODO SSPHP uses Exceptions for handling valid conditions, so a succesful
     // logout is an Exception. This is a workaround to just go back to the home
