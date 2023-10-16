@@ -102,6 +102,10 @@ if ($ADMIN->fulltree) {
 
     // See section 8.3 from http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf for more information.
     $nameidlist = [
+        'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
+        'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
+        'urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName',
+        'urn:oasis:names:tc:SAML:1.1:nameid-format:WindowsDomainQualifiedName',
         'urn:oasis:names:tc:SAML:2.0:nameid-format:kerberos',
         'urn:oasis:names:tc:SAML:2.0:nameid-format:entity',
         'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
