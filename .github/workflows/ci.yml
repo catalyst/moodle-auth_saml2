@@ -8,3 +8,5 @@ jobs:
     uses: catalyst/catalyst-moodle-workflows/.github/workflows/ci.yml@main
     secrets:
       moodle_org_token: ${{ secrets.MOODLE_ORG_TOKEN }}
+    with:
+      min_php: '7.4'

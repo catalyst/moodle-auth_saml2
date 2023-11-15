@@ -11,7 +11,10 @@
 
 namespace Symfony\Component\HttpFoundation\Session\Storage\Handler;
 
+use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Schema\DefaultSchemaManagerFactory;
+use Doctrine\DBAL\Tools\DsnParser;
 use Symfony\Component\Cache\Adapter\AbstractAdapter;
 use Symfony\Component\Cache\Traits\RedisClusterProxy;
 use Symfony\Component\Cache\Traits\RedisProxy;
@@ -27,7 +30,11 @@ class SessionHandlerFactory
     public static function createHandler($connection): AbstractSessionHandler
     {
         if (!\is_string($connection) && !\is_object($connection)) {
-            throw new \TypeError(sprintf('Argument 1 passed to "%s()" must be a string or a connection object, "%s" given.', __METHOD__, \gettype($connection)));
+            throw new \TypeError(sprintf('Argument 1 passed to "%s()" must be a string or a connection object, "%s" given.', __METHOD__, get_debug_type($connection)));
+        }
+
+        if ($options = \is_string($connection) ? parse_url($connection) : false) {
+            parse_str($options['query'] ?? '', $options);
         }
 
         switch (true) {
@@ -46,7 +53,7 @@ class SessionHandlerFactory
                 return new PdoSessionHandler($connection);
 
             case !\is_string($connection):
-                throw new \InvalidArgumentException(sprintf('Unsupported Connection: "%s".', \get_class($connection)));
+                throw new \InvalidArgumentException(sprintf('Unsupported Connection: "%s".', get_debug_type($connection)));
             case str_starts_with($connection, 'file://'):
                 $savePath = substr($connection, 7);
 
@@ -61,13 +68,21 @@ class SessionHandlerFactory
                 $handlerClass = str_starts_with($connection, 'memcached:') ? MemcachedSessionHandler::class : RedisSessionHandler::class;
                 $connection = AbstractAdapter::createConnection($connection, ['lazy' => true]);
 
-                return new $handlerClass($connection);
+                return new $handlerClass($connection, array_intersect_key($options ?: [], ['prefix' => 1, 'ttl' => 1]));
 
             case str_starts_with($connection, 'pdo_oci://'):
                 if (!class_exists(DriverManager::class)) {
                     throw new \InvalidArgumentException(sprintf('Unsupported DSN "%s". Try running "composer require doctrine/dbal".', $connection));
                 }
-                $connection = DriverManager::getConnection(['url' => $connection])->getWrappedConnection();
+                $connection[3] = '-';
+                $params = class_exists(DsnParser::class) ? (new DsnParser())->parse($connection) : ['url' => $connection];
+                $config = new Configuration();
+                if (class_exists(DefaultSchemaManagerFactory::class)) {
+                    $config->setSchemaManagerFactory(new DefaultSchemaManagerFactory());
+                }
+
+                $connection = DriverManager::getConnection($params, $config);
+                $connection = method_exists($connection, 'getNativeConnection') ? $connection->getNativeConnection() : $connection->getWrappedConnection();
                 // no break;
 
             case str_starts_with($connection, 'mssql://'):
@@ -79,7 +94,7 @@ class SessionHandlerFactory
             case str_starts_with($connection, 'sqlsrv://'):
             case str_starts_with($connection, 'sqlite://'):
             case str_starts_with($connection, 'sqlite3://'):
-                return new PdoSessionHandler($connection);
+                return new PdoSessionHandler($connection, $options ?: []);
         }
 
         throw new \InvalidArgumentException(sprintf('Unsupported Connection: "%s".', $connection));

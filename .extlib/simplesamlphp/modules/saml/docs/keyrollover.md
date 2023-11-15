@@ -1,5 +1,4 @@
-Key rollover with SimpleSAMLphp
-===============================
+# Key rollover with SimpleSAMLphp
 
 This document gives a quick guide to doing key rollover with a SimpleSAMLphp service provider or identity provider.
 
@@ -15,19 +14,22 @@ entity publishes metadata with two certificates in it. Meanwhile it continues to
 5. Your SimpleSAMLphp now publishes metadata with only the new cert. Relying parties will refresh metadata and drop the old certificate, not trusting it anymore (or remove the old certificate from their config manually). This last step is essential to ensure that the old certificate is actually distrusted.
 
 ## The steps
+
 ### Create the new key and certificate
 
 First you must create the new key that you are going to use.
 To create a self signed certificate, you may use the following command:
 
-    cd cert
-    openssl req -newkey rsa:3072 -new -x509 -days 3652 -nodes -out new.crt -keyout new.pem
+```bash
+cd cert
+openssl req -newkey rsa:3072 -new -x509 -days 3652 -nodes -out new.crt -keyout new.pem
+```
 
 ### Add the new key to SimpleSAMLphp
 
 Where you add the new key depends on whether you are doing key rollover for a service provider or an identity provider.
 If you are doing key rollover for a service provider, the new key must be added to `config/authsources.php`.
-To do key rollover for an identity provider, you must add the new key to `metadata/saml20-idp-hosted.php` and/or `metadata/shib13-idp-hosted.php`.
+To do key rollover for an identity provider, you must add the new key to `metadata/saml20-idp-hosted.php`.
 If you are changing the keys for both an service provider and identity provider at the same time, you must update both locations.
 
 The new certificate, private key and private key passphrase are added to the configuration with the prefix `new_`:
@@ -36,8 +38,7 @@ When the new key is added, SimpleSAMLphp will attempt to use both the new key an
 The metadata will be updated to list the new key for signing and encryption, and the old key will no longer listed as available for encryption.
 This ensures that both those entities that use your old metadata and those that use your new metadata will be able to send and receive messages from you.
 
-
-### Examples
+**Examples**:
 
 In `config/authsources.php`:
 
@@ -53,7 +54,7 @@ In `config/authsources.php`:
         'new_certificate' => 'new.crt',
         // When new private key is passphrase protected.
         'new_privatekey_pass' => '<new-secret>',
-    ),
+    ],
 ```
 
 In `metadata/saml20-idp-hosted.php`:
@@ -90,7 +91,7 @@ Once you are certain that all your peers are using the new metadata, you must re
 Replace the existing `privatekey`, `privatekey_pass` and `certificate` values op in your configuration with values from the `new_privatekey`, `new_privatekey_pass` and `new_certificate`, and remove the latter options..
 This will cause your old key to be removed from your metadata.
 
-### Examples
+**Examples**:
 
 In `config/authsources.php`:
 
@@ -102,7 +103,6 @@ In `config/authsources.php`:
         // When private key is passphrase protected.
         'privatekey_pass' => '<new-secret>',
     ],
-```
 
 In `metadata/saml20-idp-hosted.php`:
 

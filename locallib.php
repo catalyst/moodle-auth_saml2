@@ -57,7 +57,7 @@ function auth_saml2_get_sp_metadata($baseurl = '') {
 
     $entityId = $source->getEntityId();
     $spconfig = $source->getMetadata();
-    $store = SimpleSAML\Store::getInstance();
+    \SimpleSAML\Store\StoreFactory::getInstance('\\auth_saml2\\store');
 
     $metaArray20 = array();
 
@@ -65,8 +65,8 @@ function auth_saml2_get_sp_metadata($baseurl = '') {
         SAML2\Constants::BINDING_HTTP_REDIRECT,
         // SAML2\Constants::BINDING_SOAP, // TODO untested.
     );
+    $slob = $spconfig->getOptionalArray('SingleLogoutServiceBinding', $slosvcdefault);
 
-    $slob = $spconfig->getArray('SingleLogoutServiceBinding', $slosvcdefault);
     $slol = "{$baseurl}/auth/saml2/sp/saml2-logout.php/{$sourceId}";
 
     foreach ($slob as $binding) {
@@ -78,16 +78,14 @@ function auth_saml2_get_sp_metadata($baseurl = '') {
 
     $assertionsconsumerservicesdefault = array(
         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
-        'urn:oasis:names:tc:SAML:1.0:profiles:browser-post',
         'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact',
-        'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01',
     );
 
-    if ($spconfig->getString('ProtocolBinding', '') == 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser') {
-        $assertionsconsumerservicesdefault[] = 	'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser';
+    if ($spconfig->getOptionalString('ProtocolBinding', '') == 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser') {
+     $assertionsconsumerservicesdefault[] = 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser';
     }
 
-    $assertionsconsumerservices = $spconfig->getArray('acs.Bindings', $assertionsconsumerservicesdefault);
+    $assertionsconsumerservices = $spconfig->getOptionalArray('acs.Bindings', $assertionsconsumerservicesdefault);
 
     $index = 0;
     $eps = array();
@@ -99,17 +97,9 @@ function auth_saml2_get_sp_metadata($baseurl = '') {
             $acsArray['Binding'] = SAML2\Constants::BINDING_HTTP_POST;
             $acsArray['Location'] = "{$baseurl}/auth/saml2/sp/saml2-acs.php/{$sourceId}";
             break;
-        case 'urn:oasis:names:tc:SAML:1.0:profiles:browser-post':
-            $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:1.0:profiles:browser-post';
-            $acsArray['Location'] = "{$baseurl}/auth/saml2/sp/saml1-acs.php/{$sourceId}";
-            break;
         case 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact':
             $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact';
             $acsArray['Location'] = "{$baseurl}/auth/saml2/sp/saml2-acs.php/{$sourceId}";
-            break;
-        case 'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01':
-            $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:1.0:profiles:artifact-01';
-            $acsArray['Location'] = "{$baseurl}/auth/saml2/sp/saml1-acs.php/{$sourceId}";
             break;
         case 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser':
             $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser';
@@ -124,11 +114,10 @@ function auth_saml2_get_sp_metadata($baseurl = '') {
     $metaArray20['AssertionConsumerService'] = $eps;
 
     $keys = array();
-    $certInfo = SimpleSAML\Utils\Crypto::loadPublicKey($spconfig, FALSE, 'new_');
+    $cryptoUtils = new \SimpleSAML\Utils\Crypto();
+    $certInfo = $cryptoUtils->loadPublicKey($spconfig, FALSE, 'new_');
     if ($certInfo !== NULL && array_key_exists('certData', $certInfo)) {
         $hasNewCert = TRUE;
-
-        $certData = $certInfo['certData'];
 
         $keys[] = array(
             'type' => 'X509Certificate',
@@ -139,10 +128,9 @@ function auth_saml2_get_sp_metadata($baseurl = '') {
     } else {
         $hasNewCert = FALSE;
     }
+    $certInfo = $cryptoUtils->loadPublicKey($spconfig);
 
-    $certInfo = SimpleSAML\Utils\Crypto::loadPublicKey($spconfig);
     if ($certInfo !== NULL && array_key_exists('certData', $certInfo)) {
-        $certData = $certInfo['certData'];
 
         $keys[] = array(
             'type' => 'X509Certificate',
@@ -150,11 +138,10 @@ function auth_saml2_get_sp_metadata($baseurl = '') {
             'encryption' => ($hasNewCert ? FALSE : TRUE),
             'X509Certificate' => $certInfo['certData'],
         );
-    } else {
-        $certData = NULL;
     }
 
-    $format = $spconfig->getString('NameIDPolicy', NULL);
+    $format = $spconfig->getOptionalArray('NameIDPolicy', NULL);
+    $format = $format['Format'];
     if ($format !== NULL) {
         $metaArray20['NameIDFormat'] = $format;
     }
@@ -246,12 +233,12 @@ function auth_saml2_get_sp_metadata($baseurl = '') {
         $metaArray20['validate.authnrequest'] = $spconfig->getBoolean('sign.authnrequest');
     }
 
-    $supported_protocols = array('urn:oasis:names:tc:SAML:1.1:protocol', SAML2\Constants::NS_SAMLP);
+    $supported_protocols = array(SAML2\Constants::NS_SAMLP);
 
     $metaArray20['metadata-set'] = 'saml20-sp-remote';
     $metaArray20['entityid'] = $entityId;
 
-    $metaBuilder = new SimpleSAML_Metadata_SAMLBuilder($entityId);
+    $metaBuilder = new \SimpleSAML\Metadata\SAMLBuilder($entityId);
     $metaBuilder->addMetadataSP20($metaArray20, $supported_protocols);
     $metaBuilder->addOrganizationInfo($metaArray20);
 
@@ -267,7 +254,7 @@ function auth_saml2_get_sp_metadata($baseurl = '') {
     }
 
     /* Sign the metadata if enabled. */
-    $xml = SimpleSAML_Metadata_Signer::sign($xml, $spconfig->toArray(), 'SAML 2 SP');
+    $xml = \SimpleSAML\Metadata\Signer::sign($xml, $spconfig->toArray(), 'SAML 2 SP');
 
     // Store the file so it is exactly the same next time.
     file_put_contents($file, $xml);

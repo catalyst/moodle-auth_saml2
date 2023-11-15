@@ -388,5 +388,27 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2022031503, 'auth', 'saml2');
     }
 
+    if ($oldversion < 2023100300) {
+        // We are removing some options from the admin settings page, therefore if
+        // either of those options have been set we need to remove them from the database.
+        $protocols = get_config('auth_saml2', 'assertionsconsumerservices');
+        $protocols = explode(',', $protocols);
+        $a = array_search('urn:oasis:names:tc:SAML:1.0:profiles:browser-post', $protocols);
+        $b = array_search('urn:oasis:names:tc:SAML:1.0:profiles:artifact-01', $protocols);
+
+        if ($a) {
+            unset($protocols[$a]);
+        }
+
+        if ($b) {
+            unset($protocols[$b]);
+        }
+
+        $protocols = implode(',', $protocols);
+        set_config('assertionsconsumerservices', $protocols, 'auth_saml2');
+
+        upgrade_plugin_savepoint(true, 2023100300, 'auth', 'saml2');
+    }
+
     return true;
 }

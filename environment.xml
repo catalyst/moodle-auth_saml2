@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <COMPATIBILITY_MATRIX>
   <PLUGIN name="auth_saml2">
-    <PHP version="7.2" level="required" />
+    <PHP version="7.4" level="required" />
     <PHP_EXTENSIONS>
       <!-- Extension prerequisites for SimpleSAMLphp https://simplesamlphp.org/docs/stable/simplesamlphp-install#section_3 -->
       <PHP_EXTENSION name="date" level="required" />
