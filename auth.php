@@ -34,4 +34,7 @@ require_once($CFG->libdir.'/authlib.php');
  */
 class auth_plugin_saml2 extends \auth_saml2\auth {
 
+    public static function supports_mfa(): bool {
+        return true;
+    }
 }
