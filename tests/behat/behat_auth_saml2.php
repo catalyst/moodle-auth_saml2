@@ -212,7 +212,7 @@ class behat_auth_saml2 extends behat_base {
             $setting = 'flagmessage';
         }
 
-        $lowervalue = strtolower($value);
+        $lowervalue = core_text::strtolower($value);
         $value = array_key_exists($lowervalue, $map) ? $map[$lowervalue] : $value;
         set_config($setting, $value, 'auth_saml2');
     }
