@@ -42,8 +42,8 @@ $string['autologincookie_help'] = 'Name of cookie used to decide when to attempt
 $string['availableidps'] = 'Select available IdPs';
 $string['availableidps_help'] = 'If an IdP metadata xml contains multiple IdP entities, you will need to select which entities are availiable
 for users to login with.';
-$string['blacklistedalgorithms'] = 'Blacklisted Encryption Algorithms';
-$string['blacklistedalgorithms_help'] = 'Allows blocking use of specific encryption algorithms in the SAML communication or allowing RSA 1.5 which is blocked by default because it is insecure.';
+$string['denylistedalgorithms'] = 'Denylisted Encryption Algorithms';
+$string['denylistedalgorithms_help'] = 'Allows blocking use of specific encryption algorithms in the SAML communication or allowing RSA 1.5 which is blocked by default because it is insecure.';
 $string['blockredirectheading'] = 'Account blocking actions';
 $string['attrsimple'] = 'Simplify attributes';
 $string['attrsimple_help'] = 'Various IdP\'s such as ADFS use long attribute keys such as urns or namespaced xml schema names. If set to Yes this will simplify these, eg map http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname to such \'givenname\'.';

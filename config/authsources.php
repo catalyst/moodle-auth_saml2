@@ -96,10 +96,10 @@ if (!empty($saml2auth->config->authncontext)) {
     $config[$saml2auth->spname]['AuthnContextClassRef'] = $saml2auth->config->authncontext;
 }
 
-if (!empty($saml2auth->config->blacklistedalgorithms)) {
-    $config[$saml2auth->spname]['encryption.blacklisted-algorithms'] = explode(',', $saml2auth->config->blacklistedalgorithms);
+if (!empty($saml2auth->config->denylistedalgorithms)) {
+    $config[$saml2auth->spname]['encryption.blacklisted-algorithms'] = explode(',', $saml2auth->config->denylistedalgorithms);
 } else {
-    // Support allowing all algorithms, if not set RSA 1.5 is blacklisted by default
+    // Support allowing all algorithms, if not set RSA 1.5 is denylisted by default
     $config[$saml2auth->spname]['encryption.blacklisted-algorithms'] = [];
 }
 

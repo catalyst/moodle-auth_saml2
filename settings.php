@@ -235,14 +235,14 @@ if ($ADMIN->fulltree) {
         'http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p' => 'RSA OAEP MGF1P',
         'http://www.w3.org/2009/xmlenc11#rsa-oaep' => 'RSA OAEP',
     ];
-    $blacklistedalgorithmssetting = new admin_setting_configmultiselect(
-        'auth_saml2/blacklistedalgorithms',
-        get_string('blacklistedalgorithms', 'auth_saml2'),
-        get_string('blacklistedalgorithms_help', 'auth_saml2'),
+    $denylistedalgorithmssetting = new admin_setting_configmultiselect(
+        'auth_saml2/denylistedalgorithms',
+        get_string('denylistedalgorithms', 'auth_saml2'),
+        get_string('denylistedalgorithms_help', 'auth_saml2'),
         ['http://www.w3.org/2001/04/xmlenc#rsa-1_5'],
         $encryptionalgorithms
     );
-    $settings->add($blacklistedalgorithmssetting);
+    $settings->add($denylistedalgorithmssetting);
 
     // Dual Login.
     $dualloginoptions = [
