@@ -223,6 +223,27 @@ if ($ADMIN->fulltree) {
         ssl_algorithms::get_default_saml_signature_algorithm(),
         ssl_algorithms::get_valid_saml_signature_algorithms()));
 
+    $encryptionalgorithms = [
+        'http://www.w3.org/2001/04/xmlenc#tripledes-cbc' => '3DES CBC',
+        'http://www.w3.org/2001/04/xmlenc#aes128-cbc' => 'AES-128 CBC',
+        'http://www.w3.org/2001/04/xmlenc#aes192-cbc' => 'AES-192 CBC',
+        'http://www.w3.org/2001/04/xmlenc#aes256-cbc' => 'AES-256 CBC',
+        'http://www.w3.org/2009/xmlenc11#aes128-gcm' => 'AES-128 GCM',
+        'http://www.w3.org/2009/xmlenc11#aes192-gcm' => 'AES-192 GCM',
+        'http://www.w3.org/2009/xmlenc11#aes256-gcm' => 'AES-256 GCM',
+        'http://www.w3.org/2001/04/xmlenc#rsa-1_5' => 'RSA 1.5',
+        'http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p' => 'RSA OAEP MGF1P',
+        'http://www.w3.org/2009/xmlenc11#rsa-oaep' => 'RSA OAEP',
+    ];
+    $blacklistedalgorithmssetting = new admin_setting_configmultiselect(
+        'auth_saml2/blacklistedalgorithms',
+        get_string('blacklistedalgorithms', 'auth_saml2'),
+        get_string('blacklistedalgorithms_help', 'auth_saml2'),
+        ['http://www.w3.org/2001/04/xmlenc#rsa-1_5'],
+        $encryptionalgorithms
+    );
+    $settings->add($blacklistedalgorithmssetting);
+
     // Dual Login.
     $dualloginoptions = [
         saml2_settings::OPTION_DUAL_LOGIN_NO      => get_string('no'),
