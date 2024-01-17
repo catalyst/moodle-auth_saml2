@@ -321,6 +321,9 @@ class SP extends \SimpleSAML\Auth\Source
                 }
             }
         }
+        // WIP: set the IdP to null, so it can auto-detect.
+        // Avoid the case where it uses the default IdP data for Idp initiated login.
+        $this->idp = null;
         if ($this->idp !== null && $this->idp !== $entityId) {
             throw new Error\Exception('Cannot retrieve metadata for IdP ' .
                 var_export($entityId, true) . ' because it isn\'t a valid IdP for this SP.');
