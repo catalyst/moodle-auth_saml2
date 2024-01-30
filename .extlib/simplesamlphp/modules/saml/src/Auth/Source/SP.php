@@ -322,7 +322,9 @@ class SP extends \SimpleSAML\Auth\Source
                 }
             }
         }
-        unset($this->idp);
+        if ($this->idp !== null) {
+            $this->idp = null;
+        }
         if ($this->idp !== null && $this->idp !== $entityId) {
             throw new Error\Exception('Cannot retrieve metadata for IdP ' .
                 var_export($entityId, true) . ' because it isn\'t a valid IdP for this SP.');
