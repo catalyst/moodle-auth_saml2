@@ -310,17 +310,19 @@ class SP extends \SimpleSAML\Auth\Source
         global $saml2auth;
         if ($this->idp !== null && $this->idp !== $entityId) {
             foreach ($saml2auth->metadataentities as $metadataurl => $idpentities) {
-                if ($metadataurl == $entityId) {
+                if ($metadataurl ==='xml' || $metadataurl == $entityId) {
                     foreach ($idpentities as $key => $val) {
                         if ($key == $this->idp) {
                             $this->idp = null;
                         }
+
                         break 2;
 
                     }
                 }
             }
         }
+        unset($this->idp);
         if ($this->idp !== null && $this->idp !== $entityId) {
             throw new Error\Exception('Cannot retrieve metadata for IdP ' .
                 var_export($entityId, true) . ' because it isn\'t a valid IdP for this SP.');
