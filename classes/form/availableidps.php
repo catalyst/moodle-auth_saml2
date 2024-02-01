@@ -27,6 +27,7 @@ namespace auth_saml2\form;
 
 defined('MOODLE_INTERNAL') || die();
 
+use auth_saml2\protocol_binding;
 use moodleform;
 use core\output\notification;
 
@@ -91,6 +92,11 @@ class availableidps extends moodleform {
                 $mform->addElement('textarea', $fieldkey.'[whitelist]', get_string('multiidp:label:whitelist', 'auth_saml2'));
                 $mform->addHelpButton($fieldkey.'[whitelist]', 'multiidp:label:whitelist', 'auth_saml2');
                 $mform->setType($fieldkey.'[whitelist]', PARAM_TEXT);
+
+                $select = $mform->addElement('select', $fieldkey.'[protocolbinding]',
+                    get_string('multiidp:label:protocolbinding', 'auth_saml2'), protocol_binding::form_options());
+                $select->setSelected($idpentity['protocolbinding']);
+                $mform->addHelpButton($fieldkey.'[protocolbinding]', 'multiidp:label:protocolbinding', 'auth_saml2');
 
                 // Moodle Workplace - Tenant availability edit button.
                 if (class_exists('\tool_tenant\local\auth\saml2\manager')) {

@@ -410,5 +410,17 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2023100300, 'auth', 'saml2');
     }
 
+    if ($oldversion < 2023112000) {
+
+        $table = new xmldb_table('auth_saml2_idps');
+        $field = new xmldb_field('protocolbinding', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0', 'whitelist');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_plugin_savepoint(true, 2023112000, 'auth', 'saml2');
+    }
+
     return true;
 }

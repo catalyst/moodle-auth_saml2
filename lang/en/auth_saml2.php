@@ -136,6 +136,8 @@ $string['multiidp:label:admin'] = 'For admin users only';
 $string['multiidp:label:admin_help'] = 'Any users that log in using this IdP will automatically be made an site administrator';
 $string['multiidp:label:whitelist'] = 'Redirected IP addresses';
 $string['multiidp:label:whitelist_help'] = 'If set, it will force clients to this IdP. Format: xxx.xxx.xxx.xxx/bitmask. Separate multiple subnets on a new line.';
+$string['multiidp:label:protocolbinding'] = 'Protocol Binding';
+$string['multiidp:label:protocolbinding_help'] = 'This specifies which binding should be used to respond by the IdP when we send the AuthnRequest. The Binding must be supported by the IdP.';
 $string['multiidpinfo'] = '
 <ul>
 <li>An IdP can only be used if it is set as Active</li>
