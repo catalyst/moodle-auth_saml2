@@ -90,7 +90,7 @@ class setting_idpmetadata extends admin_setting_configtextarea {
                 $oldidps[$idpentity->metadataurl] = array();
             }
 
-            $oldidps[$idpentity->metadataurl][$idpentity->entityid] = $idpentity;
+            $oldidps[$idpentity->metadataurl][$idpentity->id] = $idpentity;
         }
 
         foreach ($idps as $idp) {
