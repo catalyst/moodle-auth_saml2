@@ -123,7 +123,6 @@ class auth extends \auth_plugin_base {
         foreach ($idpentities as $idpentity) {
             // Set name.
             $idpentity->name = empty($idpentity->displayname) ? $idpentity->defaultname : $idpentity->displayname;
-            $idpentity->md5id = md5($idpentity->entityid);
             $idpentity->md5id = md5($idpentity->id);
             // Set default IdP if we found one.
             if ((bool) $idpentity->defaultidp && !isset($this->defaultidp)) {
