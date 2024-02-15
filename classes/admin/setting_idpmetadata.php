@@ -155,31 +155,44 @@ class setting_idpmetadata extends admin_setting_configtextarea {
             $logo = $logos->item(0)->textContent;
         }
 
-        if (isset($oldidps[$idp->idpurl][$entityid])) {
-            $oldidp = $oldidps[$idp->idpurl][$entityid];
+        // Update the IdP if it already exists.
+        if (array_key_exists($idp->idpurl, $oldidps)) {
+            foreach ($oldidps[$idp->idpurl] as $idpkey => $oldidp) {
+                if ($oldidp->entityid !== $entityid) {
+                    continue;
+                }
 
-            if (!empty($idpname) && $oldidp->defaultname !== $idpname) {
-                $DB->set_field('auth_saml2_idps', 'defaultname', $idpname, array('id' => $oldidp->id));
+                if ($oldidp->defaultname !== $idp->idpname) {
+                    continue;
+                }
+
+                if (!empty($idpname) && $oldidp->defaultname !== $idpname) {
+                    $DB->set_field('auth_saml2_idps', 'defaultname', $idpname, array('id' => $oldidp->id));
+                }
+    
+                if (!empty($logo) && $oldidp->logo !== $logo) {
+                    $DB->set_field('auth_saml2_idps', 'logo', $logo, array('id' => $oldidp->id));
+                }
+
+                // Remove the IdP from the current array so that we don't delete it later.
+                unset($oldidps[$idp->idpurl][$idpkey]);
+
+                // We found the IdP, so we can return early.
+                return;
             }
-
-            if (!empty($logo) && $oldidp->logo !== $logo) {
-                $DB->set_field('auth_saml2_idps', 'logo', $logo, array('id' => $oldidp->id));
-            }
-
-            // Remove the idp from the current array so that we don't delete it later.
-            unset($oldidps[$idp->idpurl][$entityid]);
-        } else {
-            $newidp = new \stdClass();
-            $newidp->metadataurl = $idp->idpurl;
-            $newidp->entityid = $entityid;
-            $newidp->activeidp = $activedefault;
-            $newidp->defaultidp = 0;
-            $newidp->adminidp = 0;
-            $newidp->defaultname = $idpname;
-            $newidp->logo = $logo;
-
-            $DB->insert_record('auth_saml2_idps', $newidp);
         }
+
+        // IdP does not exist, so we create a new one.
+        $newidp = new \stdClass();
+        $newidp->metadataurl = $idp->idpurl;
+        $newidp->entityid = $entityid;
+        $newidp->activeidp = $activedefault;
+        $newidp->defaultidp = 0;
+        $newidp->adminidp = 0;
+        $newidp->defaultname = $idpname;
+        $newidp->logo = $logo;
+
+        $DB->insert_record('auth_saml2_idps', $newidp);
     }
 
     /**
