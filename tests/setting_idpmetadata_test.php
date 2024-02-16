@@ -100,8 +100,9 @@ class setting_idpmetadata_test extends advanced_testcase {
         foreach ($metadataidps as $metadataurl => $idps) {
             self::assertSame('xml', $metadataurl);
 
-            $idp1md5 = md5('https://idp1.example.org/idp/shibboleth');
-            $idp2md5 = md5('https://idp2.example.org/idp/shibboleth');
+            $idpids = array_values(array_map(fn($idp) => $idp->id, $idps));
+            $idp1md5 = md5($idpids[0]);
+            $idp2md5 = md5($idpids[1]);
 
             self::assertTrue(array_key_exists($idp1md5, $idps));
             self::assertTrue(array_key_exists($idp2md5, $idps));
