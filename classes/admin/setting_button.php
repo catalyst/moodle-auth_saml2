@@ -38,6 +38,11 @@ require_once($CFG->libdir . '/moodlelib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class setting_button extends admin_setting_heading {
+    /** @var string Button label */
+    protected $label;
+    /** @var string Button href */
+    protected $href;
+
     /**
      * A button element
      *
