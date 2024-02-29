@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2023100300;    // The current plugin version (Date: YYYYMMDDXX).
+$plugin->version   = 2023100301;    // The current plugin version (Date: YYYYMMDDXX).
 $plugin->release   = 2023100300;    // Match release exactly to version.
 $plugin->requires  = 2017051509;    // Requires PHP 7, 2017051509 = T12. M3.3
                                     // Strictly we require either Moodle 3.5 OR

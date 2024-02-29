@@ -410,5 +410,28 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2023100300, 'auth', 'saml2');
     }
 
+    if ($oldversion < 2023100301) {
+
+        // Define table auth_saml2_idpsettings to be created.
+        $table = new xmldb_table('auth_saml2_idpsettings');
+
+        // Adding fields to table auth_saml2_idpsettings.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('idpid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('k', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('value', XMLDB_TYPE_TEXT, null, null, null, null, null);
+
+        // Adding keys to table auth_saml2_idpsettings.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('idpid_k', XMLDB_KEY_UNIQUE, ['idpid, k']);
+
+        // Conditionally launch create table for auth_saml2_idpsettings.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        upgrade_plugin_savepoint(true, 2023100301, 'auth', 'saml2');
+    }
+
     return true;
 }
