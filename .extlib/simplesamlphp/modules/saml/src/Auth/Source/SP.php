@@ -306,6 +306,7 @@ class SP extends \SimpleSAML\Auth\Source
      */
     public function getIdPMetadata(string $entityId): Configuration
     {
+        // auth_saml2 modification.
         // Set the IdP to null, so it can auto-detect.
         // Avoid the case where it uses the default IdP data for IdP initiated login.
         $this->idp = null;
