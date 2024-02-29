@@ -157,7 +157,7 @@ class auto_login {
         $auth = get_auth_plugin('saml2');
 
         // Set the default IdP to be the first in the list. Used when dual login is disabled.
-        $SESSION->saml2idp = reset($auth->metadataentities)->md5entityid;
+        $SESSION->saml2idp = reset($auth->metadataentities)->md5id;
 
         // Target URL is normally the same as current page, but if we got redirected to enrol.php
         // with a 'wants' URL, then that means if the login is successful we should try again at

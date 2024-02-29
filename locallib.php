@@ -427,13 +427,13 @@ function auth_saml2_get_idps($active = false, $asarray = false) {
 
     foreach ($idpentitiesrs as $idpentity) {
         $idpentity->name = empty($idpentity->displayname) ? $idpentity->defaultname : $idpentity->displayname;
-        $idpentity->md5entityid = md5($idpentity->entityid);
+        $idpentity->md5id = md5($idpentity->id);
 
         if (!isset($idpentities[$idpentity->metadataurl])) {
             $idpentities[$idpentity->metadataurl] = [];
         }
 
-        $idpentities[$idpentity->metadataurl][$idpentity->md5entityid] = ($asarray) ? (array) $idpentity : $idpentity;
+        $idpentities[$idpentity->metadataurl][$idpentity->md5id] = ($asarray) ? (array) $idpentity : $idpentity;
     }
 
     return $idpentities;
