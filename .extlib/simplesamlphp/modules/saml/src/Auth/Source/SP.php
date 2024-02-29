@@ -307,24 +307,9 @@ class SP extends \SimpleSAML\Auth\Source
     public function getIdPMetadata(string $entityId): Configuration
     {
         // auth_saml2 modification.
-        global $saml2auth;
-        if ($this->idp !== null && $this->idp !== $entityId) {
-            foreach ($saml2auth->metadataentities as $metadataurl => $idpentities) {
-                if ($metadataurl == $entityId) {
-                    foreach ($idpentities as $key => $val) {
-                        if ($key == $this->idp) {
-                            $this->idp = null;
-                        }
-                        break 2;
-
-                    }
-                }
-            }
-        }
-        if ($this->idp !== null && $this->idp !== $entityId) {
-            throw new Error\Exception('Cannot retrieve metadata for IdP ' .
-                var_export($entityId, true) . ' because it isn\'t a valid IdP for this SP.');
-        }
+        // Set the IdP to null, so it can auto-detect.
+        // Avoid the case where it uses the default IdP data for IdP initiated login.
+        $this->idp = null;
 
         $metadataHandler = MetaDataStorageHandler::getMetadataHandler();
 
