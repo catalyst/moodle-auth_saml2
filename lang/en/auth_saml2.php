@@ -228,6 +228,13 @@ allow admins=yes<br>
 deny admins=no<br>
 allow examrole=proctor<br>
 deny library=overdue<br>';
+// CATALYST CUSTOM START.
+$string['edit'] = '<a href=\'{$a}\'>Edit</a>';
+$string['editidp'] = 'Edit IdP';
+$string['mappings'] = 'Mappings';
+$string['metadatalink'] = 'Metadata';
+// CATALYST CUSTOM END.
+
 /*
  * Privacy provider (GDPR)
  */

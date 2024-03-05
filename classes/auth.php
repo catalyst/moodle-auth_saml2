@@ -155,6 +155,40 @@ class auth extends \auth_plugin_base {
         // Check if we have mutiple IdPs configured.
         // If we have mutliple metadata entries set multiidp to true.
         $this->multiidp = (count($this->metadataentities) > 1);
+
+        // Get the list of IdPs and their mapping settings.
+        $this->idplist = $this->get_idp_list();
+        if (isset($_GET['idp']) && !empty($_GET['idp'])) {
+            $selectedidp = $_GET['idp'];
+            if (isset($this->idplist[$selectedidp]) && !empty($this->idplist[$selectedidp])) {
+                foreach ($this->idplist[$selectedidp] as $key => $value) {
+                    $this->config->$key = $value;
+                }
+            }
+        }
+    }
+
+    /**
+     * Return array of all the IdPs and their configuration settings.
+     *
+     * @return array
+     **/
+    public function get_idp_list() {
+        $idps = auth_saml2_get_idps(true);
+        $idpconfig = [];
+
+        // Re-index the object to use shortname as the key.
+        foreach ($idps as $idp) {
+            foreach ($idp as $key => $value) {
+                $config = auth_saml2_get_idp_settings($value->id);
+                if ($config) {
+                    $arrayconfig[$key] = $config;
+                } else {
+                    $arrayconfig[$key] = [];
+                }
+            }
+        }
+        return $idpconfig;
     }
 
     /**
@@ -260,6 +294,8 @@ class auth extends \auth_plugin_base {
 
         // The array of IdPs to return.
         $idplist = [];
+        // Get the list of IdPs and their configuration settings.
+        $this->idplist = $this->get_idp_list();
 
         // Create IdP metadata url => name mapping.
         $idpurls = array_combine(array_column($this->metadatalist, 'idpurl'), array_column($this->metadatalist, 'idpname'));
@@ -584,21 +620,16 @@ class auth extends \auth_plugin_base {
         // We store the IdP in the session to generate the config/config.php array with the default local SP.
         $idpalias = optional_param('idpalias', '', PARAM_TEXT);
         if (!empty($idpalias)) {
-            $idpfound = false;
-
-            foreach ($this->metadataentities as $idpentity) {
-                if ($idpalias == $idpentity->alias) {
-                    $SESSION->saml2idp = $idpentity->md5entityid;
-                    $idpfound = true;
-                    break;
-                }
-            }
-
+            $idpfound = $this->saml_validateidp('alias', $idpalias);
             if (!$idpfound) {
                 $this->error_page(get_string('noidpfound', 'auth_saml2', $idpalias));
             }
         } else if (isset($_GET['idp'])) {
             $SESSION->saml2idp = $_GET['idp'];
+            $idpfound = $this->saml_validateidp('md5entityid', $_GET['idp']);
+            if (!$idpfound) {
+                $this->error_page(get_string('noidpfound', 'auth_saml2', $_GET['idp']));
+            }
         } else if (!is_null($this->defaultidp)) {
             $SESSION->saml2idp = $this->defaultidp->md5entityid;
         } else if ($this->multiidp) {
@@ -635,6 +666,26 @@ class auth extends \auth_plugin_base {
         $this->saml_login_complete($attributes);
     }
 
+    /**
+     * Check if valid IdP and is Active.
+     *
+     * @param string $idptype alias or md5entityid
+     * @param string $idp IdP Alias or IdP entity
+     * @return bool
+     */
+    public function saml_validateidp(string $idptype, string $idp) {
+        global $SESSION;
+        $idpfound = false;
+
+        foreach ($this->metadataentities as $idpentity) {
+            if ($idp == $idpentity->{$idptype}) {
+                $SESSION->saml2idp = $idpentity->md5entityid;
+                $idpfound = true;
+                break;
+            }
+        }
+        return $idpfound;
+    }
 
     /**
      * The user has done the SAML handshake now we can log them in
@@ -974,7 +1025,7 @@ class auth extends \auth_plugin_base {
     public function update_user_record_from_attribute_map(&$user, $attributes, $newuser= false) {
         global $CFG;
 
-        $mapconfig = get_config('auth_saml2');
+        $mapconfig = $this->config;
         $allkeys = array_keys(get_object_vars($mapconfig));
         $update = false;
 
