@@ -619,7 +619,14 @@ class auth extends \auth_plugin_base {
                 $this->error_page(get_string('noidpfound', 'auth_saml2', $idpalias));
             }
         } else if (isset($_GET['idp'])) {
-            $SESSION->saml2idp = $_GET['idp'];
+            // Requested IDP by parameter.
+            $idp == $_GET['idp'];
+            // Check it exists in our list of valid IDP's otherwise ignore it, the default should be used instead.
+            foreach ($this->metadataentities as $md5identityhash => $idpentity) {
+                if ($idp == $md5identityhash) {
+                    $SESSION->saml2idp = $idpentity->md5entityid;
+                }
+            }
         } else if (!is_null($this->defaultidp)) {
             $SESSION->saml2idp = $this->defaultidp->md5entityid;
         } else if ($this->multiidp) {
