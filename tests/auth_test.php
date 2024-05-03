@@ -190,9 +190,9 @@ class auth_saml2_test extends \advanced_testcase {
         // Name attribute is matching defaultname.
         $this->assertEquals($entity1->defaultname, reset($auth->metadataentities)->name);
 
-        // Encoded entityid present as an attribute as well as the key.
-        $this->assertArrayHasKey(md5($entity1->entityid), $auth->metadataentities);
-        $this->assertEquals(md5($entity1->entityid), reset($auth->metadataentities)->md5entityid);
+        // Encoded id present as an attribute as well as the key.
+        $this->assertArrayHasKey(md5($entity1->id), $auth->metadataentities);
+        $this->assertEquals(md5($entity1->id), reset($auth->metadataentities)->md5id);
 
         // Multiidp flag is false.
         $reflector = new \ReflectionClass($auth);
@@ -232,19 +232,19 @@ class auth_saml2_test extends \advanced_testcase {
         if (method_exists($this, 'assertEqualsCanonicalizing')) {
             // Check entity name.
             $this->assertEqualsCanonicalizing(['Login 1', $entity1->defaultname], array_column($auth->metadataentities, 'name'));
-            // Encoded entityid present as an attribute as well as the key.
-            $this->assertEqualsCanonicalizing([md5($entity1->entityid), md5($entity3->entityid)],
-                array_column($auth->metadataentities, 'md5entityid'));
-            $this->assertEqualsCanonicalizing([md5($entity1->entityid), md5($entity3->entityid)],
+            // Encoded id present as an attribute as well as the key.
+            $this->assertEqualsCanonicalizing([md5($entity1->id), md5($entity3->id)],
+                array_column($auth->metadataentities, 'md5id'));
+            $this->assertEqualsCanonicalizing([md5($entity1->id), md5($entity3->id)],
                 array_keys($auth->metadataentities));
         } else {
             // Check entity name.
             $this->assertEquals(['Login 1', $entity1->defaultname],
                 array_column($auth->metadataentities, 'name'), '', 0, 10, true);
-            // Encoded entityid present as an attribute as well as the key.
-            $this->assertEquals([md5($entity1->entityid), md5($entity3->entityid)],
-                array_column($auth->metadataentities, 'md5entityid'), '', 0, 10, true);
-            $this->assertEquals([md5($entity1->entityid), md5($entity3->entityid)],
+            // Encoded id present as an attribute as well as the key.
+            $this->assertEquals([md5($entity1->id), md5($entity3->id)],
+                array_column($auth->metadataentities, 'md5id'), '', 0, 10, true);
+            $this->assertEquals([md5($entity1->id), md5($entity3->id)],
                 array_keys($auth->metadataentities), '', 0, 10, true);
         }
 
@@ -258,7 +258,7 @@ class auth_saml2_test extends \advanced_testcase {
         $property = $reflector->getParentClass()->getProperty('defaultidp');
         $property->setAccessible(true);
         $this->assertNotNull($property->getValue($auth));
-        $this->assertEquals($auth->metadataentities[md5($entity3->entityid)], $property->getValue($auth));
+        $this->assertEquals($auth->metadataentities[md5($entity3->id)], $property->getValue($auth));
     }
 
     public function test_loginpage_idp_list(): void {
@@ -280,7 +280,7 @@ class auth_saml2_test extends \advanced_testcase {
         $this->assertInstanceOf(\moodle_url::class, $url);
         $this->assertEquals('/moodle/auth/saml2/login.php', $url->get_path());
         $this->assertEquals('/', $url->get_param('wants'));
-        $this->assertEquals(md5($entity1->entityid), $url->get_param('idp'));
+        $this->assertEquals(md5($entity1->id), $url->get_param('idp'));
         $this->assertEquals('off', $url->get_param('passive'));
 
         // Wantsurl is pointing to auth/saml2/login.php.
