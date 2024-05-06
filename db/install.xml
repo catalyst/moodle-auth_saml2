@@ -32,6 +32,7 @@
         <FIELD NAME="logo" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="alias" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="whitelist" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="protocolbinding" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

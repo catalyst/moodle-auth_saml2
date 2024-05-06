@@ -34,9 +34,11 @@ $baseurl = optional_param('baseurl', $CFG->wwwroot, PARAM_URL);
 
 if (!empty($SESSION->saml2idp) && array_key_exists($SESSION->saml2idp, $saml2auth->metadataentities)) {
     $idpentityid = $saml2auth->metadataentities[$SESSION->saml2idp]->entityid;
+    $protocolbinding = $saml2auth->metadataentities[$SESSION->saml2idp]->protocolbinding;
 } else {
     // Case for specifying no $SESSION IdP, select the first configured IdP as the default.
     $idpentityid = reset($saml2auth->metadataentities)->entityid;
+    $protocolbinding = reset($saml2auth->metadataentities)->protocolbinding;
 }
 
 $defaultspentityid = "$baseurl/auth/saml2/sp/metadata.php";
@@ -86,6 +88,7 @@ $config[$saml2auth->spname] = [
     ],
     'attributes' => $attributes,
     'attributes.required' => $attributesrequired,
+    'ProtocolBinding' => \auth_saml2\protocol_binding::get_binding($protocolbinding),
 ];
 
 if (!empty($saml2auth->config->assertionsconsumerservices)) {
