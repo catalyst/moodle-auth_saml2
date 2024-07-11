@@ -10,4 +10,3 @@ jobs:
       moodle_org_token: ${{ secrets.MOODLE_ORG_TOKEN }}
     with:
       min_php: '7.4'
-      disable_behat: true
