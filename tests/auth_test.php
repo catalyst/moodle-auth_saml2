@@ -788,6 +788,9 @@ class auth_saml2_test extends \advanced_testcase {
             $_GET['multiidp'] = true;
         }
 
+        // Setting an ip to use for testing against different configs.
+        $_SERVER['REMOTE_ADDR'] = '1.2.3.4';
+
         /** @var auth_plugin_saml2 $auth */
         $auth = get_auth_plugin('saml2');
         $result = $auth->should_login_redirect();
@@ -934,6 +937,55 @@ class auth_saml2_test extends \advanced_testcase {
                 ['duallogin' => true],
                 'on', true, false,
                 $midp],
+
+            // Restrict noredirect flags by ip.
+            // IP restrictions for ?saml=off should only take effect when dual is off.
+            "21. dual: y, ips: no match, param: off, multiidp: false, session: false" => [
+                [],
+                ['duallogin' => true, 'noredirectips' => '4.3.2.1'],
+                'off', false, false,
+                false],
+
+            // Ignore ?saml=off when ip restrictions are set and there's no matching ip.
+            "22. dual: n, ips: no match, param: off, multiidp: false, session: false" => [
+                [],
+                ['duallogin' => false, 'noredirectips' => '4.3.2.1'],
+                'off', false, false,
+                true],
+
+            // Allow ?saml=off when ip restrictions are set and there's a matching ip.
+            "23. dual: n, ips: match, param: off, multiidp: false, session: false" => [
+                [],
+                ['duallogin' => false, 'noredirectips' => '1.2.3.4'],
+                'off', false, false,
+                false],
+
+            // Matching ip subsets.
+            "24. dual: n, ips: match subset, param: off, multiidp: false, session: false" => [
+                [],
+                ['duallogin' => false, 'noredirectips' => '1.2'],
+                'off', false, false,
+                false],
+
+            // Multiple lines.
+            "25. dual: n, ips: match line, param: off, multiidp: false, session: false" => [
+                [],
+                ['duallogin' => false, 'noredirectips' => '4.3.2.1' . PHP_EOL . '1.2.3.4'],
+                'off', false, false,
+                false],
+
+            // Confirm this works the same for sessions.
+            "26. dual: n, ips: no match, param: off, multiidp: false, session: true" => [
+                [],
+                ['duallogin' => false, 'noredirectips' => '4.3.2.1'],
+                'off', false, true,
+                true],
+
+            "27. dual: n, ips: match, param: off, multiidp: false, session: true" => [
+                [],
+                ['duallogin' => false, 'noredirectips' => '1.2.3.4'],
+                'off', false, true,
+                false],
         ];
     }
 

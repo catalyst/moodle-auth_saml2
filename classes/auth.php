@@ -478,7 +478,7 @@ class auth extends \auth_plugin_base {
         }
 
         // Never redirect if requested so.
-        if ($saml === 0) {
+        if ($saml === 0 && $this->can_skip_redirect()) {
             $SESSION->saml = $saml;
             $this->log(__FUNCTION__ . ' skipping due to saml=off parameter');
             return false;
@@ -532,7 +532,8 @@ class auth extends \auth_plugin_base {
         //
         // This isn't needed when duallogin is on because $saml will default to 0
         // and duallogin is not part of the request.
-        if ((isset($SESSION->saml) && $SESSION->saml == 0) && $this->config->duallogin == saml2_settings::OPTION_DUAL_LOGIN_NO) {
+        if ((isset($SESSION->saml) && $SESSION->saml == 0) && $this->config->duallogin == saml2_settings::OPTION_DUAL_LOGIN_NO
+                && $this->can_skip_redirect()) {
             $this->log(__FUNCTION__ . ' skipping due to no sso session');
             return false;
         }
@@ -554,7 +555,7 @@ class auth extends \auth_plugin_base {
             $saml = 0;
         }
 
-        if ($saml == 0) {
+        if ($saml == 0 && $this->can_skip_redirect()) {
             $SESSION->saml = $saml;
             $this->log(__FUNCTION__ . ' skipping due to ?saml=off');
             return false;
@@ -567,6 +568,25 @@ class auth extends \auth_plugin_base {
         }
 
         return true;
+    }
+
+    /**
+     * Checks whether a user is allowed to skip redirect by using ?saml=off and noredirect params.
+     *
+     * @return bool whether the user can use these flags.
+     */
+    public function can_skip_redirect() {
+        // Allow if duallogin is enabled or a whitelist hasn't been set.
+        if ($this->config->duallogin != saml2_settings::OPTION_DUAL_LOGIN_NO || empty($this->config->noredirectips)) {
+            return true;
+        }
+
+        // Otherwise only allow this for users with matching IPs.
+        if (remoteip_in_list($this->config->noredirectips)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

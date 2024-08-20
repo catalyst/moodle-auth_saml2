@@ -151,6 +151,8 @@ $string['nameidasattrib'] = 'Expose NameID as attribute';
 $string['nameidasattrib_help'] = 'The NameID claim will be exposed to SSPHP as an attribute named nameid';
 $string['noattribute'] = 'You have logged in successfully but we could not find your \'{$a}\' attribute to associate you to an account in Moodle.';
 $string['noidpfound'] = 'The IdP \'{$a}\' was not found as a configured IdP.';
+$string['noredirectips'] = 'Restrict noredirect by IP';
+$string['noredirectips_help'] = 'When dual login is turned off and IPs are set, this will restrict the use of ?saml=off and ?noredirect=1 during SAML login to users with matching IP subnets.';
 $string['nouser'] = 'You have logged in successfully as \'{$a}\' but do not have an account in Moodle.';
 $string['nullprivatecert'] = 'Creation of Private Certificate failed.';
 $string['nullpubliccert'] = 'Creation of Public Certificate failed.';
