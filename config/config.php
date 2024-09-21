@@ -49,6 +49,7 @@ $config = array(
     'debug'             => ['saml' => $saml2auth->is_debugging()],
     'logging.level'     => $saml2auth->is_debugging() ? SimpleSAML\Logger::DEBUG : SimpleSAML\Logger::ERR,
     'logging.handler'   => $saml2auth->config->logtofile ? 'file' : 'errorlog',
+    'tempdir'           => '/tmp/simplesaml',
 
     // SSP has a %srcip token, but instead use $remoteip so Moodle handle's which header to use.
     'logging.format'    => '%date{%b %d %H:%M:%S} ' . $remoteip . ' %process %level %stat[%trackid] %msg',
