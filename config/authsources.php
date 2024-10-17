@@ -96,6 +96,13 @@ if (!empty($saml2auth->config->authncontext)) {
     $config[$saml2auth->spname]['AuthnContextClassRef'] = $saml2auth->config->authncontext;
 }
 
+if (!empty($saml2auth->config->denylistedalgorithms)) {
+    $config[$saml2auth->spname]['encryption.blacklisted-algorithms'] = explode(',', $saml2auth->config->denylistedalgorithms);
+} else {
+    // Support allowing all algorithms, if not set RSA 1.5 is denylisted by default
+    $config[$saml2auth->spname]['encryption.blacklisted-algorithms'] = [];
+}
+
 /*
  * If we're configured to expose the nameid as an attribute, set this authproc filter up
  * the nameid value appears under the attribute "nameid"
