@@ -694,7 +694,7 @@ class auth extends \auth_plugin_base {
             $accentsensitive = true;
             if ($this->config->tolower == saml2_settings::OPTION_TOLOWER_LOWER_CASE) {
                 $this->log(__FUNCTION__ . " to lowercase for $uid");
-                $uid = strtolower($uid);
+                $uid = \core_text::strtolower($uid);
             }
             if ($this->config->tolower == saml2_settings::OPTION_TOLOWER_CASE_INSENSITIVE) {
                 $this->log(__FUNCTION__ . " case insensitive compare for $uid");
@@ -748,7 +748,7 @@ class auth extends \auth_plugin_base {
                 $this->update_user_record_from_attribute_map($user, $attributes, true);
                 if (empty($user->username)) {
                     // Just in case username field not set, use uid.
-                    $user->username = strtolower($uid);
+                    $user->username = \core_text::strtolower($uid);
                 }
                 // Set the auth to saml2 if it's not set from the attributes.
                 if (empty($user->auth)) {
@@ -1034,7 +1034,7 @@ class auth extends \auth_plugin_base {
                                     }
                                 }
                                 if ($field == 'username') {
-                                    $user->$field = strtolower($attributes[$attr][0]);
+                                    $user->$field = \core_text::strtolower($attributes[$attr][0]);
                                 } else {
                                     // Custom profile fields have the prefix profile_field_ and will be saved as profile field data.
                                     $delimiter = $mapconfig->fielddelimiter;
@@ -1102,7 +1102,7 @@ class auth extends \auth_plugin_base {
      */
     private function get_username_from_attributes(array $attributes) {
         if (!empty($this->config->field_map_username) && !empty($attributes[$this->config->field_map_username])) {
-            return strtolower($attributes[$this->config->field_map_username][0]);
+            return \core_text::strtolower($attributes[$this->config->field_map_username][0]);
         }
 
         return false;
