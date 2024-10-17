@@ -84,7 +84,7 @@ class user_extractor {
                        AND u.mnethostid = :mnethostid $fieldsql";
 
             if ($records = $DB->get_records_sql($sql, $params)) {
-                if (count($records) == 1) {
+                if (count($records) > 0) {
                     $record = reset($records);
                     $user = get_complete_user_data('id', $record->id);
                 }
