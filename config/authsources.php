@@ -40,7 +40,7 @@ if (!empty($SESSION->saml2idp) && array_key_exists($SESSION->saml2idp, $saml2aut
 }
 
 $defaultspentityid = "$baseurl/auth/saml2/sp/metadata.php";
-
+$idp = md5($idpentity->entityid); Replace it with $idp = $idpentity->entityid;
 // Process requested attributes.
 $attributes = [];
 $attributesrequired = [];
