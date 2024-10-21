@@ -30,4 +30,9 @@ $callbacks = [
         'callback' => 'auth_saml2\local\hooks\output\before_http_headers::callback',
         'priority' => 0,
     ],
+    [
+        'hook' => \core\hook\after_config::class,
+        'callback' => 'auth_saml2\local\hooks\after_config::callback',
+        'priority' => 0,
+    ],
 ];

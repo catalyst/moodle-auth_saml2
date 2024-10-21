@@ -25,6 +25,10 @@
 /**
  * Check if we have the saml=on param set. If so, disable guest access and force the user to log in with saml.
  *
+ * This is an implementation of a legacy callback that will only be called in older Moodle versions.
+ * It will not be called in Moodle 4.5+ that contain the hook core\hook\after_config,
+ * instead, the callback auth_saml2\local\hooks\after_config::callback will be executed.
+ *
  * @since  Moodle 3.8
  * @return void
  */
