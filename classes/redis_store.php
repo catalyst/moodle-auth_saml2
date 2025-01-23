@@ -81,7 +81,7 @@ class redis_store implements \SimpleSAML\Store\StoreInterface {
      * @param string $key
      * @return mixed|null
      */
-    public function get($type, $key) {
+    public function get($type, $key): mixed {
         $value = $this->redis->get($this->make_key($type, $key));
         if ($value === false) {
             $value = null;
