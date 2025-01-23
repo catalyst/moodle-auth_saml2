@@ -367,12 +367,12 @@ urn:mace:dir:attribute-def:mail *</pre>"]),
         1,
         $yesno));
 
-    // SAMLPHP tempdir
+    // SAMLPHP tempdir.
     $settings->add(new admin_setting_configtext(
         'auth_saml2/tempdir',
         get_string('tempdir', 'auth_saml2'),
         get_string('tempdir_help', 'auth_saml2'),
-        get_string('tempdirdefault', 'auth_saml2'),
+        '/tmp/simplesaml',
         PARAM_TEXT,
         50,
         3));

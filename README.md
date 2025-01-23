@@ -1,4 +1,4 @@
-![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/catalyst/moodle-auth_saml2/ci.yml?branch=MOODLE_39_STABLE&label=ci)
+[![ci](https://github.com/catalyst/moodle-auth_saml2/actions/workflows/ci.yml/badge.svg?branch=MOODLE_39_STABLE)](https://github.com/catalyst/moodle-auth_saml2/actions/workflows/ci.yml?branch=MOODLE_39_STABLE)
 
 https://moodle.org/plugins/auth_saml2
 
