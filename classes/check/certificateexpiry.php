@@ -38,6 +38,12 @@ use core\check\result;
  */
 class certificateexpiry extends check {
 
+    /** @var string Check ID */
+    protected string $id;
+
+    /** @var string Check name */
+    protected $name;
+
     /**
      * Constructor
      */
