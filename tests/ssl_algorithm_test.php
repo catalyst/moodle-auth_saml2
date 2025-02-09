@@ -24,7 +24,7 @@ use auth_saml2\ssl_algorithms;
  * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class auth_saml2_ssl_algorithms_test extends basic_testcase {
+class auth_saml2_ssl_algorithms_test extends \core_phpunit\testcase {
     public function test_default_saml_signature_algorithm_is_valid_saml_signature_algorithm() {
         $this->assertTrue(array_key_exists(ssl_algorithms::get_default_saml_signature_algorithm(),
             ssl_algorithms::get_valid_saml_signature_algorithms()));
