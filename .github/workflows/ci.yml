@@ -4,9 +4,10 @@ name: ci
 on: [push, pull_request]
 
 jobs:
-  test:
+  ci:
     uses: catalyst/catalyst-moodle-workflows/.github/workflows/ci.yml@main
+    with:
+      disable_phpcpd: true
+      disable_grunt: true
     secrets:
       moodle_org_token: ${{ secrets.MOODLE_ORG_TOKEN }}
-    with:
-      min_php: '7.4'
