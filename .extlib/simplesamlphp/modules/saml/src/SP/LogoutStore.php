@@ -32,12 +32,90 @@ class LogoutStore
     private static function createLogoutTable(Store\SQLStore $store): void
     {
         $tableVer = $store->getTableVersion('saml_LogoutStore');
-        if ($tableVer === 4) {
+        if ($tableVer === 5) {
+            return;
+        } elseif ($tableVer === 4) {
+            // The _authSource index is being changed from UNIQUE to PRIMARY KEY for table version 5.
+            switch ($store->driver) {
+                case 'pgsql':
+                    // Drop old index and add primary key
+                    $update = [
+                        'ALTER TABLE ' . $store->prefix . '_saml_LogoutStore DROP CONSTRAINT IF EXISTS ' .
+                          $store->prefix . '_saml_LogoutStore___authSource__nameId__sessionIndex_key',
+                        'ALTER TABLE ' . $store->prefix . '_saml_LogoutStore ADD PRIMARY KEY ' .
+                          '(_authSource, _nameId, _sessionIndex)',
+                    ];
+                    break;
+                case 'sqlsrv':
+                    /**
+                     * Drop old index and add primary key.
+                     * NOTE: We get the name of the index by looking for the only unique index with a default name.
+                     */
+                    $update = [
+                        'ALTER TABLE ' . $store->prefix . '_saml_LogoutStore DROP INDEX IF EXISTS SELECT CONSTRAINT_NAME ' .
+                          'FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE TABLE_NAME=' . $store->prefix . '_saml_LogoutStore ' .
+                          'AND CONSTRAINT_NAME LIKE \'UQ__%"\'',
+                        'ALTER TABLE ' . $store->prefix . '_saml_LogoutStore ADD CONSTRAINT _authSource ' .
+                          'PRIMARY KEY CLUSTERED (_authSource, _nameId, _sessionIndex)',
+                    ];
+                    break;
+                case 'sqlite':
+                    /**
+                     * Because SQLite does not support field alterations, the approach is to:
+                     *     Create a new table with the primary key
+                     *     Copy the current data to the new table
+                     *     Drop the old table
+                     *     Rename the new table correctly
+                     */
+                    $update = [
+                        'CREATE TABLE ' . $store->prefix .
+                          '_saml_LogoutStore_new (_authSource VARCHAR(255) NOT NULL,' .
+                          '_nameId VARCHAR(40) NOT NULL, _sessionIndex VARCHAR(50) NOT NULL, ' .
+                          '_expire TIMESTAMP NOT NULL, _sessionId VARCHAR(50) NOT NULL, PRIMARY KEY' .
+                          '(_authSource, _nameID, _sessionIndex))',
+                        'INSERT INTO ' . $store->prefix . '_saml_LogoutStore_new SELECT * FROM ' .
+                          $store->prefix . '_saml_LogoutStore',
+                        'DROP TABLE ' . $store->prefix . '_saml_LogoutStore',
+                        'ALTER TABLE ' . $store->prefix . '_saml_LogoutStore_new RENAME TO ' .
+                          $store->prefix . '_saml_LogoutStore',
+                        'CREATE INDEX ' . $store->prefix . '_saml_LogoutStore_expire ON ' .
+                          $store->prefix . '_saml_LogoutStore (_expire)',
+                        'CREATE INDEX ' . $store->prefix . '_saml_LogoutStore_nameId ON ' .
+                          $store->prefix . '_saml_LogoutStore (_authSource, _nameId)',
+                    ];
+                    break;
+                case 'mysql':
+                    // Drop old index and add primary key
+                    $update = [
+                        'ALTER TABLE ' . $store->prefix . '_saml_LogoutStore DROP INDEX _authSource',
+                        'ALTER TABLE ' . $store->prefix . '_saml_LogoutStore ADD PRIMARY KEY ' .
+                          '(_authSource(191), _nameId, _sessionIndex)',
+                    ];
+                    break;
+                default:
+                    // Drop old index and add primary key
+                    $update = [
+                        'ALTER TABLE ' . $store->prefix . '_saml_LogoutStore DROP INDEX _authSource',
+                        'ALTER TABLE ' . $store->prefix . '_saml_LogoutStore ADD PRIMARY KEY ' .
+                          '(_authSource, _nameId, _sessionIndex)',
+                    ];
+                    break;
+            }
+
+            try {
+                foreach ($update as $query) {
+                    $store->pdo->exec($query);
+                }
+            } catch (Exception $e) {
+                Logger::warning('Database error: ' . var_export($store->pdo->errorInfo(), true));
+                return;
+            }
+            $store->setTableVersion('saml_LogoutStore', 5);
             return;
         } elseif ($tableVer < 4 && $tableVer > 0) {
             throw new Exception(
                 'No upgrade path available. Please migrate to the latest 1.18+ '
-                .  'version of SimpleSAMLphp first before upgrading to 2.x.'
+                .  'version of SimpleSAMLphp first before upgrading to 2.x.',
             );
         }
 
@@ -47,7 +125,7 @@ class LogoutStore
             _sessionIndex VARCHAR(50) NOT NULL,
             _expire ' . ($store->driver === 'pgsql' ? 'TIMESTAMP' : 'DATETIME') . ' NOT NULL,
             _sessionId VARCHAR(50) NOT NULL,
-            UNIQUE (_authSource' . ($store->driver === 'mysql' ? '(191)' : '') . ', _nameID, _sessionIndex)
+            PRIMARY KEY (_authSource' . ($store->driver === 'mysql' ? '(191)' : '') . ', _nameId, _sessionIndex)
         )';
         $store->pdo->exec($query);
 
@@ -60,7 +138,7 @@ class LogoutStore
         ', _nameId)';
         $store->pdo->exec($query);
 
-        $store->setTableVersion('saml_LogoutStore', 4);
+        $store->setTableVersion('saml_LogoutStore', 5);
     }
 
 
@@ -97,7 +175,7 @@ class LogoutStore
         string $nameId,
         string $sessionIndex,
         int $expire,
-        string $sessionId
+        string $sessionId,
     ): void {
         self::createLogoutTable($store);
 
@@ -115,7 +193,7 @@ class LogoutStore
         $store->insertOrUpdate(
             $store->prefix . '_saml_LogoutStore',
             ['_authSource', '_nameId', '_sessionIndex'],
-            $data
+            $data,
         );
     }
 
@@ -165,7 +243,7 @@ class LogoutStore
     private static function getSessionsStore(
         StoreInterface $store,
         string $nameId,
-        array $sessionIndexes
+        array $sessionIndexes,
     ): array {
         $res = [];
         foreach ($sessionIndexes as $sessionIndex) {
@@ -301,13 +379,13 @@ class LogoutStore
 
             if (!$session->isValid($authId)) {
                 Logger::info(
-                    'saml.LogoutStore: Skipping logout of session because it isn\'t authenticated.'
+                    'saml.LogoutStore: Skipping logout of session because it isn\'t authenticated.',
                 );
                 continue;
             }
 
             Logger::info(
-                'saml.LogoutStore: Logging out of session with trackId [' . $session->getTrackID() . '].'
+                'saml.LogoutStore: Logging out of session with trackId [' . $session->getTrackID() . '].',
             );
             $session->doLogout($authId);
             $numLoggedOut += 1;

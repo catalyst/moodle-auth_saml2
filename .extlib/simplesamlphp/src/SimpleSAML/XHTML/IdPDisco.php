@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace SimpleSAML\XHTML;
 
 use Exception;
-use SimpleSAML\Assert\Assert;
 use SimpleSAML\Configuration;
 use SimpleSAML\Logger;
 use SimpleSAML\Metadata\MetaDataStorageHandler;
@@ -13,8 +12,8 @@ use SimpleSAML\Session;
 use SimpleSAML\Utils;
 
 use function array_fill_keys;
-use function array_intersect_key;
 use function array_intersect;
+use function array_intersect_key;
 use function array_key_exists;
 use function array_keys;
 use function array_merge;
@@ -44,13 +43,6 @@ class IdPDisco
     protected Configuration $config;
 
     /**
-     * The identifier of this discovery service.
-     *
-     * @var string
-     */
-    protected string $instance;
-
-    /**
      * An instance of the metadata handler, which will allow us to fetch metadata about IdPs.
      *
      * @var \SimpleSAML\Metadata\MetaDataStorageHandler
@@ -63,13 +55,6 @@ class IdPDisco
      * @var \SimpleSAML\Session
      */
     protected Session $session;
-
-    /**
-     * The metadata sets we find allowed entities in, in prioritized order.
-     *
-     * @var array
-     */
-    protected array $metadataSets;
 
     /**
      * The entity id of the SP which accesses this IdP discovery service.
@@ -123,19 +108,19 @@ class IdPDisco
      *
      * The constructor does the parsing of the request. If this is an invalid request, it will throw an exception.
      *
-     * @param string[] $metadataSets Array with metadata sets we find remote entities in.
+     * @param string[] $metadataSets Array with metadata sets we find remote entities in, in prioritized order.
      * @param string $instance The name of this instance of the discovery service.
      *
      * @throws \Exception If the request is invalid.
      */
-    public function __construct(array $metadataSets, string $instance)
-    {
+    public function __construct(
+        protected array $metadataSets,
+        protected string $instance,
+    ) {
         // initialize standard classes
         $this->config = Configuration::getInstance();
         $this->metadata = MetaDataStorageHandler::getMetadataHandler();
         $this->session = Session::getSessionFromRequest();
-        $this->instance = $instance;
-        $this->metadataSets = $metadataSets;
 
         $this->log('Accessing discovery service.');
 
@@ -534,12 +519,12 @@ class IdPDisco
                     'IdPentityID'   => $idp,
                     'returnIDParam' => $this->returnIdParam,
                     'isPassive'     => 'true',
-                    'return'        => $this->returnURL
+                    'return'        => $this->returnURL,
                 ]);
             } else {
                 $this->log(
                     'Choice made [' . $idp . '] (Redirecting the user back. returnIDParam='
-                    . $this->returnIdParam . ')'
+                    . $this->returnIdParam . ')',
                 );
                 $httpUtils->redirectTrustedURL($this->returnURL, [$this->returnIdParam => $idp]);
             }
@@ -577,11 +562,11 @@ class IdPDisco
         if (sizeof($idpintersection) == 1) {
             $this->log(
                 'Choice made [' . $idpintersection[0] . '] (Redirecting the user back. returnIDParam=' .
-                $this->returnIdParam . ')'
+                $this->returnIdParam . ')',
             );
             $httpUtils->redirectTrustedURL(
                 $this->returnURL,
-                [$this->returnIdParam => $idpintersection[0]]
+                [$this->returnIdParam => $idpintersection[0]],
             );
         }
 
@@ -622,7 +607,7 @@ class IdPDisco
              */
             function (array $idpentry1, array $idpentry2) {
                 return strcasecmp($idpentry1['name'], $idpentry2['name']);
-            }
+            },
         );
 
         $t->data['idplist'] = $newlist;

@@ -4,16 +4,25 @@ declare(strict_types=1);
 
 namespace SimpleSAML\Module\admin\Controller;
 
-use Exception;
 use SimpleSAML\Configuration;
 use SimpleSAML\Locale\Translate;
-use SimpleSAML\Metadata\MetaDataStorageHandler;
 use SimpleSAML\Module;
 use SimpleSAML\Session;
 use SimpleSAML\Utils;
 use SimpleSAML\XHTML\Template;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\{Request, Response, StreamedResponse};
+
+use function curl_close;
+use function curl_exec;
+use function curl_getinfo;
+use function curl_init;
+use function curl_setopt;
+use function explode;
+use function function_exists;
+use function json_decode;
+use function ltrim;
+use function phpversion;
+use function version_compare;
 
 /**
  * Controller class for the admin module.
@@ -28,9 +37,6 @@ class Config
 
     public const RELEASES_API = 'https://api.github.com/repos/simplesamlphp/simplesamlphp/releases/latest';
 
-    /** @var \SimpleSAML\Configuration */
-    protected Configuration $config;
-
     /** @var \SimpleSAML\Utils\Auth */
     protected Utils\Auth $authUtils;
 
@@ -40,9 +46,6 @@ class Config
     /** @var \SimpleSAML\Module\admin\Controller\Menu */
     protected Menu $menu;
 
-    /** @var \SimpleSAML\Session */
-    protected Session $session;
-
 
     /**
      * ConfigController constructor.
@@ -50,10 +53,10 @@ class Config
      * @param \SimpleSAML\Configuration $config The configuration to use.
      * @param \SimpleSAML\Session $session The current user session.
      */
-    public function __construct(Configuration $config, Session $session)
-    {
-        $this->config = $config;
-        $this->session = $session;
+    public function __construct(
+        protected Configuration $config,
+        protected Session $session,
+    ) {
         $this->menu = new Menu();
         $this->authUtils = new Utils\Auth();
         $this->httpUtils = new Utils\HTTP();
@@ -124,12 +127,12 @@ class Config
             'links' => [
                 [
                     'href' => Module::getModuleURL('admin/diagnostics'),
-                    'text' => Translate::noop('Diagnostics on hostname, port and protocol')
+                    'text' => Translate::noop('Diagnostics on hostname, port and protocol'),
                 ],
                 [
                     'href' => Module::getModuleURL('admin/phpinfo'),
-                    'text' => Translate::noop('Information on your PHP installation')
-                ]
+                    'text' => Translate::noop('Information on your PHP installation'),
+                ],
             ],
             'enablematrix' => [
                 'saml20idp' => $this->config->getOptionalBoolean('enable.saml20-idp', false),
@@ -171,7 +174,13 @@ class Config
     {
         $this->authUtils->requireAdmin();
 
-        return new StreamedResponse('phpinfo');
+        $response = new StreamedResponse('phpinfo');
+        $response->headers->set(
+            'Content-Security-Policy',
+            "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors 'self';",
+        );
+
+        return $response;
     }
 
 
@@ -196,12 +205,12 @@ class Config
                 'descr' => [
                     Translate::noop('PHP %minimum% or newer is needed. You are running: %current%'),
                     [
-                        '%minimum%' => '7.4',
-                        '%current%' => explode('-', phpversion())[0]
-                    ]
+                        '%minimum%' => '8.1',
+                        '%current%' => explode('-', phpversion())[0],
+                    ],
                 ],
-                'enabled' => version_compare(phpversion(), '7.4', '>=')
-            ]
+                'enabled' => version_compare(phpversion(), '8.1', '>='),
+            ],
         ];
         $store = $this->config->getOptionalString('store.type', null);
         $checkforupdates = $this->config->getOptionalBoolean('admin.checkforupdates', true);
@@ -212,93 +221,93 @@ class Config
                 'required' => 'required',
                 'descr' => [
                     'required' => Translate::noop('Date/Time Extension'),
-                ]
+                ],
             ],
             'hash' => [
                 'required' => 'required',
                 'descr' => [
                     'required' => Translate::noop('Hashing function'),
-                ]
+                ],
             ],
             'gzinflate' => [
                 'required' => 'required',
                 'descr' => [
                     'required' => Translate::noop('ZLib'),
-                ]
+                ],
             ],
             'openssl_sign' => [
                 'required' => 'required',
                 'descr' => [
                     'required' => Translate::noop('OpenSSL'),
-                ]
+                ],
             ],
             'dom_import_simplexml' => [
                 'required' => 'required',
                 'descr' => [
                     'required' => Translate::noop('XML DOM'),
-                ]
+                ],
             ],
             'preg_match' => [
                 'required' => 'required',
                 'descr' => [
                     'required' => Translate::noop('Regular expression support'),
-                ]
+                ],
             ],
             'intl_get_error_code' => [
-                'required' => 'required',
+                'required' => 'optional',
                 'descr' => [
-                    'required' => Translate::noop('PHP intl extension'),
-                ]
+                    'optional' => Translate::noop('PHP intl extension'),
+                ],
             ],
             'json_decode' => [
                 'required' => 'required',
                 'descr' => [
                     'required' => Translate::noop('JSON support'),
-                ]
+                ],
             ],
             'class_implements' => [
                 'required' => 'required',
                 'descr' => [
                     'required' => Translate::noop('Standard PHP library (SPL)'),
-                ]
+                ],
             ],
             'mb_strlen' => [
                 'required' => 'required',
                 'descr' => [
                     'required' => Translate::noop('Multibyte String extension'),
-                ]
+                ],
             ],
             'curl_init' => [
                 'required' => ($checkforupdates === true) ? 'required' : 'optional',
                 'descr' => [
                     'optional' => Translate::noop(
-                        'cURL (might be required by some modules)'
+                        'cURL (might be required by some modules)',
                     ),
                     'required' => Translate::noop(
-                        'cURL (required if automatic version checks are used, also by some modules)'
+                        'cURL (required if automatic version checks are used, also by some modules)',
                     ),
-                ]
+                ],
             ],
             'session_start' => [
                 'required' => $store === 'phpsession' ? 'required' : 'optional',
                 'descr' => [
                     'optional' => Translate::noop('Session extension (required if PHP sessions are used)'),
                     'required' => Translate::noop('Session extension'),
-                ]
+                ],
             ],
             'pdo_drivers' => [
                 'required' => $store === 'sql' ? 'required' : 'optional',
                 'descr' => [
                     'optional' => Translate::noop('PDO Extension (required if a database backend is used)'),
                     'required' => Translate::noop('PDO extension'),
-                ]
+                ],
             ],
             'ldap_bind' => [
                 'required' => Module::isModuleEnabled('ldap') ? 'required' : 'optional',
                 'descr' => [
                     'optional' => Translate::noop('LDAP extension (required if an LDAP backend is used)'),
                     'required' => Translate::noop('LDAP extension'),
-                ]
+                ],
             ],
         ];
 
@@ -318,18 +327,18 @@ class Config
                 'descr' => [
                     'optional' => Translate::noop('predis/predis (required if the redis data store is used)'),
                     'required' => Translate::noop('predis/predis library'),
-                ]
+                ],
             ],
             [
                 'classes' => ['\Memcache', '\Memcached'],
                 'required' => $store === 'memcache' ? 'required' : 'optional',
                 'descr' => [
                     'optional' => Translate::noop(
-                        'Memcache or Memcached extension (required if the memcache backend is used)'
+                        'Memcache or Memcached extension (required if the memcache backend is used)',
                     ),
                     'required' => Translate::noop('Memcache or Memcached extension'),
-                ]
-            ]
+                ],
+            ],
         ];
 
         foreach ($libs as $lib) {
@@ -359,52 +368,18 @@ class Config
             'enabled' => $this->config->getOptionalString('auth.adminpassword', '123') !== '123',
         ];
 
-        $cryptoUtils = new Utils\Crypto();
 
-        // perform some sanity checks on the configured certificates
-        if ($this->config->getOptionalBoolean('enable.saml20-idp', false) !== false) {
-            $handler = MetaDataStorageHandler::getMetadataHandler();
-            try {
-                $metadata = $handler->getMetaDataCurrent('saml20-idp-hosted');
-            } catch (Exception $e) {
+        // Add module specific checks via the sanitycheck hook that a module can provide.
+        $hookinfo = [ 'info' => [], 'errors' => [] ];
+        Module::callHooks('sanitycheck', $hookinfo);
+        foreach (['info', 'errors'] as $resulttype) {
+            foreach ($hookinfo[$resulttype] as $result) {
                 $matrix[] = [
                     'required' => 'required',
-                    'descr' => Translate::noop('Hosted IdP metadata present'),
-                    'enabled' => false
+                    'descr' => $result,
+                    'enabled' => $resulttype === 'info',
                 ];
             }
-
-            if (isset($metadata)) {
-                $metadata_config = Configuration::loadfromArray($metadata);
-                $private = $cryptoUtils->loadPrivateKey($metadata_config, false);
-                $public = $cryptoUtils->loadPublicKey($metadata_config, false);
-
-                $matrix[] = [
-                    'required' => 'required',
-                    'descr' => Translate::noop('Matching key-pair for signing assertions'),
-                    'enabled' => $this->matchingKeyPair($public['PEM'], $private['PEM'], $private['password']),
-                ];
-
-                $private = $cryptoUtils->loadPrivateKey($metadata_config, false, 'new_');
-                if ($private !== null) {
-                    $public = $cryptoUtils->loadPublicKey($metadata_config, false, 'new_');
-                    $matrix[] = [
-                        'required' => 'required',
-                        'descr' => Translate::noop('Matching key-pair for signing assertions (rollover key)'),
-                        'enabled' => $this->matchingKeyPair($public['PEM'], $private['PEM'], $private['password']),
-                    ];
-                }
-            }
-        }
-
-        if ($this->config->getOptionalBoolean('metadata.sign.enable', false) !== false) {
-            $private = $cryptoUtils->loadPrivateKey($this->config, false, 'metadata.sign.');
-            $public = $cryptoUtils->loadPublicKey($this->config, false, 'metadata.sign.');
-            $matrix[] = [
-                'required' => 'required',
-                'descr' => Translate::noop('Matching key-pair for signing metadata'),
-                'enabled' => $this->matchingKeyPair($public['PEM'], $private['PEM'], $private['password']),
-            ];
         }
 
         return $matrix;
@@ -433,17 +408,22 @@ class Config
                 '<strong>You are not using HTTPS</strong> to protect communications with your users. HTTP works fine ' .
                 'for testing purposes, but in a production environment you should use HTTPS. <a ' .
                 'href="https://simplesamlphp.org/docs/stable/simplesamlphp-maintenance">Read more about the ' .
-                'maintenance of SimpleSAMLphp</a>.'
+                'maintenance of SimpleSAMLphp</a>.',
             );
         }
 
         // make sure we have a secret salt set
-        if ($this->config->getString('secretsalt') === 'defaultsecretsalt') {
+        $secretSalt = $this->config->getString('secretsalt');
+        if ($secretSalt === 'defaultsecretsalt') {
             $warnings[] = Translate::noop(
                 '<strong>The configuration uses the default secret salt</strong>. Make sure to modify the <code>' .
                 'secretsalt</code> option in the SimpleSAMLphp configuration in production environments. <a ' .
                 'href="https://simplesamlphp.org/docs/stable/simplesamlphp-install">Read more about the ' .
-                'maintenance of SimpleSAMLphp</a>.'
+                'maintenance of SimpleSAMLphp</a>.',
+            );
+        } elseif (str_contains($secretSalt, '%')) {
+            $warnings[] = Translate::noop(
+                'The "secretsalt" configuration option may not contain a `%` sign.',
             );
         }
 
@@ -455,7 +435,7 @@ class Config
         if (($checkforupdates === true) && $this->config->getVersion() !== 'master') {
             if (!function_exists('curl_init')) {
                 $warnings[] = Translate::noop(
-                    'The cURL PHP extension is missing. Cannot check for SimpleSAMLphp updates.'
+                    'The cURL PHP extension is missing. Cannot check for SimpleSAMLphp updates.',
                 );
             } else {
                 $latest = $this->session->getData(self::LATEST_VERSION_STATE_KEY, "version");
@@ -481,7 +461,7 @@ class Config
                     $warnings[] = [
                         Translate::noop(
                             'You are running an outdated version of SimpleSAMLphp. Please update to <a href="' .
-                            '%latest%">the latest version</a> as soon as possible.'
+                            '%latest%">the latest version</a> as soon as possible.',
                         ),
                         [
                             '%latest%' => $latest['html_url'],
@@ -492,22 +472,5 @@ class Config
         }
 
         return $warnings;
-    }
-
-
-    /**
-     * Test whether public & private key are a matching pair
-     *
-     * @param string $publicKey
-     * @param string $privateKey
-     * @param string|null $password
-     * @return bool
-     */
-    private function matchingKeyPair(
-        string $publicKey,
-        string $privateKey,
-        ?string $password = null
-    ): bool {
-        return openssl_x509_check_private_key($publicKey, [$privateKey, $password]);
     }
 }

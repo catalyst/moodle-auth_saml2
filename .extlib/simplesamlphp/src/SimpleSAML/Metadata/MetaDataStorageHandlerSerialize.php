@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace SimpleSAML\Metadata;
 
-use SimpleSAML\Assert\Assert;
 use SimpleSAML\Configuration;
 use SimpleSAML\Logger;
 use SimpleSAML\Utils;
@@ -94,7 +93,7 @@ class MetaDataStorageHandlerSerialize extends MetaDataStorageSource
         $loc = new File($this->directory, false);
         if (!$this->fileSystem->exists($this->directory) || !$loc->isReadable()) {
             Logger::warning(
-                'Serialize metadata handler: Unable to open directory: ' . var_export($this->directory, true)
+                'Serialize metadata handler: Unable to open directory: ' . var_export($this->directory, true),
             );
             return $ret;
         }
@@ -123,7 +122,7 @@ class MetaDataStorageHandlerSerialize extends MetaDataStorageSource
         $ret = [];
 
         $loc = new File(Path::canonicalize($this->directory . '/' . rawurlencode($set)), false);
-        if (!$this->fileSystem->exists($loc) || !$loc->isReadable()) {
+        if (!$this->fileSystem->exists($loc->getPath()) || !$loc->isReadable()) {
             Logger::warning(sprintf(
                 'Serialize metadata handler: Unable to open directory: %s',
                 var_export($loc->getPathName(), true),
@@ -208,7 +207,7 @@ class MetaDataStorageHandlerSerialize extends MetaDataStorageSource
         if (!$loc->isDir()) {
             Logger::info('Creating directory: ' . $loc);
             try {
-                $this->fileSystem->mkdir($loc, 0777);
+                $this->fileSystem->mkdir($loc->getPath(), 0777);
             } catch (IOException $e) {
                 Logger::error('Failed to create directory ' . $loc . ': ' . $e->getMessage());
                 return false;
@@ -230,7 +229,7 @@ class MetaDataStorageHandlerSerialize extends MetaDataStorageSource
             $this->fileSystem->rename($new->getPathName(), $old->getPathName(), true);
         } catch (IOException $e) {
             Logger::error(
-                sprintf('Error renaming %s to %s: %s', $new->getPathName(), $old->getPathName(), $e->getMessage())
+                sprintf('Error renaming %s to %s: %s', $new->getPathName(), $old->getPathName(), $e->getMessage()),
             );
             return false;
         }
@@ -252,7 +251,7 @@ class MetaDataStorageHandlerSerialize extends MetaDataStorageSource
         if (!$this->fileSystem->exists($filePath)) {
             Logger::warning(
                 'Attempted to erase nonexistent metadata entry ' .
-                var_export($entityId, true) . ' in set ' . var_export($set, true) . '.'
+                var_export($entityId, true) . ' in set ' . var_export($set, true) . '.',
             );
             return;
         }

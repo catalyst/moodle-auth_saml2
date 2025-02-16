@@ -94,17 +94,17 @@ function auth_saml2_get_sp_metadata($baseurl = '') {
         $acsArray = array('index' => $index);
         switch ($services) {
         case 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST':
-            $acsArray['Binding'] = SAML2\Constants::BINDING_HTTP_POST;
-            $acsArray['Location'] = "{$baseurl}/auth/saml2/sp/saml2-acs.php/{$sourceId}";
+                $acsArray['Binding'] = SAML2\Constants::BINDING_HTTP_POST;
+                $acsArray['Location'] = "{$baseurl}/auth/saml2/sp/saml2-acs.php/{$sourceId}";
             break;
         case 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact':
-            $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact';
-            $acsArray['Location'] = "{$baseurl}/auth/saml2/sp/saml2-acs.php/{$sourceId}";
+                $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact';
+                $acsArray['Location'] = "{$baseurl}/auth/saml2/sp/saml2-acs.php/{$sourceId}";
             break;
         case 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser':
-            $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser';
-            $acsArray['Location'] = "{$baseurl}/auth/saml2/sp/saml2-acs.php/{$sourceId}";
-            $acsArray['hoksso:ProtocolBinding'] = SAML2\Constants::BINDING_HTTP_REDIRECT;
+                $acsArray['Binding'] = 'urn:oasis:names:tc:SAML:2.0:profiles:holder-of-key:SSO:browser';
+                $acsArray['Location'] = "{$baseurl}/auth/saml2/sp/saml2-acs.php/{$sourceId}";
+                $acsArray['hoksso:ProtocolBinding'] = SAML2\Constants::BINDING_HTTP_REDIRECT;
             break;
         }
         $eps[] = $acsArray;
@@ -506,7 +506,7 @@ function auth_saml2_admin_nav($title, $url) {
             new moodle_url('/admin/settings.php?section=manageauths'));
 
     $PAGE->navbar->add(get_string('pluginname', 'auth_saml2'),
-            new moodle_url('/admin/settings.php', array('section' => 'authsettingsaml2')));
+            new moodle_url('/admin/settings.php', ['section' => 'authsettingsaml2']));
 
     $PAGE->navbar->add($title, new moodle_url($url));
 

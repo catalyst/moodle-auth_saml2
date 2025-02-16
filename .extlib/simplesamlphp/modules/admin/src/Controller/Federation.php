@@ -25,6 +25,19 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\VarExporter\VarExporter;
 
+use function array_merge;
+use function array_pop;
+use function array_values;
+use function boolval;
+use function count;
+use function file_get_contents;
+use function ini_get;
+use function is_array;
+use function sprintf;
+use function str_replace;
+use function trim;
+use function var_export;
+
 /**
  * Controller class for the admin module.
  *
@@ -34,9 +47,6 @@ use Symfony\Component\VarExporter\VarExporter;
  */
 class Federation
 {
-    /** @var \SimpleSAML\Configuration */
-    protected Configuration $config;
-
     /**
      * @var \SimpleSAML\Auth\Source|string
      * @psalm-var \SimpleSAML\Auth\Source|class-string
@@ -61,9 +71,9 @@ class Federation
      *
      * @param \SimpleSAML\Configuration $config The configuration to use.
      */
-    public function __construct(Configuration $config)
-    {
-        $this->config = $config;
+    public function __construct(
+        protected Configuration $config,
+    ) {
         $this->menu = new Menu();
         $this->mdHandler = MetaDataStorageHandler::getMetadataHandler();
         $this->authUtils = new Utils\Auth();
@@ -155,7 +165,7 @@ class Federation
                 [
                     'href' => Module::getModuleURL('admin/federation/metadata-converter'),
                     'text' => Translate::noop('XML to SimpleSAMLphp metadata converter'),
-                ]
+                ],
             ],
             'entries' => $entries,
             'mdtype' => [
@@ -198,10 +208,10 @@ class Federation
                 $httpUtils = new Utils\HTTP();
                 $metadataBase = Module::getModuleURL('saml/idp/metadata');
                 if (count($idps) > 1) {
-                    $selfHost = $httpUtils->getSelfHost();
+                    $selfHost = $httpUtils->getSelfHostWithPath();
                     foreach ($idps as $index => $idp) {
                         if (isset($idp['host']) && $idp['host'] !== '__DEFAULT__') {
-                            $mdHostBase = str_replace('://' . $selfHost, '://' . $idp['host'], $metadataBase);
+                            $mdHostBase = str_replace('://' . $selfHost . '/', '://' . $idp['host'] . '/', $metadataBase);
                         } else {
                             $mdHostBase = $metadataBase;
                         }
@@ -215,7 +225,7 @@ class Federation
                     $saml2entities['saml20-idp'] = $this->mdHandler->getMetaDataCurrent('saml20-idp-hosted');
                     $saml2entities['saml20-idp']['url'] = $metadataBase;
                     $saml2entities['saml20-idp']['metadata_array'] = SAML2_IdP::getHostedMetadata(
-                        $this->mdHandler->getMetaDataCurrentEntityID('saml20-idp-hosted')
+                        $this->mdHandler->getMetaDataCurrentEntityID('saml20-idp-hosted'),
                     );
                 }
 
@@ -224,7 +234,7 @@ class Federation
                     Assert::maxLength(
                         $entity['entityid'],
                         C::SAML2INT_ENTITYID_MAX_LENGTH,
-                        sprintf('The entityID cannot be longer than %d characters.', C::SAML2INT_ENTITYID_MAX_LENGTH)
+                        sprintf('The entityID cannot be longer than %d characters.', C::SAML2INT_ENTITYID_MAX_LENGTH),
                     );
 
                     $builder = new SAMLBuilder($entity['entityid']);
@@ -234,11 +244,11 @@ class Federation
                     $entity['metadata'] = Signer::sign(
                         $builder->getEntityDescriptorText(),
                         $entity['metadata_array'],
-                        'SAML 2 IdP'
+                        'SAML 2 IdP',
                     );
                     $entities[$index] = $entity;
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Logger::error('Federation: Error loading saml20-idp: ' . $e->getMessage());
             }
         }
@@ -261,7 +271,7 @@ class Federation
                     $adfsentities['adfs-idp'] = $this->mdHandler->getMetaDataCurrent('adfs-idp-hosted');
                     $adfsentities['adfs-idp']['url'] = Module::getModuleURL('adfs/idp/metadata.php');
                     $adfsentities['adfs-idp']['metadata_array'] = ADFS_IdP::getHostedMetadata(
-                        $this->mdHandler->getMetaDataCurrentEntityID('adfs-idp-hosted')
+                        $this->mdHandler->getMetaDataCurrentEntityID('adfs-idp-hosted'),
                     );
                 }
 
@@ -270,7 +280,7 @@ class Federation
                     Assert::maxLength(
                         $entity['entityid'],
                         C::SAML2INT_ENTITYID_MAX_LENGTH,
-                        sprintf('The entityID cannot be longer than %d characters.', C::SAML2INT_ENTITYID_MAX_LENGTH)
+                        sprintf('The entityID cannot be longer than %d characters.', C::SAML2INT_ENTITYID_MAX_LENGTH),
                     );
 
                     $builder = new SAMLBuilder($entity['entityid']);
@@ -285,11 +295,11 @@ class Federation
                     $entity['metadata'] = Signer::sign(
                         $builder->getEntityDescriptorText(),
                         $entity['metadata_array'],
-                        'ADFS IdP'
+                        'ADFS IdP',
                     );
                     $entities[$index] = $entity;
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 Logger::error('Federation: Error loading adfs-idp: ' . $e->getMessage());
             }
         }
@@ -304,7 +314,7 @@ class Federation
                         'set' => $entity['metadata-set'],
                         'entity' => $entity['metadata-index'],
                         'prefix' => $key['prefix'],
-                    ]
+                    ],
                 );
                 $key['name'] = 'idp';
                 unset($entity['metadata_array']['keys'][$kidx]['prefix']);
@@ -354,8 +364,8 @@ class Federation
                 'name',
                 $source->getMetadata()->getOptionalLocalizedString(
                     'OrganizationDisplayName',
-                    ['en' => $source->getAuthId()]
-                )
+                    ['en' => $source->getAuthId()],
+                ),
             );
 
             $builder = new SAMLBuilder($source->getEntityId());
@@ -471,6 +481,7 @@ class Federation
             'xmldata' => $xmldata,
             'output' => $output,
             'error' => $error,
+            'upload' => boolval(ini_get('file_uploads')),
         ];
 
         $this->menu->addOption('logout', $t->data['logouturl'], Translate::noop('Log out'));
@@ -511,7 +522,7 @@ class Federation
         $response = new Response($certInfo['PEM']);
         $disposition = $response->headers->makeDisposition(
             ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            'cert.pem'
+            'cert.pem',
         );
 
         $response->headers->set('Content-Disposition', $disposition);

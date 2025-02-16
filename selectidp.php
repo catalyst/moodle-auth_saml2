@@ -54,7 +54,7 @@ $data = [
     'metadataentities' => $saml2auth->metadataentities,
     'storedchoiceidp' => $storedchoiceidp,
     'wants' => $wants,
-    'idpname' => $idpname
+    'idpname' => $idpname,
 ];
 
 $action = new moodle_url('/auth/saml2/selectidp.php');
@@ -77,7 +77,7 @@ if ($fromform = $mform->get_data()) {
     $params = [
         'wants' => $wants,
         'idp' => $idp,
-        'rememberidp' => $rememberidp
+        'rememberidp' => $rememberidp,
     ];
 
     $loginurl = new moodle_url('/auth/saml2/login.php', $params);
@@ -85,7 +85,7 @@ if ($fromform = $mform->get_data()) {
 } else {
     $rememberidp = $storedchoiceidp !== '' ? 1 : 0;
 
-    $data = array('rememberidp' => $rememberidp);
+    $data = ['rememberidp' => $rememberidp];
 
     if ($displaytype == saml2_settings::OPTION_MULTI_IDP_DISPLAY_DROPDOWN) {
         $data['idp'] = $storedchoiceidp;
@@ -99,13 +99,13 @@ if ($fromform = $mform->get_data()) {
     // If rememberidp is set and we are not returning from a passive attempt to login.
     if ($passive) {
         $errorurl = $PAGE->url;
-        $errorurl->params(array('passive' => 0));
+        $errorurl->params(['passive' => 0]);
 
         $params = [
             'wants' => $wants,
             'idp' => $storedchoiceidp,
             'passive' => 1,
-            'errorurl' => $errorurl->out(false)
+            'errorurl' => $errorurl->out(false),
         ];
         $loginurl = new moodle_url('/auth/saml2/login.php', $params);
         redirect($loginurl);

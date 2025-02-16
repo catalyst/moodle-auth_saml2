@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace SimpleSAML\Module\saml\Auth\Process;
 
 use SAML2\Constants;
-use SimpleSAML\Assert\Assert;
 use SimpleSAML\Error;
 use SimpleSAML\Logger;
 use SimpleSAML\Module\saml\BaseNameIDGenerator;
@@ -74,14 +73,14 @@ class PersistentNameID extends BaseNameIDGenerator
         ) {
             Logger::warning(
                 'Missing attribute ' . var_export($this->identifyingAttribute, true) .
-                ' on user - not generating persistent NameID.'
+                ' on user - not generating persistent NameID.',
             );
             return null;
         }
         if (count($state['Attributes'][$this->identifyingAttribute]) > 1) {
             Logger::warning(
                 'More than one value in attribute ' . var_export($this->identifyingAttribute, true) .
-                ' on user - not generating persistent NameID.'
+                ' on user - not generating persistent NameID.',
             );
             return null;
         }
@@ -92,7 +91,7 @@ class PersistentNameID extends BaseNameIDGenerator
         if (empty($uid)) {
             Logger::warning(
                 'Empty value in attribute ' . var_export($this->identifyingAttribute, true) .
-                ' on user - not generating persistent NameID.'
+                ' on user - not generating persistent NameID.',
             );
             return null;
         }

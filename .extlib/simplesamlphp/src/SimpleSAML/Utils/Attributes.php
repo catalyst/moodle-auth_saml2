@@ -28,7 +28,7 @@ class Attributes
      * @throws \InvalidArgumentException If $attributes is not an array or $expected is not a string.
      * @throws \SimpleSAML\Error\Exception If the expected attribute was not found in the attributes array.
      */
-    public function getExpectedAttribute(array $attributes, string $expected, bool $allow_multiple = false)
+    public function getExpectedAttribute(array $attributes, string $expected, bool $allow_multiple = false): mixed
     {
         if (!array_key_exists($expected, $attributes)) {
             throw new Error\Exception("No such attribute '" . $expected . "' found.");
@@ -44,7 +44,7 @@ class Attributes
         } elseif (count($attribute) > 1) {
             if ($allow_multiple === false) {
                 throw new Error\Exception(
-                    'More than one value found for the attribute, multiple values not allowed.'
+                    'More than one value found for the attribute, multiple values not allowed.',
                 );
             }
         }
@@ -83,7 +83,7 @@ class Attributes
                 if (!is_string($value)) {
                     $value = print_r($value, true);
                     throw new InvalidArgumentException(
-                        sprintf('Invalid attribute value for attribute %s: "%s".', $name, $value)
+                        sprintf('Invalid attribute value for attribute %s: "%s".', $name, $value),
                     );
                 }
             }

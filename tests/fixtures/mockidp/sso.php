@@ -16,7 +16,7 @@
 
 /**
  * This test fixture mocks IdP behaviour by providing a basic user interface that can be manipulated
- * 
+ *
  * with specific Behat steps.
  *
  * The steps that work on this page (depending on how it was launched) are:

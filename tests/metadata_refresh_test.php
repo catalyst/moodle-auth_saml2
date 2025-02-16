@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace auth_saml2;
+
+use auth_saml2\task\metadata_refresh;
+
 /**
  * Testcase class for metadata_refresh task class.
  *
@@ -22,17 +26,7 @@
  * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-use auth_saml2\task\metadata_refresh;
-
-/**
- * Testcase class for metadata_refresh task class.
- *
- * @package    auth_saml2
- * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-class auth_saml2_metadata_refresh_testcase extends advanced_testcase {
+final class metadata_refresh_test extends \advanced_testcase {
 
     /** @var \Prophecy\Prophet */
     protected $prophet;
@@ -54,7 +48,7 @@ class auth_saml2_metadata_refresh_testcase extends advanced_testcase {
         $this->prophet = null;  // Required for Totara 12+ support (see issue #578).
     }
 
-    public function test_metadata_refresh_disabled() {
+    public function test_metadata_refresh_disabled(): void {
         set_config('idpmetadatarefresh', 0, 'auth_saml2');
         set_config('idpmetadata', 'http://somefakeidpurl.local', 'auth_saml2');
 
@@ -64,7 +58,7 @@ class auth_saml2_metadata_refresh_testcase extends advanced_testcase {
         self::assertFalse($refreshtask->execute());
     }
 
-    public function test_metadata_refresh_idpmetadata_non_url() {
+    public function test_metadata_refresh_idpmetadata_non_url(): void {
         $randomxml = <<<XML
 <?xml version="1.0" encoding="utf-8"?>
 <somexml>yada</somexml>
@@ -78,7 +72,7 @@ XML;
         $refreshtask->execute();
     }
 
-    public function test_metadata_refresh_idpmetadata_notconfigured() {
+    public function test_metadata_refresh_idpmetadata_notconfigured(): void {
         set_config('idpmetadatarefresh', 1, 'auth_saml2');
         set_config('idpmetadata', null, 'auth_saml2');
 
@@ -88,7 +82,7 @@ XML;
         self::assertFalse($refreshtask->execute());
     }
 
-    public function test_metadata_refresh_fetch_fails() {
+    public function test_metadata_refresh_fetch_fails(): void {
         $this->markTestSkipped('This test needs to be fixed or removed.');
 
         if (!isset($this->prophet)) {
@@ -106,7 +100,7 @@ XML;
         $refreshtask->execute();
     }
 
-    public function test_metadata_refresh_parse_fails() {
+    public function test_metadata_refresh_parse_fails(): void {
         $this->markTestSkipped('This test needs to be fixed or removed.');
 
         if (!isset($this->prophet)) {
@@ -127,56 +121,15 @@ XML;
         $refreshtask->execute();
     }
 
-    public function test_metadata_refresh_parse_no_entityid() {
+    public function test_metadata_refresh_parse_no_entityid(): void {
         $this->markTestSkipped('This test needs to be fixed or removed.');
-
-        if (!isset($this->prophet)) {
-            $this->markTestSkipped('Skipping due to Prophecy library not available');
-        }
-
-        set_config('idpmetadatarefresh', 1, 'auth_saml2');
-        set_config('idpmetadata', 'http://somefakeidpurl.local', 'auth_saml2');
-        $fetcher = $this->prophet->prophesize('auth_saml2\metadata_fetcher');
-        $parser = $this->prophet->prophesize('auth_saml2\metadata_parser');
-
-        $refreshtask = new metadata_refresh();
-        $refreshtask->set_fetcher($fetcher->reveal());
-        $refreshtask->set_parser($parser->reveal());
-
-        $fetcher->fetch('http://somefakeidpurl.local')->willReturn('doesnotmatter');
-        $parser->parse('doesnotmatter')->willReturn(null);
-        $parser->get_entityid()->willReturn('');
-        $this->expectOutputString(get_string('idpmetadata_noentityid', 'auth_saml2') . "\n");
-        $refreshtask->execute();
     }
 
-    public function test_metadata_refresh_parse_no_idpname() {
+    public function test_metadata_refresh_parse_no_idpname(): void {
         $this->markTestSkipped('This test needs to be fixed or removed.');
-
-        if (!isset($this->prophet)) {
-            $this->markTestSkipped('Skipping due to Prophecy library not available');
-        }
-
-        set_config('idpmetadatarefresh', 1, 'auth_saml2');
-        set_config('idpmetadata', 'http://somefakeidpurl.local', 'auth_saml2');
-        $fetcher = $this->prophet->prophesize('auth_saml2\metadata_fetcher');
-        $parser = $this->prophet->prophesize('auth_saml2\metadata_parser');
-
-        $refreshtask = new metadata_refresh();
-        $refreshtask->set_fetcher($fetcher->reveal());
-        $refreshtask->set_parser($parser->reveal());
-
-        $fetcher->fetch('http://somefakeidpurl.local')->willReturn('doesnotmatter');
-        $parser->parse('doesnotmatter')->willReturn(null);
-        $parser->get_entityid()->willReturn('someentityid');
-        $parser->get_idpdefaultname()->willReturn('');
-        $refreshtask->execute();
-
-        $idpmduinames = (array) json_decode(get_config('auth_saml2', 'idpmduinames'));
-        $this->assertEquals(get_string('idpnamedefault', 'auth_saml2'), $idpmduinames['http://somefakeidpurl.local']);
     }
 
-    public function test_metadata_refresh_write_fails() {
+    public function test_metadata_refresh_write_fails(): void {
         $this->markTestSkipped('This test needs to be fixed or removed.');
 
         if (!isset($this->prophet)) {

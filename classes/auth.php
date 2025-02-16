@@ -110,7 +110,7 @@ class auth extends \auth_plugin_base {
         'flagresponsetype'   => saml2_settings::OPTION_FLAGGED_LOGIN_MESSAGE,
         'flagredirecturl'    => '',
         'flagmessage'        => '', // Set in constructor.
-        'tempdir'            => '/tmp/simplesaml'
+        'tempdir'            => '/tmp/simplesaml',
     ];
 
     /**
@@ -788,7 +788,7 @@ class auth extends \auth_plugin_base {
                     'other' => [
                         'username' => $user->username,
                         'reason' => AUTH_LOGIN_SUSPENDED,
-                    ]
+                    ],
                 ]);
                 $event->trigger();
 
@@ -804,7 +804,7 @@ class auth extends \auth_plugin_base {
                 'other' => [
                     'username' => $user->username,
                     'reason' => AUTH_LOGIN_UNAUTHORISED,
-                ]
+                ],
             ]);
             $event->trigger();
 
@@ -818,7 +818,7 @@ class auth extends \auth_plugin_base {
                 'other' => [
                     'username' => $user->username,
                     'reason' => AUTH_LOGIN_UNAUTHORISED,
-                ]
+                ],
             ]);
             $event->trigger();
 
@@ -1123,11 +1123,11 @@ class auth extends \auth_plugin_base {
         if (!empty($email)) {
             // Make a case-insensitive query for the given email address.
             $select = $DB->sql_equal('email', ':email', false) . ' AND mnethostid = :mnethostid AND deleted = :deleted';
-            $params = array(
+            $params = [
                 'email' => $email,
                 'mnethostid' => $CFG->mnet_localhost_id,
-                'deleted' => 0
-            );
+                'deleted' => 0,
+            ];
 
             if ($excludeusername) {
                 $select .= ' AND username <> :username';
@@ -1270,7 +1270,7 @@ class auth extends \auth_plugin_base {
         // we only make sure \SimpleSAML\Configuration is accessible
         // through _autoload.php.
         require_once(__DIR__ . '/../_autoload.php');
-        $config = new \SimpleSAML\Configuration(array(), '');
+        $config = new \SimpleSAML\Configuration([], '');
         return $config->getVersion();
     }
 

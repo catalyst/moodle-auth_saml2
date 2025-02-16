@@ -168,16 +168,14 @@ abstract class Source
      * @param array $params Extra information about the login. Different authentication requestors may provide different
      * information. Optional, will default to an empty array.
      */
-    public function initLogin($return, ?string $errorURL = null, array $params = []): void
+    public function initLogin(string|array $return, ?string $errorURL = null, array $params = []): void
     {
-        Assert::True(is_string($return) || is_array($return));
-
         $state = array_merge($params, [
             '\SimpleSAML\Auth\Source.id' => $this->authId,
             '\SimpleSAML\Auth\Source.Return' => $return,
             '\SimpleSAML\Auth\Source.ErrorURL' => $errorURL,
-            'LoginCompletedHandler' => [get_class(), 'loginCompleted'],
-            'LogoutCallback' => [get_class(), 'logoutCallback'],
+            'LoginCompletedHandler' => [static::class, 'loginCompleted'],
+            'LogoutCallback' => [static::class, 'logoutCallback'],
             'LogoutCallbackState' => [
                 '\SimpleSAML\Auth\Source.logoutSource' => $this->authId,
             ],
@@ -304,7 +302,7 @@ abstract class Source
             $factoryClass = Module::resolveClass(
                 $id,
                 'Auth\Source\Factory',
-                '\SimpleSAML\Auth\SourceFactory'
+                '\SimpleSAML\Auth\SourceFactory',
             );
 
             /** @var SourceFactory $factory */
@@ -348,8 +346,7 @@ abstract class Source
         if ($authConfig === null) {
             if ($type !== null) {
                 throw new Error\Exception(
-                    'No authentication source with id ' .
-                    var_export($authId, true) . ' found.'
+                    'No authentication source with id ' . var_export($authId, true) . ' found.',
                 );
             }
             return null;
@@ -365,7 +362,7 @@ abstract class Source
         throw new Error\Exception(
             'Invalid type of authentication source ' .
             var_export($authId, true) . '. Was ' . var_export(get_class($ret), true) .
-            ', should be ' . var_export($type, true) . '.'
+            ', should be ' . var_export($type, true) . '.',
         );
     }
 
@@ -384,8 +381,7 @@ abstract class Source
         $session = Session::getSessionFromRequest();
         if (!$session->isValid($source)) {
             Logger::warning(
-                'Received logout from an invalid authentication source ' .
-                var_export($source, true)
+                'Received logout from an invalid authentication source ' . var_export($source, true),
             );
 
             return;
@@ -432,7 +428,7 @@ abstract class Source
             '\SimpleSAML\Auth\Source.LogoutCallbacks',
             $id,
             $data,
-            Session::DATA_TIMEOUT_SESSION_END
+            Session::DATA_TIMEOUT_SESSION_END,
         );
     }
 
@@ -499,7 +495,7 @@ abstract class Source
         if (!array_key_exists(0, $source) || !is_string($source[0])) {
             throw new \Exception(
                 'Invalid authentication source \'' . $id .
-                '\': First element must be a string which identifies the authentication source.'
+                '\': First element must be a string which identifies the authentication source.',
             );
         }
     }

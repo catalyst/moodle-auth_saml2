@@ -58,7 +58,7 @@ class selectidp_dropdown extends moodleform {
         $mform->addElement('select', 'idp', '', $idpentityids);
         $mform->addElement('checkbox', 'rememberidp' , '', get_string('rememberidp', 'auth_saml2'));
 
-        $mform->addElement('submit', 'login', $idpname, array('style' => 'margin-left:0px'));
+        $mform->addElement('submit', 'login', $idpname, ['style' => 'margin-left:0px']);
     }
 
 }

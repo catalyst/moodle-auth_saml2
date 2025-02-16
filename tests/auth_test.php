@@ -27,7 +27,7 @@ namespace auth_saml2;
  * @copyright   2021 Moodle Pty Ltd <support@moodle.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class auth_saml2_test extends \advanced_testcase {
+final class auth_test extends \advanced_testcase {
     /**
      * Set up
      */
@@ -56,7 +56,7 @@ class auth_saml2_test extends \advanced_testcase {
      *
      * @return \stdClass
      */
-    protected function add_user_profile_field(string $shortname, string $datatype, bool $unique = false) : \stdClass {
+    protected function add_user_profile_field(string $shortname, string $datatype, bool $unique = false): \stdClass {
         global $DB;
 
         // Create a new profile field.
@@ -119,11 +119,11 @@ class auth_saml2_test extends \advanced_testcase {
         $entity1 = $this->get_generator()->create_idp_entity([], false);
 
         $auth = get_auth_plugin('saml2');
-        $files = array(
+        $files = [
             'crt' => $auth->certcrt,
             'pem' => $auth->certpem,
             'xml' => $auth->get_file(md5($entity1->metadataurl) . '.idp.xml'),
-        );
+        ];
 
         // Sanity check.
         $this->assertFalse($auth->is_configured());
@@ -1043,7 +1043,7 @@ class auth_saml2_test extends \advanced_testcase {
                 ['uid' => 'test', 'groups' => ['allowed', 'blocked']], // In both allowed first.
                 ['uid' => 'test', 'groups' => ['blocked', 'allowed']], // In both blocked first.
                 ['uid' => 'test', 'groups' => []],  // Groups exists, but empty.
-            ]]
+            ]],
         ];
     }
 
@@ -1227,7 +1227,7 @@ class auth_saml2_test extends \advanced_testcase {
             'shortname'  => $fieldname,
             'name'       => 'Test Field',
             'categoryid' => 1,
-            'datatype'   => 'text'
+            'datatype'   => 'text',
         ]);
 
         // Check both are returned using normal options.
@@ -1306,10 +1306,10 @@ class auth_saml2_test extends \advanced_testcase {
      * @return array of testcases
      */
     public function provider_missing_user_custom_profile_fields(): array {
-        return array(
-            array(['missingfield' => array('Test data')]),
-            array(['secondfield' => array('A different string')]),
-        );
+        return [
+            [['missingfield' => ['Test data']]],
+            [['secondfield' => ['A different string']]],
+        ];
     }
 
     /**
@@ -1405,7 +1405,7 @@ class auth_saml2_test extends \advanced_testcase {
         set_config("field_lock_username", 'locked', 'auth_saml2');
 
         $attributes = [
-            'field' => [$expected]
+            'field' => [$expected],
         ];
 
         $this->assertTrue($auth->update_user_profile_fields($user, $attributes, true));
@@ -1431,7 +1431,7 @@ class auth_saml2_test extends \advanced_testcase {
         set_config("field_lock_username", 'locked', 'auth_saml2');
 
         $attributes = [
-            'field' => [$uppercaseusername]
+            'field' => [$uppercaseusername],
         ];
 
         $this->assertTrue($auth->update_user_profile_fields($user, $attributes, true));
@@ -1457,7 +1457,7 @@ class auth_saml2_test extends \advanced_testcase {
         set_config("field_lock_username", 'locked', 'auth_saml2');
 
         $attributes = [
-            'field' => [$expected]
+            'field' => [$expected],
         ];
 
         $this->assertFalse($auth->update_user_profile_fields($user, $attributes, false));
@@ -1483,7 +1483,7 @@ class auth_saml2_test extends \advanced_testcase {
         set_config("field_lock_alternatename", 'locked', 'auth_saml2');
 
         $attributes = [
-            'field' => [$expected]
+            'field' => [$expected],
         ];
 
         $this->assertTrue($auth->update_user_profile_fields($user, $attributes, true));
@@ -1510,7 +1510,7 @@ class auth_saml2_test extends \advanced_testcase {
         set_config("field_lock_alternatename", 'locked', 'auth_saml2');
 
         $attributes = [
-            'field' => [$expected]
+            'field' => [$expected],
         ];
 
         $this->assertFalse($auth->update_user_profile_fields($user, $attributes, false));
@@ -1547,7 +1547,7 @@ class auth_saml2_test extends \advanced_testcase {
         // False payload from IdP.
         $attributes = [
                 'field' => ['single_value'],
-                'specialities' => ['running', 'jumping', 'knitting']
+                'specialities' => ['running', 'jumping', 'knitting'],
         ];
 
         // Assert all the things.

@@ -53,7 +53,7 @@ class user_fields {
      * A list of supported types of profile fields.
      */
     const SUPPORTED_TYPES_OF_PROFILE_FIELDS = [
-        'text'
+        'text',
     ];
 
     /**
@@ -66,7 +66,7 @@ class user_fields {
      *
      * @return string[]
      */
-    public static function get_supported_fields() : array {
+    public static function get_supported_fields(): array {
         $choices = [];
 
         foreach (self::MATCH_FIELDS_FROM_USER_TABLE as $name) {
@@ -100,7 +100,7 @@ class user_fields {
      * @param string $shortname Short name of the profile field.
      * @return string
      */
-    protected static function prefix_custom_profile_field(string $shortname) : string {
+    protected static function prefix_custom_profile_field(string $shortname): string {
         return self::PROFILE_FIELD_PREFIX . $shortname;
     }
 
@@ -110,7 +110,7 @@ class user_fields {
      * @param string $fieldname User field name.
      * @return bool
      */
-    public static function is_custom_profile_field(string $fieldname) : bool {
+    public static function is_custom_profile_field(string $fieldname): bool {
         return strpos($fieldname, self::PROFILE_FIELD_PREFIX) === 0;
     }
 
@@ -120,7 +120,7 @@ class user_fields {
      * @param string $fieldname Profile field name from config.
      * @return string
      */
-    public static function get_field_short_name(string $fieldname) : string {
+    public static function get_field_short_name(string $fieldname): string {
         if (self::is_custom_profile_field($fieldname)) {
             $fieldname = substr($fieldname, strlen(self::PROFILE_FIELD_PREFIX), strlen($fieldname));
         }

@@ -12,29 +12,22 @@ namespace SimpleSAML\Locale;
 
 use Exception;
 use Gettext\Generator\ArrayGenerator;
+use Gettext\Loader\MoLoader;
 use Gettext\Loader\PoLoader;
-use Gettext\Translations;
-use Gettext\Translator;
-use Gettext\TranslatorFunctions;
-use SimpleSAML\Configuration;
-use SimpleSAML\Logger;
+use Gettext\{Translations, Translator, TranslatorFunctions};
+use SimpleSAML\{Configuration, Logger};
+use SimpleSAML\Locale\Translate;
 use Symfony\Component\HttpFoundation\File\File;
 
 class Localization
 {
-    /**
-     * The configuration to use.
-     *
-     * @var \SimpleSAML\Configuration
-     */
-    private Configuration $configuration;
-
     /**
      * The default gettext domain.
      *
      * @var string
      */
     public const DEFAULT_DOMAIN = 'messages';
+    public const CORE_DOMAIN = 'core';
 
     /**
      * The default locale directory
@@ -77,11 +70,11 @@ class Localization
      *
      * @param \SimpleSAML\Configuration $configuration Configuration object
      */
-    public function __construct(Configuration $configuration)
-    {
-        $this->configuration = $configuration;
+    public function __construct(
+        private Configuration $configuration,
+    ) {
         /** @var string $locales */
-        $locales = $this->configuration->resolvePath('locales');
+        $locales = $configuration->resolvePath('locales');
         $this->localeDir = $locales;
         $this->language = new Language($configuration);
         $this->langcode = $this->language->getPosixLanguage($this->language->getLanguage());
@@ -142,6 +135,14 @@ class Localization
     }
 
 
+    public function defaultDomain(string $domain): self
+    {
+        $this->translator->defaultDomain($domain);
+        Translate::addDefaultDomain($domain);
+        return $this;
+    }
+
+
     /**
      * Add a new translation domain
      * (We're assuming that each domain only exists in one place)
@@ -167,9 +168,16 @@ class Localization
      */
     public function getLangPath(string $domain = self::DEFAULT_DOMAIN): string
     {
+        $localeDir = $this->localeDomainMap[$domain];
+        $langcode = $this->langcode;
+        $langPath = $localeDir . '/' . $langcode . '/LC_MESSAGES/';
+        Logger::debug("Trying langpath for '$langcode' as '$langPath'");
+        if (is_dir($langPath) && is_readable($langPath)) {
+            return $langPath;
+        }
+
         $langcode = explode('_', $this->langcode);
         $langcode = $langcode[0];
-        $localeDir = $this->localeDomainMap[$domain];
         $langPath = $localeDir . '/' . $langcode . '/LC_MESSAGES/';
         Logger::debug("Trying langpath for '$langcode' as '$langPath'");
         if (is_dir($langPath) && is_readable($langPath)) {
@@ -227,7 +235,7 @@ class Localization
      */
     private function loadGettextGettextFromPO(
         string $domain = self::DEFAULT_DOMAIN,
-        bool $catchException = true
+        bool $catchException = true,
     ): void {
         try {
             $langPath = $this->getLangPath($domain);
@@ -242,20 +250,29 @@ class Localization
             }
         }
 
-        $file = new File($langPath . $domain . '.po', false);
+        $file = new File($langPath . $domain . '.mo', false);
         if ($file->getRealPath() !== false && $file->isReadable()) {
-            $translations = (new PoLoader())->loadFile($file->getRealPath());
+            $translations = (new MoLoader())->loadFile($file->getRealPath());
             $arrayGenerator = new ArrayGenerator();
             $this->translator->addTranslations(
-                $arrayGenerator->generateArray($translations)
+                $arrayGenerator->generateArray($translations),
             );
         } else {
-            Logger::debug(sprintf(
-                "%s - Localization file '%s' not found or not readable in '%s', falling back to default",
-                $_SERVER['PHP_SELF'],
-                $file->getfileName(),
-                $langPath,
-            ));
+            $file = new File($langPath . $domain . '.po', false);
+            if ($file->getRealPath() !== false && $file->isReadable()) {
+                $translations = (new PoLoader())->loadFile($file->getRealPath());
+                $arrayGenerator = new ArrayGenerator();
+                $this->translator->addTranslations(
+                    $arrayGenerator->generateArray($translations),
+                );
+            } else {
+                Logger::debug(sprintf(
+                    "%s - Localization file '%s' not found or not readable in '%s', falling back to default",
+                    $_SERVER['PHP_SELF'],
+                    $file->getfileName(),
+                    $langPath,
+                ));
+            }
         }
     }
 
@@ -268,6 +285,9 @@ class Localization
         $this->setupTranslator();
         // setup default domain
         $this->addDomain($this->localeDir, self::DEFAULT_DOMAIN);
+        // There are not many "core" translations and we would like them to be
+        // loaded along with the messages.po and available to all.
+        $this->addModuleDomain(self::CORE_DOMAIN, null, self::CORE_DOMAIN);
     }
 
 

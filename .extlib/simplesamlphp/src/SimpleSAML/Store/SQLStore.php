@@ -8,8 +8,21 @@ use Exception;
 use PDO;
 use PDOException;
 use SimpleSAML\Assert\Assert;
-use SimpleSAML\Configuration;
-use SimpleSAML\Logger;
+use SimpleSAML\{Configuration, Logger, Utils};
+
+use function array_keys;
+use function count;
+use function gmdate;
+use function implode;
+use function in_array;
+use function intval;
+use function rand;
+use function serialize;
+use function sha1;
+use function strlen;
+use function unserialize;
+use function urldecode;
+use function rawurlencode;
 
 /**
  * A data store using a RDBMS to keep the data.
@@ -89,16 +102,99 @@ class SQLStore implements StoreInterface
         } catch (PDOException $e) {
             $this->pdo->exec(
                 'CREATE TABLE ' . $this->prefix .
-                '_tableVersion (_name VARCHAR(30) NOT NULL UNIQUE, _version INTEGER NOT NULL)'
+                '_tableVersion (_name VARCHAR(30) PRIMARY KEY NOT NULL, _version INTEGER NOT NULL)',
             );
+            $this->setTableVersion('tableVersion', 1);
             return;
         }
 
         while (($row = $fetchTableVersion->fetch(PDO::FETCH_ASSOC)) !== false) {
             $this->tableVersions[$row['_name']] = intval($row['_version']);
         }
-    }
 
+        $tableVer = $this->getTableVersion('tableVersion');
+        if ($tableVer === 1) {
+            return;
+        } else {
+            // The _name index is being changed from UNIQUE to PRIMARY KEY for table version 1.
+            switch ($this->driver) {
+                case 'pgsql':
+                    // Drop old index and add primary key
+                    $update = [
+                        'ALTER TABLE ' . $this->prefix . '_tableVersion DROP CONSTRAINT IF EXISTS ' .
+                          $this->prefix . '_tableVersion__name_key',
+                        'ALTER TABLE ' . $this->prefix . '_tableVersion ADD PRIMARY KEY (_name)',
+                    ];
+                    break;
+                case 'sqlsrv':
+                    /**
+                     * Drop old index and add primary key.
+                     * NOTE: Because the index has a default name, we need to look it up in the information
+                     *       schema.
+                     */
+                    $update = [
+                        // Use dynamic SQL to drop the existing unique constraint
+                        'DECLARE @constraintName NVARCHAR(128); ' .
+                        'SELECT @constraintName = CONSTRAINT_NAME FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS ' .
+                        'WHERE TABLE_NAME = \'' . $this->prefix . '_tableVersion\' AND CONSTRAINT_TYPE = \'UNIQUE\'; ' .
+                        'IF @constraintName IS NOT NULL ' .
+                        'BEGIN ' .
+                            'EXEC(\'ALTER TABLE ' . $this->prefix . '_tableVersion ' .
+                                  ' DROP CONSTRAINT \' + @constraintName); ' .
+                        'END;',
+
+                        // Add the new primary key constraint
+                        'ALTER TABLE ' . $this->prefix . '_tableVersion ' .
+                        '  ADD CONSTRAINT PK_' . $this->prefix . '_tableVersion ' .
+                        '      PRIMARY KEY CLUSTERED (_name);',
+                    ];
+                    break;
+                case 'sqlite':
+                    /**
+                     * Because SQLite does not support field alterations, the approach is to:
+                     *     Create a new table with the primary key
+                     *     Copy the current data to the new table
+                     *     Drop the old table
+                     *     Rename the new table correctly
+                     */
+                    $update = [
+                        'CREATE TABLE ' . $this->prefix .
+                          '_tableVersion (_name VARCHAR(30) PRIMARY KEY NOT NULL, _version INTEGER NOT NULL)',
+                        'INSERT INTO ' . $this->prefix . '_tableVersion_new SELECT * FROM ' .
+                          $this->prefix . '_tableVersion',
+                        'DROP TABLE ' . $this->prefix . '_tableVersion',
+                        'ALTER TABLE ' . $this->prefix . '_tableVersion_new RENAME TO ' .
+                          $this->prefix . '_tableVersion',
+                    ];
+                    break;
+                case 'mysql':
+                    // Drop old index and add primary key
+                    $update = [
+                        'ALTER TABLE ' . $this->prefix . '_tableVersion DROP INDEX _name',
+                        'ALTER TABLE ' . $this->prefix . '_tableVersion ADD PRIMARY KEY (_name)',
+                    ];
+                    break;
+                default:
+                    // Drop old index and add primary key
+                    $update = [
+                        'ALTER TABLE ' . $this->prefix . '_tableVersion DROP INDEX _name',
+                        'ALTER TABLE ' . $this->prefix . '_tableVersion ADD PRIMARY KEY (_name)',
+                    ];
+                    break;
+            }
+
+            try {
+                foreach ($update as $query) {
+                    $this->pdo->exec($query);
+                }
+            } catch (Exception $e) {
+                Logger::warning('Database error: ' . var_export($this->pdo->errorInfo(), true));
+                return;
+            }
+            $this->setTableVersion('tableVersion', 1);
+            return;
+        }
+    }
 
     /**
      * Initialize key-value table.
@@ -111,7 +207,7 @@ class SQLStore implements StoreInterface
         } elseif ($tableVer < 2 && $tableVer > 0) {
             throw new Exception(
                 'No upgrade path available. Please migrate to the latest 1.16+ '
-                . 'version of SimpleSAMLphp first before upgrading to 2.x.'
+                . 'version of SimpleSAMLphp first before upgrading to 2.x.',
             );
         }
 
@@ -170,7 +266,7 @@ class SQLStore implements StoreInterface
         $this->insertOrUpdate(
             $this->prefix . '_tableVersion',
             ['_name'],
-            ['_name' => $name, '_version' => $version]
+            ['_name' => $name, '_version' => $version],
         );
         $this->tableVersions[$name] = $version;
     }
@@ -260,8 +356,12 @@ class SQLStore implements StoreInterface
      *
      * @return mixed|null The value associated with that key, or null if there's no such key.
      */
-    public function get(string $type, string $key)
+    public function get(string $type, string $key): mixed
     {
+        if ($type == 'session') {
+            $key = $this->hashData($key);
+        }
+
         if (strlen($key) > 50) {
             $key = sha1($key);
         }
@@ -300,12 +400,16 @@ class SQLStore implements StoreInterface
      * @param mixed $value The value itself.
      * @param int|null $expire The expiration time (unix timestamp), or null if it never expires.
      */
-    public function set(string $type, string $key, $value, ?int $expire = null): void
+    public function set(string $type, string $key, mixed $value, ?int $expire = null): void
     {
         Assert::nullOrGreaterThan($expire, 2592000);
 
         if (rand(0, 1000) < 10) {
             $this->cleanKVStore();
+        }
+
+        if ($type == 'session') {
+            $key = $this->hashData($key);
         }
 
         if (strlen($key) > 50) {
@@ -338,6 +442,10 @@ class SQLStore implements StoreInterface
      */
     public function delete(string $type, string $key): void
     {
+        if ($type == 'session') {
+            $key = $this->hashData($key);
+        }
+
         if (strlen($key) > 50) {
             $key = sha1($key);
         }
@@ -350,5 +458,18 @@ class SQLStore implements StoreInterface
         $query = 'DELETE FROM ' . $this->prefix . '_kvstore WHERE _type=:_type AND _key=:_key';
         $query = $this->pdo->prepare($query);
         $query->execute($data);
+    }
+
+
+    /**
+     * Calculates an URL-safe sha-256 hash.
+     *
+     * @param string $data
+     * @return string The hashed data.
+     */
+    private function hashData(string $data): string
+    {
+        $secretSalt = (new Utils\Config())->getSecretSalt();
+        return hash_hmac('sha256', $data, $secretSalt);
     }
 }

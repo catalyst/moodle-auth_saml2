@@ -12,6 +12,7 @@
 namespace Symfony\Bridge\Twig\TokenParser;
 
 use Symfony\Bridge\Twig\Node\DumpNode;
+use Twig\Node\Expression\Variable\LocalVariable;
 use Twig\Node\Node;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
@@ -29,9 +30,6 @@ use Twig\TokenParser\AbstractTokenParser;
  */
 final class DumpTokenParser extends AbstractTokenParser
 {
-    /**
-     * {@inheritdoc}
-     */
     public function parse(Token $token): Node
     {
         $values = null;
@@ -40,12 +38,9 @@ final class DumpTokenParser extends AbstractTokenParser
         }
         $this->parser->getStream()->expect(Token::BLOCK_END_TYPE);
 
-        return new DumpNode($this->parser->getVarName(), $values, $token->getLine(), $this->getTag());
+        return new DumpNode(class_exists(LocalVariable::class) ? new LocalVariable(null, $token->getLine()) : $this->parser->getVarName(), $values, $token->getLine(), $this->getTag());
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getTag(): string
     {
         return 'dump';

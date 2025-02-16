@@ -84,10 +84,10 @@ class setting_idpmetadata extends admin_setting_configtextarea {
         global $DB;
 
         $currentidpsrs = $DB->get_records('auth_saml2_idps');
-        $oldidps = array();
+        $oldidps = [];
         foreach ($currentidpsrs as $idpentity) {
             if (!isset($oldidps[$idpentity->metadataurl])) {
-                $oldidps[$idpentity->metadataurl] = array();
+                $oldidps[$idpentity->metadataurl] = [];
             }
 
             $oldidps[$idpentity->metadataurl][$idpentity->entityid] = $idpentity;
@@ -159,11 +159,11 @@ class setting_idpmetadata extends admin_setting_configtextarea {
             $oldidp = $oldidps[$idp->idpurl][$entityid];
 
             if (!empty($idpname) && $oldidp->defaultname !== $idpname) {
-                $DB->set_field('auth_saml2_idps', 'defaultname', $idpname, array('id' => $oldidp->id));
+                $DB->set_field('auth_saml2_idps', 'defaultname', $idpname, ['id' => $oldidp->id]);
             }
 
             if (!empty($logo) && $oldidp->logo !== $logo) {
-                $DB->set_field('auth_saml2_idps', 'logo', $logo, array('id' => $oldidp->id));
+                $DB->set_field('auth_saml2_idps', 'logo', $logo, ['id' => $oldidp->id]);
             }
 
             // Remove the idp from the current array so that we don't delete it later.
@@ -192,7 +192,7 @@ class setting_idpmetadata extends admin_setting_configtextarea {
 
         foreach ($oldidps as $metadataidps) {
             foreach ($metadataidps as $oldidp) {
-                $DB->delete_records('auth_saml2_idps', array('id' => $oldidp->id));
+                $DB->delete_records('auth_saml2_idps', ['id' => $oldidp->id]);
             }
         }
     }

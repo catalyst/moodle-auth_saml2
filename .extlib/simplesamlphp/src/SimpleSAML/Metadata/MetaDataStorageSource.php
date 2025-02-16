@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace SimpleSAML\Metadata;
 
-use SimpleSAML\Assert\Assert;
 use SimpleSAML\Error;
 use SimpleSAML\Module;
 use SimpleSAML\Utils;
@@ -96,18 +95,20 @@ abstract class MetaDataStorageSource
                 return new Sources\MDQ($sourceConfig);
             case 'pdo':
                 return new MetaDataStorageHandlerPdo($sourceConfig);
+            case 'directory':
+                return new MetaDataStorageHandlerDirectory($sourceConfig);
             default:
                 // metadata store from module
                 try {
                     $className = Module::resolveClass(
                         $type,
                         'MetadataStore',
-                        '\SimpleSAML\Metadata\MetaDataStorageSource'
+                        '\SimpleSAML\Metadata\MetaDataStorageSource',
                     );
                 } catch (\Exception $e) {
                     throw new Error\CriticalConfigurationError(
                         "Invalid 'type' for metadata source. Cannot find store '$type'.",
-                        null
+                        null,
                     );
                 }
 
@@ -302,7 +303,7 @@ abstract class MetaDataStorageSource
      * @param array $metadataSet the already loaded metadata set
      * @return mixed|null
      */
-    protected function lookupIndexFromEntityId(string $entityId, array $metadataSet)
+    protected function lookupIndexFromEntityId(string $entityId, array $metadataSet): mixed
     {
         // check for hostname
         $httpUtils = new Utils\HTTP();

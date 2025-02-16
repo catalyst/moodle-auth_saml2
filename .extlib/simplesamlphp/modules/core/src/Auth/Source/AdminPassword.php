@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace SimpleSAML\Module\core\Auth\Source;
 
-use SimpleSAML\Assert\Assert;
 use SimpleSAML\Configuration;
 use SimpleSAML\Error;
+use SimpleSAML\Logger;
 use SimpleSAML\Module\core\Auth\UserPassBase;
-use SimpleSAML\Utils;
+use Symfony\Component\PasswordHasher\Hasher\NativePasswordHasher;
 
 /**
  * Authentication source which verifies the password against
@@ -39,7 +39,7 @@ class AdminPassword extends UserPassBase
      *
      * On a successful login, this function should return the users attributes. On failure,
      * it should throw an exception. If the error was caused by the user entering the wrong
-     * username or password, a \SimpleSAML\Error\Error('WRONGUSERPASS') should be thrown.
+     * username or password, a \SimpleSAML\Error\Error(\SimpleSAML\Error\ErrorCodes::WRONGUSERPASS) should be thrown.
      *
      * Note that both the username and the password are UTF-8 encoded.
      *
@@ -50,19 +50,33 @@ class AdminPassword extends UserPassBase
     protected function login(string $username, string $password): array
     {
         $config = Configuration::getInstance();
-        $adminPassword = $config->getOptionalString('auth.adminpassword', '123');
+        $adminPassword = $config->getString('auth.adminpassword');
         if ($adminPassword === '123') {
             // We require that the user changes the password
-            throw new Error\Error('NOTSET');
+            throw new Error\Error(Error\ErrorCodes::NOTSET);
         }
 
         if ($username !== "admin") {
-            throw new Error\Error('WRONGUSERPASS');
+            throw new Error\Error(Error\ErrorCodes::WRONGUSERPASS);
         }
 
-        $cryptoUtils = new Utils\Crypto();
-        if (!$cryptoUtils->pwValid($adminPassword, $password)) {
-            throw new Error\Error('WRONGUSERPASS');
+        $pwinfo = password_get_info($adminPassword);
+        if ($pwinfo['algo'] === null) {
+            // @deprecated: remove this in the future.
+            // Continue to allow admin login when the config contains
+            // a password that is not hashed
+            if ($adminPassword === $password) {
+                Logger::deprecated('Please consider hashing the admin password stored in auth.adminpassword'
+                                 . ' in config.php. Using a plain text password in that config setting'
+                                 . ' will be removed in the future.');
+                return ['user' => ['admin']];
+            }
+            throw new Error\Error(Error\ErrorCodes::ADMINNOTHASHED);
+        }
+
+        $hasher = new NativePasswordHasher();
+        if (!$hasher->verify($adminPassword, $password)) {
+            throw new Error\Error(Error\ErrorCodes::WRONGUSERPASS);
         }
         return ['user' => ['admin']];
     }

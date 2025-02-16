@@ -38,6 +38,12 @@ use core\check\result;
  */
 class certificateexpiry extends check {
 
+    /** @var string Check ID */
+    protected string $id;
+
+    /** @var string Check name */
+    protected $name;
+
     /**
      * Constructor
      */
@@ -62,7 +68,7 @@ class certificateexpiry extends check {
      * Return result
      * @return result
      */
-    public function get_result() : result {
+    public function get_result(): result {
         global $CFG, $saml2auth;
 
         $path = $saml2auth->certcrt;

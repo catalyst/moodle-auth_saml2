@@ -22,7 +22,7 @@ class Parser
      */
     public function __construct(string $xml)
     {
-        $this->simplexml = new \SimpleXMLElement($xml);
+        $this->simplexml = new SimpleXMLElement($xml);
         $this->simplexml->registerXPathNamespace('saml2', 'urn:oasis:names:tc:SAML:2.0:assertion');
         $this->simplexml->registerXPathNamespace('saml2meta', 'urn:oasis:names:tc:SAML:2.0:metadata');
         $this->simplexml->registerXPathNamespace('ds', 'http://www.w3.org/2000/09/xmldsig#');
@@ -83,7 +83,7 @@ class Parser
         if (!is_array($result) || empty($result)) {
             if ($required) {
                 throw new \Exception(
-                    'Could not get value from XML document using the following XPath expression: ' . $xpath
+                    'Could not get value from XML document using the following XPath expression: ' . $xpath,
                 );
             } else {
                 return null;
@@ -110,7 +110,7 @@ class Parser
 
         if ($required) {
             throw new \Exception(
-                'Could not get value from XML document using multiple alternative XPath expressions.'
+                'Could not get value from XML document using multiple alternative XPath expressions.',
             );
         } else {
             return null;

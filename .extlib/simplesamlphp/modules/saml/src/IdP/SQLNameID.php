@@ -8,12 +8,12 @@ use Exception;
 use PDO;
 use PDOStatement;
 use SimpleSAML\Assert\Assert;
+use SimpleSAML\Configuration;
+use SimpleSAML\Database;
 use SimpleSAML\Error;
+use SimpleSAML\Logger;
 use SimpleSAML\Store;
 use SimpleSAML\Store\StoreFactory;
-use SimpleSAML\Database;
-use SimpleSAML\Configuration;
-use SimpleSAML\Logger;
 
 /**
  * Helper class for working with persistent NameIDs stored in SQL datastore.
@@ -166,7 +166,7 @@ class SQLNameID
             $store,
             Store\SQLStore::class,
             'SQL NameID store requires SimpleSAMLphp to be configured with a SQL datastore.',
-            Error\Exception::class
+            Error\Exception::class,
         );
 
         return $store;
@@ -187,7 +187,7 @@ class SQLNameID
         string $spEntityId,
         string $user,
         string $value,
-        array $config = []
+        array $config = [],
     ): void {
 
         $params = [
@@ -216,7 +216,7 @@ class SQLNameID
         string $idpEntityId,
         string $spEntityId,
         string $user,
-        array $config = []
+        array $config = [],
     ): ?string {
         $params = [
             '_idp' => $idpEntityId,
@@ -250,7 +250,7 @@ class SQLNameID
         string $idpEntityId,
         string $spEntityId,
         string $user,
-        array $config = []
+        array $config = [],
     ): void {
         $params = [
             '_idp' => $idpEntityId,

@@ -64,15 +64,15 @@ $config[$saml2auth->spname] = [
     'discoURL' => !empty($CFG->auth_saml2_disco_url) ? $CFG->auth_saml2_disco_url : null,
     'idp' => empty($CFG->auth_saml2_disco_url) ? $idpentityid : null,
     'NameIDPolicy' => ['Format' => $saml2auth->config->nameidpolicy, 'AllowCreate' => true],
-    'OrganizationName' => array(
+    'OrganizationName' => [
         $lang => $SITE->shortname,
-    ),
-    'OrganizationDisplayName' => array(
+    ],
+    'OrganizationDisplayName' => [
         $lang => $SITE->fullname,
-    ),
-    'OrganizationURL' => array(
+    ],
+    'OrganizationURL' => [
         $lang => $baseurl,
-    ),
+    ],
     'privatekey' => $saml2auth->spname . '.pem',
     'privatekey_pass' => get_config('auth_saml2', 'privatekeypass'),
     'certificate' => $saml2auth->spname . '.crt',
@@ -101,10 +101,10 @@ if (!empty($saml2auth->config->authncontext)) {
  * the nameid value appears under the attribute "nameid"
  */
 if ($saml2auth->config->nameidasattrib) {
-    $config[$saml2auth->spname]['authproc'] = array(
-        20 => array(
+    $config[$saml2auth->spname]['authproc'] = [
+        20 => [
             'class' => 'saml:NameIDAttribute',
             'format' => '%V',
-        ),
-    );
+        ],
+    ];
 }

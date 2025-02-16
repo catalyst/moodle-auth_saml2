@@ -5,11 +5,7 @@ declare(strict_types=1);
 namespace SimpleSAML\Error;
 
 use SimpleSAML\Assert\Assert;
-use SimpleSAML\Configuration;
-use SimpleSAML\Logger;
-use SimpleSAML\Module;
-use SimpleSAML\Session;
-use SimpleSAML\Utils;
+use SimpleSAML\{Configuration, Logger, Module, Session, Utils};
 use SimpleSAML\XHTML\Template;
 use Throwable;
 
@@ -77,14 +73,16 @@ class Error extends Exception
      * The error can either be given as a string, or as an array. If it is an array, the first element in the array
      * (with index 0), is the error code, while the other elements are replacements for the error text.
      *
-     * @param mixed      $errorCode One of the error codes defined in the errors dictionary.
-     * @param \Throwable $cause The exception which caused this fatal error (if any). Optional.
-     * @param int|null   $httpCode The HTTP response code to use. Optional.
+     * @param string|array     $errorCode One of the error codes defined in the errors dictionary.
+     * @param Throwable|null   $cause The exception which caused this fatal error (if any). Optional.
+     * @param int|null         $httpCode The HTTP response code to use. Optional.
      */
-    public function __construct($errorCode, Throwable $cause = null, ?int $httpCode = null)
-    {
-        Assert::true(is_string($errorCode) || is_array($errorCode));
-
+    public function __construct(
+        string|array $errorCode,
+        Throwable $cause = null,
+        ?int $httpCode = null,
+        ErrorCodes $errorCodes = null,
+    ) {
         if (is_array($errorCode)) {
             $this->parameters = $errorCode;
             unset($this->parameters[0]);
@@ -98,8 +96,9 @@ class Error extends Exception
             $this->httpCode = $httpCode;
         }
 
-        $this->dictTitle = ErrorCodes::getErrorCodeTitle($this->errorCode);
-        $this->dictDescr = ErrorCodes::getErrorCodeDescription($this->errorCode);
+        $errorCodes = $errorCodes ?? $this->getErrorCodes();
+        $this->dictTitle = $errorCodes->getTitle($this->errorCode);
+        $this->dictDescr = $errorCodes->getDescription($this->errorCode);
 
         if (!empty($this->parameters)) {
             $msg = $this->errorCode . '(';
@@ -115,6 +114,21 @@ class Error extends Exception
             $msg = $this->errorCode;
         }
         parent::__construct($msg, -1, $cause);
+    }
+
+    /**
+     * Retrieve the ErrorCodes instance to use for resolving dictionary title and description tags.
+     *
+     * Extend this to use custom ErrorCodes instance (with custom error codes and their title / description tags).
+     *
+     * This has to be public to allow Login to get an object
+     * containing custom error codes if they in use.
+     *
+     * @return ErrorCodes
+     */
+    public function getErrorCodes(): ErrorCodes
+    {
+        return new ErrorCodes();
     }
 
 
@@ -185,7 +199,6 @@ class Error extends Exception
         $etrace = implode("\n", $data);
 
         $reportId = bin2hex(openssl_random_pseudo_bytes(4));
-        Logger::error('Error report with id ' . $reportId . ' generated.');
 
         $config = Configuration::getInstance();
         $session = Session::getSessionFromRequest();
@@ -220,13 +233,16 @@ class Error extends Exception
      * Display this error.
      *
      * This method displays a standard SimpleSAMLphp error page and exits.
+     *
+     * @param int $logLevel  The log-level for this exception
+     * @param bool $suppressReport  Whether or not sending an error report is an option
      */
-    public function show(): void
+    public function show(int $logLevel = Logger::ERR, bool $suppressReport = false): void
     {
         // log the error message
-        $this->logError();
-
+        $this->log($logLevel);
         $errorData = $this->saveError();
+
         $config = Configuration::getInstance();
 
         $data = [];
@@ -242,12 +258,14 @@ class Error extends Exception
 
         // check if there is a valid technical contact email address
         if (
-            $config->getOptionalBoolean('errorreporting', true)
+            $suppressReport === false
+            && $config->getOptionalBoolean('errorreporting', true)
             && $config->getOptionalString('technicalcontact_email', 'na@example.org') !== 'na@example.org'
         ) {
             // enable error reporting
             $httpUtils = new Utils\HTTP();
             $data['errorReportAddress'] = Module::getModuleURL('core/errorReport');
+            Logger::error('Error report with id ' . $errorData['reportId'] . ' generated.');
         }
 
         $data['email'] = '';

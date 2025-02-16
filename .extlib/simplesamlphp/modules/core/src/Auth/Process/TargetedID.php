@@ -50,7 +50,7 @@ class TargetedID extends Auth\ProcessingFilter
     /**
      * @var \SimpleSAML\Utils\Config
      */
-    protected $configUtils;
+    protected Utils\Config $configUtils;
 
 
     /**
@@ -66,16 +66,16 @@ class TargetedID extends Auth\ProcessingFilter
         Assert::keyExists($config, 'identifyingAttribute', "Missing mandatory 'identifyingAttribute' config setting.");
         Assert::stringNotEmpty(
             $config['identifyingAttribute'],
-            "TargetedID: 'identifyingAttribute' must be a non-empty string."
+            "TargetedID: 'identifyingAttribute' must be a non-empty string.",
         );
 
         $this->identifyingAttribute = $config['identifyingAttribute'];
 
         if (array_key_exists('nameId', $config)) {
-            $this->generateNameId = $config['nameId'];
-            if (!is_bool($this->generateNameId)) {
+            if (!is_bool($config['nameId'])) {
                 throw new Exception('Invalid value of \'nameId\'-option to core:TargetedID filter.');
             }
+            $this->generateNameId = $config['nameId'];
         }
 
         $this->configUtils = new Utils\Config();
@@ -105,8 +105,8 @@ class TargetedID extends Auth\ProcessingFilter
             Logger::warning(
                 sprintf(
                     "core:TargetedID: Missing attribute '%s', which is needed to generate the TargetedID.",
-                    $this->identifyingAttribute
-                )
+                    $this->identifyingAttribute,
+                ),
             );
 
             return;

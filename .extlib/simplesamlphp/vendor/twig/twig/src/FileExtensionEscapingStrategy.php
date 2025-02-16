@@ -37,7 +37,7 @@ class FileExtensionEscapingStrategy
             return 'html'; // return html for directories
         }
 
-        if ('.twig' === substr($name, -5)) {
+        if (str_ends_with($name, '.twig')) {
             $name = substr($name, 0, -5);
         }
 
@@ -45,6 +45,7 @@ class FileExtensionEscapingStrategy
 
         switch ($extension) {
             case 'js':
+            case 'json':
                 return 'js';
 
             case 'css':

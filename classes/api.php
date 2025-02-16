@@ -65,10 +65,10 @@ class api {
      */
     public static function authproc_filters_hook(): array {
         $authprocfilters = [];
-        $authprocfilters[50] = array(
+        $authprocfilters[50] = [
             'class' => 'core:AttributeMap',
             'oid2name',
-        );
+        ];
         $callbacks = get_plugins_with_function('extend_auth_saml2_proc', 'lib.php');
         foreach ($callbacks as $plugins) {
             foreach ($plugins as $pluginfunction) {

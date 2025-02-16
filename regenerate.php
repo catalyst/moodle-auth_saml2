@@ -67,7 +67,7 @@ $datetime2 = new DateTime($date2);
 $interval = $datetime1->diff($datetime2);
 $expirydays = $interval->format('%a');
 
-$toform = array (
+$toform = [
     "email" => $data['subject']['emailAddress'],
     "expirydays" => $expirydays,
     "commonname" => substr($data['subject']['CN'], 0, 64),
@@ -76,7 +76,7 @@ $toform = array (
     "organizationname"  => $data['subject']['O'],
     "stateorprovincename"    => $data['subject']['ST'],
     "organizationalunitname" => $data['subject']['OU'],
-);
+];
 $mform->set_data($toform); // Load current data into form.
 
 if ($success) {

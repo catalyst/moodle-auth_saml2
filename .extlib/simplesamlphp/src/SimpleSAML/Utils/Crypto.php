@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace SimpleSAML\Utils;
 
-use SimpleSAML\Assert\Assert;
 use InvalidArgumentException;
 use SimpleSAML\Configuration;
 use SimpleSAML\Error;
 use SimpleSAML\Logger;
+
+use function hash_equals;
 
 /**
  * A class for cryptography-related functions.
@@ -39,7 +40,7 @@ class Crypto
         $len = mb_strlen($ciphertext, '8bit');
         if ($len < 48) {
             throw new InvalidArgumentException(
-                'Input parameter "$ciphertext" must be a string with more than 48 characters.'
+                'Input parameter "$ciphertext" must be a string with more than 48 characters.',
             );
         }
 
@@ -51,13 +52,13 @@ class Crypto
         $msg  = mb_substr($ciphertext, 48, $len - 48, '8bit');
 
         // authenticate the ciphertext
-        if ($this->secureCompare(hash_hmac('sha256', $iv . $msg, substr($key, 64, 64), true), $hmac)) {
+        if (hash_equals(hash_hmac('sha256', $iv . $msg, substr($key, 64, 64), true), $hmac)) {
             $plaintext = openssl_decrypt(
                 $msg,
                 'AES-256-CBC',
                 substr($key, 0, 64),
                 defined('OPENSSL_RAW_DATA') ? OPENSSL_RAW_DATA : 1,
-                $iv
+                $iv,
             );
 
             if ($plaintext !== false) {
@@ -80,6 +81,7 @@ class Crypto
      * @throws \InvalidArgumentException If $ciphertext is not a string.
      * @throws Error\Exception If the openssl module is not loaded.
      *
+     * @deprecated - Possibly use xml-security library
      */
     public function aesDecrypt(string $ciphertext, string $secret = null): string
     {
@@ -122,7 +124,7 @@ class Crypto
             'AES-256-CBC',
             substr($key, 0, 64),
             defined('OPENSSL_RAW_DATA') ? OPENSSL_RAW_DATA : 1,
-            $iv
+            $iv,
         );
 
         if ($ciphertext === false) {
@@ -145,6 +147,7 @@ class Crypto
      * @throws \InvalidArgumentException If $data is not a string.
      * @throws Error\Exception If the openssl module is not loaded.
      *
+     * @deprecated - Possibly use xml-security library
      */
     public function aesEncrypt(string $data, string $secret = null): string
     {
@@ -202,7 +205,7 @@ class Crypto
         Configuration $metadata,
         bool $required = false,
         string $prefix = '',
-        bool $full_path = false
+        bool $full_path = false,
     ): ?array {
         $location = $metadata->getOptionalString($prefix . 'privatekey', null);
         if ($location === null) {
@@ -313,7 +316,12 @@ class Crypto
         }
         unset($lines[$last]);
 
-        return base64_decode(implode($lines));
+        $transform = base64_decode(implode($lines), true);
+        if (empty($transform)) {
+            throw new InvalidArgumentException("pem2der: input is empty or not a valid base64 encoded string.");
+        }
+
+        return $transform;
     }
 
 
@@ -321,16 +329,17 @@ class Crypto
      * This function hashes a password with a given algorithm.
      *
      * @param string $password The password to hash.
-     * @param mixed $algorithm The algorithm to use. Defaults to the system default
+     * @param string|int|null $algorithm The algorithm to use. Defaults to the system default
      *
      * @return string The hashed password.
      * @throws \Exception If the algorithm is not known ti PHP.
      * @throws Error\Exception If the algorithm specified is not supported.
      *
      * @see hash_algos()
+     * @deprecated Use Symfony NativePasswordHasher::hash instead
      *
      */
-    public function pwHash(string $password, $algorithm = PASSWORD_DEFAULT): string
+    public function pwHash(string $password, string|int|null $algorithm = PASSWORD_DEFAULT): string
     {
         return password_hash($password, $algorithm);
     }
@@ -346,6 +355,8 @@ class Crypto
      * @param string $user A user-provided string to compare with the known string.
      *
      * @return bool True if both strings are equal, false otherwise.
+     *
+     * @deprecated Use hash_equals instead
      */
     public function secureCompare(string $known, string $user): bool
     {
@@ -363,6 +374,7 @@ class Crypto
      * @throws \InvalidArgumentException If the input parameters are not strings.
      * @throws Error\Exception If the algorithm specified is not supported.
      *
+     * @deprecated Use Symfony NativePasswordHasher::verify instead
      */
     public function pwValid(string $hash, string $password): bool
     {

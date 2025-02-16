@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace auth_saml2;
+
 use auth_saml2\admin\setting_idpmetadata;
-use auth_saml2\idp_data;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -29,7 +30,7 @@ require_once(__DIR__ . '/../_autoload.php');
  * @copyright   2018 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class setting_idpmetadata_test extends advanced_testcase {
+final class setting_idpmetadata_test extends \advanced_testcase {
     /** @var setting_idpmetadata */
     private static $config;
 
@@ -50,14 +51,14 @@ class setting_idpmetadata_test extends advanced_testcase {
         return AUTH_SAML2_TEST_IDP_METADATA;
     }
 
-    public function test_it_validates_the_xml() {
+    public function test_it_validates_the_xml(): void {
         $this->resetAfterTest();
         $xml = file_get_contents(__DIR__ . '/fixtures/metadata.xml');
         $data = self::$config->validate($xml);
         self::assertTrue($data);
     }
 
-    public function test_it_saves_all_idp_information() {
+    public function test_it_saves_all_idp_information(): void {
         global $CFG;
 
         $this->resetAfterTest();
@@ -85,7 +86,7 @@ class setting_idpmetadata_test extends advanced_testcase {
         self::assertSame(trim($xml), $actual, "Invalid saved XML contents for: {$file}");
     }
 
-    public function test_it_saves_all_idps_information_from_single_xml() {
+    public function test_it_saves_all_idps_information_from_single_xml(): void {
         global $CFG;
 
         $this->resetAfterTest();
@@ -117,20 +118,20 @@ class setting_idpmetadata_test extends advanced_testcase {
         self::assertSame(trim($xml), $actual, "Invalid saved XML contents for: {$file}");
     }
 
-    public function test_it_allows_empty_values() {
+    public function test_it_allows_empty_values(): void {
         self::assertTrue(self::$config->validate(''), 'Validate empty string.');
         self::assertTrue(self::$config->validate('  '), ' Should trim spaces.');
         self::assertTrue(self::$config->validate("\n \n"), 'Should trim newlines.');
     }
 
-    public function test_it_gets_idp_data_for_xml() {
+    public function test_it_gets_idp_data_for_xml(): void {
         $xml = file_get_contents(__DIR__ . '/fixtures/metadata.xml');
         $data = self::$config->get_idps_data($xml);
         self::assertCount(1, $data);
         $this->validate_idp_data_array($data);
     }
 
-    public function test_it_gets_idp_data_for_two_urls() {
+    public function test_it_gets_idp_data_for_two_urls(): void {
         $url = $this->get_test_metadata_url();
         $url = "{$url}\n{$url}?second";
         $data = self::$config->get_idps_data($url);
@@ -138,7 +139,7 @@ class setting_idpmetadata_test extends advanced_testcase {
         $this->validate_idp_data_array($data);
     }
 
-    public function test_it_returns_error_if_metadata_url_is_not_valid() {
+    public function test_it_returns_error_if_metadata_url_is_not_valid(): void {
         $error = self::$config->validate('http://invalid.url.metadata.test');
         self::assertDebuggingCalled();
         if (method_exists($this, 'assertStringContainsString')) {

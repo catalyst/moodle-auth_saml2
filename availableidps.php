@@ -42,7 +42,7 @@ $PAGE->requires->css('/auth/saml2/styles.css');
 $metadataentities = auth_saml2_get_idps(false, true);
 
 $data = [
-    'metadataentities' => $metadataentities
+    'metadataentities' => $metadataentities,
 ];
 
 $action = new moodle_url('/auth/saml2/availableidps.php');

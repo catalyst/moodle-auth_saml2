@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace SimpleSAML\Metadata;
 
 use SAML2\Constants;
-use SAML2\XML\saml\Issuer;
 use SimpleSAML\Assert\Assert;
 use SimpleSAML\Configuration;
 use SimpleSAML\Error;
 use SimpleSAML\Logger;
 use SimpleSAML\Utils;
-use SimpleSAML\Error\MetadataNotFound;
 use SimpleSAML\Utils\ClearableState;
 
 /**
@@ -72,7 +70,7 @@ class MetaDataStorageHandler implements ClearableState
             $this->sources = MetaDataStorageSource::parseSources($sourcesConfig);
         } catch (\Exception $e) {
             throw new \Exception(
-                "Invalid configuration of the 'metadata.sources' configuration option: " . $e->getMessage()
+                "Invalid configuration of the 'metadata.sources' configuration option: " . $e->getMessage(),
             );
         }
     }
@@ -88,7 +86,7 @@ class MetaDataStorageHandler implements ClearableState
      * @return string|array The auto-generated metadata property.
      * @throws \Exception If the metadata cannot be generated automatically.
      */
-    public function getGenerated(string $property, string $set, string $overrideHost = null)
+    public function getGenerated(string $property, string $set, string $overrideHost = null): string|array
     {
         // first we check if the user has overridden this property in the metadata
         try {
@@ -105,7 +103,7 @@ class MetaDataStorageHandler implements ClearableState
         $httpUtils = new Utils\HTTP();
         $baseurl = $httpUtils->getSelfURLHost() . $config->getBasePath();
         if ($overrideHost !== null) {
-            $baseurl = str_replace('://' . $httpUtils->getSelfHost(), '://' . $overrideHost, $baseurl);
+            $baseurl = str_replace('://' . $httpUtils->getSelfHost() . '/', '://' . $overrideHost . '/', $baseurl);
         }
 
         if ($set == 'saml20-sp-hosted') {
@@ -155,7 +153,7 @@ class MetaDataStorageHandler implements ClearableState
                         unset($srcList[$key]);
                         Logger::warning(
                             "Dropping metadata entity " . var_export($key, true) . ", expired " .
-                            $timeUtils->generateTimestamp($le['expire']) . "."
+                            $timeUtils->generateTimestamp($le['expire']) . ".",
                         );
                     }
                 }
@@ -229,7 +227,7 @@ class MetaDataStorageHandler implements ClearableState
         // we were unable to find the hostname/path in any metadata source
         throw new \Exception(
             'Could not find any default metadata entities in set [' . $set . '] for host [' . $currenthost . ' : ' .
-            $currenthostwithpath . ']'
+            $currenthostwithpath . ']',
         );
     }
 
@@ -276,7 +274,7 @@ class MetaDataStorageHandler implements ClearableState
                         unset($srcList[$key]);
                         Logger::warning(
                             "Dropping metadata entity " . var_export($key, true) . ", expired " .
-                            $timeUtils->generateTimestamp($le['expire']) . "."
+                            $timeUtils->generateTimestamp($le['expire']) . ".",
                         );
                         continue;
                     }
@@ -318,7 +316,7 @@ class MetaDataStorageHandler implements ClearableState
                     if ($metadata['expire'] < time()) {
                         throw new \Exception(
                             'Metadata for the entity [' . $entityId . '] expired ' .
-                            (time() - $metadata['expire']) . ' seconds ago.'
+                            (time() - $metadata['expire']) . ' seconds ago.',
                         );
                     }
                 }
@@ -379,7 +377,7 @@ class MetaDataStorageHandler implements ClearableState
 
                 return Configuration::loadFromArray(
                     $remote_provider,
-                    $set . '/' . var_export($remote_provider['entityid'], true)
+                    $set . '/' . var_export($remote_provider['entityid'], true),
                 );
             }
         }

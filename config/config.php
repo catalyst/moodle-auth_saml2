@@ -33,14 +33,14 @@ foreach ($saml2auth->metadataentities as $idpentity) {
     $metadataurlhash = md5($idpentity->metadataurl);
     $metadatasources[$metadataurlhash] = [
         'type' => 'xml',
-        'file' => "$CFG->dataroot/saml2/" . $metadataurlhash . ".idp.xml"
+        'file' => "$CFG->dataroot/saml2/" . $metadataurlhash . ".idp.xml",
     ];
 }
 
 $remoteip = getremoteaddr();
 $baseurl = optional_param('baseurl', $CFG->wwwroot, PARAM_URL);
 
-$config = array(
+$config = [
     'baseurlpath'       => $baseurl . '/auth/saml2/sp/',
     'application'       => [
       'baseURL'         => $baseurl . '/auth/saml2/sp/',
@@ -98,7 +98,7 @@ $config = array(
     'authproc.sp' => \auth_saml2\api::authproc_filters_hook(),
 
     // TODO setting for redirect.sign.
-);
+];
 
 // Save this in a global for later.
 $saml2config = $config;

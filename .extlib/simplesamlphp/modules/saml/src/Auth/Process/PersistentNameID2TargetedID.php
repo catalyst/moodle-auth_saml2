@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace SimpleSAML\Module\saml\Auth\Process;
 
 use SAML2\Constants;
-use SimpleSAML\Assert\Assert;
 use SimpleSAML\Auth\ProcessingFilter;
 use SimpleSAML\Logger;
 
@@ -66,7 +65,7 @@ class PersistentNameID2TargetedID extends ProcessingFilter
     {
         if (!isset($state['saml:NameID'][Constants::NAMEID_PERSISTENT])) {
             Logger::warning(
-                'Unable to generate eduPersonTargetedID because no persistent NameID was available.'
+                'Unable to generate eduPersonTargetedID because no persistent NameID was available.',
             );
             return;
         }

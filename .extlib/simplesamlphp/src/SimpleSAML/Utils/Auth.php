@@ -6,7 +6,6 @@ namespace SimpleSAML\Utils;
 
 use SimpleSAML\Auth as Authentication;
 use SimpleSAML\Error;
-use SimpleSAML\Module;
 use SimpleSAML\Session;
 
 /**
@@ -65,7 +64,7 @@ class Auth
             $as->login();
         } else {
             throw new Error\Exception(
-                'Cannot find "admin" auth source, and admin privileges are required.'
+                'Cannot find "admin" auth source, and admin privileges are required.',
             );
         }
     }

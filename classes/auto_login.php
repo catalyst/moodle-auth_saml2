@@ -174,7 +174,7 @@ class auto_login {
         $params = [
             'isPassive' => true,
             'ErrorURL' => $CFG->wwwroot . '/auth/saml2/autologin.php?success=0&url=' . $encodedtarget,
-            'ReturnTo' => $CFG->wwwroot . '/auth/saml2/autologin.php?success=1&url=' . $encodedtarget
+            'ReturnTo' => $CFG->wwwroot . '/auth/saml2/autologin.php?success=1&url=' . $encodedtarget,
         ];
 
         $simplesaml->requireAuth($params);

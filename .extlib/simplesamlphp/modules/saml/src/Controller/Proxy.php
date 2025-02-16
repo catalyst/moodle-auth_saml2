@@ -6,7 +6,6 @@ namespace SimpleSAML\Module\saml\Controller;
 
 use Exception;
 use SAML2\Constants;
-use SimpleSAML\Assert\Assert;
 use SimpleSAML\Auth;
 use SimpleSAML\Configuration;
 use SimpleSAML\Error;
@@ -26,9 +25,6 @@ use Symfony\Component\HttpFoundation\{Request, Response};
  */
 class Proxy
 {
-    /** @var \SimpleSAML\Configuration */
-    protected Configuration $config;
-
     /**
      * @var \SimpleSAML\Auth\State|string
      * @psalm-var \SimpleSAML\Auth\State|class-string
@@ -44,9 +40,8 @@ class Proxy
      * @param \SimpleSAML\Configuration $config The configuration to use by the controllers.
      */
     public function __construct(
-        Configuration $config
+        protected Configuration $config,
     ) {
-        $this->config = $config;
     }
 
 
@@ -99,8 +94,8 @@ class Proxy
                 $state,
                 new NoAvailableIDP(
                     Constants::STATUS_RESPONDER,
-                    'User refused to reauthenticate with any of the IdPs requested.'
-                )
+                    'User refused to reauthenticate with any of the IdPs requested.',
+                ),
             );
         }
 

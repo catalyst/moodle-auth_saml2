@@ -4,36 +4,44 @@ declare(strict_types=1);
 
 namespace SimpleSAML\Assert;
 
-use DateTimeImmutable;
 use InvalidArgumentException;
+use League\Uri\Exceptions\SyntaxError;
+use League\Uri\UriString;
 
 use function array_map;
 use function base64_decode;
 use function base64_encode;
-use function call_user_func_array;
 use function filter_var;
 use function implode;
 use function in_array;
-use function reset;
 use function sprintf;
+use function substr;
 
 /**
  * @package simplesamlphp/assert
  */
 trait CustomAssertionTrait
 {
-    private static string $duration_regex = '/^(-?)P(?=.)((\d+)Y)?((\d+)M)?((\d+)D)?(T(?=.)((\d+)H)?((\d+)M)?(\d*(\.\d+)?S)?)?$/i';
+    /** @var string */
+    private static string $nmtoken_regex = '/^[\w.:-]+$/Du';
 
-    private static string $qname_regex = '/^[a-zA-Z_][\w.-]*:[a-zA-Z_][\w.-]*$/';
+    /** @var string */
+    private static string $nmtokens_regex = '/^([\w.:-]+)([\s][\w.:-]+)*$/Du';
 
-    private static string $ncname_regex = '/^[a-zA-Z_][\w.-]*$/';
+    /** @var string */
+    private static string $datetime_regex = '/-?[0-9]{4}-(((0(1|3|5|7|8)|1(0|2))-(0[1-9]|(1|2)[0-9]|3[0-1]))|((0(4|6|9)|11)-(0[1-9]|(1|2)[0-9]|30))|(02-(0[1-9]|(1|2)[0-9])))T([0-1][0-9]|2[0-4]):(0[0-9]|[1-5][0-9]):(0[0-9]|[1-5][0-9])(\.[0-999])?((\+|-)([0-1][0-9]|2[0-4]):(0[0-9]|[1-5][0-9])|Z)?/Di';
 
+    /** @var string */
+    private static string $duration_regex = '/^([-+]?)P(?!$)(?:(?<years>\d+(?:[\.\,]\d+)?)Y)?(?:(?<months>\d+(?:[\.\,]\d+)?)M)?(?:(?<weeks>\d+(?:[\.\,]\d+)?)W)?(?:(?<days>\d+(?:[\.\,]\d+)?)D)?(T(?=\d)(?:(?<hours>\d+(?:[\.\,]\d+)?)H)?(?:(?<minutes>\d+(?:[\.\,]\d+)?)M)?(?:(?<seconds>\d+(?:[\.\,]\d+)?)S)?)?$/D';
+
+    /** @var string */
+    private static string $qname_regex = '/^[a-zA-Z_][\w.-]*:[a-zA-Z_][\w.-]*$/D';
+
+    /** @var string */
+    private static string $ncname_regex = '/^[a-zA-Z_][\w.-]*$/D';
+
+    /** @var string */
     private static string $base64_regex = '/^(?:[a-z0-9+\/]{4})*(?:[a-z0-9+\/]{2}==|[a-z0-9+\/]{3}=)?$/i';
-
-    private static string $uri_same_document_regex = '/^#([a-z0-9-._~!$&\'()*+,;=:!\/?]|%[a-f0-9]{2})*$/i';
-
-    private static string $urn_regex = '/\A(?i:urn:(?!urn:)(?<nid>[a-z0-9][a-z0-9-]{1,31}):(?<nss>(?:[-a-z0-9()+,.:=@;$_!*\'&~\/]|%[0-9a-f]{2})+)(?:\?\+(?<rcomponent>.*?))?(?:\?=(?<qcomponent>.*?))?(?:#(?<fcomponent>.*?))?)\z/';
-
 
     /***********************************************************************************
      *  NOTE:  Custom assertions may be added below this line.                         *
@@ -46,13 +54,44 @@ trait CustomAssertionTrait
 
     /**
      * @param string $value
+     * @param string $message
+     */
+    private static function validNMToken(string $value, string $message = ''): void
+    {
+        if (filter_var($value, FILTER_VALIDATE_REGEXP, ['options' => ['regexp' => self::$nmtoken_regex]]) === false) {
+            throw new InvalidArgumentException(sprintf(
+                $message ?: '\'%s\' is not a valid xs:NMTOKEN',
+                $value,
+            ));
+        }
+    }
+
+
+    /**
+     * @param string $value
+     * @param string $message
+     */
+    private static function validNMTokens(string $value, string $message = ''): void
+    {
+        if (filter_var($value, FILTER_VALIDATE_REGEXP, ['options' => ['regexp' => self::$nmtokens_regex]]) === false) {
+            throw new InvalidArgumentException(sprintf(
+                $message ?: '\'%s\' is not a valid xs:NMTOKENS',
+                $value,
+            ));
+        }
+    }
+
+
+    /**
+     * @param string $value
+     * @param string $message
      */
     private static function validDuration(string $value, string $message = ''): void
     {
         if (filter_var($value, FILTER_VALIDATE_REGEXP, ['options' => ['regexp' => self::$duration_regex]]) === false) {
             throw new InvalidArgumentException(sprintf(
                 $message ?: '\'%s\' is not a valid xs:duration',
-                $value
+                $value,
             ));
         }
     }
@@ -75,7 +114,7 @@ trait CustomAssertionTrait
             $result = false;
         } else {
             $decoded = base64_decode($value, true);
-            if ($decoded === false) {
+            if (empty($decoded)) { // Invalid _or_ empty string
                 $result = false;
             } elseif (base64_encode($decoded) !== $value) {
                 $result = false;
@@ -85,7 +124,7 @@ trait CustomAssertionTrait
         if ($result === false) {
             throw new InvalidArgumentException(sprintf(
                 $message ?: '\'%s\' is not a valid Base64 encoded string',
-                $value
+                $value,
             ));
         }
     }
@@ -97,37 +136,10 @@ trait CustomAssertionTrait
      */
     private static function validDateTime(string $value, string $message = ''): void
     {
-        if (
-            DateTimeImmutable::createFromFormat(DateTimeImmutable::ISO8601, $value) === false &&
-            DateTimeImmutable::createFromFormat(DateTimeImmutable::RFC3339_EXTENDED, $value) === false
-        ) {
+        if (filter_var($value, FILTER_VALIDATE_REGEXP, ['options' => ['regexp' => self::$datetime_regex]]) === false) {
             throw new InvalidArgumentException(sprintf(
-                $message ?: '\'%s\' is not a valid DateTime',
-                $value
-            ));
-        }
-    }
-
-
-    /**
-     * @param string $value
-     * @param string $message
-     */
-    private static function validDateTimeZulu(string $value, string $message = ''): void
-    {
-        $dateTime1 = DateTimeImmutable::createFromFormat(DateTimeImmutable::ISO8601, $value);
-        $dateTime2 = DateTimeImmutable::createFromFormat(DateTimeImmutable::RFC3339_EXTENDED, $value);
-
-        $dateTime = $dateTime1 ?: $dateTime2;
-        if ($dateTime === false) {
-            throw new InvalidArgumentException(sprintf(
-                $message ?: '\'%s\' is not a valid DateTime',
-                $value
-            ));
-        } elseif ($dateTime->getTimezone()->getName() !== 'Z') {
-            throw new InvalidArgumentException(sprintf(
-                $message ?: '\'%s\' is not a DateTime expressed in the UTC timezone using the \'Z\' timezone identifier.',
-                $value
+                $message ?: '\'%s\' is not a valid xs:dateTime',
+                $value,
             ));
         }
     }
@@ -135,7 +147,7 @@ trait CustomAssertionTrait
 
     /**
      * @param mixed $value
-     * @param array $values
+     * @param array<mixed> $values
      * @param string $message
      */
     private static function notInArray($value, array $values, string $message = ''): void
@@ -160,10 +172,22 @@ trait CustomAssertionTrait
      */
     private static function validURN(string $value, string $message = ''): void
     {
-        if (filter_var($value, FILTER_VALIDATE_REGEXP, ['options' => ['regexp' => self::$urn_regex]]) === false) {
+        try {
+            $uri = UriString::parse($value);
+        } catch (SyntaxError $e) {
+            throw new InvalidArgumentException(sprintf(
+                $message ?: '\'%s\' is not a valid RFC3986 compliant URI',
+                $value,
+            ));
+        }
+
+        if (
+            $uri['scheme'] !== 'urn'
+            || (($uri['scheme'] !== null) && $uri['path'] !== substr($value, strlen($uri['scheme']) + 1))
+        ) {
             throw new InvalidArgumentException(sprintf(
                 $message ?: '\'%s\' is not a valid RFC8141 compliant URN',
-                $value
+                $value,
             ));
         }
     }
@@ -175,10 +199,19 @@ trait CustomAssertionTrait
      */
     private static function validURL(string $value, string $message = ''): void
     {
-        if (filter_var($value, FILTER_VALIDATE_URL) === false) {
+        try {
+            $uri = UriString::parse($value);
+        } catch (SyntaxError $e) {
+            throw new InvalidArgumentException(sprintf(
+                $message ?: '\'%s\' is not a valid RFC3986 compliant URI',
+                $value,
+            ));
+        }
+
+        if ($uri['scheme'] !== 'http' && $uri['scheme'] !== 'https') {
             throw new InvalidArgumentException(sprintf(
                 $message ?: '\'%s\' is not a valid RFC2396 compliant URL',
-                $value
+                $value,
             ));
         }
     }
@@ -190,14 +223,12 @@ trait CustomAssertionTrait
      */
     private static function validURI(string $value, string $message = ''): void
     {
-        if (
-            filter_var($value, FILTER_VALIDATE_URL) === false &&
-            filter_var($value, FILTER_VALIDATE_REGEXP, ['options' => ['regexp' => self::$urn_regex]]) === false &&
-            filter_var($value, FILTER_VALIDATE_REGEXP, ['options' => ['regexp' => self::$uri_same_document_regex]]) === false
-        ) {
+        try {
+            UriString::parse($value);
+        } catch (SyntaxError $e) {
             throw new InvalidArgumentException(sprintf(
                 $message ?: '\'%s\' is not a valid RFC3986 compliant URI',
-                $value
+                $value,
             ));
         }
     }
@@ -212,7 +243,7 @@ trait CustomAssertionTrait
         if (filter_var($value, FILTER_VALIDATE_REGEXP, ['options' => ['regexp' => self::$ncname_regex]]) === false) {
             throw new InvalidArgumentException(sprintf(
                 $message ?: '\'%s\' is not a valid non-colonized name (NCName)',
-                $value
+                $value,
             ));
         }
     }
@@ -230,7 +261,7 @@ trait CustomAssertionTrait
         ) {
             throw new InvalidArgumentException(sprintf(
                 $message ?: '\'%s\' is not a valid qualified name (QName)',
-                $value
+                $value,
             ));
         }
     }

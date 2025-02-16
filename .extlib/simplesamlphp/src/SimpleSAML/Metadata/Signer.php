@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace SimpleSAML\Metadata;
 
 use Exception;
-use RobRichards\XMLSecLibs\XMLSecurityKey;
 use RobRichards\XMLSecLibs\XMLSecurityDSig;
+use RobRichards\XMLSecLibs\XMLSecurityKey;
 use SAML2\DOMDocumentFactory;
 use SimpleSAML\Configuration;
 use SimpleSAML\Error;
 use SimpleSAML\Utils;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpFoundation\File\File;
 
 use function array_key_exists;
 use function hash;
@@ -54,13 +52,13 @@ class Signer
                     'Missing either the "metadata.sign.privatekey" or the' .
                     ' "metadata.sign.certificate" configuration option in the metadata for' .
                     ' the ' . $type . ' "' . $entityMetadata['entityid'] . '". If one of' .
-                    ' these options is specified, then the other must also be specified.'
+                    ' these options is specified, then the other must also be specified.',
                 );
             }
 
             $ret = [
                 'privatekey'  => $entityMetadata['metadata.sign.privatekey'],
-                'certificate' => $entityMetadata['metadata.sign.certificate']
+                'certificate' => $entityMetadata['metadata.sign.certificate'],
             ];
 
             if (array_key_exists('metadata.sign.privatekey_pass', $entityMetadata)) {
@@ -79,7 +77,7 @@ class Signer
                     'Missing either the "metadata.sign.privatekey" or the' .
                     ' "metadata.sign.certificate" configuration option in the global' .
                     ' configuration. If one of these options is specified, then the other' .
-                    ' must also be specified.'
+                    ' must also be specified.',
                 );
             }
             $ret = ['privatekey' => $privatekey, 'certificate' => $certificate];
@@ -105,13 +103,13 @@ class Signer
                     'Both the "privatekey" and the "certificate" option must' .
                     ' be set in the metadata for the ' . $type . ' "' .
                     $entityMetadata['entityid'] . '" before it is possible to sign metadata' .
-                    ' from this entity.'
+                    ' from this entity.',
                 );
             }
 
             $ret = [
                 'privatekey'  => $entityMetadata['privatekey'],
-                'certificate' => $entityMetadata['certificate']
+                'certificate' => $entityMetadata['certificate'],
             ];
 
             if (array_key_exists('privatekey_pass', $entityMetadata)) {
@@ -123,7 +121,7 @@ class Signer
 
         throw new Exception(
             'Could not find what key & certificate should be used to sign the metadata' .
-            ' for the ' . $type . ' "' . $entityMetadata['entityid'] . '".'
+            ' for the ' . $type . ' "' . $entityMetadata['entityid'] . '".',
         );
     }
 
@@ -146,7 +144,7 @@ class Signer
                 throw new Exception(
                     'Invalid value for the "metadata.sign.enable" configuration option for' .
                     ' the ' . $type . ' "' . $entityMetadata['entityid'] . '". This option' .
-                    ' should be a boolean.'
+                    ' should be a boolean.',
                 );
             }
 
@@ -175,14 +173,14 @@ class Signer
     private static function getMetadataSigningAlgorithm(
         Configuration $config,
         array $entityMetadata,
-        string $type
+        string $type,
     ): array {
         // configure the algorithm to use
         if (array_key_exists('metadata.sign.algorithm', $entityMetadata)) {
             if (!is_string($entityMetadata['metadata.sign.algorithm'])) {
                 throw new Error\CriticalConfigurationError(
                     "Invalid value for the 'metadata.sign.algorithm' configuration option for the " . $type .
-                    "'" . $entityMetadata['entityid'] . "'. This option has restricted values"
+                    "'" . $entityMetadata['entityid'] . "'. This option has restricted values",
                 );
             }
             $alg = $entityMetadata['metadata.sign.algorithm'];
@@ -249,7 +247,7 @@ class Signer
         $keyData = $cryptoUtils->retrieveKey($keyLocation);
         if ($keyData === null) {
             throw new Exception(
-                'Could not find private key location [' . $keyLocation . '], which is needed to sign the metadata'
+                'Could not find private key location [' . $keyLocation . '], which is needed to sign the metadata',
             );
         }
 
@@ -257,7 +255,7 @@ class Signer
         $certData = $cryptoUtils->retrieveCertificate($certLocation);
         if ($certData === null) {
             throw new Exception(
-                'Could not find certificate location [' . $certLocation . '], which is needed to sign the metadata'
+                'Could not find certificate location [' . $certLocation . '], which is needed to sign the metadata',
             );
         }
 
@@ -291,7 +289,7 @@ class Signer
             [$rootNode],
             $signature_cf['digest'],
             ['http://www.w3.org/2000/09/xmldsig#enveloped-signature', XMLSecurityDSig::EXC_C14N],
-            ['id_name' => 'ID', 'overwrite' => false]
+            ['id_name' => 'ID', 'overwrite' => false],
         );
 
         $objXMLSecDSig->sign($objKey);
