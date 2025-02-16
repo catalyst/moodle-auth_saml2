@@ -64,17 +64,14 @@ Features not yet implemented:
 * Role mapping - not yet implemented
 
 
-## Branches
+## Supported Branches
 
 | Moodle version    | Branch             | PHP       | SimpleSAMLphp |
 | ----------------- | ------------------ |-----------|---------------|
-| Moodle 4.4+       | `MOODLE_404_STABLE`| 8.1+      | v2.3.5        |
+| Moodle 4.5        | `MOODLE_405_STABLE`| 8.1+      | v2.3.5
+| Moodle 4.4        | `MOODLE_404_STABLE`| 8.1+      | v2.3.5        |
 | Moodle 3.9 to 4.3 | `MOODLE_39_STABLE` | 7.4+      | v2.0.5        |
 | Totara 13+        | `TOTARA_13_STABLE` | 7.4+      | v2.0.5        |
-| Totara 12         | `TOTARA_12_STABLE` | 7.1 - 7.2 | v1.19.1       |
-| Moodle 3.5 to 3.8 | `MOODLE_35_STABLE` | 7.2+      | v1.18.8       |
-| Moodle 2.7 to 3.4 | `27_34STABLE`      | 5.5+      | v1.15.4       |
-| Totara up to 11   | `27_34STABLE`      | 5.5+      | v1.15.4       |
 
 ## Installation
 
