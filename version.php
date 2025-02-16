@@ -29,4 +29,4 @@ $plugin->release   = 2024121600;    // Match release exactly to version.
 $plugin->requires  = 2024042200;    // Requires PHP 8.1
 $plugin->component = 'auth_saml2';  // Full name of the plugin (used for diagnostics).
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->supported = [404, 405];     // A range of branch numbers of supported moodle versions.
+$plugin->supported = [404, 404];    // A range of branch numbers of supported moodle versions.
