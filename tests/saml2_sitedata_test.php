@@ -26,7 +26,7 @@ require_once(__DIR__ . '/../_autoload.php');
  * @copyright   2018 Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class auth_saml2_sitedata_test extends advanced_testcase {
+class auth_saml2_sitedata_test extends \core_phpunit\testcase {
     public function test_it_creates_the_directory_if_it_does_not_exist() {
         global $CFG;
 

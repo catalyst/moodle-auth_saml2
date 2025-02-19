@@ -28,7 +28,7 @@
  * @package    auth_saml2
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class auth_saml2_simplesamlphp_upgrade_testcase extends advanced_testcase {
+class auth_saml2_simplesamlphp_upgrade_testcase extends \core_phpunit\testcase {
 
     /**
      * Test to ensure that composer files are removed from compiled extlib/simplesamlphp.

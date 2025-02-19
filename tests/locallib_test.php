@@ -34,7 +34,7 @@ require_once(__DIR__ . '/../locallib.php');
  * @copyright  Brendan Heywood <brendan@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class auth_saml2_locallib_testcase extends advanced_testcase {
+class auth_saml2_locallib_testcase extends \core_phpunit\testcase {
     /**
      * Regression test for Issue 132.
      */
