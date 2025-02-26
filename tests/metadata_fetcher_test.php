@@ -31,7 +31,7 @@ use auth_saml2\metadata_fetcher;
  * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class auth_saml2_metadata_fetcher_testcase extends \core_phpunit\testcase {
+class auth_saml2_metadata_fetcher_test extends \core_phpunit\testcase {
 
     /** @var \Prophecy\Prophet */
     protected $prophet;
@@ -50,6 +50,7 @@ class auth_saml2_metadata_fetcher_testcase extends \core_phpunit\testcase {
      */
     protected function tearDown(): void {
         $this->prophet = null; // Required for Totara 12+ support (see issue #578).
+        parent::tearDown();
     }
 
     public function test_fetch_metadata_404() {

@@ -130,7 +130,7 @@ class auth_saml2_user_fields_test extends \core_phpunit\testcase {
      * Test data for self::test_is_custom_profile_field().
      * @return array
      */
-    public function is_custom_profile_field_data_provider(): array {
+    public static function is_custom_profile_field_data_provider(): array {
         return [
             ['profile_field_test', true],
             ['profiletest', false],
@@ -159,7 +159,7 @@ class auth_saml2_user_fields_test extends \core_phpunit\testcase {
      * Test data for self::test_get_short_name().
      * @return array
      */
-    public function get_short_name_data_provider(): array {
+    public static function get_short_name_data_provider(): array {
         return [
             ['profile_field_test', 'test'],
             ['profile_field_profile_field_test', 'profile_field_test'],

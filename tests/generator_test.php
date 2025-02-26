@@ -26,7 +26,7 @@
  * @copyright   2021 Moodle Pty Ltd <support@moodle.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class generator_testcase extends \core_phpunit\testcase {
+class generator_test extends \core_phpunit\testcase {
     /**
      * Set up
      */
