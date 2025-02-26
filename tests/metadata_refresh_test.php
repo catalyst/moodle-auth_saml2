@@ -52,6 +52,7 @@ class auth_saml2_metadata_refresh_testcase extends \core_phpunit\testcase {
      */
     protected function tearDown(): void {
         $this->prophet = null;  // Required for Totara 12+ support (see issue #578).
+        parent::tearDown();
     }
 
     public function test_metadata_refresh_disabled() {

@@ -50,6 +50,7 @@ class auth_saml2_metadata_fetcher_testcase extends \core_phpunit\testcase {
      */
     protected function tearDown(): void {
         $this->prophet = null; // Required for Totara 12+ support (see issue #578).
+        parent::tearDown();
     }
 
     public function test_fetch_metadata_404() {
