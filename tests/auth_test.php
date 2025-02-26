@@ -100,7 +100,7 @@ class auth_saml2_test extends \core_phpunit\testcase {
         // exception message. This is needed to check $msg argument and stop
         // execution like original method does.
         $auth = $this->getMockBuilder(\auth_saml2\auth::class)
-            ->setMethods(['error_page'])->getMock();
+            ->onlyMethods(['error_page'])->getMock();
 
         $auth->expects($this->once())
             ->method('error_page')
