@@ -31,7 +31,7 @@ use auth_saml2\metadata_writer;
  * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class auth_saml2_metadata_writer_testcase extends \core_phpunit\testcase {
+class auth_saml2_metadata_writer_test extends \core_phpunit\testcase {
 
     public function test_write_default_path() {
         global $CFG;

@@ -31,7 +31,7 @@ use auth_saml2\metadata_parser;
  * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class auth_saml2_metadata_parser_testcase extends \core_phpunit\testcase {
+class auth_saml2_metadata_parser_test extends \core_phpunit\testcase {
 
     public function test_parse_metadata() {
         $xml = file_get_contents(__DIR__ . '/fixtures/metadata.xml');

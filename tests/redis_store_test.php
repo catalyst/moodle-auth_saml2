@@ -31,7 +31,7 @@ use auth_saml2\redis_store;
  * @copyright  Copyright (c) 2017 Blackboard Inc. (http://www.blackboard.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class auth_saml2_redis_store_testcase extends \core_phpunit\testcase {
+class auth_saml2_redis_store_test extends \core_phpunit\testcase {
 
     /**
      * @var null|\Redis

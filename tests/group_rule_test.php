@@ -30,7 +30,7 @@
  * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class auth_saml2_group_rule_test_testcase extends \core_phpunit\testcase {
+class auth_saml2_group_rule_test extends \core_phpunit\testcase {
 
     /**
      * Test we can get list of rules from config string.
