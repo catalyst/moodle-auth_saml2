@@ -104,10 +104,36 @@ class HTTPRedirect extends Binding
     public function receive(): Message
     {
         $data = self::parseQuery();
-        if (array_key_exists('SAMLRequest', $data)) {
-            $message = $data['SAMLRequest'];
-        } elseif (array_key_exists('SAMLResponse', $data)) {
-            $message = $data['SAMLResponse'];
+        $signedQuery = $data['SignedQuery'];
+
+        /**
+         * Get the SAMLRequest/SAMLResponse from the exact same signed data that will be verified later in
+         * validateSignature into $res using the actual SignedQuery
+         */
+        $res = [];
+        foreach (explode('&', $signedQuery) as $e) {
+            $tmp = explode('=', $e, 2);
+            $name = $tmp[0];
+            if (count($tmp) === 2) {
+                $value = $tmp[1];
+            } else {
+                /* No value for this parameter. */
+                $value = '';
+            }
+            $name = urldecode($name);
+            $res[$name] = urldecode($value);
+        }
+
+        /**
+         * Put the SAMLRequest/SAMLResponse from the actual query string into $message,
+         * and assert that the result from parseQuery() in $data and the parsing of the SignedQuery in $res agree
+         */
+        if (array_key_exists('SAMLRequest', $res)) {
+            Assert::same($res['SAMLRequest'], $data['SAMLRequest'], 'Parse failure.');
+            $message = $res['SAMLRequest'];
+        } elseif (array_key_exists('SAMLResponse', $res)) {
+            Assert::same($res['SAMLResponse'], $data['SAMLResponse'], 'Parse failure.');
+            $message = $res['SAMLResponse'];
         } else {
             throw new \Exception('Missing SAMLRequest or SAMLResponse parameter.');
         }
@@ -157,7 +183,7 @@ class HTTPRedirect extends Binding
         $signData = [
             'Signature' => $data['Signature'],
             'SigAlg'    => $data['SigAlg'],
-            'Query'     => $data['SignedQuery'],
+            'Query'     => $signedQuery,
         ];
 
         $message->addValidator([get_class($this), 'validateSignature'], $signData);
@@ -196,6 +222,10 @@ class HTTPRedirect extends Binding
                 $value = '';
             }
             $name = urldecode($name);
+            // Prevent keys from being set more than once
+            if (array_key_exists($name, $data)) {
+                throw new \Exception('Duplicate parameter.');
+            }
             $data[$name] = urldecode($value);
 
             switch ($name) {
@@ -210,6 +240,9 @@ class HTTPRedirect extends Binding
                     $sigAlg = '&SigAlg='.$value;
                     break;
             }
+        }
+        if (array_key_exists('SAMLRequest', $data) && array_key_exists('SAMLResponse', $data)) {
+                throw new \Exception('Both SAMLRequest and SAMLResponse provided.');
         }
 
         $data['SignedQuery'] = $sigQuery.$relayState.$sigAlg;
