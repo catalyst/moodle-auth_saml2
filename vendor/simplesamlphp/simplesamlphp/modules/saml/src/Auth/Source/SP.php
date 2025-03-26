@@ -316,24 +316,9 @@ class SP extends \SimpleSAML\Auth\Source
     public function getIdPMetadata(string $entityId): Configuration
     {
         // auth_saml2 modification.
-        global $saml2auth;
-        if ($this->idp !== null && $this->idp !== $entityId) {
-            foreach ($saml2auth->metadataentities as $metadataurl => $idpentities) {
-                if ($metadataurl == $entityId) {
-                    foreach ($idpentities as $key => $val) {
-                        if ($key == $this->idp) {
-                            $this->idp = null;
-                        }
-                        break 2;
-
-                    }
-                }
-            }
-        }
-        if ($this->idp !== null && $this->idp !== $entityId) {
-            throw new Error\Exception('Cannot retrieve metadata for IdP ' .
-                var_export($entityId, true) . ' because it isn\'t a valid IdP for this SP.');
-        }
+        // Set the IdP to null, so it can auto-detect.
+        // Avoid the case where it uses the default IdP data for IdP initiated login.
+        $this->idp = null;
 
         $metadataHandler = MetaDataStorageHandler::getMetadataHandler();
 
@@ -676,6 +661,8 @@ class SP extends \SimpleSAML\Auth\Source
                 [
                     Constants::BINDING_HTTP_REDIRECT,
                     Constants::BINDING_HTTP_POST,
+                    // auth_saml2 modification - Reordered to maintain existing  functionality.
+                    Constants::BINDING_HTTP_ARTIFACT,
                 ],
             );
         }
@@ -689,7 +676,7 @@ class SP extends \SimpleSAML\Auth\Source
         $session = \SimpleSAML\Session::getSessionFromRequest();
         $session->save();
 
-        $this->sendSAML2AuthnRequest($state, $b, $ar);
+        $this->sendSAML2AuthnRequest($b, $ar);
 
         Assert::true(false);
     }
@@ -1236,6 +1223,11 @@ class SP extends \SimpleSAML\Auth\Source
         // Moodle hack to handle IdP unsolicited logins.
         $wantsurl = (new \moodle_url($redirectTo))->out(false);
         $SESSION->wantsurl = $wantsurl;
+        if (!empty($state['saml:sp:IdP'])) {
+            $SESSION->saml2idp = md5($state['saml:sp:IdP']);
+        } else {
+            unset($SESSION->saml2idp);
+        }
         $saml2auth->saml_login_complete($state['Attributes']);
         // Should never get to here.
 
