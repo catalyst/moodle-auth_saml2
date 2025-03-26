@@ -5,14 +5,23 @@
     "config": {
         "allow-plugins": {
             "simplesamlphp/composer-xmlprovider-installer": true,
-            "simplesamlphp/composer-module-installer": true
+            "simplesamlphp/composer-module-installer": true,
+            "cweagans/composer-patches": true
         },
         "platform": {
             "php": "8.1"
         }
     },
     "require": {
-        "simplesamlphp/simplesamlphp": "~2.3.7"
+        "simplesamlphp/simplesamlphp": "~2.3.7",
+        "cweagans/composer-patches": "^1.7"
     },
-    "minimum-stability": "stable"
+    "minimum-stability": "stable",
+    "extra": {
+        "patches": {
+            "simplesamlphp/simplesamlphp":{
+                "Multiple older changes re-done, check patch file for details": "patches/0001-WR-333356-Manually-apply-below-patch-due-to-dir-chan.patch"
+            }
+        }
+    }
 }
