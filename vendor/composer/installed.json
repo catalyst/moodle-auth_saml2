@@ -1205,6 +1205,9 @@
             "extra": {
                 "branch-alias": {
                     "dev-master": "2.4.0.x-dev"
+                },
+                "patches_applied": {
+                    "Multiple older changes re-done, check patch file for details": "patches/0001-WR-333356-Manually-apply-below-patch-due-to-dir-chan.patch"
                 }
             },
             "installation-source": "dist",

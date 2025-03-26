@@ -315,6 +315,21 @@ class SP extends \SimpleSAML\Auth\Source
      */
     public function getIdPMetadata(string $entityId): Configuration
     {
+        // auth_saml2 modification.
+        global $saml2auth;
+        if ($this->idp !== null && $this->idp !== $entityId) {
+            foreach ($saml2auth->metadataentities as $metadataurl => $idpentities) {
+                if ($metadataurl == $entityId) {
+                    foreach ($idpentities as $key => $val) {
+                        if ($key == $this->idp) {
+                            $this->idp = null;
+                        }
+                        break 2;
+
+                    }
+                }
+            }
+        }
         if ($this->idp !== null && $this->idp !== $entityId) {
             throw new Error\Exception('Cannot retrieve metadata for IdP ' .
                 var_export($entityId, true) . ' because it isn\'t a valid IdP for this SP.');
@@ -469,7 +484,10 @@ class SP extends \SimpleSAML\Auth\Source
 
         $ar = Module\saml\Message::buildAuthnRequest($this->metadata, $idpMetadata);
 
-        $ar->setAssertionConsumerServiceURL(Module::getModuleURL('saml/sp/saml2-acs.php/' . $this->authId));
+         // auth_saml2 modification
+        $baseurl = \SimpleSAML\Module::getModuleURL('saml/sp/saml2-acs.php/' . $this->authId);
+        $baseurl = str_replace('module.php/saml/sp/', '', $baseurl);
+        $ar->setAssertionConsumerServiceURL($baseurl);
 
         if (isset($state['\SimpleSAML\Auth\Source.ReturnURL'])) {
             $ar->setRelayState($state['\SimpleSAML\Auth\Source.ReturnURL']);
@@ -665,7 +683,13 @@ class SP extends \SimpleSAML\Auth\Source
 
         $b = Binding::getBinding($dst['Binding']);
 
-        $this->sendSAML2AuthnRequest($b, $ar);
+        // This is a Moodle hack. Both moodle and SSPHP rely on automatic
+        // destructors to cleanup the $DB var and the SSPHP session but
+        // this order is not guaranteed, so we force session saving here.
+        $session = \SimpleSAML\Session::getSessionFromRequest();
+        $session->save();
+
+        $this->sendSAML2AuthnRequest($state, $b, $ar);
 
         Assert::true(false);
     }
@@ -1204,8 +1228,16 @@ class SP extends \SimpleSAML\Auth\Source
      */
     public static function handleUnsolicitedAuth(string $authId, array $state, string $redirectTo): void
     {
+        global $SESSION, $saml2auth;
+
         $session = Session::getSessionFromRequest();
         $session->doLogin($authId, Auth\State::getPersistentAuthData($state));
+
+        // Moodle hack to handle IdP unsolicited logins.
+        $wantsurl = (new \moodle_url($redirectTo))->out(false);
+        $SESSION->wantsurl = $wantsurl;
+        $saml2auth->saml_login_complete($state['Attributes']);
+        // Should never get to here.
 
         $httpUtils = new Utils\HTTP();
         $httpUtils->redirectUntrustedURL($redirectTo);

@@ -956,6 +956,13 @@ class HTTP
     public function redirectTrustedURL(string $url, array $parameters = []): void
     {
         $url = $this->normalizeURL($url);
+
+         // This is a Moodle hack. Both moodle and SSPHP rely on automatic
+        // destructors to cleanup the $DB var and the SSPHP session but
+        // this order is not guaranteed, so we force session saving here.
+        $session = \SimpleSAML\Session::getSessionFromRequest();
+        $session->save();
+
         $this->redirect($url, $parameters);
     }
 
