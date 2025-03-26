@@ -1,0 +1,26 @@
+From 9c0953d8037f270bab61ba908f7161f654442e37 Mon Sep 17 00:00:00 2001
+From: Sarah Cotton <sarah.cotton@catalyst-eu.net>
+Date: Fri, 25 Aug 2023 15:14:01 +0100
+Subject: [PATCH] Issue #768: Remove unnecessary param being sent to
+ sendSAML2AuthnRequest()
+
+---
+ .extlib/simplesamlphp/modules/saml/src/Auth/Source/SP.php | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/modules/saml/src/Auth/Source/SP.php b/modules/saml/src/Auth/Source/SP.php
+index 28b47f46..c823193d 100644
+--- a/modules/saml/src/Auth/Source/SP.php
++++ b/modules/saml/src/Auth/Source/SP.php
+@@ -689,7 +689,7 @@ class SP extends \SimpleSAML\Auth\Source
+         $session = \SimpleSAML\Session::getSessionFromRequest();
+         $session->save();
+ 
+-        $this->sendSAML2AuthnRequest($state, $b, $ar);
++        $this->sendSAML2AuthnRequest($b, $ar);
+ 
+         Assert::true(false);
+     }
+-- 
+2.43.0
+
