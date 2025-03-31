@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2024121600;    // The current plugin version (Date: YYYYMMDDXX).
-$plugin->release   = 2024121600;    // Match release exactly to version.
+$plugin->version   = 2025033100;    // The current plugin version (Date: YYYYMMDDXX).
+$plugin->release   = 2025033100;    // Match release exactly to version.
 $plugin->requires  = 2024042200;    // Requires PHP 8.1
 $plugin->component = 'auth_saml2';  // Full name of the plugin (used for diagnostics).
 $plugin->maturity  = MATURITY_STABLE;
