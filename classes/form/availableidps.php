@@ -74,6 +74,11 @@ class availableidps extends moodleform {
                 $mform->addElement('text', $fieldkey.'[alias]', get_string('multiidp:label:alias', 'auth_saml2'));
                 $mform->setType($fieldkey.'[alias]', PARAM_TEXT);
 
+                // Update IdP configuration settings.
+                $editmappings = new \moodle_url('edit.php', ['id' => $idpentity['id']]);
+                $mform->addElement('static', $fieldkey.'[mapping]',
+                    get_string('mappings', 'auth_saml2'), get_string('edit', 'auth_saml2', $editmappings));
+
                 // Add the activeidp checkbox.
                 $mform->addElement('advcheckbox', $fieldkey.'[activeidp]',
                     get_string('status', 'auth_saml2'), get_string('multiidp:label:active', 'auth_saml2'), [], [false, true]);

@@ -243,6 +243,10 @@ $string['update_onupdate'] = 'On update';
 $string['wantassertionssigned'] = 'Want assertions signed';
 $string['wantassertionssigned_help'] = 'Whether assertions received by this SP must be signed';
 $string['wrongauth'] = 'You have logged in successfully as \'{$a}\' but are not authorized to access Moodle.';
+$string['edit'] = '<a href=\'{$a}\'>Edit</a>';
+$string['editidp'] = 'Edit IdP';
+$string['mappings'] = 'Mappings';
+$string['metadatalink'] = 'Metadata';
 /*
  * Privacy provider (GDPR)
  */

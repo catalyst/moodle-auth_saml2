@@ -285,16 +285,23 @@ function auth_saml2_update_sp_metadata() {
  * @param boolean $mapremotefields Map fields or lock only.
  * @param boolean $updateremotefields Allow remote updates
  * @param array $customfields list of custom profile fields
+ * @param string $type show config setting or form fields
  * @since Moodle 3.3
  */
-function auth_saml2_display_auth_lock_options($settings, $auth, $userfields, $helptext, $mapremotefields, $updateremotefields, $customfields = array()) {
+function auth_saml2_display_auth_lock_options($settings, $auth, $userfields, $helptext, $mapremotefields,
+        $updateremotefields, $customfields = array(), $type = 'settings') {
     global $DB;
 
     // Introductory explanation and help text.
-    if ($mapremotefields) {
-        $settings->add(new admin_setting_heading($auth.'/data_mapping', new lang_string('auth_data_mapping', 'auth'), $helptext));
+    if ($type == 'settings') {
+        if ($mapremotefields) {
+            $settings->add(new admin_setting_heading($auth.'/data_mapping', new lang_string('auth_data_mapping', 'auth'), $helptext));
+        } else {
+            $settings->add(new admin_setting_heading($auth.'/auth_fieldlocks', new lang_string('auth_fieldlocks', 'auth'), $helptext));
+        }
     } else {
-        $settings->add(new admin_setting_heading($auth.'/auth_fieldlocks', new lang_string('auth_fieldlocks', 'auth'), $helptext));
+        $settings->addElement('html', html_writer::tag('h3', get_string('auth_data_mapping', 'auth')));
+            $settings->addElement('html', $helptext);
     }
 
     // Generate the list of options.
@@ -322,7 +329,7 @@ function auth_saml2_display_auth_lock_options($settings, $auth, $userfields, $he
         } else if (!empty($customfields) && in_array($field, $customfields)) {
             // If custom field then pick name from database.
             $fieldshortname = str_replace('profile_field_', '', $fieldname);
-            $fieldname = $customfieldname[$fieldshortname]->name;
+            $fieldname = format_string($customfieldname[$fieldshortname]->name);
             if (core_text::strlen($fieldshortname) > 67) {
                 // If custom profile field name is longer than 67 characters we will not be able to store the setting
                 // such as 'field_updateremote_profile_field_NOTSOSHORTSHORTNAME' in the database because the character
@@ -342,28 +349,56 @@ function auth_saml2_display_auth_lock_options($settings, $auth, $userfields, $he
             // Display a message that the field can not be mapped because it's too long.
             $url = new moodle_url('/user/profile/index.php');
             $a = (object)['fieldname' => s($fieldname), 'shortname' => s($field), 'charlimit' => 67, 'link' => $url->out()];
-            $settings->add(new admin_setting_heading($auth.'/field_not_mapped_'.sha1($field), '',
-                get_string('cannotmapfield', 'auth_saml2', $a)));
-        } else if ($mapremotefields) {
-            // We are mapping to a remote field here.
-            // Mapping.
-            $settings->add(new admin_setting_configtext("auth_{$auth}/field_map_{$field}",
-                get_string('auth_fieldmapping', 'auth_saml2', $fieldname), '', '', PARAM_RAW, 30));
-
-            // Update local.
-            $settings->add(new admin_setting_configselect("auth_{$auth}/field_updatelocal_{$field}",
-                get_string('auth_updatelocalfield', 'auth_saml2', $fieldname), '', 'oncreate', $updatelocaloptions));
-
-            // Update remote.
-            if ($updateremotefields) {
-                $settings->add(new admin_setting_configselect("auth_{$auth}/field_updateremote_{$field}",
-                    get_string('auth_updateremotefield', 'auth_saml2', $fieldname), '', 0, $updateextoptions));
+            if ($type == 'settings') {
+                $settings->add(new admin_setting_heading($auth.'/field_not_mapped_'.sha1($field), '',
+                    get_string('cannotmapfield', 'auth_saml2', $a)));
+            } else {
+                $mform->addElement('html', html_writer::tag('h3', get_string('cannotmapfield', 'auth_saml2', $a)));
             }
+        } else if ($mapremotefields) {
+            if ($type == 'settings') {
+                // We are mapping to a remote field here.
+                // Mapping.
+                $settings->add(new admin_setting_configtext("auth_{$auth}/field_map_{$field}",
+                    get_string('auth_fieldmapping', 'auth_saml2', $fieldname), '', '', PARAM_RAW, 30));
 
-            // Lock fields.
-            $settings->add(new admin_setting_configselect("auth_{$auth}/field_lock_{$field}",
-                get_string('auth_fieldlockfield', 'auth_saml2', $fieldname), '', 'unlocked', $lockoptions));
+                // Update local.
+                $settings->add(new admin_setting_configselect("auth_{$auth}/field_updatelocal_{$field}",
+                    get_string('auth_updatelocalfield', 'auth_saml2', $fieldname), '', 'oncreate', $updatelocaloptions));
 
+                // Update remote.
+                if ($updateremotefields) {
+                    $settings->add(new admin_setting_configselect("auth_{$auth}/field_updateremote_{$field}",
+                        get_string('auth_updateremotefield', 'auth_saml2', $fieldname), '', 0, $updateextoptions));
+                }
+
+                // Lock fields.
+                $settings->add(new admin_setting_configselect("auth_{$auth}/field_lock_{$field}",
+                    get_string('auth_fieldlockfield', 'auth_saml2', $fieldname), '', 'unlocked', $lockoptions));
+            } else {
+                // We are mapping to a remote field here.
+                // Mapping.
+                $settings->addElement('text', "field_map_{$field}", get_string('auth_fieldmapping', 'auth', $fieldname),
+                    array('size' => 40, 'maxlength' => 30));
+                $settings->setType("field_map_{$field}", PARAM_RAW);
+
+                // Update local.
+                $settings->addElement('select', "field_updatelocal_{$field}",
+                    get_string('auth_updatelocalfield', 'auth', $fieldname), $updatelocaloptions);
+                $settings->setDefault("field_updatelocal_{$field}", 'oncreate');
+
+                // Update remote.
+                if ($updateremotefields) {
+                    $settings->addElement('select', "field_updateremote_{$field}",
+                        get_string('auth_updateremotefield', 'auth', $fieldname), $updateextoptions);
+                }
+
+                // Lock fields.
+                $settings->addElement('select', "field_lock_{$field}", get_string('auth_fieldlockfield', 'auth', $fieldname),
+                    $lockoptions);
+                $settings->setDefault("field_lock_{$field}", 'unlocked');
+
+            }
         } else {
             // Lock fields Only.
             $settings->add(new admin_setting_configselect("auth_{$auth}/field_lock_{$field}",
@@ -479,6 +514,57 @@ function auth_saml2_process_regenerate_form($fromform) {
         return $error;
     }
 }
+
+/**
+ * Get IdP configuration settings for the selected IdP
+ * @param int $id IdP ID.
+ * @return array
+ */
+function auth_saml2_get_idp_settings($id) {
+    global $DB;
+
+    $fields = $DB->get_records_menu('auth_saml2_idpsettings', ['idpid' => $id], null, 'k, value');
+    return $fields;
+}
+
+/**
+ * Save IdP settings for the selected IdP
+ * @param object $formdata form object
+ * @param int $id IdP ID.
+ * @return array an associative array
+ */
+function auth_saml2_save_idp($formdata, $id) {
+    global $DB;
+
+    foreach ($formdata as $field => $value) {
+        // We don't want some values in the idpsettings table.
+        if ($field !== 'id' && $field !== 'addnew' && $field !== 'submitbutton') {
+            $data = new stdClass();
+            $data->idpid = $id;
+            $data->k = $field;
+            $data->value = $value;
+
+            if ($fieldid = $DB->get_field('auth_saml2_idpsettings', 'id', ['idpid' => $id, 'k' => $field])) {
+                $data->id = $fieldid;
+                $DB->update_record('auth_saml2_idpsettings', $data);
+            } else {
+                $DB->insert_record('auth_saml2_idpsettings', $data);
+            }
+        }
+    }
+
+    // Check if we have multiple IdPs, and force Dual Login if we do.
+    if (count(auth_saml2_get_idps()) > 1) {
+        $duallogin = new stdClass();
+        $fieldid = $DB->get_field('auth_saml2_idpsettings', 'id', ['idpid' => 0, 'k' => 'duallogin']);
+        $duallogin->id = $fieldid;
+        $duallogin->idpid = 0;
+        $duallogin->k = 'duallogin';
+        $duallogin->value = 1;
+        $DB->update_record('auth_saml2_idpsettings', $duallogin);
+    }
+}
+
 // @codingStandardsIgnoreEnd
 
 /**
