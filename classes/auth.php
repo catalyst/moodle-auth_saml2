@@ -83,6 +83,12 @@ class auth extends \auth_plugin_base {
      */
     public $metadatalist;
 
+    /**
+     * Idp list.
+     *
+     * @var array $idplist - array of idps.
+     */
+    public $idplist;
 
     /**
      * @var array $defaults The config defaults
