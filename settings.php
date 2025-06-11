@@ -253,6 +253,15 @@ if ($ADMIN->fulltree) {
         ''
     ));
 
+    //ForceAuthn properties
+    $forceauthn = new admin_setting_configselect(
+        'auth_saml2/forceauthn',
+        get_string('forceauthn', 'auth_saml2'),
+        get_string('forceauthn_help', 'auth_saml2'),
+        0, $yesno);
+    $forceauthn->set_updatedcallback('auth_saml2_update_forceauthn');
+    $settings->add($forceauthn);
+
     // Auto login.
     $autologinoptions = [
         saml2_settings::OPTION_AUTO_LOGIN_NO => get_string('no'),
