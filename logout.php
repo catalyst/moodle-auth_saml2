@@ -33,15 +33,5 @@ require('setup.php');
 // order to properly re-log into Moodle. It's a rare edge case
 // probably only used when configuring or testing but nice to have.
 
-$attemptsignout = get_config('auth_saml2', 'attemptsignout');
-
-if($attemptsignout && $attemptsignout == '1') {
-    $auth = new SimpleSAML\Auth\Simple($saml2auth->spname);
-    $auth->logout('/');
-} else {
-    $alterlogout = get_config('auth_saml2', 'alterlogout');
-    if($alterlogout && $alterlogout != '') {
-        redirect($alterlogout);
-    }
-    redirect(new moodle_url('/'));
-}
+$auth = new SimpleSAML\Auth\Simple($saml2auth->spname);
+$auth->logout('/');
