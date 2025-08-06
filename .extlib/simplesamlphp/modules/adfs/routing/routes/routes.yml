@@ -1,0 +1,12 @@
+adfs-metadata:
+    path:       /metadata
+    defaults:   { _controller: 'SimpleSAML\Module\adfs\Controller\Adfs::metadata' }
+adfs-prp:
+    path:       /prp
+    defaults:   { _controller: 'SimpleSAML\Module\adfs\Controller\Adfs::prp' }
+adfs-metadata-legacy:
+    path:       /idp/metadata.php
+    defaults:   { _controller: 'SimpleSAML\Module\adfs\Controller\Adfs::metadata' }
+adfs-prp-legacy:
+    path:       /idp/prp.php
+    defaults:   { _controller: 'SimpleSAML\Module\adfs\Controller\Adfs::prp' }

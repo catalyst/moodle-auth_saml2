@@ -1,0 +1,15 @@
+<ssp:CustomSignable xmlns:ssp="urn:ssp:custom" id="_1234"><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><ds:SignedInfo><ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#WithComments"/><ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/><ds:Reference URI="#xpointer(id(_1234))"><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/><ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#WithComments"/></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><ds:DigestValue>NV/zxP9pMcTkzKYAb5UBwoLX1UTaWD085lwBFImZF2w=</ds:DigestValue></ds:Reference></ds:SignedInfo><ds:SignatureValue>d/gPQffy48OzCNvPFVggbFJM3WjJdsKTJBfHYWrvMY2VdwkAEVEmDTzy21z3zXPMUA8ynrV7PkWvDf9TKxBsTcDaXb8aqWQyfrBkz+hwYcWEyMZmUNwhsaUfZK3OGfjCss7jBN7xVOzOi+KPdK+show6B+MfTMLtR+yoB2EtZ9s=</ds:SignatureValue><ds:KeyInfo><ds:X509Data><ds:X509Certificate>MIICxDCCAi2gAwIBAgIUCJ8EYI/BrvQnHt9QFGfdqgaxDmowDQYJKoZIhvcNAQEL
+BQAwczElMCMGA1UEAwwcc2VsZnNpZ25lZC5zaW1wbGVzYW1scGhwLm9yZzEZMBcG
+A1UECgwQU2ltcGxlU0FNTHBocCBIUTERMA8GA1UEBwwISG9ub2x1bHUxDzANBgNV
+BAgMBkhhd2FpaTELMAkGA1UEBhMCVVMwIBcNMjAwNjIzMjEwMTEyWhgPMjEyMDA1
+MzAyMTAxMTJaMHMxJTAjBgNVBAMMHHNlbGZzaWduZWQuc2ltcGxlc2FtbHBocC5v
+cmcxGTAXBgNVBAoMEFNpbXBsZVNBTUxwaHAgSFExETAPBgNVBAcMCEhvbm9sdWx1
+MQ8wDQYDVQQIDAZIYXdhaWkxCzAJBgNVBAYTAlVTMIGfMA0GCSqGSIb3DQEBAQUA
+A4GNADCBiQKBgQDZ3ztmRqrJm6zSJ2jNUjbxdlX3WLadthHvDkdfQDWuFIUjMkCf
+O8+OWYdFP4cQWKBVnWyO+/LXFl9p9fwcSJmhmkgz5blUw0cjv8jccHw+yfVnGxGC
+K2Up/Si4HE/WStgjTKr3ivAqyc0Kc/97EoIXmb96SEEb4Lat9xt6mFSbWQIDAQAB
+o1MwUTAdBgNVHQ4EFgQUHhB/tFwoDOT8V1nLi5XY4CJgTTQwHwYDVR0jBBgwFoAU
+HhB/tFwoDOT8V1nLi5XY4CJgTTQwDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0B
+AQsFAAOBgQBVqkGuiwyYMx0FH3j/qirZ2nKrjUU+p0ganzEA7kVZ97RivW5SFLHk
+RjcfqDXVyqOzmr4iR8rfxI2rUjYQI1SsKacPhitiArMk2IQ+uvxZ5eNtU2yFzW4a
+rQ+a2ttlZI/GF9nLvgUNFIUwaDc+PQD2rOk+ACklbAS3jkf+L3DpQg==</ds:X509Certificate></ds:X509Data></ds:KeyInfo></ds:Signature><ssp:Some><!-- comment -->Chunk<!-- comment --></ssp:Some></ssp:CustomSignable>

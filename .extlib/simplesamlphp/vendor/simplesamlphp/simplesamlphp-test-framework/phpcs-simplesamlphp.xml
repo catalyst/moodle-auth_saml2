@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<ruleset name="SimpleSAMLphp">
+
+  <!-- Only allow shorthand array syntax -->
+  <rule ref="Generic.Arrays.DisallowLongArraySyntax" />
+
+  <!-- Require the file to start with a declare(strict_types=1); -->
+  <rule ref="Generic.PHP.RequireStrictTypes" />
+
+  <!-- Do not allow unnecessary spaces inside arbitrary parentheses -->
+  <rule ref="Generic.WhiteSpace.ArbitraryParenthesesSpacing" />
+
+  <config name="installed_paths" value="vendor/slevomat/coding-standard"/>
+
+  <!-- Do not allow any unused use-statements to exist -->
+  <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses" />
+
+  <!-- Enforce alphabetically sorted use-statements -->
+  <rule ref="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses" />
+</ruleset>

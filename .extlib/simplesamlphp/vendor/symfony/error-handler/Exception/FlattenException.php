@@ -63,7 +63,7 @@ class FlattenException
     /**
      * @return static
      */
-    public static function create(\Exception $exception, int $statusCode = null, array $headers = []): self
+    public static function create(\Exception $exception, ?int $statusCode = null, array $headers = []): self
     {
         return static::createFromThrowable($exception, $statusCode, $headers);
     }
@@ -71,7 +71,7 @@ class FlattenException
     /**
      * @return static
      */
-    public static function createFromThrowable(\Throwable $exception, int $statusCode = null, array $headers = []): self
+    public static function createFromThrowable(\Throwable $exception, ?int $statusCode = null, array $headers = []): self
     {
         $e = new static();
         $e->setMessage($exception->getMessage());
@@ -226,7 +226,7 @@ class FlattenException
     public function setMessage(string $message): self
     {
         if (false !== strpos($message, "@anonymous\0")) {
-            $message = preg_replace_callback('/[a-zA-Z_\x7f-\xff][\\\\a-zA-Z0-9_\x7f-\xff]*+@anonymous\x00.*?\.php(?:0x?|:[0-9]++\$)[0-9a-fA-F]++/', function ($m) {
+            $message = preg_replace_callback('/[a-zA-Z_\x7f-\xff][\\\\a-zA-Z0-9_\x7f-\xff]*+@anonymous\x00.*?\.php(?:0x?|:[0-9]++\$)?[0-9a-fA-F]++/', function ($m) {
                 return class_exists($m[0], false) ? (get_parent_class($m[0]) ?: key(class_implements($m[0])) ?: 'class').'@anonymous' : $m[0];
             }, $message);
         }

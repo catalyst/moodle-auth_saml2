@@ -1,0 +1,1 @@
+<bar:XMLElement xmlns:bar="urn:foo:bar" integer="2" boolean="false" text="text" />

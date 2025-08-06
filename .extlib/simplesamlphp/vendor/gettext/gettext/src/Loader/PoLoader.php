@@ -11,7 +11,7 @@ use Gettext\Translations;
  */
 final class PoLoader extends Loader
 {
-    public function loadString(string $string, Translations $translations = null): Translations
+    public function loadString(string $string, ?Translations $translations = null): Translations
     {
         $translations = parent::loadString($string, $translations);
 
@@ -22,6 +22,11 @@ final class PoLoader extends Loader
         while ($line !== false) {
             $line = trim($line);
             $nextLine = next($lines);
+
+            // Treat empty comments as empty lines https://github.com/php-gettext/Gettext/pull/296
+            if ($line === "#") {
+                $line = "";
+            }
 
             //Multiline
             while (substr($line, -1, 1) === '"'

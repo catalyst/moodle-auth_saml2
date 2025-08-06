@@ -4,11 +4,10 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'">
     <link rel="icon" href="{{ asset("icons/favicon.ico") }}">
     <title>{% trans %}Sending message{% endtrans %}</title>
-    <link rel="stylesheet" href="/{{ baseurlpath }}resources/post.css">
-    <script src="/{{ baseurlpath }}resources/post.js"></script>
+    <link rel="stylesheet" href="{{ asset("css/postSubmit.css") }}">
+    <script src="{{ asset("js/post.js") }}"></script>
   </head>
   <body>
     <form method="post" action="{{ destination }}">
@@ -22,7 +21,7 @@
         {%- if value is iterable %}
           {%- for index, item in value %}
 
-      <input type="hidden" name="{{ name }}[{{ index }}]" value="{{ value }}">
+      <input type="hidden" name="{{ name }}[{{ index }}]" value="{{ item }}">
           {%- endfor %}
         {%- else %}
 

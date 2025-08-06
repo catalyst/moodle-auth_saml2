@@ -111,6 +111,7 @@ class Login
             throw new Error\BadRequest('Missing AuthState parameter.');
         }
         $authStateId = $request->query->get('AuthState');
+        $this->authState::validateStateId($authStateId);
 
         $state = $this->authState::loadState($authStateId, UserPassBase::STAGEID);
 
@@ -137,6 +138,7 @@ class Login
     {
         Assert::isInstanceOfAny($source, [UserPassBase::class, UserPassOrgBase::class]);
         $authStateId = $request->query->get('AuthState');
+        $this->authState::validateStateId($authStateId);
 
         $organizations = $organization = null;
         if ($source instanceof UserPassOrgBase) {
@@ -231,7 +233,7 @@ class Login
                     $errorParams = $e->getParameters();
                     $state['error'] = [
                         'code' => $errorCode,
-                        'params' => $errorParams
+                        'params' => $errorParams,
                     ];
                     $authStateId = Auth\State::saveState($state, $source::STAGEID);
                 }
@@ -243,7 +245,6 @@ class Login
         }
 
         $t = new Template($this->config, 'core:loginuserpass.twig');
-        $t->data['AuthState'] = $authStateId;
 
         if ($source instanceof UserPassOrgBase) {
             $t->data['username'] = $username;
@@ -273,6 +274,7 @@ class Login
         }
 
         if ($source instanceof UserPassOrgBase) {
+            $t->data['formURL'] = Module::getModuleURL('core/loginuserpassorg', ['AuthState' => $authStateId]);
             if ($request->request->has($source->getAuthId() . '-username')) {
                 $t->data['rememberUsernameChecked'] = true;
             }
@@ -289,6 +291,7 @@ class Login
                 $t->data['organizations'] = $organizations;
             }
         } else {
+            $t->data['formURL'] = Module::getModuleURL('core/loginuserpass', ['AuthState' => $authStateId]);
             $t->data['loginpage_links'] = $source->getLoginLinks();
         }
 
@@ -324,6 +327,7 @@ class Login
             throw new Error\BadRequest('Missing AuthState parameter.');
         }
         $authStateId = $request->query->get('AuthState');
+        $this->authState::validateStateId($authStateId);
 
         $state = $this->authState::loadState($authStateId, UserPassOrgBase::STAGEID);
 
