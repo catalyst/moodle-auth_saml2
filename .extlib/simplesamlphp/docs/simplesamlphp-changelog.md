@@ -5,6 +5,136 @@
 This document lists the changes between versions of SimpleSAMLphp.
 See the upgrade notes for specific information about upgrading.
 
+## Version 2.0.15
+
+Released 2024-12-02
+
+* A security bug was patched in the `saml2-library` that allowed for XXE during the parsing
+  of SAML2-messages (CVE-2024-52596)
+
+## Version 2.0.14
+
+Released 2024-10-30
+
+`admin`
+
+* Fix metadata-viewer to output a valid PHP array
+* Fix typo that caused the metadata file-upload to be hidden (#2271)
+
+## Version 2.0.13
+
+Released 2024-06-12
+
+* Fix deprecation notice for PHP 8.3
+* Added a missing use-statement that would cause a 'class not found' exception.
+* Updated composer/composer dependency (CVE-2024-35241, CVE-2024-35242)
+
+## Version 2.0.12
+
+:warning: IMPORTANT NOTE :warning:
+
+Due to a mistake, this bugfix-release can turn out to become a backwards-incompatibility for those who override the loginuserpass.twig in their custom theme.
+Please update your theme to reflect the changes in [this commit](https://github.com/simplesamlphp/simplesamlphp/pull/2022/commits/691199e9b963a2861d731e6583555c7a8df39992) before updating.
+
+Released 28-04-2024
+
+* Fix posting the form to the incorrect endpoint when using an authsource based on UserPassOrgBase (#2022)
+* Fix RequestedAuthnContextSelector for case with multiple RACs in request
+* Add xml opening-tag to SP-metadata for consistency with IdP-metadata (#2048)
+* Fixed a PHP 8.3 compliance issue in the logout handler (#2047)
+* Improve parsing of base64-encoded strings
+* Autofill username when Entra ID hints it in the HTTP parameters
+
+`admin`
+
+* Set custom security header to properly display phpinfo-page
+* Hide file-upload button for metadata-converter if uploads are disabled at PHP-level
+
+`exampleauth`
+
+* Fix controller for External-authsource
+
+`saml2 library`
+
+Fixed a bug where base64 encoded strings were not decoded using the `strict` flag, leading
+to an incorrect error message.
+
+## Version 2.0.11
+
+Released 2024-03-08
+
+* Fix static call for non-static method in bin/importPdoMetadata.php (#1969)
+* Validate AuthState before processing it (#1706)
+* Fix incorrect method call introduced in 2.0.6 (#1996)
+
+## Version 2.0.10
+
+Released 2024-02-13
+
+* Fix backwards compatibility for mandatory cachedir-setting introduced in 2.0.9
+* Bump the `composer` dependency (CVE-2024-24821)
+
+## Version 2.0.9
+
+Released 2024-02-03
+
+* Restore possibility to use HTTP-Artifact on AuthnRequests (regression from 2.0.4)
+* Fix legacy endpoints to not send response twice
+* Fix exception when using iframe-logout (#1936)
+* Look for the schema files in the right place (#1929)
+* Fixed file logging handler to not fail on the first write after file-creation (#1877)
+* Fixed a warning in the RequestedAuthnContextSelector
+
+`core`
+
+* Fixed a broken template for the WarnShortSSOInterval authproc-filter (#1920)
+
+`saml`
+
+* Disable caching for metadata-endpoint when protect.metadata is true (#1926)
+
+`saml2 library`
+
+* Fix serialization for the NameID element
+* Fix inheritance - There is no relation between BaseID and NameID
+
+NOTE: Clear your session store after updating, because old serialized sessions can no longer be unserialized
+
+## Version 2.0.8
+
+Released 2023-11-28
+
+* Fix static call for non-static method in bin/initMDSPdo.php (#1892)
+* Restore logout-behaviour for IdP's that do not send a saml:NameID in their LogoutRequest (#1894)
+* Fix code error in docs (#1895)
+* Fixed a TypeError when accessing the module.php endpoint without specifying a module (#1907)
+* Drop ext-intl in favour of a polyfill (#1908)
+
+`multiauth`
+
+* Fix TypeError due to missing keys in source array (#1900)
+
+## Version 2.0.7
+
+Released 2023-10-30
+
+* Fixed a missing Accept-header for metadata queries (#1865)
+* Update vulnerable composer (CVE-2023-43655; not affected)
+* Fixed a potential XSS-through-DOM (3x; not affected)
+* Fixed a warning in the RequestedAuthnContextSelector
+
+## Version 2.0.6
+
+Released 2023-09-07
+
+* Fixed a legacy endpoint causing to break iframe-logout (#1846)
+* Fixed an incorrect return-type in RunnableResponse
+* Fix for admin.protectmetadata=true - it would show a blank page
+* Fix default for entity attributes NameFormat in XML metadata to be 'URI'.
+* Fix error message when invoking SSO endpoint without the required parameters.
+* Security header regression
+* Fixed a regression that made it impossible to configure metadata-signing on individual hosted IdP's (#1792)
+
 ## Version 2.0.5
 
 Released 2023-07-31

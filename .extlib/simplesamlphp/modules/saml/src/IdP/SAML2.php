@@ -13,6 +13,7 @@ use SAML2\Binding;
 use SAML2\Constants;
 use SAML2\DOMDocumentFactory;
 use SAML2\EncryptedAssertion;
+use SAML2\Exception\Protocol\UnsupportedBindingException;
 use SAML2\HTTPRedirect;
 use SAML2\LogoutRequest;
 use SAML2\LogoutResponse;
@@ -61,7 +62,7 @@ class SAML2
         $spEntityId = $spMetadata['entityid'];
         $spMetadata = Configuration::loadFromArray(
             $spMetadata,
-            '$metadata[' . var_export($spEntityId, true) . ']'
+            '$metadata[' . var_export($spEntityId, true) . ']',
         );
 
         Logger::info('Sending SAML 2.0 Response to ' . var_export($spEntityId, true));
@@ -319,6 +320,7 @@ class SAML2
         }
 
         $authnRequestSigned = false;
+        $username = null;
 
         if (isset($_REQUEST['spentityid']) || isset($_REQUEST['providerId'])) {
             /* IdP initiated authentication. */
@@ -382,13 +384,21 @@ class SAML2
                 'SAML2.0 - IdP.SSOService: IdP initiated authentication: ' . var_export($spEntityId, true)
             );
         } else {
-            $binding = Binding::getCurrentBinding();
+            try {
+                $binding = Binding::getCurrentBinding();
+            } catch (UnsupportedBindingException $e) {
+                throw new Error\Error('SSOPARAMS', $e, 400);
+            }
             $request = $binding->receive();
 
             if (!($request instanceof AuthnRequest)) {
                 throw new Error\BadRequest(
                     "Message received on authentication request endpoint wasn't an authentication request."
                 );
+            }
+
+            if (isset($_REQUEST['username'])) {
+                $username = (string) $_REQUEST['username'];
             }
 
             $issuer = $request->getIssuer();
@@ -489,11 +499,12 @@ class SAML2
             'Responder' => ['\SimpleSAML\Module\saml\IdP\SAML2', 'sendResponse'],
             Auth\State::EXCEPTION_HANDLER_FUNC => [
                 '\SimpleSAML\Module\saml\IdP\SAML2',
-                'handleAuthError'
+                'handleAuthError',
             ],
             Auth\State::RESTART => $sessionLostURL,
 
             'SPMetadata'                  => $spMetadata->toArray(),
+            'core:username'               => $username,
             'saml:RelayState'             => $relayState,
             'saml:RequestId'              => $requestId,
             'saml:IDPList'                => $IDPList,
@@ -539,8 +550,8 @@ class SAML2
             'SingleLogoutService',
             [
                 Constants::BINDING_HTTP_REDIRECT,
-                Constants::BINDING_HTTP_POST
-            ]
+                Constants::BINDING_HTTP_POST,
+            ],
         );
         $binding = Binding::getBinding($dst['Binding']);
         $lr = self::buildLogoutRequest($idpMetadata, $spMetadata, $association, $relayState);
@@ -587,7 +598,7 @@ class SAML2
         Stats::log('saml:idp:LogoutResponse:sent', [
             'spEntityID'  => $spEntityId,
             'idpEntityID' => $idpMetadata->getString('entityid'),
-            'partial'     => $partial
+            'partial'     => $partial,
         ]);
 
         /** @var array $dst */
@@ -595,8 +606,8 @@ class SAML2
             'SingleLogoutService',
             [
                 Constants::BINDING_HTTP_REDIRECT,
-                Constants::BINDING_HTTP_POST
-            ]
+                Constants::BINDING_HTTP_POST,
+            ],
         );
         $binding = Binding::getBinding($dst['Binding']);
         if (isset($dst['ResponseLocation'])) {
@@ -702,7 +713,7 @@ class SAML2
 
         $bindings = [
             Constants::BINDING_HTTP_REDIRECT,
-            Constants::BINDING_HTTP_POST
+            Constants::BINDING_HTTP_POST,
         ];
 
         /** @var array $dst */
@@ -713,7 +724,7 @@ class SAML2
             if ($relayState !== null) {
                 $params['RelayState'] = $relayState;
             }
-            return Module::getModuleURL('core/idp/logout-iframe-post.php', $params);
+            return Module::getModuleURL('core/logout-iframe-post', $params);
         }
 
         $lr = self::buildLogoutRequest($idpMetadata, $spMetadata, $association, $relayState);
@@ -757,6 +768,7 @@ class SAML2
      */
     public static function getHostedMetadata(string $entityid, MetaDataStorageHandler $handler = null): array
     {
+        $globalConfig = Configuration::getInstance();
         if ($handler === null) {
             $handler = MetaDataStorageHandler::getMetadataHandler();
         }
@@ -809,6 +821,24 @@ class SAML2
             'NameIDFormat' => $config->getOptionalArrayizeString('NameIDFormat', [Constants::NAMEID_TRANSIENT]),
         ];
 
+        // metadata signing
+        if ($config->hasValue('metadata.sign.enable')) {
+            $metadata += ['metadata.sign.enable' => $config->getBoolean('metadata.sign.enable')];
+
+            if ($config->hasValue('metadata.sign.privatekey')) {
+                $metadata += ['metadata.sign.privatekey' => $config->getString('metadata.sign.privatekey')];
+            }
+            if ($config->hasValue('metadata.sign.privatekey_pass')) {
+                $metadata += ['metadata.sign.privatekey_pass' => $config->getString('metadata.sign.privatekey_pass')];
+            }
+            if ($config->hasValue('metadata.sign.certificate')) {
+                $metadata += ['metadata.sign.certificate' => $config->getString('metadata.sign.certificate')];
+            }
+            if ($config->hasValue('metadata.sign.algorithm')) {
+                $metadata += ['metadata.sign.algorithm' => $config->getString('metadata.sign.algorithm')];
+            }
+        }
+
         $cryptoUtils = new Utils\Crypto();
         $httpUtils = new Utils\HTTP();
 
@@ -848,7 +878,7 @@ class SAML2
                 'signing' => true,
                 'encryption' => false,
                 'X509Certificate' => $httpsCert['certData'],
-                'prefix' => 'https.'
+                'prefix' => 'https.',
             ];
         }
         $metadata['keys'] = $keys;
@@ -858,7 +888,7 @@ class SAML2
             $metadata['ArtifactResolutionService'][] = [
                 'index' => 0,
                 'Binding' => Constants::BINDING_SOAP,
-                'Location' => $httpUtils->getBaseURL() . 'module.php/saml/idp/artifactResolutionService'
+                'Location' => Module::getModuleURL('saml/idp/artifactResolutionService'),
             ];
         }
 
@@ -869,8 +899,8 @@ class SAML2
                 [
                     'hoksso:ProtocolBinding' => Constants::BINDING_HTTP_REDIRECT,
                     'Binding' => Constants::BINDING_HOK_SSO,
-                    'Location' => $httpUtils->getBaseURL() . 'module.php/saml/idp/singleSignOnService',
-                ]
+                    'Location' => Module::getModuleURL('saml/idp/singleSignOnService'),
+                ],
             );
         }
 
@@ -879,7 +909,7 @@ class SAML2
             $metadata['SingleSignOnService'][] = [
                 'index' => 0,
                 'Binding' => Constants::BINDING_SOAP,
-                'Location' => $httpUtils->getBaseURL() . 'module.php/saml/idp/singleSignOnService',
+                'Location' => Module::getModuleURL('saml/idp/singleSignOnService'),
             ];
         }
 
@@ -888,7 +918,7 @@ class SAML2
             $metadata['OrganizationName'] = $config->getLocalizedString('OrganizationName');
             $metadata['OrganizationDisplayName'] = $config->getOptionalLocalizedString(
                 'OrganizationDisplayName',
-                $metadata['OrganizationName']
+                $metadata['OrganizationName'],
             );
 
             if (!$config->hasValue('OrganizationURL')) {
@@ -946,7 +976,6 @@ class SAML2
             }
         }
 
-        $globalConfig = Configuration::getInstance();
         $email = $globalConfig->getOptionalString('technicalcontact_email', 'na@example.org');
         if (!empty($email) && $email !== 'na@example.org') {
             $contact = [

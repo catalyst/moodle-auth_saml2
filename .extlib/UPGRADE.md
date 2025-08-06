@@ -24,7 +24,7 @@ php -r "unlink('composer-setup.php');"
 ```
 ### Remove any dependencies we don't want.
 Remove symfony/config/Tests/Fixtures as PHPLint fails due to unexpected end of file error in Fixtures/ParseError.php.
-In 1.17 build, we removed symfony/polyfill-php70 from composer.lock.
+In 1.17 build, we removed symfony/polyfill-php70 from composer.lock. Including removing phpmailer/phpmailer from composer. See Issue #469
 
 ### Install the external dependencies (excluding dev)
 Make sure you run the install with "--no-dev" as below.
