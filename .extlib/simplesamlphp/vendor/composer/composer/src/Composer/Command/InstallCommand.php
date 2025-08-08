@@ -79,7 +79,7 @@ EOT
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = $this->getIO();
         if ($input->getOption('dev')) {
@@ -136,6 +136,7 @@ EOT
             ->setApcuAutoloader($apcu, $apcuPrefix)
             ->setPlatformRequirementFilter($this->getPlatformRequirementFilter($input))
             ->setAudit($input->getOption('audit'))
+            ->setErrorOnAudit($input->getOption('audit'))
             ->setAuditFormat($this->getAuditFormat($input))
         ;
 

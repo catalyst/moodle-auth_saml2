@@ -18,6 +18,7 @@ use Composer\IO\IOInterface;
 use Composer\Package\Archiver;
 use Composer\Package\Version\VersionGuesser;
 use Composer\Package\RootPackageInterface;
+use Composer\Repository\FilesystemRepository;
 use Composer\Repository\RepositoryManager;
 use Composer\Repository\RepositoryFactory;
 use Composer\Util\Filesystem;
@@ -215,29 +216,26 @@ class Factory
         }
         $config->setAuthConfigSource(new JsonConfigSource($file, true));
 
-        // load COMPOSER_AUTH environment variable if set
-        if ($composerAuthEnv = Platform::getEnv('COMPOSER_AUTH')) {
-            $authData = json_decode($composerAuthEnv);
-            if (null === $authData) {
-                throw new \UnexpectedValueException('COMPOSER_AUTH environment variable is malformed, should be a valid JSON object');
-            } else {
-                if ($io instanceof IOInterface) {
-                    $io->writeError('Loading auth config from COMPOSER_AUTH', true, IOInterface::DEBUG);
-                }
-                self::validateJsonSchema($io, $authData, JsonFile::AUTH_SCHEMA, 'COMPOSER_AUTH');
-                $authData = json_decode($composerAuthEnv, true);
-                if (null !== $authData) {
-                    $config->merge(['config' => $authData], 'COMPOSER_AUTH');
-                }
-            }
-        }
+        self::loadComposerAuthEnv($config, $io);
 
         return $config;
     }
 
     public static function getComposerFile(): string
     {
-        return trim((string) Platform::getEnv('COMPOSER')) ?: './composer.json';
+        $env = Platform::getEnv('COMPOSER');
+        if (is_string($env)) {
+            $env = trim($env);
+            if ('' !== $env) {
+                if (is_dir($env)) {
+                    throw new \RuntimeException('The COMPOSER environment variable is set to '.$env.' which is a directory, this variable should point to a composer.json or be left unset.');
+                }
+
+                return $env;
+            }
+        }
+
+        return './composer.json';
     }
 
     public static function getLockFile(string $composerFile): string
@@ -340,6 +338,9 @@ class Factory
             }
         }
 
+        // make sure we load the auth env again over the local auth.json + composer.json config
+        self::loadComposerAuthEnv($config, $io);
+
         $vendorDir = $config->get('vendor-dir');
 
         // initialize composer
@@ -350,9 +351,14 @@ class Factory
             // load auth configs into the IO instance
             $io->loadConfiguration($config);
 
-            // load existing Composer\InstalledVersions instance if available
-            if (!class_exists('Composer\InstalledVersions', false) && file_exists($installedVersionsPath = $config->get('vendor-dir').'/composer/InstalledVersions.php')) {
-                include $installedVersionsPath;
+            // load existing Composer\InstalledVersions instance if available and scripts/plugins are allowed, as they might need it
+            // we only load if the InstalledVersions class wasn't defined yet so that this is only loaded once
+            if (false === $disablePlugins && false === $disableScripts && !class_exists('Composer\InstalledVersions', false) && file_exists($installedVersionsPath = $config->get('vendor-dir').'/composer/installed.php')) {
+                // force loading the class at this point so it is loaded from the composer phar and not from the vendor dir
+                // as we cannot guarantee integrity of that file
+                if (class_exists('Composer\InstalledVersions')) {
+                    FilesystemRepository::safelyLoadInstalledVersions($installedVersionsPath);
+                }
             }
         }
 
@@ -378,7 +384,7 @@ class Factory
 
         // load package
         $parser = new VersionParser;
-        $guesser = new VersionGuesser($config, $process, $parser);
+        $guesser = new VersionGuesser($config, $process, $parser, $io);
         $loader = $this->loadRootPackage($rm, $config, $parser, $guesser, $io);
         $package = $loader->load($localConfig, 'Composer\Package\RootPackage', $cwd);
         $composer->setPackage($package);
@@ -672,10 +678,32 @@ class Factory
         return $httpDownloader;
     }
 
+    private static function loadComposerAuthEnv(Config $config, ?IOInterface $io): void
+    {
+        $composerAuthEnv = Platform::getEnv('COMPOSER_AUTH');
+        if (false === $composerAuthEnv || '' === $composerAuthEnv) {
+            return;
+        }
+
+        $authData = json_decode($composerAuthEnv);
+        if (null === $authData) {
+            throw new \UnexpectedValueException('COMPOSER_AUTH environment variable is malformed, should be a valid JSON object');
+        }
+
+        if ($io instanceof IOInterface) {
+            $io->writeError('Loading auth config from COMPOSER_AUTH', true, IOInterface::DEBUG);
+        }
+        self::validateJsonSchema($io, $authData, JsonFile::AUTH_SCHEMA, 'COMPOSER_AUTH');
+        $authData = json_decode($composerAuthEnv, true);
+        if (null !== $authData) {
+            $config->merge(['config' => $authData], 'COMPOSER_AUTH');
+        }
+    }
+
     private static function useXdg(): bool
     {
         foreach (array_keys($_SERVER) as $key) {
-            if (strpos($key, 'XDG_') === 0) {
+            if (strpos((string) $key, 'XDG_') === 0) {
                 return true;
             }
         }

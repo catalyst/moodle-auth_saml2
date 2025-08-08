@@ -43,6 +43,7 @@ class RemoveCommand extends BaseCommand
     {
         $this
             ->setName('remove')
+            ->setAliases(['rm', 'uninstall'])
             ->setDescription('Removes a package from the require or require-dev')
             ->setDefinition([
                 new InputArgument('packages', InputArgument::IS_ARRAY, 'Packages that should be removed.', null, $this->suggestRootRequirement()),
@@ -58,6 +59,7 @@ class RemoveCommand extends BaseCommand
                 new InputOption('update-with-all-dependencies', 'W', InputOption::VALUE_NONE, 'Allows all inherited dependencies to be updated, including those that are root requirements.'),
                 new InputOption('with-all-dependencies', null, InputOption::VALUE_NONE, 'Alias for --update-with-all-dependencies'),
                 new InputOption('no-update-with-dependencies', null, InputOption::VALUE_NONE, 'Does not allow inherited dependencies to be updated with explicit dependencies.'),
+                new InputOption('minimal-changes', 'm', InputOption::VALUE_NONE, 'During an update with -w/-W, only perform absolutely necessary changes to transitive dependencies (can also be set via the COMPOSER_MINIMAL_CHANGES=1 env var).'),
                 new InputOption('unused', null, InputOption::VALUE_NONE, 'Remove all packages which are locked but not required by any other package.'),
                 new InputOption('ignore-platform-req', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Ignore a specific platform requirement (php & ext- packages).'),
                 new InputOption('ignore-platform-reqs', null, InputOption::VALUE_NONE, 'Ignore all platform requirements (php & ext- packages).'),
@@ -73,7 +75,7 @@ list of installed packages
 
 <info>php composer.phar remove</info>
 
-Read more at https://getcomposer.org/doc/03-cli.md#remove
+Read more at https://getcomposer.org/doc/03-cli.md#remove-rm
 EOT
             )
         ;
@@ -82,7 +84,7 @@ EOT
     /**
      * @throws \Seld\JsonLint\ParsingException
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if ($input->getArgument('packages') === [] && !$input->getOption('unused')) {
             throw new InvalidArgumentException('Not enough arguments (missing: "packages").');
@@ -285,6 +287,7 @@ EOT
             ->setDryRun($dryRun)
             ->setAudit(!$input->getOption('no-audit'))
             ->setAuditFormat($this->getAuditFormat($input))
+            ->setMinimalUpdate($input->getOption('minimal-changes'))
         ;
 
         // if no lock is present, we do not do a partial update as

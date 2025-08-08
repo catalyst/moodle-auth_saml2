@@ -12,6 +12,7 @@
 
 namespace Composer;
 
+use Composer\Advisory\Auditor;
 use Composer\Config\ConfigSourceInterface;
 use Composer\Downloader\TransportException;
 use Composer\IO\IOInterface;
@@ -37,6 +38,7 @@ class Config
         'allow-plugins' => [],
         'use-parent-dir' => 'prompt',
         'preferred-install' => 'dist',
+        'audit' => ['ignore' => [], 'abandoned' => Auditor::ABANDONED_FAIL],
         'notify-on-install' => true,
         'github-protocols' => ['https', 'ssh', 'git'],
         'gitlab-protocol' => null,
@@ -82,6 +84,8 @@ class Config
         'gitlab-token' => [],
         'http-basic' => [],
         'bearer' => [],
+        'bump-after-update' => false,
+        'allow-missing-requirements' => false,
     ];
 
     /** @var array<string, mixed> */
@@ -94,7 +98,7 @@ class Config
 
     /** @var array<string, mixed> */
     private $config;
-    /** @var ?string */
+    /** @var ?non-empty-string */
     private $baseDir;
     /** @var array<int|string, mixed> */
     private $repositories;
@@ -123,7 +127,7 @@ class Config
         $this->config = static::$defaultConfig;
 
         $this->repositories = static::$defaultRepositories;
-        $this->useEnvironment = (bool) $useEnvironment;
+        $this->useEnvironment = $useEnvironment;
         $this->baseDir = is_string($baseDir) && '' !== $baseDir ? $baseDir : null;
 
         foreach ($this->config as $configKey => $configValue) {
@@ -133,6 +137,18 @@ class Config
         foreach ($this->repositories as $configKey => $configValue) {
             $this->setSourceOfConfigValue($configValue, 'repositories.' . $configKey, self::SOURCE_DEFAULT);
         }
+    }
+
+    /**
+     * Changing this can break path resolution for relative config paths so do not call this without knowing what you are doing
+     *
+     * The $baseDir should be an absolute path and without trailing slash
+     *
+     * @param non-empty-string|null $baseDir
+     */
+    public function setBaseDir(?string $baseDir): void
+    {
+        $this->baseDir = $baseDir;
     }
 
     public function setConfigSource(ConfigSourceInterface $source): void
@@ -207,6 +223,11 @@ class Config
                         $this->config[$key] = $val;
                         $this->setSourceOfConfigValue($val, $key, $source);
                     }
+                } elseif ('audit' === $key) {
+                    $currentIgnores = $this->config['audit']['ignore'];
+                    $this->config[$key] = array_merge($this->config['audit'], $val);
+                    $this->setSourceOfConfigValue($val, $key, $source);
+                    $this->config['audit']['ignore'] = array_merge($currentIgnores, $val['ignore'] ?? []);
                 } else {
                     $this->config[$key] = $val;
                     $this->setSourceOfConfigValue($val, $key, $source);
@@ -429,6 +450,20 @@ class Config
 
                 return $this->process($this->config[$key], $flags);
 
+            case 'audit':
+                $result = $this->config[$key];
+                $abandonedEnv = $this->getComposerEnv('COMPOSER_AUDIT_ABANDONED');
+                if (false !== $abandonedEnv) {
+                    if (!in_array($abandonedEnv, $validChoices = Auditor::ABANDONEDS, true)) {
+                        throw new \RuntimeException(
+                            "Invalid value for COMPOSER_AUDIT_ABANDONED: {$abandonedEnv}. Expected one of ".implode(', ', Auditor::ABANDONEDS)."."
+                        );
+                    }
+                    $result['abandoned'] = $abandonedEnv;
+                }
+
+                return $result;
+
             default:
                 if (!isset($this->config[$key])) {
                     return null;
@@ -508,7 +543,6 @@ class Config
         }
 
         return Preg::replaceCallback('#\{\$(.+)\}#', function ($match) use ($flags) {
-            assert(is_string($match[1]));
             return $this->get($match[1], $flags);
         }, $value);
     }
@@ -524,7 +558,7 @@ class Config
             return $path;
         }
 
-        return $this->baseDir ? $this->baseDir . '/' . $path : $path;
+        return $this->baseDir !== null ? $this->baseDir . '/' . $path : $path;
     }
 
     /**
@@ -532,6 +566,8 @@ class Config
      *
      * This should be used to read COMPOSER_ environment variables
      * that overload config values.
+     *
+     * @param non-empty-string $var
      *
      * @return string|false
      */
@@ -561,8 +597,8 @@ class Config
      */
     public function prohibitUrlByConfig(string $url, ?IOInterface $io = null, array $repoOptions = []): void
     {
-        // Return right away if the URL is malformed or custom (see issue #5173)
-        if (false === filter_var($url, FILTER_VALIDATE_URL)) {
+        // Return right away if the URL is malformed or custom (see issue #5173), but only for non-HTTP(S) URLs
+        if (false === filter_var($url, FILTER_VALIDATE_URL) && !Preg::isMatch('{^https?://}', $url)) {
             return;
         }
 

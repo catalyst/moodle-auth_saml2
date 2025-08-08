@@ -13,6 +13,7 @@
 namespace Composer\Package\Version;
 
 use Composer\Filter\PlatformRequirementFilter\IgnoreAllPlatformRequirementFilter;
+use Composer\Filter\PlatformRequirementFilter\IgnoreListPlatformRequirementFilter;
 use Composer\Filter\PlatformRequirementFilter\PlatformRequirementFilterFactory;
 use Composer\Filter\PlatformRequirementFilter\PlatformRequirementFilterInterface;
 use Composer\IO\IOInterface;
@@ -70,7 +71,7 @@ class VersionSelector
      */
     public function findBestCandidate(string $packageName, ?string $targetPackageVersion = null, string $preferredStability = 'stable', $platformRequirementFilter = null, int $repoSetFlags = 0, ?IOInterface $io = null, $showWarnings = true)
     {
-        if (!isset(BasePackage::$stabilities[$preferredStability])) {
+        if (!isset(BasePackage::STABILITIES[$preferredStability])) {
             // If you get this, maybe you are still relying on the Composer 1.x signature where the 3rd arg was the php version
             throw new \UnexpectedValueException('Expected a valid stability name as 3rd argument, got '.$preferredStability);
         }
@@ -85,7 +86,7 @@ class VersionSelector
         $constraint = $targetPackageVersion ? $this->getParser()->parseConstraints($targetPackageVersion) : null;
         $candidates = $this->repositorySet->findPackages(strtolower($packageName), $constraint, $repoSetFlags);
 
-        $minPriority = BasePackage::$stabilities[$preferredStability];
+        $minPriority = BasePackage::STABILITIES[$preferredStability];
         usort($candidates, static function (PackageInterface $a, PackageInterface $b) use ($minPriority) {
             $aPriority = $a->getStabilityPriority();
             $bPriority = $b->getStabilityPriority();
@@ -120,6 +121,7 @@ class VersionSelector
 
             foreach ($candidates as $pkg) {
                 $reqs = $pkg->getRequires();
+                $skip = false;
                 foreach ($reqs as $name => $link) {
                     if (!PlatformRepository::isPlatformPackage($name) || $platformRequirementFilter->isIgnored($name)) {
                         continue;
@@ -129,6 +131,13 @@ class VersionSelector
                             if ($link->getConstraint()->matches($providedConstraint)) {
                                 // constraint satisfied, go to next require
                                 continue 2;
+                            }
+                            if ($platformRequirementFilter instanceof IgnoreListPlatformRequirementFilter && $platformRequirementFilter->isUpperBoundIgnored($name)) {
+                                $filteredConstraint = $platformRequirementFilter->filterConstraint($name, $link->getConstraint());
+                                if ($filteredConstraint->matches($providedConstraint)) {
+                                    // constraint satisfied with the upper bound ignored, go to next require
+                                    continue 2;
+                                }
                             }
                         }
 
@@ -143,8 +152,8 @@ class VersionSelector
                     $isLatestVersion = !isset($alreadySeenNames[$pkg->getName()]);
                     $alreadySeenNames[$pkg->getName()] = true;
                     if ($io !== null && ($showWarnings === true || (is_callable($showWarnings) && $showWarnings($pkg)))) {
-                        $isFirstWarning = !isset($alreadyWarnedNames[$pkg->getName()]);
-                        $alreadyWarnedNames[$pkg->getName()] = true;
+                        $isFirstWarning = !isset($alreadyWarnedNames[$pkg->getName().'/'.$link->getTarget()]);
+                        $alreadyWarnedNames[$pkg->getName().'/'.$link->getTarget()] = true;
                         $latest = $isLatestVersion ? "'s latest version" : '';
                         $io->writeError(
                             '<warning>Cannot use '.$pkg->getPrettyName().$latest.' '.$pkg->getPrettyVersion().' as it '.$link->getDescription().' '.$link->getTarget().' '.$link->getPrettyConstraint().' which '.$reason.'.</>',
@@ -154,7 +163,11 @@ class VersionSelector
                     }
 
                     // skip candidate
-                    continue 2;
+                    $skip = true;
+                }
+
+                if ($skip) {
+                    continue;
                 }
 
                 $package = $pkg;
@@ -182,6 +195,7 @@ class VersionSelector
      *
      * For example:
      *  * 1.2.1         -> ^1.2
+     *  * 1.2.1.2       -> ^1.2
      *  * 1.2           -> ^1.2
      *  * v3.2.1        -> ^3.2
      *  * 2.0-beta.1    -> ^2.0@beta
@@ -227,7 +241,7 @@ class VersionSelector
         $semanticVersionParts = explode('.', $version);
 
         // check to see if we have a semver-looking version
-        if (count($semanticVersionParts) === 4 && Preg::isMatch('{^0\D?}', $semanticVersionParts[3])) {
+        if (count($semanticVersionParts) === 4 && Preg::isMatch('{^\d+\D?}', $semanticVersionParts[3])) {
             // remove the last parts (i.e. the patch version number and any extra)
             if ($semanticVersionParts[0] === '0') {
                 unset($semanticVersionParts[3]);

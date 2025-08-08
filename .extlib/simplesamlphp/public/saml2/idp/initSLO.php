@@ -12,9 +12,19 @@ require_once('../../_include.php');
 
 use SimpleSAML\Configuration;
 use SimpleSAML\Module\saml\Controller;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Request as HttpRequest;
 
-$request = Request::createFromGlobals();
 $config = Configuration::getInstance();
 $controller = new Controller\SingleLogout($config);
-$controller->initSingleLogout($request)->send();
+$request = HttpRequest::createFromGlobals();
+
+$headers = $config->getOptionalArray('headers.security', Configuration::DEFAULT_SECURITY_HEADERS);
+
+$response = $controller->initSingleLogout($request);
+foreach ($headers as $header => $value) {
+    // Some pages may have specific requirements that we must follow. Don't touch them.
+    if (!$response->headers->has($header)) {
+        $response->headers->set($header, $value);
+    }
+}
+$response->send();
