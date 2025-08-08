@@ -32,7 +32,7 @@ final class SecretsDecryptToLocalCommand extends Command
     private $vault;
     private $localVault;
 
-    public function __construct(AbstractVault $vault, AbstractVault $localVault = null)
+    public function __construct(AbstractVault $vault, ?AbstractVault $localVault = null)
     {
         $this->vault = $vault;
         $this->localVault = $localVault;
@@ -50,7 +50,7 @@ The <info>%command.name%</info> command decrypts all secrets and copies them in 
 
     <info>%command.full_name%</info>
 
-When the option <info>--force</info> is provided, secrets that already exist in the local vault are overriden.
+When the <info>--force</info> option is provided, secrets that already exist in the local vault are overridden.
 
     <info>%command.full_name% --force</info>
 EOF

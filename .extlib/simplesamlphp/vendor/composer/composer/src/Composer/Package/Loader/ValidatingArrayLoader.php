@@ -17,6 +17,8 @@ use Composer\Pcre\Preg;
 use Composer\Semver\Constraint\Constraint;
 use Composer\Package\Version\VersionParser;
 use Composer\Repository\PlatformRepository;
+use Composer\Semver\Constraint\MatchNoneConstraint;
+use Composer\Semver\Intervals;
 use Composer\Spdx\SpdxLicenses;
 
 /**
@@ -191,7 +193,7 @@ class ValidatingArrayLoader implements LoaderInterface
         }
 
         if ($this->validateArray('support') && !empty($this->config['support'])) {
-            foreach (['issues', 'forum', 'wiki', 'source', 'email', 'irc', 'docs', 'rss', 'chat'] as $key) {
+            foreach (['issues', 'forum', 'wiki', 'source', 'email', 'irc', 'docs', 'rss', 'chat', 'security'] as $key) {
                 if (isset($this->config['support'][$key]) && !is_string($this->config['support'][$key])) {
                     $this->errors[] = 'support.'.$key.' : invalid value, must be a string';
                     unset($this->config['support'][$key]);
@@ -208,7 +210,7 @@ class ValidatingArrayLoader implements LoaderInterface
                 unset($this->config['support']['irc']);
             }
 
-            foreach (['issues', 'forum', 'wiki', 'source', 'docs', 'chat'] as $key) {
+            foreach (['issues', 'forum', 'wiki', 'source', 'docs', 'chat', 'security'] as $key) {
                 if (isset($this->config['support'][$key]) && !$this->filterUrl($this->config['support'][$key])) {
                     $this->warnings[] = 'support.'.$key.' : invalid value ('.$this->config['support'][$key].'), must be an http/https URL';
                     unset($this->config['support'][$key]);
@@ -245,13 +247,19 @@ class ValidatingArrayLoader implements LoaderInterface
             }
         }
 
+        $this->validateArray('php-ext');
+        if (isset($this->config['php-ext']) && !in_array($this->config['type'] ?? '', ['php-ext', 'php-ext-zend'], true)) {
+            $this->errors[] = 'php-ext can only be set by packages of type "php-ext" or "php-ext-zend" which must be C extensions';
+            unset($this->config['php-ext']);
+        }
+
         $unboundConstraint = new Constraint('=', '10000000-dev');
 
         foreach (array_keys(BasePackage::$supportedLinkTypes) as $linkType) {
             if ($this->validateArray($linkType) && isset($this->config[$linkType])) {
                 foreach ($this->config[$linkType] as $package => $constraint) {
                     $package = (string) $package;
-                    if (0 === strcasecmp($package, $this->config['name'])) {
+                    if (isset($this->config['name']) && 0 === strcasecmp($package, $this->config['name'])) {
                         $this->errors[] = $linkType.'.'.$package.' : a package cannot set a '.$linkType.' on itself';
                         unset($this->config[$linkType][$package]);
                         continue;
@@ -290,6 +298,11 @@ class ValidatingArrayLoader implements LoaderInterface
                         ) {
                             $this->warnings[] = $linkType.'.'.$package.' : exact version constraints ('.$constraint.') should be avoided if the package follows semantic versioning';
                         }
+
+                        $compacted = Intervals::compactConstraint($linkConstraint);
+                        if ($compacted instanceof MatchNoneConstraint) {
+                            $this->warnings[] = $linkType.'.'.$package.' : this version constraint cannot possibly match anything ('.$constraint.')';
+                        }
                     }
 
                     if ($linkType === 'conflict' && isset($this->config['replace']) && $keys = array_intersect_key($this->config['replace'], $this->config['conflict'])) {
@@ -310,8 +323,8 @@ class ValidatingArrayLoader implements LoaderInterface
         }
 
         if ($this->validateString('minimum-stability') && isset($this->config['minimum-stability'])) {
-            if (!isset(BasePackage::$stabilities[strtolower($this->config['minimum-stability'])]) && $this->config['minimum-stability'] !== 'RC') {
-                $this->errors[] = 'minimum-stability : invalid value ('.$this->config['minimum-stability'].'), must be one of '.implode(', ', array_keys(BasePackage::$stabilities));
+            if (!isset(BasePackage::STABILITIES[strtolower($this->config['minimum-stability'])]) && $this->config['minimum-stability'] !== 'RC') {
+                $this->errors[] = 'minimum-stability : invalid value ('.$this->config['minimum-stability'].'), must be one of '.implode(', ', array_keys(BasePackage::STABILITIES));
                 unset($this->config['minimum-stability']);
             }
         }

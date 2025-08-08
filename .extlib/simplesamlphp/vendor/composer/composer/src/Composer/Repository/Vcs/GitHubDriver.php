@@ -63,8 +63,6 @@ class GitHubDriver extends VcsDriver
             throw new \InvalidArgumentException(sprintf('The GitHub repository URL %s is invalid.', $this->url));
         }
 
-        assert(is_string($match[3]));
-        assert(is_string($match[4]));
         $this->owner = $match[3];
         $this->repository = $match[4];
         $this->originUrl = strtolower($match[1] ?? (string) $match[2]);
@@ -237,7 +235,7 @@ class GitHubDriver extends VcsDriver
                     $key = $match[1];
                     continue;
                 }
-                if (Preg::isMatchStrictGroups('{^\[(.*)\](?:\s*#.*)?$}', $match[2], $match2)) {
+                if (Preg::isMatchStrictGroups('{^\[(.*?)\](?:\s*#.*)?$}', $match[2], $match2)) {
                     foreach (array_map('trim', Preg::split('{[\'"]?\s*,\s*[\'"]?}', $match2[1])) as $item) {
                         $result[] = ['type' => $match[1], 'url' => trim($item, '"\' ')];
                     }
@@ -286,6 +284,9 @@ class GitHubDriver extends VcsDriver
                 case 'community_bridge':
                     $result[$key]['url'] = 'https://funding.communitybridge.org/projects/' . basename($item['url']);
                     break;
+                case 'buy_me_a_coffee':
+                    $result[$key]['url'] = 'https://www.buymeacoffee.com/' . basename($item['url']);
+                    break;
             }
         }
 
@@ -310,7 +311,7 @@ class GitHubDriver extends VcsDriver
             $resource = $this->getContents($resource['git_url'])->decodeJson();
         }
 
-        if (empty($resource['content']) || $resource['encoding'] !== 'base64' || !($content = base64_decode($resource['content']))) {
+        if (!isset($resource['content']) || $resource['encoding'] !== 'base64' || false === ($content = base64_decode($resource['content']))) {
             throw new \RuntimeException('Could not retrieve ' . $file . ' for '.$identifier);
         }
 
