@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SimpleSAML;
 
+use SimpleSAML\Assert\Assert;
 use SimpleSAML\Utils\System;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -52,8 +53,13 @@ class Kernel extends BaseKernel
     public function getCacheDir(): string
     {
         $configuration = Configuration::getInstance();
-        $cachePath = $configuration->getString('tempdir') . DIRECTORY_SEPARATOR
-            . 'cache' . DIRECTORY_SEPARATOR . $this->module;
+
+        $temp = $configuration->getOptionalString('tempdir', null);
+        $cache = $configuration->getOptionalString('cachedir', null);
+        $cacheDir = $cache ?? $temp;
+
+        Assert::notNull($cacheDir, "Missing cachedir parameter in config.php");
+        $cachePath = $cacheDir . DIRECTORY_SEPARATOR . $this->module;
 
         $sysUtils = new System();
         if ($sysUtils->isAbsolutePath($cachePath)) {

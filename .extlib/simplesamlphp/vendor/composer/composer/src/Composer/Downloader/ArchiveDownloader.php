@@ -68,7 +68,7 @@ abstract class ArchiveDownloader extends FileDownloader
         }
 
         do {
-            $temporaryDir = $vendorDir.'/composer/'.substr(md5(uniqid('', true)), 0, 8);
+            $temporaryDir = $vendorDir.'/composer/'.bin2hex(random_bytes(4));
         } while (is_dir($temporaryDir));
 
         $this->addCleanupPath($package, $temporaryDir);
@@ -216,6 +216,7 @@ abstract class ArchiveDownloader extends FileDownloader
      *
      * @param string $file Extracted file
      * @param string $path Directory
+     * @phpstan-return PromiseInterface<void|null>
      *
      * @throws \UnexpectedValueException If can not extract downloaded file to path
      */

@@ -15,6 +15,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use function array_key_exists;
 use function array_keys;
 use function dirname;
+use function file_exists;
 use function interface_exists;
 use function is_array;
 use function is_int;
@@ -39,7 +40,7 @@ class Configuration implements Utils\ClearableState
     /**
      * The release version of this package
      */
-    public const VERSION = '2.0.5';
+    public const VERSION = '2.0.15';
 
     /**
      * A default value which means that the given option is required.
@@ -47,6 +48,13 @@ class Configuration implements Utils\ClearableState
      * @var string
      */
     public const REQUIRED_OPTION = '___REQUIRED_OPTION___';
+
+    /**
+     * The default security-headers to be sent on responses.
+     */
+    public const DEFAULT_SECURITY_HEADERS = [
+        'X-Frame-Options' => 'SAMEORIGIN',
+    ];
 
     /**
      * Associative array with mappings from instance-names to configuration objects.
@@ -538,6 +546,25 @@ class Configuration implements Utils\ClearableState
         }
 
         return $path . '/';
+    }
+
+
+    /**
+     * Retrieve the location of the vendor directory
+     *
+     * This function checks whether SimpleSAMLphp is installed as a stand-alone application or as a library
+     * and determines the location of the vendor directory.
+     *
+     * @return string The absolute path to the vendor directory. This path will always end with a slash.
+     */
+    public function getVendorDir(): string
+    {
+        if (file_exists(dirname(__FILE__, 3) . '/vendor')) {
+            return dirname(__FILE__, 3) . '/vendor/';
+        } else {
+            // SSP is loaded as a library.
+            return dirname(__FILE__, 6) . '/vendor/';
+        }
     }
 
 
