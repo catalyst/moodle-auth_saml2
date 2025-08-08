@@ -410,5 +410,11 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2023100300, 'auth', 'saml2');
     }
 
+    if ($oldversion < 2024092001) {
+        // Due to simplesaml library update, we need to purge all existing sessions.
+        $DB->delete_records('auth_saml2_kvstore', ['type' => 'session']);
+        upgrade_plugin_savepoint(true, 2024092001, 'auth', 'saml2');
+    }
+
     return true;
 }
