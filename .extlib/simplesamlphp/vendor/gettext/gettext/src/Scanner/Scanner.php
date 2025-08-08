@@ -8,7 +8,7 @@ use Gettext\Translation;
 use Gettext\Translations;
 
 /**
- * Base class with common funtions for all scanners.
+ * Base class with common functions for all scanners.
  */
 abstract class Scanner implements ScannerInterface
 {
@@ -51,7 +51,7 @@ abstract class Scanner implements ScannerInterface
         ?string $domain,
         ?string $context,
         string $original,
-        string $plural = null
+        ?string $plural = null
     ): ?Translation {
         if (is_null($domain)) {
             $domain = $this->defaultDomain;

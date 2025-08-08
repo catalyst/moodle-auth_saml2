@@ -11,29 +11,54 @@
 
 namespace Symfony\Bridge\Twig\Node;
 
+use Twig\Attribute\FirstClassTwigCallableReady;
+use Twig\Attribute\YieldReady;
 use Twig\Compiler;
+use Twig\Node\Expression\Variable\LocalVariable;
 use Twig\Node\Node;
 
 /**
  * @author Julien Galenski <julien.galenski@gmail.com>
  */
+#[YieldReady]
 final class DumpNode extends Node
 {
+    /**
+     * @var LocalVariable|string
+     */
     private $varPrefix;
 
-    public function __construct(string $varPrefix, ?Node $values, int $lineno, string $tag = null)
+    /**
+     * @param LocalVariable|string $varPrefix
+     */
+    public function __construct($varPrefix, ?Node $values, int $lineno, ?string $tag = null)
     {
+        if (!\is_string($varPrefix) && !$varPrefix instanceof LocalVariable) {
+            throw new \TypeError(sprintf('Expected a string or an instance of "%s", but got "%s".', LocalVariable::class, get_debug_type($varPrefix)));
+        }
+
         $nodes = [];
         if (null !== $values) {
             $nodes['values'] = $values;
         }
 
-        parent::__construct($nodes, [], $lineno, $tag);
+        if (class_exists(FirstClassTwigCallableReady::class)) {
+            parent::__construct($nodes, [], $lineno);
+        } else {
+            parent::__construct($nodes, [], $lineno, $tag);
+        }
+
         $this->varPrefix = $varPrefix;
     }
 
     public function compile(Compiler $compiler): void
     {
+        if ($this->varPrefix instanceof LocalVariable) {
+            $varPrefix = $this->varPrefix->getAttribute('name');
+        } else {
+            $varPrefix = $this->varPrefix;
+        }
+
         $compiler
             ->write("if (\$this->env->isDebug()) {\n")
             ->indent();
@@ -41,18 +66,18 @@ final class DumpNode extends Node
         if (!$this->hasNode('values')) {
             // remove embedded templates (macros) from the context
             $compiler
-                ->write(sprintf('$%svars = [];'."\n", $this->varPrefix))
-                ->write(sprintf('foreach ($context as $%1$skey => $%1$sval) {'."\n", $this->varPrefix))
+                ->write(sprintf('$%svars = [];'."\n", $varPrefix))
+                ->write(sprintf('foreach ($context as $%1$skey => $%1$sval) {'."\n", $varPrefix))
                 ->indent()
-                ->write(sprintf('if (!$%sval instanceof \Twig\Template) {'."\n", $this->varPrefix))
+                ->write(sprintf('if (!$%sval instanceof \Twig\Template) {'."\n", $varPrefix))
                 ->indent()
-                ->write(sprintf('$%1$svars[$%1$skey] = $%1$sval;'."\n", $this->varPrefix))
+                ->write(sprintf('$%1$svars[$%1$skey] = $%1$sval;'."\n", $varPrefix))
                 ->outdent()
                 ->write("}\n")
                 ->outdent()
                 ->write("}\n")
                 ->addDebugInfo($this)
-                ->write(sprintf('\Symfony\Component\VarDumper\VarDumper::dump($%svars);'."\n", $this->varPrefix));
+                ->write(sprintf('\Symfony\Component\VarDumper\VarDumper::dump($%svars);'."\n", $varPrefix));
         } elseif (($values = $this->getNode('values')) && 1 === $values->count()) {
             $compiler
                 ->addDebugInfo($this)

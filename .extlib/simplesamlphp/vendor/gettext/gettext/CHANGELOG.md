@@ -1,11 +1,23 @@
 # Change Log
-
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Previous releases are documented in [github releases](https://github.com/oscarotero/Gettext/releases)
+
+## [5.7.3] - 2024-12-01
+### Fixed
+- Php 8.4 support [#302].
+
+## [5.7.2] - 2024-11-24
+### Fixed
+- Php 8.4 support [#300].
+
+## [5.7.1] - 2024-07-24
+### Fixed
+- Parsing of PO files with empty comments instead of empty lines [#296]
+- Support for PHP >= 8.2 [#299]
 
 ## [5.7.0] - 2022-07-27
 ### Added
@@ -100,7 +112,7 @@ Previous releases are documented in [github releases](https://github.com/oscarot
 ### Removed
 - Extractors (now scanners and loaders), generators and translators were removed from this package and published as external packages, allowing to install only those that you need. Only Po and Mo formats are included by default.
 - Removed magic classes like `Translations::fromPoFile` or `$translation->toMoFile()`. Now, the scanners, loaders and generators are independent classes that have to be instantiated.
-- Removed `Merge::LANGUAGE_OVERRIDE` and `Merge::DOMAIN_OVERRIDE` contants
+- Removed `Merge::LANGUAGE_OVERRIDE` and `Merge::DOMAIN_OVERRIDE` constants
 
 ### Fixed
 - Improved code quality
@@ -121,7 +133,14 @@ Previous releases are documented in [github releases](https://github.com/oscarot
 [#276]: https://github.com/php-gettext/Gettext/issues/276
 [#278]: https://github.com/php-gettext/Gettext/issues/278
 [#282]: https://github.com/php-gettext/Gettext/issues/282
+[#296]: https://github.com/php-gettext/Gettext/issues/296
+[#299]: https://github.com/php-gettext/Gettext/issues/299
+[#300]: https://github.com/php-gettext/Gettext/issues/300
+[#302]: https://github.com/php-gettext/Gettext/issues/302
 
+[5.7.3]: https://github.com/php-gettext/Gettext/compare/v5.7.2...v5.7.3
+[5.7.2]: https://github.com/php-gettext/Gettext/compare/v5.7.1...v5.7.2
+[5.7.1]: https://github.com/php-gettext/Gettext/compare/v5.7.0...v5.7.1
 [5.7.0]: https://github.com/php-gettext/Gettext/compare/v5.6.1...v5.7.0
 [5.6.1]: https://github.com/php-gettext/Gettext/compare/v5.6.0...v5.6.1
 [5.6.0]: https://github.com/php-gettext/Gettext/compare/v5.5.4...v5.6.0

@@ -10,6 +10,8 @@ use SAML2\Binding;
 use SAML2\Constants;
 use SAML2\Exception\Protocol\UnsupportedBindingException;
 use SAML2\HTTPArtifact;
+use SAML2\HTTPPost;
+use SAML2\HTTPRedirect;
 use SAML2\LogoutRequest;
 use SAML2\LogoutResponse;
 use SAML2\Response as SAML2_Response;
@@ -36,7 +38,6 @@ use function end;
 use function get_class;
 use function in_array;
 use function is_null;
-use function substr;
 use function time;
 use function var_export;
 
@@ -574,8 +575,8 @@ class ServiceProvider
                 'SingleLogoutService',
                 [
                     Constants::BINDING_HTTP_REDIRECT,
-                    Constants::BINDING_HTTP_POST
-                ]
+                    Constants::BINDING_HTTP_POST,
+                ],
             );
 
             if (!($binding instanceof SOAP)) {
@@ -620,7 +621,8 @@ class ServiceProvider
      */
     public function metadata(Request $request, string $sourceId): Response
     {
-        if ($this->config->getOptionalBoolean('admin.protectmetadata', false)) {
+        $protectedMetadata = $this->config->getOptionalBoolean('admin.protectmetadata', false);
+        if ($protectedMetadata && !$this->authUtils->isAdmin()) {
             return new RunnableResponse([$this->authUtils, 'requireAdmin']);
         }
 
@@ -649,20 +651,18 @@ class ServiceProvider
         // sign the metadata if enabled
         $metaxml = Metadata\Signer::sign($xml, $spconfig->toArray(), 'SAML 2 SP');
 
-        // make sure to export only the md:EntityDescriptor
-        $i = strpos($metaxml, '<md:EntityDescriptor');
-        $metaxml = substr($metaxml, $i ? $i : 0);
-
-        // 22 = strlen('</md:EntityDescriptor>')
-        $i = strrpos($metaxml, '</md:EntityDescriptor>');
-        $metaxml = substr($metaxml, 0, $i ? $i + 22 : 0);
-
         $response = new Response();
         $response->setEtag(hash('sha256', $metaxml));
-        $response->setPublic();
+        $response->setCache([
+            'no_cache' => $protectedMetadata === true,
+            'public' => $protectedMetadata === false,
+            'private' => $protectedMetadata === true,
+        ]);
+
         if ($response->isNotModified($request)) {
             return $response;
         }
+
         $response->headers->set('Content-Type', 'application/samlmetadata+xml');
         $response->headers->set('Content-Disposition', 'attachment; filename="' . basename($sourceId) . '.xml"');
         $response->setContent($metaxml);
