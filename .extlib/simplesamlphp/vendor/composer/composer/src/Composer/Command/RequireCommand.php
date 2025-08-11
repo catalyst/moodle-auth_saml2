@@ -103,6 +103,7 @@ class RequireCommand extends BaseCommand
                 new InputOption('ignore-platform-reqs', null, InputOption::VALUE_NONE, 'Ignore all platform requirements (php & ext- packages).'),
                 new InputOption('prefer-stable', null, InputOption::VALUE_NONE, 'Prefer stable versions of dependencies (can also be set via the COMPOSER_PREFER_STABLE=1 env var).'),
                 new InputOption('prefer-lowest', null, InputOption::VALUE_NONE, 'Prefer lowest versions of dependencies (can also be set via the COMPOSER_PREFER_LOWEST=1 env var).'),
+                new InputOption('minimal-changes', 'm', InputOption::VALUE_NONE, 'During an update with -w/-W, only perform absolutely necessary changes to transitive dependencies (can also be set via the COMPOSER_MINIMAL_CHANGES=1 env var).'),
                 new InputOption('sort-packages', null, InputOption::VALUE_NONE, 'Sorts packages when adding/updating a new dependency'),
                 new InputOption('optimize-autoloader', 'o', InputOption::VALUE_NONE, 'Optimize autoloader during autoloader dump'),
                 new InputOption('classmap-authoritative', 'a', InputOption::VALUE_NONE, 'Autoload classes from the classmap only. Implicitly enables `--optimize-autoloader`.'),
@@ -129,7 +130,7 @@ EOT
     /**
      * @throws \Seld\JsonLint\ParsingException
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->file = Factory::getComposerFile();
         $io = $this->getIO();
@@ -348,6 +349,10 @@ EOT
             }
             throw $e;
         } finally {
+            if ($input->getOption('dry-run') && $this->newlyCreated) {
+                @unlink($this->json->getPath());
+            }
+
             $signalHandler->unregister();
         }
     }
@@ -397,6 +402,8 @@ EOT
 
     /**
      * @param array<string, string> $requirements
+     * @param 'require'|'require-dev' $requireKey
+     * @param 'require'|'require-dev' $removeKey
      * @throws \Exception
      */
     private function doUpdate(InputInterface $input, OutputInterface $output, IOInterface $io, array $requirements, string $requireKey, string $removeKey): int
@@ -479,6 +486,7 @@ EOT
             ->setPreferLowest($input->getOption('prefer-lowest'))
             ->setAudit(!$input->getOption('no-audit'))
             ->setAuditFormat($this->getAuditFormat($input))
+            ->setMinimalUpdate($input->getOption('minimal-changes'))
         ;
 
         // if no lock is present, or the file is brand new, we do not do a
@@ -488,7 +496,7 @@ EOT
         }
 
         $status = $install->run();
-        if ($status !== 0) {
+        if ($status !== 0 && $status !== Installer::ERROR_AUDIT_FAILED) {
             if ($status === Installer::ERROR_DEPENDENCY_RESOLUTION_FAILED) {
                 foreach ($this->normalizeRequirements($input->getArgument('packages')) as $req) {
                     if (!isset($req['version'])) {
@@ -546,20 +554,15 @@ EOT
 
         if (!$dryRun) {
             $this->updateFile($this->json, $requirements, $requireKey, $removeKey, $sortPackages);
-            if ($locker->isLocked()) {
-                $contents = file_get_contents($this->json->getPath());
-                if (false === $contents) {
-                    throw new \RuntimeException('Unable to read '.$this->json->getPath().' contents to update the lock file hash.');
-                }
-                $lockFile = Factory::getLockFile($this->json->getPath());
-                $lockMtime = filemtime($lockFile);
-                $lock = new JsonFile($lockFile);
-                $lockData = $lock->read();
-                $lockData['content-hash'] = Locker::getContentHash($contents);
-                $lock->write($lockData);
-                if (is_int($lockMtime)) {
-                    @touch($lockFile, $lockMtime);
-                }
+            if ($locker->isLocked() && $composer->getConfig()->get('lock')) {
+                $stabilityFlags = RootPackageLoader::extractStabilityFlags($requirements, $composer->getPackage()->getMinimumStability(), []);
+                $locker->updateHash($this->json, function (array $lockData) use ($stabilityFlags) {
+                    foreach ($stabilityFlags as $packageName => $flag) {
+                        $lockData['stability-flags'][$packageName] = $flag;
+                    }
+
+                    return $lockData;
+                });
             }
         }
 

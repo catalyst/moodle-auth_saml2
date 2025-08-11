@@ -123,7 +123,7 @@ class Configuration implements ConfigurationInterface
             ->end()
         ;
 
-        $willBeAvailable = static function (string $package, string $class, string $parentPackage = null) {
+        $willBeAvailable = static function (string $package, string $class, ?string $parentPackage = null) {
             $parentPackages = (array) $parentPackage;
             $parentPackages[] = 'symfony/framework-bundle';
 
@@ -1559,7 +1559,7 @@ class Configuration implements ConfigurationInterface
                                     continue;
                                 }
                                 if (\is_array($scopedConfig['retry_failed'])) {
-                                    $scopedConfig['retry_failed'] = $scopedConfig['retry_failed'] + $config['default_options']['retry_failed'];
+                                    $scopedConfig['retry_failed'] += $config['default_options']['retry_failed'];
                                 }
                             }
 
@@ -1897,6 +1897,7 @@ class Configuration implements ConfigurationInterface
                         ->end()
                         ->arrayNode('envelope')
                             ->info('Mailer Envelope configuration')
+                            ->fixXmlConfig('recipient')
                             ->children()
                                 ->scalarNode('sender')->end()
                                 ->arrayNode('recipients')

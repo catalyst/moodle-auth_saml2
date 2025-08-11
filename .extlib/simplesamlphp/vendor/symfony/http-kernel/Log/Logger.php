@@ -42,7 +42,7 @@ class Logger extends AbstractLogger
     /**
      * @param string|resource|null $output
      */
-    public function __construct(string $minLevel = null, $output = null, callable $formatter = null)
+    public function __construct(?string $minLevel = null, $output = null, ?callable $formatter = null)
     {
         if (null === $minLevel) {
             $minLevel = null === $output || 'php://stdout' === $output || 'php://stderr' === $output ? LogLevel::ERROR : LogLevel::WARNING;
@@ -67,7 +67,7 @@ class Logger extends AbstractLogger
 
         $this->minLevelIndex = self::LEVELS[$minLevel];
         $this->formatter = $formatter ?: [$this, 'format'];
-        if ($output && false === $this->handle = \is_resource($output) ? $output : @fopen($output, 'a')) {
+        if ($output && false === $this->handle = \is_string($output) ? @fopen($output, 'a') : $output) {
             throw new InvalidArgumentException(sprintf('Unable to open "%s".', $output));
         }
     }
