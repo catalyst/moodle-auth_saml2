@@ -104,6 +104,32 @@ class idp_parser {
                 continue;
             }
 
+            // @COREHACK fix-parsing-url-with-url-in-parameter.
+            // Separate out query strings from the URL prefix and build a line without query strings.
+            $start = strpos($line, "http");
+            if ($start === false) {
+                $terms = array();
+            } else {
+                $terms = explode(" ", substr($line, $start));
+                $line = substr($line, 0, $start);
+            }
+
+            $parameters = array();
+            $clean = "";
+            foreach ($terms as $term) {
+                $p = strpos($term, "?");
+                if ($p >= 1) {
+                    $parameters[] = substr($term, $p);
+                    $left = substr($term, 0, $p);
+                } else {
+                    $parameters[] = "";
+                    $left = $term;
+                }
+                $clean .= $left . " ";
+            }
+            $line .= trim($clean);
+            // END COREHACK fix-parsing-url-with-url-in-parameter.
+
             // Separate the line base on the scheme http. The scheme added back to the urls.
             $parts = array_map('rtrim', explode($scheme, $line));
 
@@ -112,6 +138,15 @@ class idp_parser {
                 $idpname = $parts[0];
                 $idpurl = $scheme . $parts[1];
                 $idpicon = $scheme . $parts[2];
+
+                // @COREHACK fix-parsing-url-with-url-in-parameter.
+                if ($parameters[0]) {
+                    $idpurl .= $parameters[0];
+                }
+                if ($parameters[1]) {
+                    $idpicon .= $parameters[1];
+                }
+                // END COREHACK fix-parsing-url-with-url-in-parameter.
 
                 $idpdata = new \auth_saml2\idp_data($idpname, $idpurl, $idpicon);
 
@@ -124,11 +159,26 @@ class idp_parser {
                     $idpurl = $scheme . $parts[1];
                     $idpicon = $scheme . $parts[2];
 
+                    // @COREHACK fix-parsing-url-with-url-in-parameter.
+                    if ($parameters[0]) {
+                        $idpurl .= $parameters[0];
+                    }
+                    if ($parameters[1]) {
+                        $idpicon .= $parameters[1];
+                    }
+                    // END COREHACK fix-parsing-url-with-url-in-parameter.
+
                     $idpdata = new \auth_saml2\idp_data(null, $idpurl, $idpicon);
                 } else {
                     // We would then know that is a IdPName + IdPURL combo.
                     $idpname = $parts[0];
                     $idpurl = $scheme . $parts[1];
+
+                    // @COREHACK fix-parsing-url-with-url-in-parameter.
+                    if ($parameters[0]) {
+                        $idpurl .= $parameters[0];
+                    }
+                    // END COREHACK fix-parsing-url-with-url-in-parameter.
 
                     $idpdata = new \auth_saml2\idp_data($idpname, $idpurl, null);
                 }
@@ -136,6 +186,13 @@ class idp_parser {
             } else if (count($parts) === 1) {
                 // One element is the previous default.
                 $idpurl = $scheme . $parts[0];
+
+                // @COREHACK fix-parsing-url-with-url-in-parameter.
+                if ($parameters[0]) {
+                    $idpurl .= $parameters[0];
+                }
+                // END COREHACK fix-parsing-url-with-url-in-parameter.
+
                 $idpdata = new \auth_saml2\idp_data(null, $idpurl, null);
             }
 
