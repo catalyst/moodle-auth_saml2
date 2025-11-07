@@ -102,4 +102,3 @@ $config = [
 
 // Save this in a global for later.
 $saml2config = $config;
-

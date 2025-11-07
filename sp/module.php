@@ -33,4 +33,4 @@ if (!empty($CFG->sslproxy)) {
     $_SERVER['SERVER_PORT'] = '443';
 }
 
-require($CFG->dirroot.'/auth/saml2/vendor/simplesamlphp/simplesamlphp/public/module.php');
+require($CFG->dirroot . '/auth/saml2/vendor/simplesamlphp/simplesamlphp/public/module.php');

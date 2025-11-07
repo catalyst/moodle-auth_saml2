@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 namespace auth_saml2;
 
 defined('MOODLE_INTERNAL') || die();
@@ -55,7 +56,7 @@ abstract class ssl_algorithms {
      * @return string
      */
     public static function convert_signature_algorithm_to_digest_alg_format($signaturealgorithm) {
-        switch($signaturealgorithm) {
+        switch ($signaturealgorithm) {
             case 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256':
                 return 'SHA256';
             case 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha384':

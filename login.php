@@ -41,4 +41,3 @@ if ($wantsurl !== '') {
 
 // Crap for hash anchor handling.
 $saml2auth->saml_login();
-

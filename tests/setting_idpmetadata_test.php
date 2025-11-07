@@ -149,7 +149,6 @@ final class setting_idpmetadata_test extends \advanced_testcase {
             // Maintains Support for Moodle 3.5 - remove when this branch does not support Moodle 3.5 anymore.
             self::assertContains('Invalid metadata', $error);
             self::assertContains('http://invalid.url.metadata.test', $error);
-
         }
     }
 

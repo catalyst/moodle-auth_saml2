@@ -52,8 +52,10 @@ if ($missingcertpem || $missingcertcrt) {
     $missingcertpem ? $errorstring .= "= Missing cert pem file! =\n" : null;
     $missingcertcrt ? $errorstring .= "= Missing cert crt file! = \n" : null;
     $errorstring .= "Now regenerating saml2 certificates...";
-    if (!(PHPUNIT_TEST || (defined('BEHAT_TEST') && BEHAT_TEST) ||
-            defined('BEHAT_SITE_RUNNING'))) {
+    if (
+        !(PHPUNIT_TEST || (defined('BEHAT_TEST') && BEHAT_TEST) ||
+            defined('BEHAT_SITE_RUNNING'))
+    ) {
         debugging($errorstring);
     }
     try {

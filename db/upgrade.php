@@ -37,7 +37,6 @@ function xmldb_auth_saml2_upgrade($oldversion) {
     $dbman = $DB->get_manager();
 
     if ($oldversion < 2016031701) {
-
         // Define table auth_saml2_vkstore to be created.
         $table = new xmldb_table('auth_samltwo_kvstore');
 
@@ -206,7 +205,6 @@ function xmldb_auth_saml2_upgrade($oldversion) {
     }
 
     if ($oldversion < 2019022100) {
-
         // Define table auth_saml2_idps to be created.
         $tablename = 'auth_saml2_idps';
         $table = new xmldb_table($tablename);

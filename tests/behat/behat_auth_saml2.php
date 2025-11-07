@@ -70,7 +70,7 @@ class behat_auth_saml2 extends behat_base {
      * @Given /^I go to the (login|self-test) page +\# auth_saml2$/
      */
     public function i_go_to_the_login_page_auth_saml($page) {
-        switch ($page){
+        switch ($page) {
             case 'login':
                 $page = '/login/index.php';
                 break;
@@ -277,8 +277,11 @@ EOF;
      */
     public function the_mock_saml_idp_allows_login_with_the_following_attributes($passive, TableNode $data) {
         // Check the correct page is current.
-        $this->find('xpath', '//h1[normalize-space(.)="Mock IdP login"]',
-                new ExpectationException('Not on the IdP login page.', $this->getSession()));
+        $this->find(
+            'xpath',
+            '//h1[normalize-space(.)="Mock IdP login"]',
+            new ExpectationException('Not on the IdP login page.', $this->getSession())
+        );
 
         // Find out if it's in passive mode.
         $pagepassive = $this->getSession()->getDriver()->find('//h2[normalize-space(.)="Passive mode"]');
@@ -307,11 +310,17 @@ EOF;
      */
     public function the_mock_saml_idp_does_not_allow_passive_login() {
         // Check the correct page is current.
-        $this->find('xpath', '//h1[normalize-space(.)="Mock IdP login"]',
-                new ExpectationException('Not on the IdP login page.', $this->getSession()));
+        $this->find(
+            'xpath',
+            '//h1[normalize-space(.)="Mock IdP login"]',
+            new ExpectationException('Not on the IdP login page.', $this->getSession())
+        );
 
-        $this->find('xpath', '//h2[normalize-space(.)="Passive mode"]',
-                new ExpectationException('Expected passive mode, but not passive.', $this->getSession()));
+        $this->find(
+            'xpath',
+            '//h2[normalize-space(.)="Passive mode"]',
+            new ExpectationException('Expected passive mode, but not passive.', $this->getSession())
+        );
 
         // Press the no-login button.
         $this->getSession()->getDriver()->click('//button[@id="nologin"]');
@@ -326,8 +335,11 @@ EOF;
      */
     public function the_mock_saml_idp_confirms_logout() {
         // Check the correct page is current.
-        $this->find('xpath', '//h1[normalize-space(.)="Mock IdP logout"]',
-                new ExpectationException('Not on the IdP logout page.', $this->getSession()));
+        $this->find(
+            'xpath',
+            '//h1[normalize-space(.)="Mock IdP logout"]',
+            new ExpectationException('Not on the IdP logout page.', $this->getSession())
+        );
 
         // Press the submit button.
         $this->getSession()->getDriver()->click('//button');
