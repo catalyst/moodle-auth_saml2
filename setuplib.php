@@ -91,13 +91,12 @@ function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
         return get_string('nullpubliccert', 'auth_saml2') . $errors;
     }
 
-    if ( !file_put_contents($saml2auth->certpem, $privatekey) ) {
+    if (!file_put_contents($saml2auth->certpem, $privatekey)) {
         return get_string('nullprivatecert', 'auth_saml2');
     }
-    if ( !file_put_contents($saml2auth->certcrt, $publickey) ) {
+    if (!file_put_contents($saml2auth->certcrt, $publickey)) {
         return get_string('nullpubliccert', 'auth_saml2');
     }
-
 }
 
 /**
@@ -134,8 +133,10 @@ function pretty_print($arr) {
             if (is_array($val)) {
                 $retstr .= '<tr><td>' . $key . '</td><td>' . pretty_print($val) . '</td></tr>';
             } else {
-                if (strpos($key, 'valid') !== false
-                    && is_int($val)) {
+                if (
+                    strpos($key, 'valid') !== false
+                    && is_int($val)
+                ) {
                     $val = userdate($val) . " ($val)";
                 }
                 $retstr .= '<tr><td>' . $key . '</td><td>' . ($val == '' ? '""' : $val) . '</td></tr>';
@@ -172,7 +173,6 @@ function get_dn_email() {
  * General saml exception
  */
 class saml2_exception extends moodle_exception {
-
     /**
      * Constructor
      *

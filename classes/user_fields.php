@@ -38,7 +38,6 @@ require_once($CFG->dirroot . '/user/profile/lib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class user_fields {
-
     /**
      * A list of user matching fields from {user} table
      */
@@ -76,7 +75,7 @@ class user_fields {
         $customfields = profile_get_custom_fields(true);
 
         if (!empty($customfields)) {
-            $result = array_filter($customfields, function($customfield) {
+            $result = array_filter($customfields, function ($customfield) {
                 return in_array($customfield->datatype, self::SUPPORTED_TYPES_OF_PROFILE_FIELDS) &&
                     $customfield->forceunique == 1;
             });

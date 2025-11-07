@@ -24,7 +24,7 @@
 
 
 require_once(__DIR__ . '/../../../config.php');
-require_once($CFG->dirroot.'/auth/saml2/setup.php');
+require_once($CFG->dirroot . '/auth/saml2/setup.php');
 
 require_login(null, false);
 $relaystate = optional_param('RelayState', '', PARAM_RAW);

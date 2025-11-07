@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 namespace auth_saml2\testing;
 
 defined('MOODLE_INTERNAL') || die();
@@ -26,7 +27,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 trait tests_generator {
-
     /**
      * To be called from data reset code only,
      * do not use in tests.
@@ -66,7 +66,7 @@ trait tests_generator {
             $auth = get_auth_plugin('saml2');
             touch($auth->certcrt);
             touch($auth->certpem);
-            touch($auth->get_file(md5($idprecord['metadataurl']). ".idp.xml"));
+            touch($auth->get_file(md5($idprecord['metadataurl']) . ".idp.xml"));
         }
         return $DB->get_record('auth_saml2_idps', ['id' => $recordid]);
     }

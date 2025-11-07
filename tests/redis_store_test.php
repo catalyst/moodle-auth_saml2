@@ -25,13 +25,13 @@ namespace auth_saml2;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class redis_store_test extends \advanced_testcase {
-
     /**
      * @var null|\Redis
      */
     protected $redis;
 
     public function setUp(): void {
+        parent::setUp();
         if (!$this->is_redis_available()) {
             $this->markTestSkipped('Redis was not available - skipping test');
         }
@@ -44,6 +44,7 @@ final class redis_store_test extends \advanced_testcase {
 
     public function tearDown(): void {
         unset($this->redis);
+        parent::tearDown();
     }
 
     public function test_set_with_expire(): void {

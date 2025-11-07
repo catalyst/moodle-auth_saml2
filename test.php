@@ -106,4 +106,3 @@ if (!$auth->isAuthenticated() && $passive) {
     echo '</pre>';
     echo '<p>You are logged in: <a href="?logout=true&idplogout=' . md5($auth->getAuthData('saml:sp:IdP')) . '">Logout</a></p>';
 }
-

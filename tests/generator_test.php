@@ -32,6 +32,7 @@ final class generator_test extends \advanced_testcase {
      * Set up
      */
     public function setUp(): void {
+        parent::setUp();
         $this->resetAfterTest();
     }
 

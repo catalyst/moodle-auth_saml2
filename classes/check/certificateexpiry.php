@@ -37,7 +37,6 @@ use core\check\result;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class certificateexpiry extends check {
-
     /** @var string Check ID */
     protected string $id;
 
@@ -61,7 +60,8 @@ class certificateexpiry extends check {
     public function get_action_link(): ?\action_link {
         return new \action_link(
             new \moodle_url('/auth/saml2/cert.php'),
-            get_string('certificatedetails', 'auth_saml2'));
+            get_string('certificatedetails', 'auth_saml2')
+        );
     }
 
     /**
@@ -101,4 +101,3 @@ class certificateexpiry extends check {
         return new result(result::OK, $summary, '');
     }
 }
-

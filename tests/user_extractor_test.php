@@ -25,7 +25,6 @@ namespace auth_saml2;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class user_extractor_test extends \advanced_testcase {
-
     /**
      * A helper function to create a custom profile field.
      *
@@ -330,5 +329,4 @@ final class user_extractor_test extends \advanced_testcase {
         $actual = user_extractor::get_user('profile_field_field2', 'User 1 Field 2');
         $this->assertFalse($actual);
     }
-
 }

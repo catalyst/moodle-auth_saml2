@@ -39,4 +39,3 @@ try {
 } catch (Exception $e) {
     throw new saml2_exception($e->getMessage(), $e->getTraceAsString());
 }
-
