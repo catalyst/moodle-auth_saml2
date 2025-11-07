@@ -515,7 +515,7 @@ class auth extends \auth_plugin_base {
             global $PAGE, $ME;
             $PAGE->requires->js_call_amd('auth_saml2/connectivity_test', 'init', [
                 $this->config->testendpoint,
-                (new moodle_url($ME, ['saml' => 'on']))->out(),
+                (new moodle_url($ME, ['saml' => 'on']))->out(escaped: false),
             ]);
             return false;
         }
