@@ -384,7 +384,7 @@ EOF;
      * Note: The contextapi does not support a callback.
      *
      * @param string|array $contextapi context in which api is defined.
-     * @param array|mixed $params list of params to pass or a single parameter
+     * @param mixed $params list of params to pass or a single parameter
      */
     protected function execute(
         string|array $contextapi,
