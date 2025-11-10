@@ -200,6 +200,7 @@ class setting_idpmetadata extends admin_setting_configtextarea {
         foreach ($oldidps as $metadataidps) {
             foreach ($metadataidps as $oldidp) {
                 $DB->delete_records('auth_saml2_idps', ['id' => $oldidp->id]);
+                $DB->delete_records('auth_saml2_idpsettings', ['idpid' => $oldidp->id]);
             }
         }
     }
