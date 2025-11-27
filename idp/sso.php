@@ -89,10 +89,12 @@ $session = 'session' . mt_rand(100000, 999999);
 // Construct attributes in XML.
 $attributexml = '';
 foreach ((array)$attributes as $name => $value) {
-    $attributexml .= '<saml:Attribute Name="' . $name .
-        '" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">' .
-        '<saml:AttributeValue>' . htmlspecialchars($value) . '</saml:AttributeValue>' .
-        '</saml:Attribute>' . "\n";
+    if (is_string($value)) {
+        $attributexml .= '<saml:Attribute Name="' . $name .
+                '" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">' .
+                '<saml:AttributeValue>' . htmlspecialchars($value) . '</saml:AttributeValue>' .
+                '</saml:Attribute>' . "\n";
+    }
 }
 $email = htmlspecialchars($USER->email);
 // Construct XML without signature.
