@@ -60,14 +60,14 @@ echo "<p>Path: $path</p>";
 $data = openssl_x509_parse(file_get_contents($path));
 
 // Calculate date expirey interval.
-$date1 = date("Y-m-d\TH:i:s\Z", str_replace ('Z', '', $data['validFrom_time_t']));
-$date2 = date("Y-m-d\TH:i:s\Z", str_replace ('Z', '', $data['validTo_time_t']));
+$date1 = date("Y-m-d\TH:i:s\Z", str_replace('Z', '', $data['validFrom_time_t']));
+$date2 = date("Y-m-d\TH:i:s\Z", str_replace('Z', '', $data['validTo_time_t']));
 $datetime1 = new DateTime($date1);
 $datetime2 = new DateTime($date2);
 $interval = $datetime1->diff($datetime2);
 $expirydays = $interval->format('%a');
 
-$toform = array (
+$toform = [
     "email" => $data['subject']['emailAddress'],
     "expirydays" => $expirydays,
     "commonname" => substr($data['subject']['CN'], 0, 64),
@@ -76,7 +76,7 @@ $toform = array (
     "organizationname"  => $data['subject']['O'],
     "stateorprovincename"    => $data['subject']['ST'],
     "organizationalunitname" => $data['subject']['OU'],
-);
+];
 $mform->set_data($toform); // Load current data into form.
 
 if ($success) {
@@ -93,4 +93,3 @@ echo html_writer::tag('p', get_string('regeneratepath', 'auth_saml2', $path));
 $mform->display();
 
 echo $OUTPUT->footer();
-

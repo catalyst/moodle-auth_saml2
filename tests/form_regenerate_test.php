@@ -14,24 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * auth_saml2 create/edit page unit tests
- *
- * @package    auth_saml2
- * @copyright  Catalyst IT Australia {@link http://www.catalyst-au.net}
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace auth_saml2;
 
 use auth_saml2\form\regenerate;
 
 /**
  * auth_saml2 form submission unit tests
- *
  * @package    auth_saml2
+ * @copyright  Catalyst IT Australia {@link http://www.catalyst-au.net}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class auth_saml2_form_regenerate_testcase extends advanced_testcase {
-    public function test_regenerate_certificate_form() {
+final class form_regenerate_test extends \advanced_testcase {
+    public function test_regenerate_certificate_form(): void {
         global $CFG, $DB, $USER;
         $this->resetAfterTest();
 
@@ -49,9 +43,9 @@ class auth_saml2_form_regenerate_testcase extends advanced_testcase {
         $regenerateform = new regenerate();
         self::assertFalse($regenerateform->is_cancelled());
         $formdata = $regenerateform->get_data();
-        require_once($CFG->dirroot.'/auth/saml2/locallib.php');
-        require_once($CFG->dirroot.'/auth/saml2/auth.php');
-        require_once($CFG->dirroot.'/auth/saml2/setuplib.php');
+        require_once($CFG->dirroot . '/auth/saml2/locallib.php');
+        require_once($CFG->dirroot . '/auth/saml2/auth.php');
+        require_once($CFG->dirroot . '/auth/saml2/setuplib.php');
         auth_saml2_process_regenerate_form($formdata);
         self::assertSame('AU', $formdata->countryname);
         self::assertSame('moodle', $formdata->stateorprovincename);

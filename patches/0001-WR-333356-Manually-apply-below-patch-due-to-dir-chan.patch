@@ -1,0 +1,232 @@
+From 8d31014383edd4352a6340dfdf9b01f33ce2edb8 Mon Sep 17 00:00:00 2001
+From: Heena Agheda <heenaagheda@catalyst-au.net>
+Date: Tue, 29 Sep 2020 07:59:50 +1000
+Subject: [PATCH] WR #333356: Manually apply below patch due to dir change:
+
+extlib-simplesaml: backport mods to extlib. 30632972e780ff5d8ccafb2c379864f9138d5390
+Added support for IdP initiation flow #105 6ebf501a378eec10f5b268650e7399b906aeb63c
+Fixed bug with Idp initiatied entityid ca343939b8c12951abcd533704ded45068a2ac99
+
+Edited 04/10/23 for peer review of pull #774
+---
+ .../modules/saml/src/Auth/Source/SP.php       | 36 ++++++++-
+ .../simplesamlphp/src/SimpleSAML/Session.php  | 16 +++-
+ .../src/SimpleSAML/Utils/HTTP.php             |  7 ++
+ .extlib/simplesamlphp/templates/post.php      | 75 +++++++++++++++++++
+ 4 files changed, 131 insertions(+), 3 deletions(-)
+ create mode 100644 .extlib/simplesamlphp/templates/post.php
+
+diff --git a/modules/saml/src/Auth/Source/SP.php b/modules/saml/src/Auth/Source/SP.php
+index 0d1f6199..28b47f46 100644
+--- a/modules/saml/src/Auth/Source/SP.php
++++ b/modules/saml/src/Auth/Source/SP.php
+@@ -315,6 +315,21 @@ class SP extends \SimpleSAML\Auth\Source
+      */
+     public function getIdPMetadata(string $entityId): Configuration
+     {
++        // auth_saml2 modification.
++        global $saml2auth;
++        if ($this->idp !== null && $this->idp !== $entityId) {
++            foreach ($saml2auth->metadataentities as $metadataurl => $idpentities) {
++                if ($metadataurl == $entityId) {
++                    foreach ($idpentities as $key => $val) {
++                        if ($key == $this->idp) {
++                            $this->idp = null;
++                        }
++                        break 2;
++
++                    }
++                }
++            }
++        }
+         if ($this->idp !== null && $this->idp !== $entityId) {
+             throw new Error\Exception('Cannot retrieve metadata for IdP ' .
+                 var_export($entityId, true) . ' because it isn\'t a valid IdP for this SP.');
+@@ -469,7 +484,10 @@ class SP extends \SimpleSAML\Auth\Source
+ 
+         $ar = Module\saml\Message::buildAuthnRequest($this->metadata, $idpMetadata);
+ 
+-        $ar->setAssertionConsumerServiceURL(Module::getModuleURL('saml/sp/saml2-acs.php/' . $this->authId));
++         // auth_saml2 modification
++        $baseurl = \SimpleSAML\Module::getModuleURL('saml/sp/saml2-acs.php/' . $this->authId);
++        $baseurl = str_replace('module.php/saml/sp/', '', $baseurl);
++        $ar->setAssertionConsumerServiceURL($baseurl);
+ 
+         if (isset($state['\SimpleSAML\Auth\Source.ReturnURL'])) {
+             $ar->setRelayState($state['\SimpleSAML\Auth\Source.ReturnURL']);
+@@ -665,7 +683,13 @@ class SP extends \SimpleSAML\Auth\Source
+ 
+         $b = Binding::getBinding($dst['Binding']);
+ 
+-        $this->sendSAML2AuthnRequest($b, $ar);
++        // This is a Moodle hack. Both moodle and SSPHP rely on automatic
++        // destructors to cleanup the $DB var and the SSPHP session but
++        // this order is not guaranteed, so we force session saving here.
++        $session = \SimpleSAML\Session::getSessionFromRequest();
++        $session->save();
++
++        $this->sendSAML2AuthnRequest($state, $b, $ar);
+ 
+         Assert::true(false);
+     }
+@@ -1204,9 +1228,17 @@ class SP extends \SimpleSAML\Auth\Source
+      */
+     public static function handleUnsolicitedAuth(string $authId, array $state, string $redirectTo): void
+     {
++        global $SESSION, $saml2auth;
++
+         $session = Session::getSessionFromRequest();
+         $session->doLogin($authId, Auth\State::getPersistentAuthData($state));
+ 
++        // Moodle hack to handle IdP unsolicited logins.
++        $wantsurl = (new \moodle_url($redirectTo))->out(false);
++        $SESSION->wantsurl = $wantsurl;
++        $saml2auth->saml_login_complete($state['Attributes']);
++        // Should never get to here.
++
+         $httpUtils = new Utils\HTTP();
+         $httpUtils->redirectUntrustedURL($redirectTo);
+     }
+diff --git a/src/SimpleSAML/Session.php b/src/SimpleSAML/Session.php
+index 51f6e4f1..f79dec9f 100644
+--- a/src/SimpleSAML/Session.php
++++ b/src/SimpleSAML/Session.php
+@@ -154,6 +154,14 @@ class Session implements Utils\ClearableState
+     {
+         $this->setConfiguration(Configuration::getInstance());
+ 
++         // Moodle custom: Try saving session BEFORE $DB gets destroyed. The __destructor() call to save will be clean.
++        \core_shutdown_manager::register_function(
++            function($session) {
++                $session->save();
++            },
++            [$this]
++        );
++
+         if (php_sapi_name() === 'cli' || defined('STDIN')) {
+             $this->trackid = 'CL' . bin2hex(openssl_random_pseudo_bytes(4));
+             Logger::setTrackId($this->trackid);
+@@ -500,6 +508,10 @@ class Session implements Utils\ClearableState
+ 
+         $this->dirty = true;
+ 
++        // Moodle auth_saml2 hack, because we register a shutdown handler in
++        // moodle in the constructor we don't need to register a callback here.
++        return;
++
+         if ($this->callback_registered) {
+             // we already have a shutdown callback registered for this object, no need to add another one
+             return;
+@@ -516,7 +528,9 @@ class Session implements Utils\ClearableState
+      */
+     public function __destruct()
+     {
+-        $this->save();
++        // Moodle auth_saml2 hack, we don't need to save here because we have
++        // a custom shutdown handle registered with moodle.
++        // $this->save();
+     }
+ 
+ 
+diff --git a/src/SimpleSAML/Utils/HTTP.php b/src/SimpleSAML/Utils/HTTP.php
+index 82ff4ea8..11eaa082 100644
+--- a/src/SimpleSAML/Utils/HTTP.php
++++ b/src/SimpleSAML/Utils/HTTP.php
+@@ -956,6 +956,13 @@ class HTTP
+     public function redirectTrustedURL(string $url, array $parameters = []): void
+     {
+         $url = $this->normalizeURL($url);
++
++         // This is a Moodle hack. Both moodle and SSPHP rely on automatic
++        // destructors to cleanup the $DB var and the SSPHP session but
++        // this order is not guaranteed, so we force session saving here.
++        $session = \SimpleSAML\Session::getSessionFromRequest();
++        $session->save();
++
+         $this->redirect($url, $parameters);
+     }
+ 
+diff --git a/templates/post.php b/templates/post.php
+new file mode 100644
+index 00000000..af9714d0
+--- /dev/null
++++ b/templates/post.php
+@@ -0,0 +1,75 @@
++<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
++        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
++<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
++<head>
++    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
++    <title>POST data</title>
++    <script src="/<?php echo $this->data['baseurlpath']; ?>../www/resources/post.js"></script>
++    <link type="text/css" rel="stylesheet" href="/<?php echo $this->data['baseurlpath']; ?>../www/resources/post.css" />
++</head>
++<body>
++
++    <noscript>
++        <p><strong>Note:</strong> 
++        Since your browser does not support JavaScript, 
++        you must press the button below once to proceed.</p> 
++    </noscript> 
++
++    <form method="post" 
++        action="<?php echo htmlspecialchars($this->data['destination']); ?>">
++    <!-- Need to add this element and call click method, because calling 
++    submit() on the form causes failed submission if the form has another 
++    element with name or id of submit.
++    See: https://developer.mozilla.org/en/DOM/form.submit#Specification -->
++    <input type="submit" id="postLoginSubmitButton"/>
++<?php
++if (array_key_exists('post', $this->data)) {
++    $post = $this->data['post'];
++} else {
++    // For backwards compatibility
++    assert(array_key_exists('response', $this->data));
++    assert(array_key_exists('RelayStateName', $this->data));
++    assert(array_key_exists('RelayState', $this->data));
++        $post = [
++        'SAMLResponse' => $this->data['response'],
++        $this->data['RelayStateName'] => $this->data['RelayState'],
++        ];
++}
++
++/**
++ * Write out one or more INPUT elements for the given name-value pair.
++ *
++ * If the value is a string, this function will write a single INPUT element.
++ * If the value is an array, it will write multiple INPUT elements to
++ * recreate the array.
++ *
++ * @param string $name  The name of the element.
++ * @param string|array $value  The value of the element.
++ */
++function printItem($name, $value)
++{
++    assert(is_string($name));
++    assert(is_string($value) || is_array($value));
++    if (is_string($value)) {
++        echo '<input type="hidden" name="'.
++            htmlspecialchars($name).'" value="'.
++            htmlspecialchars($value).'" />';
++        return;
++    }
++    // This is an array...
++    foreach ($value as $index => $item) {
++        printItem($name.'['.$index.']', $item);
++    }
++}
++
++foreach ($post as $name => $value) {
++    printItem($name, $value);
++}
++?>
++        <noscript>
++            <button type="submit" class="btn">Submit</button>
++        </noscript>
++    </form>
++
++</body>
++</html>
+-- 
+2.43.0
+

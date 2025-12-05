@@ -1,0 +1,48 @@
+From 521f23ddc4a92829dc67fba45e7de92b3c5d3e74 Mon Sep 17 00:00:00 2001
+From: Jwalit Shah <56375964+jwalits@users.noreply.github.com>
+Date: Thu, 29 Feb 2024 16:33:27 +1100
+Subject: [PATCH] [#801] fix issue with IdP initiated login after upgrade to
+ v2.0.5 (#802)
+
+* [#801] fix issue with IdP initiated login after upgrade to v2.0.5
+
+* [#801] restore comment for searching purposes
+---
+ .../modules/saml/src/Auth/Source/SP.php       | 21 +++----------------
+ 1 file changed, 3 insertions(+), 18 deletions(-)
+
+diff --git a/modules/saml/src/Auth/Source/SP.php b/modules/saml/src/Auth/Source/SP.php
+index a7af887c..809be582 100644
+--- a/modules/saml/src/Auth/Source/SP.php
++++ b/modules/saml/src/Auth/Source/SP.php
+@@ -316,24 +316,9 @@ class SP extends \SimpleSAML\Auth\Source
+     public function getIdPMetadata(string $entityId): Configuration
+     {
+         // auth_saml2 modification.
+-        global $saml2auth;
+-        if ($this->idp !== null && $this->idp !== $entityId) {
+-            foreach ($saml2auth->metadataentities as $metadataurl => $idpentities) {
+-                if ($metadataurl == $entityId) {
+-                    foreach ($idpentities as $key => $val) {
+-                        if ($key == $this->idp) {
+-                            $this->idp = null;
+-                        }
+-                        break 2;
+-
+-                    }
+-                }
+-            }
+-        }
+-        if ($this->idp !== null && $this->idp !== $entityId) {
+-            throw new Error\Exception('Cannot retrieve metadata for IdP ' .
+-                var_export($entityId, true) . ' because it isn\'t a valid IdP for this SP.');
+-        }
++        // Set the IdP to null, so it can auto-detect.
++        // Avoid the case where it uses the default IdP data for IdP initiated login.
++        $this->idp = null;
+ 
+         $metadataHandler = MetaDataStorageHandler::getMetadataHandler();
+ 
+-- 
+2.43.0
+

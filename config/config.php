@@ -33,14 +33,14 @@ foreach ($saml2auth->metadataentities as $idpentity) {
     $metadataurlhash = md5($idpentity->metadataurl);
     $metadatasources[$metadataurlhash] = [
         'type' => 'xml',
-        'file' => "$CFG->dataroot/saml2/" . $metadataurlhash . ".idp.xml"
+        'file' => "$CFG->dataroot/saml2/" . $metadataurlhash . ".idp.xml",
     ];
 }
 
 $remoteip = getremoteaddr();
 $baseurl = optional_param('baseurl', $CFG->wwwroot, PARAM_URL);
 
-$config = array(
+$config = [
     'baseurlpath'       => $baseurl . '/auth/saml2/sp/',
     'application'       => [
       'baseURL'         => $baseurl . '/auth/saml2/sp/',
@@ -49,6 +49,7 @@ $config = array(
     'debug'             => ['saml' => $saml2auth->is_debugging()],
     'logging.level'     => $saml2auth->is_debugging() ? SimpleSAML\Logger::DEBUG : SimpleSAML\Logger::ERR,
     'logging.handler'   => $saml2auth->config->logtofile ? 'file' : 'errorlog',
+    'tempdir'           => $saml2auth->config->tempdir,
 
     // SSP has a %srcip token, but instead use $remoteip so Moodle handle's which header to use.
     'logging.format'    => '%date{%b %d %H:%M:%S} ' . $remoteip . ' %process %level %stat[%trackid] %msg',
@@ -97,8 +98,7 @@ $config = array(
     'authproc.sp' => \auth_saml2\api::authproc_filters_hook(),
 
     // TODO setting for redirect.sign.
-);
+];
 
 // Save this in a global for later.
 $saml2config = $config;
-

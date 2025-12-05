@@ -1,0 +1,30 @@
+From 4b5700e0589c67efd5303df2f947cd87562e88cd Mon Sep 17 00:00:00 2001
+From: Petr Skoda <petr.skoda@openlms.net>
+Date: Wed, 3 May 2023 21:02:00 +0200
+Subject: [PATCH] set SESSION->saml2idp during unsolicited logins
+
+This makes the IdP known in saml_login_complete()
+and tenant callback.
+---
+ .extlib/simplesamlphp/modules/saml/src/Auth/Source/SP.php | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/modules/saml/src/Auth/Source/SP.php b/modules/saml/src/Auth/Source/SP.php
+index 809be582..12c58062 100644
+--- a/modules/saml/src/Auth/Source/SP.php
++++ b/modules/saml/src/Auth/Source/SP.php
+@@ -1223,6 +1223,11 @@ class SP extends \SimpleSAML\Auth\Source
+         // Moodle hack to handle IdP unsolicited logins.
+         $wantsurl = (new \moodle_url($redirectTo))->out(false);
+         $SESSION->wantsurl = $wantsurl;
++        if (!empty($state['saml:sp:IdP'])) {
++            $SESSION->saml2idp = md5($state['saml:sp:IdP']);
++        } else {
++            unset($SESSION->saml2idp);
++        }
+         $saml2auth->saml_login_complete($state['Attributes']);
+         // Should never get to here.
+ 
+-- 
+2.43.0
+

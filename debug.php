@@ -34,4 +34,3 @@ $PAGE->set_course($SITE);
 echo $OUTPUT->header();
 echo pretty_print($config);
 echo $OUTPUT->footer();
-

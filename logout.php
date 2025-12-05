@@ -35,4 +35,3 @@ require('setup.php');
 
 $auth = new SimpleSAML\Auth\Simple($saml2auth->spname);
 $auth->logout('/');
-

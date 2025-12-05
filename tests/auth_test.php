@@ -27,11 +27,12 @@ namespace auth_saml2;
  * @copyright   2021 Moodle Pty Ltd <support@moodle.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class auth_saml2_test extends \advanced_testcase {
+final class auth_test extends \advanced_testcase {
     /**
      * Set up
      */
     public function setUp(): void {
+        parent::setUp();
         $this->resetAfterTest();
     }
 
@@ -56,7 +57,7 @@ class auth_saml2_test extends \advanced_testcase {
      *
      * @return \stdClass
      */
-    protected function add_user_profile_field(string $shortname, string $datatype, bool $unique = false) : \stdClass {
+    protected function add_user_profile_field(string $shortname, string $datatype, bool $unique = false): \stdClass {
         global $DB;
 
         // Create a new profile field.
@@ -100,11 +101,11 @@ class auth_saml2_test extends \advanced_testcase {
         // exception message. This is needed to check $msg argument and stop
         // execution like original method does.
         $auth = $this->getMockBuilder(\auth_saml2\auth::class)
-            ->setMethods(['error_page'])->getMock();
+            ->onlyMethods(['error_page'])->getMock();
 
         $auth->expects($this->once())
             ->method('error_page')
-            ->will($this->returnCallback(function($msg) {
+            ->will($this->returnCallback(function ($msg) {
                 throw new \coding_exception($msg);
             }));
         return $auth;
@@ -119,11 +120,11 @@ class auth_saml2_test extends \advanced_testcase {
         $entity1 = $this->get_generator()->create_idp_entity([], false);
 
         $auth = get_auth_plugin('saml2');
-        $files = array(
+        $files = [
             'crt' => $auth->certcrt,
             'pem' => $auth->certpem,
             'xml' => $auth->get_file(md5($entity1->metadataurl) . '.idp.xml'),
-        );
+        ];
 
         // Sanity check.
         $this->assertFalse($auth->is_configured());
@@ -171,7 +172,7 @@ class auth_saml2_test extends \advanced_testcase {
         $this->assertFalse($auth->is_configured());
 
         // Create xml.
-        touch($auth->get_file(md5($metadataurl). ".idp.xml"));
+        touch($auth->get_file(md5($metadataurl) . ".idp.xml"));
         $this->assertTrue($auth->is_configured());
     }
 
@@ -233,19 +234,41 @@ class auth_saml2_test extends \advanced_testcase {
             // Check entity name.
             $this->assertEqualsCanonicalizing(['Login 1', $entity1->defaultname], array_column($auth->metadataentities, 'name'));
             // Encoded entityid present as an attribute as well as the key.
-            $this->assertEqualsCanonicalizing([md5($entity1->entityid), md5($entity3->entityid)],
-                array_column($auth->metadataentities, 'md5entityid'));
-            $this->assertEqualsCanonicalizing([md5($entity1->entityid), md5($entity3->entityid)],
-                array_keys($auth->metadataentities));
+            $this->assertEqualsCanonicalizing(
+                [md5($entity1->entityid), md5($entity3->entityid)],
+                array_column($auth->metadataentities, 'md5entityid')
+            );
+            $this->assertEqualsCanonicalizing(
+                [md5($entity1->entityid), md5($entity3->entityid)],
+                array_keys($auth->metadataentities)
+            );
         } else {
             // Check entity name.
-            $this->assertEquals(['Login 1', $entity1->defaultname],
-                array_column($auth->metadataentities, 'name'), '', 0, 10, true);
+            $this->assertEquals(
+                ['Login 1', $entity1->defaultname],
+                array_column($auth->metadataentities, 'name'),
+                '',
+                0,
+                10,
+                true
+            );
             // Encoded entityid present as an attribute as well as the key.
-            $this->assertEquals([md5($entity1->entityid), md5($entity3->entityid)],
-                array_column($auth->metadataentities, 'md5entityid'), '', 0, 10, true);
-            $this->assertEquals([md5($entity1->entityid), md5($entity3->entityid)],
-                array_keys($auth->metadataentities), '', 0, 10, true);
+            $this->assertEquals(
+                [md5($entity1->entityid), md5($entity3->entityid)],
+                array_column($auth->metadataentities, 'md5entityid'),
+                '',
+                0,
+                10,
+                true
+            );
+            $this->assertEquals(
+                [md5($entity1->entityid), md5($entity3->entityid)],
+                array_keys($auth->metadataentities),
+                '',
+                0,
+                10,
+                true
+            );
         }
 
         // Multiidp flag is true.
@@ -788,6 +811,9 @@ class auth_saml2_test extends \advanced_testcase {
             $_GET['multiidp'] = true;
         }
 
+        // Setting an ip to use for testing against different configs.
+        $_SERVER['REMOTE_ADDR'] = '1.2.3.4';
+
         /** @var auth_plugin_saml2 $auth */
         $auth = get_auth_plugin('saml2');
         $result = $auth->should_login_redirect();
@@ -800,7 +826,7 @@ class auth_saml2_test extends \advanced_testcase {
      *
      * @return array of testcases
      */
-    public function provider_should_login_redirect(): array {
+    public static function provider_should_login_redirect(): array {
         $midp = (new \moodle_url('/auth/saml2/selectidp.php'))->out();
         return [
             // Login normal, dual login on.
@@ -934,6 +960,55 @@ class auth_saml2_test extends \advanced_testcase {
                 ['duallogin' => true],
                 'on', true, false,
                 $midp],
+
+            // Restrict noredirect flags by ip.
+            // IP restrictions for ?saml=off should only take effect when dual is off.
+            "21. dual: y, ips: no match, param: off, multiidp: false, session: false" => [
+                [],
+                ['duallogin' => true, 'noredirectips' => '4.3.2.1'],
+                'off', false, false,
+                false],
+
+            // Ignore ?saml=off when ip restrictions are set and there's no matching ip.
+            "22. dual: n, ips: no match, param: off, multiidp: false, session: false" => [
+                [],
+                ['duallogin' => false, 'noredirectips' => '4.3.2.1'],
+                'off', false, false,
+                true],
+
+            // Allow ?saml=off when ip restrictions are set and there's a matching ip.
+            "23. dual: n, ips: match, param: off, multiidp: false, session: false" => [
+                [],
+                ['duallogin' => false, 'noredirectips' => '1.2.3.4'],
+                'off', false, false,
+                false],
+
+            // Matching ip subsets.
+            "24. dual: n, ips: match subset, param: off, multiidp: false, session: false" => [
+                [],
+                ['duallogin' => false, 'noredirectips' => '1.2'],
+                'off', false, false,
+                false],
+
+            // Multiple lines.
+            "25. dual: n, ips: match line, param: off, multiidp: false, session: false" => [
+                [],
+                ['duallogin' => false, 'noredirectips' => '4.3.2.1' . PHP_EOL . '1.2.3.4'],
+                'off', false, false,
+                false],
+
+            // Confirm this works the same for sessions.
+            "26. dual: n, ips: no match, param: off, multiidp: false, session: true" => [
+                [],
+                ['duallogin' => false, 'noredirectips' => '4.3.2.1'],
+                'off', false, true,
+                true],
+
+            "27. dual: n, ips: match, param: off, multiidp: false, session: true" => [
+                [],
+                ['duallogin' => false, 'noredirectips' => '1.2.3.4'],
+                'off', false, true,
+                false],
         ];
     }
 
@@ -967,7 +1042,7 @@ class auth_saml2_test extends \advanced_testcase {
      *
      * @return array
      */
-    public function provider_check_whitelisted_ip_redirect(): array {
+    public static function provider_check_whitelisted_ip_redirect(): array {
         return [
             'saml off, no ip, no redirect'              => ['off', '1.2.3.4', '', false],
             'saml not specified, junk, no redirect'     => [null, '1.2.3.4', 'qwer1234!@#qwer', false],
@@ -982,16 +1057,16 @@ class auth_saml2_test extends \advanced_testcase {
      *
      * @return array
      */
-    public function provider_is_access_allowed(): array {
+    public static function provider_is_access_allowed(): array {
         return [
             '' => [[
                 ['uid' => 'test'], // User don't have groups attribute.
                 ['uid' => 'test', 'groups' => ['blocked']], // In blocked group.
-                ['uid' => 'test', 'groups' => ['allowed']],  // In allowed group.
+                ['uid' => 'test', 'groups' => ['allowed']], // In allowed group.
                 ['uid' => 'test', 'groups' => ['allowed', 'blocked']], // In both allowed first.
                 ['uid' => 'test', 'groups' => ['blocked', 'allowed']], // In both blocked first.
-                ['uid' => 'test', 'groups' => []],  // Groups exists, but empty.
-            ]]
+                ['uid' => 'test', 'groups' => []], // Groups exists, but empty.
+            ]],
         ];
     }
 
@@ -1175,7 +1250,7 @@ class auth_saml2_test extends \advanced_testcase {
             'shortname'  => $fieldname,
             'name'       => 'Test Field',
             'categoryid' => 1,
-            'datatype'   => 'text'
+            'datatype'   => 'text',
         ]);
 
         // Check both are returned using normal options.
@@ -1206,7 +1281,7 @@ class auth_saml2_test extends \advanced_testcase {
      *
      * @return array of testcases
      */
-    public function provider_update_custom_user_profile_fields(): array {
+    public static function provider_update_custom_user_profile_fields(): array {
         return [
             [['testfield' => ['Test data']]],
             [['secondfield' => ['A different string']]],
@@ -1253,11 +1328,11 @@ class auth_saml2_test extends \advanced_testcase {
      *
      * @return array of testcases
      */
-    public function provider_missing_user_custom_profile_fields(): array {
-        return array(
-            array(['missingfield' => array('Test data')]),
-            array(['secondfield' => array('A different string')]),
-        );
+    public static function provider_missing_user_custom_profile_fields(): array {
+        return [
+            [['missingfield' => ['Test data']]],
+            [['secondfield' => ['A different string']]],
+        ];
     }
 
     /**
@@ -1292,7 +1367,7 @@ class auth_saml2_test extends \advanced_testcase {
      *
      * @return array of testcases
      */
-    public function provider_invalid_map_user_profile_fields(): array {
+    public static function provider_invalid_map_user_profile_fields(): array {
         return [
             [
                 ['field' => 'userame', 'mapping' => 'invalid'],
@@ -1353,7 +1428,7 @@ class auth_saml2_test extends \advanced_testcase {
         set_config("field_lock_username", 'locked', 'auth_saml2');
 
         $attributes = [
-            'field' => [$expected]
+            'field' => [$expected],
         ];
 
         $this->assertTrue($auth->update_user_profile_fields($user, $attributes, true));
@@ -1379,7 +1454,7 @@ class auth_saml2_test extends \advanced_testcase {
         set_config("field_lock_username", 'locked', 'auth_saml2');
 
         $attributes = [
-            'field' => [$uppercaseusername]
+            'field' => [$uppercaseusername],
         ];
 
         $this->assertTrue($auth->update_user_profile_fields($user, $attributes, true));
@@ -1405,7 +1480,7 @@ class auth_saml2_test extends \advanced_testcase {
         set_config("field_lock_username", 'locked', 'auth_saml2');
 
         $attributes = [
-            'field' => [$expected]
+            'field' => [$expected],
         ];
 
         $this->assertFalse($auth->update_user_profile_fields($user, $attributes, false));
@@ -1431,7 +1506,7 @@ class auth_saml2_test extends \advanced_testcase {
         set_config("field_lock_alternatename", 'locked', 'auth_saml2');
 
         $attributes = [
-            'field' => [$expected]
+            'field' => [$expected],
         ];
 
         $this->assertTrue($auth->update_user_profile_fields($user, $attributes, true));
@@ -1458,7 +1533,7 @@ class auth_saml2_test extends \advanced_testcase {
         set_config("field_lock_alternatename", 'locked', 'auth_saml2');
 
         $attributes = [
-            'field' => [$expected]
+            'field' => [$expected],
         ];
 
         $this->assertFalse($auth->update_user_profile_fields($user, $attributes, false));
@@ -1495,7 +1570,7 @@ class auth_saml2_test extends \advanced_testcase {
         // False payload from IdP.
         $attributes = [
                 'field' => ['single_value'],
-                'specialities' => ['running', 'jumping', 'knitting']
+                'specialities' => ['running', 'jumping', 'knitting'],
         ];
 
         // Assert all the things.

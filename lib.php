@@ -23,42 +23,6 @@
  */
 
 /**
- * Check if we have the saml=on param set. If so, disable guest access and force the user to log in with saml.
- *
- * @since  Moodle 3.8
- * @return void
- */
-function auth_saml2_after_config() {
-    global $CFG;
-    try {
-        $saml = optional_param('saml', null, PARAM_BOOL);
-        if ($saml == 1) {
-            if (isguestuser()) {
-                // We want to force users to log in with a real account, so log guest users out.
-                require_logout();
-            }
-            // We have the saml=on param set. Disable guest access (in memory -
-            // not saved in database) to force the login with saml for this request.
-            unset($CFG->autologinguests);
-        }
-    } catch (\Exception $exception) {
-        debugging('auth_saml2_after_config error', DEBUG_DEVELOPER, $exception->getTrace());
-    }
-}
-
-/**
- * Callback immediately after require_login succeeds.
- *
- * This callback requires Moodle 3.7+. On earlier versions this will not run. It also won't run
- * on pages which don't call require_login, so we use the _before_http_headers() callback too.
- *
- * @since Moodle 3.7
- */
-function auth_saml2_after_require_login() {
-    \auth_saml2\auto_login::process();
-}
-
-/**
  * Callback before HTTP headers are sent.
  *
  * This is called on every page.
@@ -72,7 +36,7 @@ function auth_saml2_before_http_headers() {
  *
  * @return array of check objects
  */
-function auth_saml2_status_checks() : array {
+function auth_saml2_status_checks(): array {
     global $saml2auth;
     require_once(__DIR__ . '/setup.php');
 

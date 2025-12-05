@@ -37,7 +37,6 @@ function xmldb_auth_saml2_upgrade($oldversion) {
     $dbman = $DB->get_manager();
 
     if ($oldversion < 2016031701) {
-
         // Define table auth_saml2_vkstore to be created.
         $table = new xmldb_table('auth_samltwo_kvstore');
 
@@ -49,10 +48,10 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         $table->add_field('expire', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
 
         // Adding keys to table auth_saml2_vkstore.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Adding indexes to table auth_saml2_vkstore.
-        $table->add_index('key_type', XMLDB_INDEX_UNIQUE, array('k', 'type'));
+        $table->add_index('key_type', XMLDB_INDEX_UNIQUE, ['k', 'type']);
 
         // Conditionally launch create table for auth_saml2_vkstore.
         if (!$dbman->table_exists($table)) {
@@ -78,10 +77,10 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         $currentconfig = get_config('auth_saml2');
 
         // Remove old config.
-        $rs = $DB->get_recordset_select('config_plugins', 'plugin = ?', array('auth_saml2'));
+        $rs = $DB->get_recordset_select('config_plugins', 'plugin = ?', ['auth_saml2']);
         foreach ($rs as $record) {
             if ($record->name != 'version') {
-                $DB->delete_records('config_plugins', array('id' => $record->id));
+                $DB->delete_records('config_plugins', ['id' => $record->id]);
             }
         }
         $rs->close();
@@ -102,7 +101,7 @@ function xmldb_auth_saml2_upgrade($oldversion) {
 
         // Convert old config items to new.
         foreach ($oldconfig as $item) {
-            $DB->delete_records('config_plugins', array('id' => $item->id));
+            $DB->delete_records('config_plugins', ['id' => $item->id]);
             set_config($item->name, $item->value, 'auth_saml2');
         }
 
@@ -123,7 +122,7 @@ function xmldb_auth_saml2_upgrade($oldversion) {
 
         // Convert old config items to new.
         foreach ($oldconfig as $item) {
-            $DB->delete_records('config_plugins', array('id' => $item->id));
+            $DB->delete_records('config_plugins', ['id' => $item->id]);
             set_config($item->name, $item->value, 'auth_saml2');
         }
 
@@ -206,7 +205,6 @@ function xmldb_auth_saml2_upgrade($oldversion) {
     }
 
     if ($oldversion < 2019022100) {
-
         // Define table auth_saml2_idps to be created.
         $tablename = 'auth_saml2_idps';
         $table = new xmldb_table($tablename);
@@ -224,7 +222,7 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         $table->add_field('alias', XMLDB_TYPE_CHAR, '50', null, null, null, null);
 
         // Adding keys to table auth_saml2_idps.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Conditionally launch create table for auth_saml2_idps.
         if (!$dbman->table_exists($table)) {

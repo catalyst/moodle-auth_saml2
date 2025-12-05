@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 use auth_saml2\ssl_algorithms;
 
-require_once(__DIR__ . '/_autoload.php');
+require_once(__DIR__ . '/vendor/autoload.php');
 
 global $CFG;
 require_once("{$CFG->dirroot}/auth/saml2/auth.php");
@@ -51,9 +51,9 @@ function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
     if (!empty($saml2auth->config->signaturealgorithm)) {
         $signaturealgorithm = $saml2auth->config->signaturealgorithm;
     }
-    $opensslargs = array(
+    $opensslargs = [
       'digest_alg' => ssl_algorithms::convert_signature_algorithm_to_digest_alg_format($signaturealgorithm),
-    );
+    ];
     if (array_key_exists('OPENSSL_CONF', $_SERVER)) {
         $opensslargs['config'] = $_SERVER['OPENSSL_CONF'];
     }
@@ -61,7 +61,7 @@ function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
     if ($dn == false) {
         // These are somewhat arbitrary and aren't really seen except inside
         // the auto created certificate used to sign saml requests.
-        $dn = array(
+        $dn = [
             'commonName' => 'moodle',
             'countryName' => 'AU',
             'localityName' => 'moodleville',
@@ -69,7 +69,7 @@ function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
             'organizationName' => $SITE->shortname ? $SITE->shortname : 'moodle',
             'stateOrProvinceName' => 'moodle',
             'organizationalUnitName' => 'moodle',
-        );
+        ];
     }
 
     certificate_openssl_error_strings(); // Ensure existing messages are dropped.
@@ -91,13 +91,12 @@ function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
         return get_string('nullpubliccert', 'auth_saml2') . $errors;
     }
 
-    if ( !file_put_contents($saml2auth->certpem, $privatekey) ) {
+    if (!file_put_contents($saml2auth->certpem, $privatekey)) {
         return get_string('nullprivatecert', 'auth_saml2');
     }
-    if ( !file_put_contents($saml2auth->certcrt, $publickey) ) {
+    if (!file_put_contents($saml2auth->certcrt, $publickey)) {
         return get_string('nullpubliccert', 'auth_saml2');
     }
-
 }
 
 /**
@@ -106,7 +105,7 @@ function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
  * @return string
  */
 function certificate_openssl_error_strings() {
-    $errors = array();
+    $errors = [];
     while ($error = openssl_error_string()) {
         $errors[] = $error;
     }
@@ -134,8 +133,10 @@ function pretty_print($arr) {
             if (is_array($val)) {
                 $retstr .= '<tr><td>' . $key . '</td><td>' . pretty_print($val) . '</td></tr>';
             } else {
-                if (strpos($key, 'valid') !== false
-                    && is_int($val)) {
+                if (
+                    strpos($key, 'valid') !== false
+                    && is_int($val)
+                ) {
                     $val = userdate($val) . " ($val)";
                 }
                 $retstr .= '<tr><td>' . $key . '</td><td>' . ($val == '' ? '""' : $val) . '</td></tr>';
@@ -172,7 +173,6 @@ function get_dn_email() {
  * General saml exception
  */
 class saml2_exception extends moodle_exception {
-
     /**
      * Constructor
      *
