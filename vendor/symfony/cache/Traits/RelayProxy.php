@@ -11,13 +11,22 @@
 
 namespace Symfony\Component\Cache\Traits;
 
+use Symfony\Component\Cache\Traits\Relay\BgsaveTrait;
 use Symfony\Component\Cache\Traits\Relay\CopyTrait;
+use Symfony\Component\Cache\Traits\Relay\FtTrait;
 use Symfony\Component\Cache\Traits\Relay\GeosearchTrait;
 use Symfony\Component\Cache\Traits\Relay\GetrangeTrait;
+use Symfony\Component\Cache\Traits\Relay\GetWithMetaTrait;
 use Symfony\Component\Cache\Traits\Relay\HsetTrait;
+use Symfony\Component\Cache\Traits\Relay\IsTrackedTrait;
 use Symfony\Component\Cache\Traits\Relay\MoveTrait;
 use Symfony\Component\Cache\Traits\Relay\NullableReturnTrait;
 use Symfony\Component\Cache\Traits\Relay\PfcountTrait;
+use Symfony\Component\Cache\Traits\Relay\Relay11Trait;
+use Symfony\Component\Cache\Traits\Relay\Relay121Trait;
+use Symfony\Component\Cache\Traits\Relay\Relay12Trait;
+use Symfony\Component\Cache\Traits\Relay\Relay20Trait;
+use Symfony\Component\Cache\Traits\Relay\SwapdbTrait;
 use Symfony\Component\VarExporter\LazyObjectInterface;
 use Symfony\Component\VarExporter\LazyProxyTrait;
 use Symfony\Contracts\Service\ResetInterface;
@@ -32,10 +41,14 @@ class_exists(\Symfony\Component\VarExporter\Internal\LazyObjectState::class);
  */
 class RelayProxy extends \Relay\Relay implements ResetInterface, LazyObjectInterface
 {
+    use BgsaveTrait;
     use CopyTrait;
+    use FtTrait;
     use GeosearchTrait;
     use GetrangeTrait;
+    use GetWithMetaTrait;
     use HsetTrait;
+    use IsTrackedTrait;
     use LazyProxyTrait {
         resetLazyObject as reset;
     }
@@ -43,6 +56,11 @@ class RelayProxy extends \Relay\Relay implements ResetInterface, LazyObjectInter
     use NullableReturnTrait;
     use PfcountTrait;
     use RelayProxyTrait;
+    use Relay11Trait;
+    use Relay12Trait;
+    use Relay121Trait;
+    use Relay20Trait;
+    use SwapdbTrait;
 
     private const LAZY_OBJECT_PROPERTY_SCOPES = [];
 
@@ -236,11 +254,6 @@ class RelayProxy extends \Relay\Relay implements ResetInterface, LazyObjectInter
         return ($this->lazyObjectState->realInstance ??= ($this->lazyObjectState->initializer)())->rawCommand(...\func_get_args());
     }
 
-    public function select($db): \Relay\Relay|bool
-    {
-        return ($this->lazyObjectState->realInstance ??= ($this->lazyObjectState->initializer)())->select(...\func_get_args());
-    }
-
     public function auth(#[\SensitiveParameter] $auth): bool
     {
         return ($this->lazyObjectState->realInstance ??= ($this->lazyObjectState->initializer)())->auth(...\func_get_args());
@@ -339,11 +352,6 @@ class RelayProxy extends \Relay\Relay implements ResetInterface, LazyObjectInter
     public function lcs($key1, $key2, $options = null): mixed
     {
         return ($this->lazyObjectState->realInstance ??= ($this->lazyObjectState->initializer)())->lcs(...\func_get_args());
-    }
-
-    public function bgsave($schedule = false): \Relay\Relay|bool
-    {
-        return ($this->lazyObjectState->realInstance ??= ($this->lazyObjectState->initializer)())->bgsave(...\func_get_args());
     }
 
     public function save(): \Relay\Relay|bool
@@ -929,11 +937,6 @@ class RelayProxy extends \Relay\Relay implements ResetInterface, LazyObjectInter
     public function wait($replicas, $timeout): \Relay\Relay|false|int
     {
         return ($this->lazyObjectState->realInstance ??= ($this->lazyObjectState->initializer)())->wait(...\func_get_args());
-    }
-
-    public function watch($key, ...$other_keys): \Relay\Relay|bool
-    {
-        return ($this->lazyObjectState->realInstance ??= ($this->lazyObjectState->initializer)())->watch(...\func_get_args());
     }
 
     public function unwatch(): \Relay\Relay|bool
