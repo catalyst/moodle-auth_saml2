@@ -5,9 +5,54 @@
 This document lists the changes between versions of SimpleSAMLphp.
 See the [upgrade notes](https://simplesamlphp.org/docs/stable/simplesamlphp-upgrade-notes.html) for specific information about upgrading.
 
-## Version 2.3.8
+## Version 2.3.11
 
 Released TBD
+
+## Version 2.3.10
+
+Released 2025-12-08
+
+* store.redis.tls should apply to sentinels (#2557)
+* Fix unhandled canonicalization failure (CVE-2025-66475)
+* Bump dependencies
+
+## Version 2.3.9
+
+Released 2025-10-05
+
+* Fix auth state AuthnInstant (#2478)
+* Allow "Secure" cookie attribute via HTTP on localhost (#2483)
+* Fix override over errorURL
+* Fix FontAwesome icon names (#2509)
+* Prevent emulation of SQL prepare-statements
+* Remove double directory separator; \SimpleSAML\Configuration::getBasedir always ends with one
+
+`authorize`
+
+* Remove reauthentication-button when reauthentication is disabled (simplesamlphp/simplesamlphp-module-authorize#24) (v1.6.2)
+
+## Version 2.3.8
+
+Released 2025-06-17
+
+* Fixed a bug where metadata-endpoints with isDefault set would not yield the expected metadata (#2439)
+* Downgrade simplesamlphp/composer-module-installer to 1.3.x to keep things working with older (OS-supplied)
+  versions of composer
+* Fixed one more PHP 8.4 deprecation notice
+
+`cron`
+
+* Fixed a security-issue where cron-jobs could be executed using the default key,
+  even if a different one was set (#2453)
+
+`metarefresh`
+
+* Fixed parsing of large metadata files (v1.2.4)
+
+`negotiate`
+
+* Fixed logout state reference (v2.3.2)
 
 ## Version 2.3.7
 
@@ -134,6 +179,48 @@ Released 2024-08-20
 
 * Add username_regex option - run regular expression over username before querying the
   database (simplesamlphp/simplesamlphp-module-sqlauth#11) (v1.3.0)
+
+## Version 2.2.6
+
+Released 2025-08-20
+
+* Fix auth state AuthnInstant (#2478)
+
+`cron`
+
+* Fixed a security-issue where cron-jobs could be executed using the default key,
+  even if a different one was set (#2453)
+
+`metarefresh`
+
+* Fixed parsing of large metadata files (v1.2.4)
+
+## Version 2.2.5
+
+Released 2025-03-11
+
+* Fixed PHP 8.4 deprecation notices
+* Fixed infinite recursion (#2367)
+* Fixed "Undefined array key" warning in RequestedAuthnContextSelector if no RAC is present in the request
+* Bumped vulnerable saml2-library to v4.17.0
+
+## Version 2.2.4
+
+Released 2024-12-02
+
+`Security`
+
+* A security bug was patched in the `saml2-library` that allowed for XXE during the parsing
+  of SAML2-messages (CVE-2024-52596)
+
+`Other fixes`
+
+* Run ob_end_clean() on configuration file parsing error (#2219)
+* Fix typo that caused the metadata file-upload to be hidden (#2271)
+
+`admin`
+
+* Fix metadata-viewer to output a valid PHP array
 
 ## Version 2.2.3
 
