@@ -5,8 +5,8 @@ on: [push, pull_request]
 
 jobs:
   ci:
-    uses: catalyst/catalyst-moodle-workflows/.github/workflows/ci.yml@ci-individual-jobs
+    uses: catalyst/catalyst-moodle-workflows/.github/workflows/ci.yml@seperate-steps
     secrets:
       moodle_org_token: ${{ secrets.MOODLE_ORG_TOKEN }}
     with:
-      internal_workflow_branch: ci-individual-jobs
+      internal_workflow_branch: seperate-steps
