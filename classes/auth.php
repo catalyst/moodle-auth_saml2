@@ -29,6 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 use moodle_url;
 use pix_icon;
 use auth_saml2\admin\saml2_settings;
+use auth_saml2\local\idp_logo_cache;
 use coding_exception;
 use core\output\notification;
 use dml_exception;
@@ -293,11 +294,9 @@ class auth extends \auth_plugin_base {
             $idpurl->param('passive', 'off');
 
             // A default icon.
-            $idpiconurl = null;
             $idpicon = null;
-            if (!empty($idp->logo)) {
-                $idpiconurl = new moodle_url($idp->logo);
-            } else {
+            $idpiconurl = idp_logo_cache::get_cached_logo($idp);
+            if (!$idpiconurl) {
                 $idpicon = new pix_icon('i/user', 'Login');
             }
 
