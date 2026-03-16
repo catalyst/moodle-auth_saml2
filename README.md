@@ -1,5 +1,7 @@
 [![ci](https://github.com/catalyst/moodle-auth_saml2/actions/workflows/ci.yml/badge.svg?branch=MOODLE_404_STABLE)](https://github.com/catalyst/moodle-auth_saml2/actions/workflows/ci.yml?branch=MOODLE_404_STABLE)
 
+carp
+
 https://moodle.org/plugins/auth_saml2
 
 # 100% Moodle SAML fast, simple, secure
