@@ -31,4 +31,3 @@ http://idp.local/simplesaml/saml2/idp/SSOService.php?spentityid=http://moodle.lo
 
 http://idp.local/simplesaml/saml2/idp/SSOService.php?spentityid=http://moodle.local/auth/saml2/sp/metadata.php
 
-
