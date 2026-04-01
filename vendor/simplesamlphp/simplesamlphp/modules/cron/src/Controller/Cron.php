@@ -115,7 +115,7 @@ class Cron
      */
     public function run(string $tag, string $key, string $output = 'xhtml'): Response
     {
-        $configKey = $this->cronconfig->getOptionalString('key', 'secret');
+        $configKey = $this->cronconfig->getString('key');
 
         Assert::notInArray(
             $key,

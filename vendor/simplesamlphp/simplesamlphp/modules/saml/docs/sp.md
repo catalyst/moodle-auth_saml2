@@ -4,6 +4,11 @@ This authentication source is used to authenticate against SAML 2 IdPs.
 
 ## Metadata
 
+Directives that relate to signing of metadata start with the
+`metadata.sign` prefix. The signing directives are documented in their
+[own section](simplesamlphp-advancedfeatures.html#metadata-signing).
+in the advanced features page.
+
 The metadata for your SP will be available from the federation page on your SimpleSAMLphp installation.
 
 SimpleSAMLphp supports generating metadata with the MDUI and MDRPI metadata extensions
@@ -12,6 +17,7 @@ and with entity attributes. See the documentation for those extensions for more 
 * [MDUI extension](../simplesamlphp-metadata-extensions-ui)
 * [MDRPI extension](../simplesamlphp-metadata-extensions-rpi)
 * [Attributes extension](../simplesamlphp-metadata-extensions-attributes)
+* [DiscoveryResponse extension](../simplesamlphp-metadata-extensions-idpdisc)
 
 **Parameters**:
 
