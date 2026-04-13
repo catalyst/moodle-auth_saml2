@@ -94,7 +94,7 @@ class MetaDataStorageHandler implements ClearableState
     ): string|array {
         // first we check if the user has overridden this property in the metadata
         try {
-            $metadataSet = $this->getMetaDataCurrent($set);
+            $metadataSet = $entityId ? $this->getMetaData($entityId, $set) : $this->getMetaDataCurrent($set);
             if (array_key_exists($property, $metadataSet)) {
                 return $metadataSet[$property];
             }
@@ -269,30 +269,38 @@ class MetaDataStorageHandler implements ClearableState
     public function getMetaDataForEntities(array $entityIds, string $set): array
     {
         $result = [];
+        // We are flipping the entityIds array in order to avoid constant iteration over it.
+        // Even if it becomes smaller over time.
+        // Still, after flipping all actions will be O(1)
+        $entityIdsFlipped = array_flip($entityIds);
         $timeUtils = new Utils\Time();
+
         foreach ($this->sources as $source) {
+            // entityIds may be reduced to being empty in this loop or already empty
+            if (empty($entityIds)) {
+                break;
+            }
+
             $srcList = $source->getMetaDataForEntities($entityIds, $set);
             foreach ($srcList as $key => $le) {
-                if (array_key_exists('expire', $le)) {
-                    if ($le['expire'] < time()) {
-                        unset($srcList[$key]);
-                        Logger::warning(
-                            "Dropping metadata entity " . var_export($key, true) . ", expired " .
-                            $timeUtils->generateTimestamp($le['expire']) . ".",
-                        );
-                        continue;
-                    }
+                if (!empty($le['expire']) && $le['expire'] < time()) {
+                    unset($srcList[$key]);
+                    Logger::warning(
+                        'Dropping metadata entity ' . var_export($key, true) . ', expired ' .
+                        $timeUtils->generateTimestamp($le['expire']) . '.',
+                    );
+                    continue;
                 }
                 // We found the entity id so remove it from the list that needs resolving
                 /** @psalm-suppress PossiblyInvalidArrayOffset */
-                unset($entityIds[array_search($key, $entityIds)]);
+                unset($entityIds[$entityIdsFlipped[$key]]);
+                // Add the key to the result set
+                $result[$key] = $le;
             }
-            $result = array_merge($srcList, $result);
         }
 
         return $result;
     }
-
 
     /**
      * This function looks up the metadata for the given entity id in the given set. It will throw an
@@ -322,6 +330,20 @@ class MetaDataStorageHandler implements ClearableState
                             'Metadata for the entity [' . $entityId . '] expired ' .
                             (time() - $metadata['expire']) . ' seconds ago.',
                         );
+                    }
+                }
+
+                if (!array_key_exists('metadata.sign.enable', $metadata)) {
+                    // The admin needs to set the .enable setting to make these
+                    // specific keys be used.
+                    if (
+                        array_key_exists('metadata.sign.privatekey', $metadata)
+                        || array_key_exists('metadata.sign.certificate', $metadata)
+                    ) {
+                        Logger::error("SIGNING: Please set metadata.sign.enable=true when"
+                                    . " you wish to specify the privatekey and certificate"
+                                     . " in the metadata file."
+                                    . " See entity $entityId");
                     }
                 }
 

@@ -27,6 +27,7 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
 use Twig\Error\RuntimeError;
+use Twig\Extension\DebugExtension;
 use Twig\Extra\Intl\IntlExtension;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFilter;
@@ -36,7 +37,7 @@ use function class_exists;
 use function count;
 use function date;
 use function explode;
-use function hash;
+use function hash_hmac_file;
 use function in_array;
 use function is_null;
 use function key;
@@ -204,13 +205,17 @@ class Template extends Response
             return $path;
         }
 
-        $file = new File($file);
-
-        $tag = $this->configuration->getVersion();
-        if ($tag === 'master') {
-            $tag = strval($file->getMtime());
+        // Use the `assets.salt` to enhance security.
+        // Do not make it easy to guess the underlying SSP version.
+        $salt = 'assets.salt.default';
+        $assetsConfig = $this->configuration->getOptionalArray('assets', []);
+        if (!empty($assetsConfig['salt'])) {
+            $salt = $assetsConfig['salt'];
         }
-        $tag = substr(hash('md5', $tag), 0, 5);
+
+        $tagLength = 5;
+        $mac = hash_hmac_file('sha256', $file, $salt);
+        $tag = substr($mac, 0, $tagLength);
 
         return $path . '?tag=' . $tag;
     }
@@ -295,6 +300,7 @@ class Template extends Response
     {
         $auto_reload = $this->configuration->getOptionalBoolean('template.auto_reload', true);
         $cache = $this->configuration->getOptionalString('template.cache', null);
+        $templateDebug = $this->configuration->getOptionalBoolean('template.debug', false);
 
         // set up template paths
         $loader = $this->setupTwigTemplatepaths();
@@ -321,10 +327,17 @@ class Template extends Response
             'strict_variables' => true,
         ];
 
+        if ($templateDebug) {
+            $options['debug'] = true;
+        }
+
         $twig = new Environment($loader, $options);
         $twigTranslator = new TwigTranslator([Translate::class, 'translateSingularGettext']);
         $twig->addExtension(new TranslationExtension($twigTranslator));
         $twig->addExtension(new IntlExtension());
+        if ($templateDebug) {
+            $twig->addExtension(new DebugExtension());
+        }
 
         $twig->addFunction(new TwigFunction('moduleURL', [Module::class, 'getModuleURL']));
 

@@ -9,8 +9,8 @@ class ComposerStaticInitadb4a871be02446eefeecc569fa94b8d
     public static $files = array (
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
-        '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
+        '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '662a729f963d39afe703c9d9b7ab4a8c' => __DIR__ . '/..' . '/symfony/polyfill-php83/bootstrap.php',
         '667aeda72477189d0494fecd327c3641' => __DIR__ . '/..' . '/symfony/var-dumper/Resources/functions/dump.php',
         '89efb1254ef2d1c5d80096acd12c4098' => __DIR__ . '/..' . '/twig/twig/src/Resources/core.php',
@@ -61,6 +61,7 @@ class ComposerStaticInitadb4a871be02446eefeecc569fa94b8d
             'Symfony\\Component\\HttpFoundation\\' => 33,
             'Symfony\\Component\\Finder\\' => 25,
             'Symfony\\Component\\Filesystem\\' => 29,
+            'Symfony\\Component\\ExpressionLanguage\\' => 37,
             'Symfony\\Component\\EventDispatcher\\' => 34,
             'Symfony\\Component\\ErrorHandler\\' => 31,
             'Symfony\\Component\\DependencyInjection\\' => 38,
@@ -71,6 +72,8 @@ class ComposerStaticInitadb4a871be02446eefeecc569fa94b8d
             'Symfony\\Bridge\\Twig\\' => 20,
             'SimpleSAML\\XML\\' => 15,
             'SimpleSAML\\XMLSecurity\\' => 23,
+            'SimpleSAML\\SOAP\\' => 16,
+            'SimpleSAML\\SAML2\\' => 17,
             'SimpleSAML\\Module\\saml\\' => 23,
             'SimpleSAML\\Module\\multiauth\\' => 28,
             'SimpleSAML\\Module\\exampleauth\\' => 30,
@@ -93,8 +96,13 @@ class ComposerStaticInitadb4a871be02446eefeecc569fa94b8d
             'Psr\\Http\\Message\\' => 17,
             'Psr\\EventDispatcher\\' => 20,
             'Psr\\Container\\' => 14,
+            'Psr\\Clock\\' => 10,
             'Psr\\Cache\\' => 10,
             'PHPMailer\\PHPMailer\\' => 20,
+        ),
+        'N' =>
+        array (
+            'Nyholm\\Psr7\\' => 12,
         ),
         'G' =>
         array (
@@ -205,6 +213,10 @@ class ComposerStaticInitadb4a871be02446eefeecc569fa94b8d
         array (
             0 => __DIR__ . '/..' . '/symfony/filesystem',
         ),
+        'Symfony\\Component\\ExpressionLanguage\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/symfony/expression-language',
+        ),
         'Symfony\\Component\\EventDispatcher\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/event-dispatcher',
@@ -244,6 +256,14 @@ class ComposerStaticInitadb4a871be02446eefeecc569fa94b8d
         'SimpleSAML\\XMLSecurity\\' =>
         array (
             0 => __DIR__ . '/..' . '/simplesamlphp/xml-security/src',
+        ),
+        'SimpleSAML\\SOAP\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/simplesamlphp/xml-soap/src',
+        ),
+        'SimpleSAML\\SAML2\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/simplesamlphp/saml2/src',
         ),
         'SimpleSAML\\Module\\saml\\' =>
         array (
@@ -287,7 +307,7 @@ class ComposerStaticInitadb4a871be02446eefeecc569fa94b8d
         ),
         'SAML2\\' =>
         array (
-            0 => __DIR__ . '/..' . '/simplesamlphp/saml2/src/SAML2',
+            0 => __DIR__ . '/..' . '/simplesamlphp/saml2-legacy/src/SAML2',
         ),
         'RobRichards\\XMLSecLibs\\' =>
         array (
@@ -310,6 +330,10 @@ class ComposerStaticInitadb4a871be02446eefeecc569fa94b8d
         array (
             0 => __DIR__ . '/..' . '/psr/container/src',
         ),
+        'Psr\\Clock\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/psr/clock/src',
+        ),
         'Psr\\Cache\\' =>
         array (
             0 => __DIR__ . '/..' . '/psr/cache/src',
@@ -317,6 +341,10 @@ class ComposerStaticInitadb4a871be02446eefeecc569fa94b8d
         'PHPMailer\\PHPMailer\\' =>
         array (
             0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
+        ),
+        'Nyholm\\Psr7\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/nyholm/psr7/src',
         ),
         'GuzzleHttp\\Psr7\\' =>
         array (

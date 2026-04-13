@@ -132,7 +132,7 @@ class ServiceProvider
      * @param   Utils\HTTP    $httpUtils
      *
      * @return string
-     * @throws BadRequest
+     * @throws \SimpleSAML\Error\BadRequest
      * @throws Error\Exception
      */
     protected function loginHandler(
@@ -165,6 +165,13 @@ class ServiceProvider
         ) {
             throw new Error\BadRequest('Missing ReturnTo parameter.');
         }
+        if (
+            $request->query->has('ReturnTo') &&
+            $request->query->getString('ReturnTo') === ""
+        ) {
+            throw new Error\BadRequest('Empty ReturnTo parameter specified.');
+        }
+
         if (!isset($options['ReturnTo'])) {
             $options['ReturnTo'] = $httpUtils->checkURLAllowed(
                 $request->query->get('ReturnTo') ?? $spSource->getMetadata()->getString('RelayState'),
@@ -578,6 +585,7 @@ class ServiceProvider
 
             $state = $this->authState::loadState($relayState, 'saml:slosent');
             $state['saml:sp:LogoutStatus'] = $message->getStatus();
+
             return new RunnableResponse([Auth\Source::class, 'completeLogout'], [&$state]);
         } elseif ($message instanceof LogoutRequest) {
             Logger::debug('module/saml2/sp/logout: Request from ' . $idpEntityId);

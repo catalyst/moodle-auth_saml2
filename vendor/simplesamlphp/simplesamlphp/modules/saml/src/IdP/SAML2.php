@@ -702,7 +702,7 @@ class SAML2
      *
      * @param \SimpleSAML\IdP $idp The IdP we are sending a logout request from.
      * @param array           $association The association that should be terminated.
-     * @param string|NULL $relayState An id that should be carried across the logout.
+     * @param string|null $relayState An id that should be carried across the logout.
      *
      * @return string The logout URL.
      */
@@ -781,10 +781,10 @@ class SAML2
         $host = $host === '__DEFAULT__' ? null : $host;
 
         // configure endpoints
-        $ssob = $handler->getGenerated('SingleSignOnServiceBinding', 'saml20-idp-hosted', $host);
-        $slob = $handler->getGenerated('SingleLogoutServiceBinding', 'saml20-idp-hosted', $host);
-        $ssol = $handler->getGenerated('SingleSignOnService', 'saml20-idp-hosted', $host);
-        $slol = $handler->getGenerated('SingleLogoutService', 'saml20-idp-hosted', $host);
+        $ssob = $handler->getGenerated('SingleSignOnServiceBinding', 'saml20-idp-hosted', $host, $entityid);
+        $slob = $handler->getGenerated('SingleLogoutServiceBinding', 'saml20-idp-hosted', $host, $entityid);
+        $ssol = $handler->getGenerated('SingleSignOnService', 'saml20-idp-hosted', $host, $entityid);
+        $slol = $handler->getGenerated('SingleLogoutService', 'saml20-idp-hosted', $host, $entityid);
 
         $sso = [];
         if (is_array($ssob)) {
@@ -948,7 +948,6 @@ class SAML2
         if ($config->hasValue('saml:Extensions')) {
             $metadata['saml:Extensions'] = $config->getArray('saml:Extensions');
         }
-
 
         if ($config->hasValue('UIInfo')) {
             $metadata['UIInfo'] = $config->getArray('UIInfo');
@@ -1146,7 +1145,7 @@ class SAML2
         }
 
         $issuer = new Issuer();
-        $issuer->setValue($idpMetadata->getString('entityid'));
+        $issuer->setValue($state['IdPMetadata']['entityid']);
         $issuer->setFormat(Constants::NAMEID_ENTITY);
         $a->setIssuer($issuer);
 
@@ -1347,7 +1346,7 @@ class SAML2
         Configuration $idpMetadata,
         Configuration $spMetadata,
         Assertion $assertion,
-    ) {
+    ): Assertion|EncryptedAssertion {
         $encryptAssertion = $spMetadata->getOptionalBoolean('assertion.encryption', null);
         if ($encryptAssertion === null) {
             $encryptAssertion = $idpMetadata->getOptionalBoolean('assertion.encryption', false);
@@ -1369,7 +1368,7 @@ class SAML2
             $key = new XMLSecurityKey($algo);
             $key->loadKey($sharedKey);
         } else {
-            $keys = $spMetadata->getPublicKeys('encryption', true);
+            $keys = $spMetadata->getPublicKeys('encryption');
             if (!empty($keys)) {
                 $key = $keys[0];
                 switch ($key['type']) {
@@ -1385,6 +1384,8 @@ class SAML2
                 // extract the public key from the certificate for encryption
                 $key = new XMLSecurityKey(XMLSecurityKey::RSA_OAEP_MGF1P, ['type' => 'public']);
                 $key->loadKey($pemKey);
+            } elseif ($idpMetadata->getOptionalBoolean('encryption.optional', false) === true) {
+                return $assertion;
             } else {
                 throw new Error\ConfigurationError(
                     'Missing encryption key for entity `' . $spMetadata->getString('entityid') . '`',

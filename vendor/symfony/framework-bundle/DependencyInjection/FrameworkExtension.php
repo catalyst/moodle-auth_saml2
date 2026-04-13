@@ -921,11 +921,11 @@ class FrameworkExtension extends Extension
         $container->getDefinition('profiler_listener')
             ->addArgument($config['collect_parameter']);
 
-        if (!$container->getParameter('kernel.debug') || !class_exists(CliRequest::class) || !$container->has('debug.stopwatch')) {
+        if (!$container->getParameter('kernel.debug') || !$this->hasConsole() || !$container->has('debug.stopwatch') || !class_exists(CliRequest::class)) {
             $container->removeDefinition('console_profiler_listener');
         }
 
-        if (!class_exists(CommandDataCollector::class)) {
+        if (!$this->hasConsole() || !class_exists(CommandDataCollector::class)) {
             $container->removeDefinition('.data_collector.command');
         }
     }
@@ -1265,6 +1265,7 @@ class FrameworkExtension extends Extension
         }
 
         $container->setParameter('session.storage.options', $options);
+        $container->setParameter('session.metadata.cookie_lifetime', $options['cookie_lifetime'] ?? null);
 
         // session handler (the internal callback registered with PHP session management)
         if (null === $config['handler_id']) {
@@ -2101,6 +2102,10 @@ class FrameworkExtension extends Extension
 
     private function registerSemaphoreConfiguration(array $config, ContainerBuilder $container, PhpFileLoader $loader): void
     {
+        if (!class_exists(Semaphore::class)) {
+            throw new LogicException('Semaphore support cannot be enabled as the Semaphore component is not installed. Try running "composer require symfony/semaphore".');
+        }
+
         $loader->load('semaphore.php');
 
         foreach ($config['resources'] as $resourceName => $resourceStore) {
@@ -2395,7 +2400,8 @@ class FrameworkExtension extends Extension
 
             $failureTransportsByTransportNameServiceLocator = ServiceLocatorTagPass::register($container, $failureTransportReferencesByTransportName);
             $container->getDefinition('messenger.failure.send_failed_message_to_failure_transport_listener')
-                ->replaceArgument(0, $failureTransportsByTransportNameServiceLocator);
+                ->replaceArgument(0, $failureTransportsByTransportNameServiceLocator)
+                ->replaceArgument(2, $failureTransportsByName);
         } else {
             $container->removeDefinition('messenger.failure.send_failed_message_to_failure_transport_listener');
             $container->removeDefinition('console.command.messenger_failed_messages_retry');
