@@ -23,7 +23,6 @@
  */
 
 namespace auth_saml2\admin;
-use admin_setting_heading;
 use html_writer;
 
 defined('MOODLE_INTERNAL') || die();
@@ -37,7 +36,7 @@ require_once($CFG->libdir . '/moodlelib.php');
  * @copyright  Matt Porritt <mattp@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class setting_button extends admin_setting_heading {
+class setting_button extends \core\setting\heading {
     /** @var string Button label */
     protected $label;
     /** @var string Button href */
@@ -56,7 +55,7 @@ class setting_button extends admin_setting_heading {
         $this->nosave = true;
         $this->label = $label;
         $this->href = $href;
-        parent::__construct($name, $visiblename, $description, '');
+        parent::__construct($name, $visiblename, $description);
     }
 
     /**
@@ -86,6 +85,6 @@ class setting_button extends admin_setting_heading {
             $element = $OUTPUT->render_from_template('auth_saml2/setting_configbutton', $context);
         }
 
-        return format_admin_setting($this, $this->visiblename, $element, $this->description);
+        return $this->render('', $element, null, $this->visiblename, '', '', $this->description);
     }
 }

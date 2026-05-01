@@ -23,7 +23,6 @@
  */
 
 namespace auth_saml2\admin;
-use admin_setting_heading;
 
 /**
  * Settings for label type admin setting.
@@ -32,7 +31,7 @@ use admin_setting_heading;
  * @copyright  Matt Porritt <mattp@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class setting_textonly extends admin_setting_heading {
+class setting_textonly extends \core\setting\heading {
     /**
      * Returns an HTML string
      * @param mixed $data
@@ -40,6 +39,6 @@ class setting_textonly extends admin_setting_heading {
      * @return string Returns an HTML string
      */
     public function output_html($data, $query = '') {
-        return format_admin_setting($this, $this->visiblename, '', $this->description);
+        return $this->render('', $this->visiblename, '', '', '', '', $this->description);
     }
 }
