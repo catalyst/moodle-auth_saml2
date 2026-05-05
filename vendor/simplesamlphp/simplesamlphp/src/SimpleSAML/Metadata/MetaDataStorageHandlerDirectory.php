@@ -131,11 +131,8 @@ class MetaDataStorageHandlerDirectory extends MetaDataStorageSource
             }
         }
 
-
-
-
         if (!is_array($metadata)) {
-            throw new Exception('Could not load metadata set [' . $set . '] from file: ' . $metadatasetfile);
+            throw new Exception('Could not load metadata set [' . $set . '] from file: ' . $metadatasetdir);
         }
         return $metadata;
     }

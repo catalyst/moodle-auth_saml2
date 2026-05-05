@@ -32,6 +32,8 @@ class DoctrineDbalAdapter extends AbstractAdapter implements PruneableInterface
 {
     private const MAX_KEY_LENGTH = 255;
 
+    private static int $savepointCounter = 0;
+
     private MarshallerInterface $marshaller;
     private Connection $conn;
     private string $platformName;
@@ -62,7 +64,7 @@ class DoctrineDbalAdapter extends AbstractAdapter implements PruneableInterface
     public function __construct(Connection|string $connOrDsn, string $namespace = '', int $defaultLifetime = 0, array $options = [], ?MarshallerInterface $marshaller = null)
     {
         if (isset($namespace[0]) && preg_match('#[^-+.A-Za-z0-9]#', $namespace, $match)) {
-            throw new InvalidArgumentException(sprintf('Namespace contains "%s" but only characters in [-+.A-Za-z0-9] are allowed.', $match[0]));
+            throw new InvalidArgumentException(\sprintf('Namespace contains "%s" but only characters in [-+.A-Za-z0-9] are allowed.', $match[0]));
         }
 
         if ($connOrDsn instanceof Connection) {
@@ -151,7 +153,7 @@ class DoctrineDbalAdapter extends AbstractAdapter implements PruneableInterface
 
         if ('' !== $this->namespace) {
             $deleteSql .= " AND $this->idCol LIKE ?";
-            $params[] = sprintf('%s%%', $this->namespace);
+            $params[] = \sprintf('%s%%', $this->namespace);
             $paramTypes[] = ParameterType::STRING;
         }
 
@@ -244,6 +246,26 @@ class DoctrineDbalAdapter extends AbstractAdapter implements PruneableInterface
             return $failed;
         }
 
+        if ($this->conn->isTransactionActive() && $this->conn->getDatabasePlatform()->supportsSavepoints()) {
+            $savepoint = 'cache_save_'.++self::$savepointCounter;
+            try {
+                $this->conn->createSavepoint($savepoint);
+                $failed = $this->doSaveInner($values, $lifetime, $failed);
+                $this->conn->releaseSavepoint($savepoint);
+
+                return $failed;
+            } catch (\Throwable $e) {
+                $this->conn->rollbackSavepoint($savepoint);
+
+                throw $e;
+            }
+        }
+
+        return $this->doSaveInner($values, $lifetime, $failed);
+    }
+
+    private function doSaveInner(array $values, int $lifetime, array $failed): array|bool
+    {
         $platformName = $this->getPlatformName();
         $insertSql = "INSERT INTO $this->table ($this->idCol, $this->dataCol, $this->lifetimeCol, $this->timeCol) VALUES (?, ?, ?, ?)";
 
