@@ -23,6 +23,7 @@
  */
 
 use auth_saml2\event\cert_regenerated;
+use SimpleSAML\Error\Exception as SimpleSAML_Error_Exception;
 
 // @codingStandardsIgnoreStart
 /**
