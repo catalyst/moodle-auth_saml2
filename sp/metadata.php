@@ -60,7 +60,7 @@ if (array_key_exists('output', $_REQUEST) && $_REQUEST['output'] == 'xhtml') {
 	$t->data['metadata'] = htmlspecialchars($xml);
 	$t->data['metadataflat'] = '$metadata[' . var_export($entityId, TRUE) . '] = ' . var_export($metaArray20, TRUE) . ';';
 	$t->data['metaurl'] = $source->getMetadataURL();
-	$t->show();
+	$t->send();
 } else {
 	// header('Content-Type: application/samlmetadata+xml');
 	header('Content-Type: text/xml');
