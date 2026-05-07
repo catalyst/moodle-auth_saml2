@@ -362,6 +362,18 @@ urn:mace:dir:attribute-def:mail *</pre>"]),
         PARAM_TEXT
     ));
 
+    // Signal REFEDS Data Protection Code of Conduct.
+    $settings->add(new admin_setting_configcheckbox(
+        'auth_saml2/refedscodeofconduct',
+        get_string('refedscodeofconduct', 'auth_saml2'),
+        get_string(
+            'refedscodeofconduct_desc',
+            'auth_saml2',
+            'https://refeds.org/category/code-of-conduct/v2'
+        ),
+        '0'
+    ));
+
     // Autocreate Users.
     $settings->add(new admin_setting_configselect(
         'auth_saml2/autocreate',
