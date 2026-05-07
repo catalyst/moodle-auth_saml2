@@ -23,7 +23,7 @@
  */
 
 namespace auth_saml2\admin;
-use admin_setting_heading;
+use core\setting\heading;
 use html_writer;
 
 defined('MOODLE_INTERNAL') || die();
@@ -37,7 +37,7 @@ require_once($CFG->libdir . '/moodlelib.php');
  * @copyright  Matt Porritt <mattp@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class setting_button extends admin_setting_heading {
+class setting_button extends heading {
     /** @var string Button label */
     protected $label;
     /** @var string Button href */

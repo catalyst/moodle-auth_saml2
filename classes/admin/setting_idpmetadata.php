@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace auth_saml2\admin;
 
-use admin_setting_configtextarea;
+use core\setting\type\textarea;
 use auth_saml2\idp_data;
 use auth_saml2\idp_parser;
 use DOMDocument;
@@ -35,7 +35,7 @@ require_once("{$CFG->libdir}/adminlib.php");
  * @copyright   Matt Porritt <mattp@catalyst-au.net>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class setting_idpmetadata extends admin_setting_configtextarea {
+class setting_idpmetadata extends textarea {
     /**
      * Constructor
      */

@@ -23,6 +23,9 @@
  */
 
 use auth_saml2\event\cert_regenerated;
+use core\setting\heading;
+use core\setting\type\text;
+use core\setting\type\select;
 
 // @codingStandardsIgnoreStart
 /**
@@ -292,9 +295,9 @@ function auth_saml2_display_auth_lock_options($settings, $auth, $userfields, $he
 
     // Introductory explanation and help text.
     if ($mapremotefields) {
-        $settings->add(new admin_setting_heading($auth.'/data_mapping', new lang_string('auth_data_mapping', 'auth'), $helptext));
+        $settings->add(new heading($auth.'/data_mapping', new lang_string('auth_data_mapping', 'auth'), $helptext));
     } else {
-        $settings->add(new admin_setting_heading($auth.'/auth_fieldlocks', new lang_string('auth_fieldlocks', 'auth'), $helptext));
+        $settings->add(new heading($auth.'/auth_fieldlocks', new lang_string('auth_fieldlocks', 'auth'), $helptext));
     }
 
     // Generate the list of options.
@@ -342,31 +345,31 @@ function auth_saml2_display_auth_lock_options($settings, $auth, $userfields, $he
             // Display a message that the field can not be mapped because it's too long.
             $url = new moodle_url('/user/profile/index.php');
             $a = (object)['fieldname' => s($fieldname), 'shortname' => s($field), 'charlimit' => 67, 'link' => $url->out()];
-            $settings->add(new admin_setting_heading($auth.'/field_not_mapped_'.sha1($field), '',
+            $settings->add(new heading($auth.'/field_not_mapped_'.sha1($field), '',
                 get_string('cannotmapfield', 'auth_saml2', $a)));
         } else if ($mapremotefields) {
             // We are mapping to a remote field here.
             // Mapping.
-            $settings->add(new admin_setting_configtext("auth_{$auth}/field_map_{$field}",
+            $settings->add(new text("auth_{$auth}/field_map_{$field}",
                 get_string('auth_fieldmapping', 'auth_saml2', $fieldname), '', '', PARAM_RAW, 30));
 
             // Update local.
-            $settings->add(new admin_setting_configselect("auth_{$auth}/field_updatelocal_{$field}",
+            $settings->add(new select("auth_{$auth}/field_updatelocal_{$field}",
                 get_string('auth_updatelocalfield', 'auth_saml2', $fieldname), '', 'oncreate', $updatelocaloptions));
 
             // Update remote.
             if ($updateremotefields) {
-                $settings->add(new admin_setting_configselect("auth_{$auth}/field_updateremote_{$field}",
+                $settings->add(new select("auth_{$auth}/field_updateremote_{$field}",
                     get_string('auth_updateremotefield', 'auth_saml2', $fieldname), '', 0, $updateextoptions));
             }
 
             // Lock fields.
-            $settings->add(new admin_setting_configselect("auth_{$auth}/field_lock_{$field}",
+            $settings->add(new select("auth_{$auth}/field_lock_{$field}",
                 get_string('auth_fieldlockfield', 'auth_saml2', $fieldname), '', 'unlocked', $lockoptions));
 
         } else {
             // Lock fields Only.
-            $settings->add(new admin_setting_configselect("auth_{$auth}/field_lock_{$field}",
+            $settings->add(new select("auth_{$auth}/field_lock_{$field}",
                 get_string('auth_fieldlockfield', 'auth_saml2', $fieldname), '', 'unlocked', $lockoptions));
         }
     }
