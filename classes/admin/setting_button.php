@@ -86,6 +86,6 @@ class setting_button extends heading {
             $element = $OUTPUT->render_from_template('auth_saml2/setting_configbutton', $context);
         }
 
-        return format_admin_setting($this, $this->visiblename, $element, $this->description);
+        return $this->render('', $element, null, $this->visiblename, '', '', $this->description);
     }
 }

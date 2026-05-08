@@ -40,6 +40,6 @@ class setting_textonly extends heading {
      * @return string Returns an HTML string
      */
     public function output_html($data, $query = '') {
-        return format_admin_setting($this, $this->visiblename, '', $this->description);
+        return $this->render('', $this->visiblename, '', '', '', '', $this->description);
     }
 }
