@@ -20,6 +20,7 @@ use SimpleXMLElement;
 
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../locallib.php');
+require_once(__DIR__ . '/psr17_factory_pin.php');
 
 /**
  * Tests for SAML

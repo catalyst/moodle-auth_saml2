@@ -28,6 +28,12 @@ use auth_saml2\ssl_algorithms;
 
 require_once(__DIR__ . '/vendor/autoload.php');
 
+if (class_exists(\Slim\Factory\Psr17\Psr17FactoryProvider::class)) {
+    \Slim\Factory\Psr17\Psr17FactoryProvider::setFactories([
+        \Slim\Factory\Psr17\GuzzlePsr17Factory::class,
+    ]);
+}
+
 global $CFG;
 require_once("{$CFG->dirroot}/auth/saml2/auth.php");
 
