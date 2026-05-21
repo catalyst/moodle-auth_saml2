@@ -21,7 +21,7 @@
  * @copyright  Brendan Heywood <brendan@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-// Testing the verstion bump CI
+// Testing the verstion bump CI Test 2
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->version   = 2026040200;    // The current plugin version (Date: YYYYMMDDXX).
