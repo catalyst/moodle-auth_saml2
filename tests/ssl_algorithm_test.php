@@ -26,18 +26,23 @@ namespace auth_saml2;
  */
 final class ssl_algorithm_test extends \basic_testcase {
     public function test_default_saml_signature_algorithm_is_valid_saml_signature_algorithm(): void {
-        $this->assertTrue(array_key_exists(ssl_algorithms::get_default_saml_signature_algorithm(),
-            ssl_algorithms::get_valid_saml_signature_algorithms()));
+        $this->assertTrue(array_key_exists(
+            ssl_algorithms::get_default_saml_signature_algorithm(),
+            ssl_algorithms::get_valid_saml_signature_algorithms()
+        ));
     }
 
     public function test_sha256_is_valid_saml_signature_algorithm(): void {
-        $this->assertTrue(array_key_exists('http://www.w3.org/2001/04/xmldsig-more#rsa-sha256',
-            ssl_algorithms::get_valid_saml_signature_algorithms()));
+        $this->assertTrue(array_key_exists(
+            'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256',
+            ssl_algorithms::get_valid_saml_signature_algorithms()
+        ));
     }
 
     public function test_sha256_is_matching_digest_algorithm_for_default_saml_algorithm(): void {
         $this->assertEquals('SHA256', ssl_algorithms::convert_signature_algorithm_to_digest_alg_format(
-            ssl_algorithms::get_default_saml_signature_algorithm()));
+            ssl_algorithms::get_default_saml_signature_algorithm()
+        ));
     }
 
     public function test_sha256_is_matching_digest_algorithm_for_garbage_algorithm(): void {

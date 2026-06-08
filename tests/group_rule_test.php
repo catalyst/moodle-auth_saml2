@@ -25,7 +25,6 @@ namespace auth_saml2;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class group_rule_test extends \advanced_testcase {
-
     /**
      * Test we can get list of rules from config string.
      */
@@ -43,5 +42,4 @@ final class group_rule_test extends \advanced_testcase {
         $this->assertEquals('blocked', $rules[1]->get_group());
         $this->assertEquals(false, $rules[1]->is_allowed());
     }
-
 }

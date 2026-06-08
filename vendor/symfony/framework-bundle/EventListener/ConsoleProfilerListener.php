@@ -109,6 +109,10 @@ final class ConsoleProfilerListener implements EventSubscriberInterface
             return;
         }
 
+        if (!$this->profiler->isEnabled()) {
+            return;
+        }
+
         if (null !== $sectionId = $request->attributes->get('_stopwatch_token')) {
             // we must close the section before saving the profile to allow late collect
             try {
@@ -148,7 +152,7 @@ final class ConsoleProfilerListener implements EventSubscriberInterface
 
             if ($this->urlGenerator && $output) {
                 $token = $p->getToken();
-                $output->writeln(sprintf(
+                $output->writeln(\sprintf(
                     'See profile <href=%s>%s</>',
                     $this->urlGenerator->generate('_profiler', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL),
                     $token

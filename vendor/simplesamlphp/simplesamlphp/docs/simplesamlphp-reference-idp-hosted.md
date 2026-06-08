@@ -35,6 +35,11 @@ select the correct configuration. One entry in the metadata-list can
 have the host `__DEFAULT__`. This entry will be used when no other
 entry matches.
 
+Directives that relate to signing of metadata start with the
+`metadata.sign` prefix. The signing directives are documented in their
+[own section](simplesamlphp-advancedfeatures.html#metadata-signing).
+in the advanced features page.
+
 ## Common options
 
 `auth`
@@ -138,9 +143,12 @@ The following SAML 2.0 options are available:
 
 `assertion.encryption`
 :   Whether assertions sent from this IdP should be encrypted. The default
-    value is `FALSE`.
+    value is `FALSE`. When set to `TRUE` encryption will be enforced for all
+    remote SP's and an exception is thrown if encryption fails.
 
 :   Note that this option can be set for each SP in the SP-remote metadata.
+
+:   Note that enforcement can be disabled by setting `encryption.optional` to `TRUE`.
 
 `attributeencodings`
 :   What encoding should be used for the different attributes. This is
@@ -186,6 +194,10 @@ The following SAML 2.0 options are available:
     any value in the SP-remote metadata overrides the one configured
     in the IdP metadata.
 
+`encryption.optional`
+:   Whether or not we may continue to send an unencrypted assertion if the SP has no encryption certificate.
+    The default value is `FALSE`.
+
 `encryption.blacklisted-algorithms`
 :   Blacklisted encryption algorithms. This is an array containing the algorithm identifiers.
 
@@ -194,7 +206,7 @@ The following SAML 2.0 options are available:
 :   The RSA encryption algorithm with PKCS#1 v1.5 padding is blacklisted by default for security reasons. Any assertions
     encrypted with this algorithm will therefore fail to decrypt. You can override this limitation by defining an empty
     array in this option (or blacklisting any other algorithms not including that one). However, it is strongly
-    discouraged to do so. For your own safety, please include the string 'http://www.w3.org/2001/04/xmlenc#rsa-1_5' if
+    discouraged to do so. For your own safety, please include the string `http://www.w3.org/2001/04/xmlenc#rsa-1_5` if
     you make use of this option.
 
 `https.certificate`

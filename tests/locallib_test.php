@@ -68,12 +68,11 @@ final class locallib_test extends \advanced_testcase {
         $rawxml = auth_saml2_get_sp_metadata();
 
         $xml = new SimpleXMLElement($rawxml);
-        $xml->registerXPathNamespace('md',   'urn:oasis:names:tc:SAML:2.0:metadata');
+        $xml->registerXPathNamespace('md', 'urn:oasis:names:tc:SAML:2.0:metadata');
         $xml->registerXPathNamespace('mdui', 'urn:oasis:names:tc:SAML:metadata:ui');
 
         $contact = $xml->xpath('//md:EntityDescriptor/md:ContactPerson');
         $this->assertNotNull($contact);
-
     }
 
     /**

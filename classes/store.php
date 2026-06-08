@@ -157,6 +157,4 @@ class store implements \SimpleSAML\Store\StoreInterface {
 
         $DB->execute($sql, $params);
     }
-
 }
-

@@ -32,6 +32,7 @@ final class auth_test extends \advanced_testcase {
      * Set up
      */
     public function setUp(): void {
+        parent::setUp();
         $this->resetAfterTest();
     }
 
@@ -104,7 +105,7 @@ final class auth_test extends \advanced_testcase {
 
         $auth->expects($this->once())
             ->method('error_page')
-            ->will($this->returnCallback(function($msg) {
+            ->will($this->returnCallback(function ($msg) {
                 throw new \coding_exception($msg);
             }));
         return $auth;
@@ -171,7 +172,7 @@ final class auth_test extends \advanced_testcase {
         $this->assertFalse($auth->is_configured());
 
         // Create xml.
-        touch($auth->get_file(md5($metadataurl). ".idp.xml"));
+        touch($auth->get_file(md5($metadataurl) . ".idp.xml"));
         $this->assertTrue($auth->is_configured());
     }
 
@@ -233,19 +234,41 @@ final class auth_test extends \advanced_testcase {
             // Check entity name.
             $this->assertEqualsCanonicalizing(['Login 1', $entity1->defaultname], array_column($auth->metadataentities, 'name'));
             // Encoded entityid present as an attribute as well as the key.
-            $this->assertEqualsCanonicalizing([md5($entity1->entityid), md5($entity3->entityid)],
-                array_column($auth->metadataentities, 'md5entityid'));
-            $this->assertEqualsCanonicalizing([md5($entity1->entityid), md5($entity3->entityid)],
-                array_keys($auth->metadataentities));
+            $this->assertEqualsCanonicalizing(
+                [md5($entity1->entityid), md5($entity3->entityid)],
+                array_column($auth->metadataentities, 'md5entityid')
+            );
+            $this->assertEqualsCanonicalizing(
+                [md5($entity1->entityid), md5($entity3->entityid)],
+                array_keys($auth->metadataentities)
+            );
         } else {
             // Check entity name.
-            $this->assertEquals(['Login 1', $entity1->defaultname],
-                array_column($auth->metadataentities, 'name'), '', 0, 10, true);
+            $this->assertEquals(
+                ['Login 1', $entity1->defaultname],
+                array_column($auth->metadataentities, 'name'),
+                '',
+                0,
+                10,
+                true
+            );
             // Encoded entityid present as an attribute as well as the key.
-            $this->assertEquals([md5($entity1->entityid), md5($entity3->entityid)],
-                array_column($auth->metadataentities, 'md5entityid'), '', 0, 10, true);
-            $this->assertEquals([md5($entity1->entityid), md5($entity3->entityid)],
-                array_keys($auth->metadataentities), '', 0, 10, true);
+            $this->assertEquals(
+                [md5($entity1->entityid), md5($entity3->entityid)],
+                array_column($auth->metadataentities, 'md5entityid'),
+                '',
+                0,
+                10,
+                true
+            );
+            $this->assertEquals(
+                [md5($entity1->entityid), md5($entity3->entityid)],
+                array_keys($auth->metadataentities),
+                '',
+                0,
+                10,
+                true
+            );
         }
 
         // Multiidp flag is true.
@@ -1039,10 +1062,10 @@ final class auth_test extends \advanced_testcase {
             '' => [[
                 ['uid' => 'test'], // User don't have groups attribute.
                 ['uid' => 'test', 'groups' => ['blocked']], // In blocked group.
-                ['uid' => 'test', 'groups' => ['allowed']],  // In allowed group.
+                ['uid' => 'test', 'groups' => ['allowed']], // In allowed group.
                 ['uid' => 'test', 'groups' => ['allowed', 'blocked']], // In both allowed first.
                 ['uid' => 'test', 'groups' => ['blocked', 'allowed']], // In both blocked first.
-                ['uid' => 'test', 'groups' => []],  // Groups exists, but empty.
+                ['uid' => 'test', 'groups' => []], // Groups exists, but empty.
             ]],
         ];
     }

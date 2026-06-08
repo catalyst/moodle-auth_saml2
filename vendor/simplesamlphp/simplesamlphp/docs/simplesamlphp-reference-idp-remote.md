@@ -74,7 +74,7 @@ $metadata['entity-id-2'] = [
 :   The RSA encryption algorithm with PKCS#1 v1.5 padding is blacklisted by default for security reasons. Any assertions
     encrypted with this algorithm will therefore fail to decrypt. You can override this limitation by defining an empty
     array in this option (or blacklisting any other algorithms not including that one). However, it is strongly
-    discouraged to do so. For your own safety, please include the string 'http://www.w3.org/2001/04/xmlenc#rsa-1_5' if
+    discouraged to do so. For your own safety, please include the string `http://www.w3.org/2001/04/xmlenc#rsa-1_5` if
     you make use of this option.
 
 `hide.from.discovery`
@@ -203,7 +203,7 @@ $metadata['entity-id-2'] = [
 
 ### Decrypting assertions
 
-It is possible to decrypt the assertions received from an IdP. Currently the only algorithm supported is `AES128_CBC` or `RIJNDAEL_128`.
+It is possible to decrypt the assertions received from an IdP. The supported algorithms are listed in `sharedkey_algorithm` below.
 
 There are two modes of encryption supported by SimpleSAMLphp. One is symmetric encryption, in which case both the SP and the IdP needs to share a key. The other mode is the use of public key encryption. In that mode, the public key of the SP is extracted from the certificate of the SP.
 

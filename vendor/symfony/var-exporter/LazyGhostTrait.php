@@ -113,14 +113,14 @@ trait LazyGhostTrait
         $properties = (array) $this;
         $propertyScopes = Hydrator::$propertyScopes[$class] ??= Hydrator::getPropertyScopes($class);
         foreach ($state->initializer as $key => $initializer) {
-            if (\array_key_exists($key, $properties) || ![$scope, $name, $readonlyScope] = $propertyScopes[$key] ?? null) {
+            if (\array_key_exists($key, $properties) || ![$scope, $name, $writeScope] = $propertyScopes[$key] ?? null) {
                 continue;
             }
-            $scope = $readonlyScope ?? ('*' !== $scope ? $scope : $class);
+            $scope = $writeScope ?? $scope;
 
             if (null === $values) {
                 if (!\is_array($values = ($state->initializer["\0"])($this, Registry::$defaultProperties[$class]))) {
-                    throw new \TypeError(sprintf('The lazy-initializer defined for instance of "%s" must return an array, got "%s".', $class, get_debug_type($values)));
+                    throw new \TypeError(\sprintf('The lazy-initializer defined for instance of "%s" must return an array, got "%s".', $class, get_debug_type($values)));
                 }
 
                 if (\array_key_exists($key, $properties = (array) $this)) {
@@ -160,22 +160,28 @@ trait LazyGhostTrait
     {
         $propertyScopes = Hydrator::$propertyScopes[$this::class] ??= Hydrator::getPropertyScopes($this::class);
         $scope = null;
+        $notByRef = 0;
 
-        if ([$class, , $readonlyScope] = $propertyScopes[$name] ?? null) {
-            $scope = Registry::getScope($propertyScopes, $class, $name);
+        if ([$class, , $writeScope, $access] = $propertyScopes[$name] ?? null) {
+            $scope = Registry::getScopeForRead($propertyScopes, $class, $name);
             $state = $this->lazyObjectState ?? null;
 
             if ($state && (null === $scope || isset($propertyScopes["\0$scope\0$name"]))) {
+                $notByRef = $access & Hydrator::PROPERTY_NOT_BY_REF;
+
                 if (LazyObjectState::STATUS_INITIALIZED_FULL === $state->status) {
                     // Work around php/php-src#12695
                     $property = null === $scope ? $name : "\0$scope\0$name";
-                    $property = $propertyScopes[$property][3]
-                        ?? Hydrator::$propertyScopes[$this::class][$property][3] = new \ReflectionProperty($scope ?? $class, $name);
+                    $property = $propertyScopes[$property][4]
+                        ?? Hydrator::$propertyScopes[$this::class][$property][4] = new \ReflectionProperty($scope ?? $class, $name);
                 } else {
                     $property = null;
                 }
+                if (\PHP_VERSION_ID >= 80400 && !$notByRef && ($access >> 2) & \ReflectionProperty::IS_PRIVATE_SET) {
+                    $scope ??= $writeScope;
+                }
 
-                if ($property?->isInitialized($this) ?? LazyObjectState::STATUS_UNINITIALIZED_PARTIAL !== $state->initialize($this, $name, $readonlyScope ?? $scope)) {
+                if ($property?->isInitialized($this) ?? LazyObjectState::STATUS_UNINITIALIZED_PARTIAL !== $state->initialize($this, $name, $writeScope ?? $scope)) {
                     goto get_in_scope;
                 }
             }
@@ -192,14 +198,14 @@ trait LazyGhostTrait
 
         if (null === $class) {
             $frame = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0];
-            trigger_error(sprintf('Undefined property: %s::$%s in %s on line %s', $this::class, $name, $frame['file'], $frame['line']), \E_USER_NOTICE);
+            trigger_error(\sprintf('Undefined property: %s::$%s in %s on line %s', $this::class, $name, $frame['file'], $frame['line']), \E_USER_NOTICE);
         }
 
         get_in_scope:
 
         try {
             if (null === $scope) {
-                if (null === $readonlyScope) {
+                if (!$notByRef) {
                     return $this->$name;
                 }
                 $value = $this->$name;
@@ -208,7 +214,7 @@ trait LazyGhostTrait
             }
             $accessor = Registry::$classAccessors[$scope] ??= Registry::getClassAccessors($scope);
 
-            return $accessor['get']($this, $name, null !== $readonlyScope);
+            return $accessor['get']($this, $name, $notByRef);
         } catch (\Error $e) {
             if (\Error::class !== $e::class || !str_starts_with($e->getMessage(), 'Cannot access uninitialized non-nullable property')) {
                 throw $e;
@@ -223,7 +229,7 @@ trait LazyGhostTrait
 
                 $accessor['set']($this, $name, []);
 
-                return $accessor['get']($this, $name, null !== $readonlyScope);
+                return $accessor['get']($this, $name, $notByRef);
             } catch (\Error) {
                 if (preg_match('/^Cannot access uninitialized non-nullable property ([^ ]++) by reference$/', $e->getMessage(), $matches)) {
                     throw new \Error('Typed property '.$matches[1].' must not be accessed before initialization', $e->getCode(), $e->getPrevious());
@@ -239,15 +245,15 @@ trait LazyGhostTrait
         $propertyScopes = Hydrator::$propertyScopes[$this::class] ??= Hydrator::getPropertyScopes($this::class);
         $scope = null;
 
-        if ([$class, , $readonlyScope] = $propertyScopes[$name] ?? null) {
-            $scope = Registry::getScope($propertyScopes, $class, $name, $readonlyScope);
+        if ([$class, , $writeScope, $access] = $propertyScopes[$name] ?? null) {
+            $scope = Registry::getScopeForWrite($propertyScopes, $class, $name, $access >> 2);
             $state = $this->lazyObjectState ?? null;
 
-            if ($state && ($readonlyScope === $scope || isset($propertyScopes["\0$scope\0$name"]))
+            if ($state && ($writeScope === $scope || isset($propertyScopes["\0$scope\0$name"]))
                 && LazyObjectState::STATUS_INITIALIZED_FULL !== $state->status
             ) {
                 if (LazyObjectState::STATUS_UNINITIALIZED_FULL === $state->status) {
-                    $state->initialize($this, $name, $readonlyScope ?? $scope);
+                    $state->initialize($this, $name, $writeScope ?? $scope);
                 }
                 goto set_in_scope;
             }
@@ -274,13 +280,13 @@ trait LazyGhostTrait
         $propertyScopes = Hydrator::$propertyScopes[$this::class] ??= Hydrator::getPropertyScopes($this::class);
         $scope = null;
 
-        if ([$class, , $readonlyScope] = $propertyScopes[$name] ?? null) {
-            $scope = Registry::getScope($propertyScopes, $class, $name);
+        if ([$class, , $writeScope] = $propertyScopes[$name] ?? null) {
+            $scope = Registry::getScopeForRead($propertyScopes, $class, $name);
             $state = $this->lazyObjectState ?? null;
 
             if ($state && (null === $scope || isset($propertyScopes["\0$scope\0$name"]))
                 && LazyObjectState::STATUS_INITIALIZED_FULL !== $state->status
-                && LazyObjectState::STATUS_UNINITIALIZED_PARTIAL !== $state->initialize($this, $name, $readonlyScope ?? $scope)
+                && LazyObjectState::STATUS_UNINITIALIZED_PARTIAL !== $state->initialize($this, $name, $writeScope ?? $scope)
             ) {
                 goto isset_in_scope;
             }
@@ -305,15 +311,15 @@ trait LazyGhostTrait
         $propertyScopes = Hydrator::$propertyScopes[$this::class] ??= Hydrator::getPropertyScopes($this::class);
         $scope = null;
 
-        if ([$class, , $readonlyScope] = $propertyScopes[$name] ?? null) {
-            $scope = Registry::getScope($propertyScopes, $class, $name, $readonlyScope);
+        if ([$class, , $writeScope, $access] = $propertyScopes[$name] ?? null) {
+            $scope = Registry::getScopeForWrite($propertyScopes, $class, $name, $access >> 2);
             $state = $this->lazyObjectState ?? null;
 
-            if ($state && ($readonlyScope === $scope || isset($propertyScopes["\0$scope\0$name"]))
+            if ($state && ($writeScope === $scope || isset($propertyScopes["\0$scope\0$name"]))
                 && LazyObjectState::STATUS_INITIALIZED_FULL !== $state->status
             ) {
                 if (LazyObjectState::STATUS_UNINITIALIZED_FULL === $state->status) {
-                    $state->initialize($this, $name, $readonlyScope ?? $scope);
+                    $state->initialize($this, $name, $writeScope ?? $scope);
                 }
                 goto unset_in_scope;
             }
@@ -369,7 +375,7 @@ trait LazyGhostTrait
             $value = $properties[$k = $name] ?? $properties[$k = "\0*\0$name"] ?? $properties[$k = "\0$class\0$name"] ?? $properties[$k = "\0$scope\0$name"] ?? $k = null;
 
             if (null === $k) {
-                trigger_error(sprintf('serialize(): "%s" returned as member variable from __sleep() but does not exist', $name), \E_USER_NOTICE);
+                trigger_error(\sprintf('serialize(): "%s" returned as member variable from __sleep() but does not exist', $name), \E_USER_NOTICE);
             } else {
                 $data[$k] = $value;
             }

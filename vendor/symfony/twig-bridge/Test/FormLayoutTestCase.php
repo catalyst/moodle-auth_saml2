@@ -17,7 +17,7 @@ use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\Form\FormRendererInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\Form\Test\FormIntegrationTestCase;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Component\Security\Csrf\CsrfTokenManager;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
@@ -44,7 +44,7 @@ abstract class FormLayoutTestCase extends FormIntegrationTestCase
         }
 
         $rendererEngine = new TwigRendererEngine($this->getThemes(), $environment);
-        $this->renderer = new FormRenderer($rendererEngine, $this->createMock(CsrfTokenManagerInterface::class));
+        $this->renderer = new FormRenderer($rendererEngine, new CsrfTokenManager());
         $this->registerTwigRuntimeLoader($environment, $this->renderer);
     }
 
@@ -57,7 +57,7 @@ abstract class FormLayoutTestCase extends FormIntegrationTestCase
             // the top level
             $dom->loadXML('<root>'.$html.'</root>');
         } catch (\Exception $e) {
-            $this->fail(sprintf(
+            $this->fail(\sprintf(
                 "Failed loading HTML:\n\n%s\n\nError: %s",
                 $html,
                 $e->getMessage()
@@ -68,7 +68,7 @@ abstract class FormLayoutTestCase extends FormIntegrationTestCase
 
         if ($nodeList->length != $count) {
             $dom->formatOutput = true;
-            $this->fail(sprintf(
+            $this->fail(\sprintf(
                 "Failed asserting that \n\n%s\n\nmatches exactly %s. Matches %s in \n\n%s",
                 $expression,
                 1 == $count ? 'once' : $count.' times',

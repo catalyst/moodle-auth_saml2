@@ -43,9 +43,9 @@ final class form_regenerate_test extends \advanced_testcase {
         $regenerateform = new regenerate();
         self::assertFalse($regenerateform->is_cancelled());
         $formdata = $regenerateform->get_data();
-        require_once($CFG->dirroot.'/auth/saml2/locallib.php');
-        require_once($CFG->dirroot.'/auth/saml2/auth.php');
-        require_once($CFG->dirroot.'/auth/saml2/setuplib.php');
+        require_once($CFG->dirroot . '/auth/saml2/locallib.php');
+        require_once($CFG->dirroot . '/auth/saml2/auth.php');
+        require_once($CFG->dirroot . '/auth/saml2/setuplib.php');
         auth_saml2_process_regenerate_form($formdata);
         self::assertSame('AU', $formdata->countryname);
         self::assertSame('moodle', $formdata->stateorprovincename);

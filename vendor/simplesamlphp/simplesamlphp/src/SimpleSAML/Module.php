@@ -156,7 +156,7 @@ class Module
      * configuration and the actual request, it will run a PHP script and exit, or return a Response produced either
      * by another controller or by a static file.
      *
-     * @param Request|null $request The request to process. Defaults to the current one.
+     * @param \Symfony\Component\HttpFoundation\Request|null $request The request to process. Defaults to the current one.
      *
      * @return Response|BinaryFileResponse Returns a Response object that can be sent to the browser.
      * @throws Error\BadRequest In case the request URI is malformed.
@@ -483,7 +483,7 @@ class Module
      * @param string The classname.
      * @param string|null $subclass The class should be a subclass of this class. Optional.
      *
-     * @return the new object
+     * @return object The new object
      */
     public static function createObject(string $className, ?string $subclass = null): object
     {

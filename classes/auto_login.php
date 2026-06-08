@@ -98,8 +98,10 @@ class auto_login {
                 }
                 // If the cookie is set to the same value it was last time we looked, do nothing.
                 $currentcookie = $_COOKIE[$auth->config->autologincookie];
-                if (!empty($SESSION->auth_saml2_lastautologincookie) &&
-                        $SESSION->auth_saml2_lastautologincookie === $currentcookie) {
+                if (
+                    !empty($SESSION->auth_saml2_lastautologincookie) &&
+                        $SESSION->auth_saml2_lastautologincookie === $currentcookie
+                ) {
                     return;
                 }
                 break;

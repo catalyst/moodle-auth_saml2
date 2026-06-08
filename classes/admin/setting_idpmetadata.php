@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 namespace auth_saml2\admin;
 
 use admin_setting_configtextarea;
@@ -49,7 +50,8 @@ class setting_idpmetadata extends admin_setting_configtextarea {
             '',
             PARAM_RAW,
             80,
-            5);
+            5
+        );
     }
 
     /**
@@ -132,8 +134,13 @@ class setting_idpmetadata extends admin_setting_configtextarea {
      * @param mixed $oldidps
      * @param int $activedefault
      */
-    private function process_idp_xml(idp_data $idp, DOMElement $idpelements, DOMXPath $xpath,
-                                        &$oldidps, $activedefault = 0) {
+    private function process_idp_xml(
+        idp_data $idp,
+        DOMElement $idpelements,
+        DOMXPath $xpath,
+        &$oldidps,
+        $activedefault = 0
+    ) {
         global $DB;
         $entityid = $idpelements->getAttribute('entityID');
 
@@ -206,7 +213,7 @@ class setting_idpmetadata extends admin_setting_configtextarea {
     public function get_idps_data($value) {
         global $CFG;
 
-        require_once($CFG->libdir.'/filelib.php');
+        require_once($CFG->libdir . '/filelib.php');
 
         $parser = new idp_parser();
         $idps = $parser->parse($value);

@@ -9,6 +9,7 @@ use DateTime; // Requires ext-date
 use DateTimeImmutable; // Requires ext-date
 use InvalidArgumentException; // Requires ext-spl
 use Throwable;
+use UnitEnum;
 use Webmozart\Assert\Assert as Webmozart;
 
 use function array_pop;
@@ -43,7 +44,7 @@ use function strval;
  * @method static void boolean(mixed $value, string $message = '', string $exception = '')
  * @method static void scalar(mixed $value, string $message = '', string $exception = '')
  * @method static void object(mixed $value, string $message = '', string $exception = '')
- * @method static void resource(mixed $value, string|null $type, string $message = '', string $exception = '')
+ * @method static void resource(mixed $value, string|null $type = null, string $message = '', string $exception = '')
  * @method static void isCallable(mixed $value, string $message = '', string $exception = '')
  * @method static void isArray(mixed $value, string $message = '', string $exception = '')
  * @method static void isTraversable(mixed $value, string $message = '', string $exception = '')
@@ -129,7 +130,7 @@ use function strval;
  * @method static void nullOrString(mixed $value, string $message = '', string $exception = '')
  * @method static void allString(mixed $value, string $message = '', string $exception = '')
  * @method static void nullOrStringNotEmpty(mixed $value, string $message = '', string $exception = '')
- * @method static void allOrStringNotEmpty(mixed $value, string $message = '', string $exception = '')
+ * @method static void allStringNotEmpty(mixed $value, string $message = '', string $exception = '')
  * @method static void nullOrInteger(mixed $value, string $message = '', string $exception = '')
  * @method static void allInteger(mixed $value, string $message = '', string $exception = '')
  * @method static void nullOrIntegerish(mixed $value, string $message = '', string $exception = '')
@@ -148,8 +149,8 @@ use function strval;
  * @method static void allScalar(mixed $value, string $message = '', string $exception = '')
  * @method static void nullOrObject(mixed $value, string $message = '', string $exception = '')
  * @method static void allObject(mixed $value, string $message = '', string $exception = '')
- * @method static void nullOrResource(mixed $value, string|null $type, string $message = '', string $exception = '')
- * @method static void allResource(mixed $value, string|null $type, string $message = '', string $exception = '')
+ * @method static void nullOrResource(mixed $value, string|null $type = null, string $message = '', string $exception = '')
+ * @method static void allResource(mixed $value, string|null $type = null, string $message = '', string $exception = '')
  * @method static void nullOrIsCallable(mixed $value, string $message = '', string $exception = '')
  * @method static void allIsCallable(mixed $value, string $message = '', string $exception = '')
  * @method static void nullOrIsArray(mixed $value, string $message = '', string $exception = '')
@@ -352,12 +353,14 @@ class Assert
         try {
             // Putting Webmozart first, since the most calls will be to their native assertions
             if (method_exists(Webmozart::class, $name)) {
-                call_user_func_array([Webmozart::class, $name], $arguments);
+                $callable = [Webmozart::class, $name];
+                (is_callable($callable)) && call_user_func_array($callable, $arguments);
                 return;
             } elseif (method_exists(static::class, $name)) {
-                call_user_func_array([static::class, $name], $arguments);
+                $callable = [static::class, $name];
+                (is_callable($callable)) && call_user_func_array($callable, $arguments);
                 return;
-            } elseif (preg_match('/^nullOr(.*)$/i', $name, $matches)) {
+            } elseif (preg_match('/^nullOr(.+)$/i', $name, $matches)) {
                 $method = lcfirst($matches[1]);
                 if (method_exists(Webmozart::class, $method)) {
                     call_user_func_array([static::class, 'nullOr'], [[Webmozart::class, $method], $arguments]);
@@ -366,7 +369,7 @@ class Assert
                 } else {
                     throw new BadMethodCallException(sprintf("Assertion named `%s` does not exists.", $method));
                 }
-            } elseif (preg_match('/^all(.*)$/i', $name, $matches)) {
+            } elseif (preg_match('/^all(.+)$/i', $name, $matches)) {
                 $method = lcfirst($matches[1]);
                 if (method_exists(Webmozart::class, $method)) {
                     call_user_func_array([static::class, 'all'], [[Webmozart::class, $method], $arguments]);
@@ -452,8 +455,8 @@ class Assert
                 return $value::class . ': ' . self::valueToString($value->format('c'));
             }
 
-            if (function_exists('enum_exists') && enum_exists(get_class($value))) {
-                return get_class($value) . '::' . $value->name;
+            if ($value instanceof UnitEnum) {
+                return $value::class . '::' . $value->name;
             }
 
             return $value::class;

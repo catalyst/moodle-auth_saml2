@@ -25,7 +25,6 @@ namespace auth_saml2;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class metadata_writer_test extends \basic_testcase {
-
     public function test_write_default_path(): void {
         global $CFG;
 
