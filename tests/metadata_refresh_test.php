@@ -18,6 +18,10 @@ namespace auth_saml2;
 
 use auth_saml2\task\metadata_refresh;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/psr17_factory_pin.php');
+
 /**
  * Testcase class for metadata_refresh task class.
  *

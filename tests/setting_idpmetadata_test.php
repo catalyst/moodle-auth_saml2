@@ -20,7 +20,7 @@ use auth_saml2\admin\setting_idpmetadata;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once(__DIR__ . '/../vendor/autoload.php');
+require_once(__DIR__ . '/psr17_factory_pin.php');
 
 /**
  * Test setting idp Metadata.
@@ -33,6 +33,11 @@ require_once(__DIR__ . '/../vendor/autoload.php');
 final class setting_idpmetadata_test extends \advanced_testcase {
     /** @var setting_idpmetadata */
     private static $config;
+
+    public static function setUpBeforeClass(): void {
+        parent::setUpBeforeClass();
+        require_once(__DIR__ . '/../vendor/autoload.php');
+    }
 
     protected function setUp(): void {
         parent::setUp();
