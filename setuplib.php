@@ -40,6 +40,7 @@ require_once("{$CFG->dirroot}/auth/saml2/auth.php");
  * @param \auth_saml2\auth $saml2auth config object
  * @param array $dn Certificate Distinguished name details
  * @param integer $numberofdays Certificate expirey period
+ * @return string|void Error message string on failure, void on success
  */
 function create_certificates($saml2auth, $dn = false, $numberofdays = 3650) {
     global $SITE;
@@ -131,7 +132,7 @@ function pretty_print($arr) {
                 $val = (array) $val;
             }
             if (is_array($val)) {
-                $retstr .= '<tr><td>' . $key . '</td><td>' . pretty_print($val) . '</td></tr>';
+                $retstr .= '<tr><td>' . s($key) . '</td><td>' . pretty_print($val) . '</td></tr>';
             } else {
                 if (
                     strpos($key, 'valid') !== false
@@ -139,7 +140,7 @@ function pretty_print($arr) {
                 ) {
                     $val = userdate($val) . " ($val)";
                 }
-                $retstr .= '<tr><td>' . $key . '</td><td>' . ($val == '' ? '""' : $val) . '</td></tr>';
+                $retstr .= '<tr><td>' . s($key) . '</td><td>' . ($val == '' ? '""' : s($val)) . '</td></tr>';
             }
         }
     }

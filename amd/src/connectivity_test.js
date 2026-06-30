@@ -22,6 +22,12 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+/**
+ * Initialise connectivity check: fetches checkTarget and redirects to redirURL on success.
+ *
+ * @param {string} checkTarget URL to HEAD-request as the connectivity probe
+ * @param {string} redirURL URL to redirect to when the probe succeeds
+ */
 export const init = (checkTarget, redirURL) => {
     // We need to use no-cors to ignore cors, however,
     // this means we are returned an opaque response.

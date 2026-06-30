@@ -48,7 +48,7 @@ if ($fromform = $mform->get_data()) {
         auth_saml2_process_regenerate_form($fromform);
         redirect(new moodle_url('/auth/saml2/cert.php'), get_string('success'), null, \core\output\notification::NOTIFY_SUCCESS);
     } catch (saml2_exception $exception) {
-        $error = $exception->getMessage() . $exception->getTraceAsString();
+        $error = $exception->getMessage();
     }
 }
 

@@ -39,25 +39,23 @@ $form = new \auth_saml2\form\lockcertificate();
 $settingspage = new moodle_url('/admin/settings.php?section=authsettingsaml2');
 
 if ($data = $form->get_data()) {
-    if ($form->is_submitted()) {
-        $certfiles = [$saml2auth->certpem, $saml2auth->certcrt];
-        if (isset($data->unlockcertsbutton)) {
-            // Change the permissions in order to regenerate if unlocked.
-            foreach ($certfiles as $certfile) {
-                chmod($certfile, $CFG->filepermissions);
-            }
-            // Store the unlocked state in config.
-            set_config('certs_locked', '0', 'auth_saml2');
-        } else {
-            foreach ($certfiles as $certfile) {
-                chmod($certfile, $CFG->filepermissions & 0440);
-            }
-            // Store the locked state in config.
-            set_config('certs_locked', '1', 'auth_saml2');
+    $certfiles = [$saml2auth->certpem, $saml2auth->certcrt];
+    if (isset($data->unlockcertsbutton)) {
+        // Change the permissions in order to regenerate if unlocked.
+        foreach ($certfiles as $certfile) {
+            chmod($certfile, $CFG->filepermissions);
         }
-
-        redirect($settingspage);
+        // Store the unlocked state in config.
+        set_config('certs_locked', '0', 'auth_saml2');
+    } else {
+        foreach ($certfiles as $certfile) {
+            chmod($certfile, $CFG->filepermissions & 0440);
+        }
+        // Store the locked state in config.
+        set_config('certs_locked', '1', 'auth_saml2');
     }
+
+    redirect($settingspage);
 } else if ($form->is_cancelled()) {
     redirect($settingspage);
 }

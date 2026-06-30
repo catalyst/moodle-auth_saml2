@@ -38,6 +38,7 @@ class mock_settings {
      * Add an admin setting
      *
      * @param \admin_setting $setting
+     * @return void
      */
     public function add(admin_setting $setting) {
         $this->fields[$setting->get_id()] = $setting;

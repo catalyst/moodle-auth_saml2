@@ -57,6 +57,7 @@ class idp_parser {
      * Does the field *look* like xml, mostly?
      *
      * @param string $xml
+     * @return bool
      */
     public function check_xml($xml) {
 
@@ -79,6 +80,7 @@ class idp_parser {
      * Parse the xml
      *
      * @param string $xml
+     * @return void
      */
     public function parse_xml($xml) {
         $singleidp = new \auth_saml2\idp_data(null, 'xml', null);
@@ -90,6 +92,7 @@ class idp_parser {
      * Parse the urls
      *
      * @param string $urls
+     * @return void
      */
     public function parse_urls($urls) {
         // First split the contents based on newlines.
@@ -115,24 +118,12 @@ class idp_parser {
 
                 $idpdata = new \auth_saml2\idp_data($idpname, $idpurl, $idpicon);
             } else if (count($parts) === 2) {
-                // Two elements could either be a IdPName + IdPURL, or IdPURL + IdPIcon.
+                // Two elements: IdPName + IdPURL combo (parts are split on 'http',
+                // so $parts[0] is always the name prefix, never a URL).
+                $idpname = $parts[0];
+                $idpurl = $scheme . $parts[1];
 
-                // Detect if $parts[0] starts with a URL.
-                if (
-                    substr($parts[0], 0, 8) === 'https://' ||
-                    substr($parts[0], 0, 7) === 'http://'
-                ) {
-                    $idpurl = $scheme . $parts[1];
-                    $idpicon = $scheme . $parts[2];
-
-                    $idpdata = new \auth_saml2\idp_data(null, $idpurl, $idpicon);
-                } else {
-                    // We would then know that is a IdPName + IdPURL combo.
-                    $idpname = $parts[0];
-                    $idpurl = $scheme . $parts[1];
-
-                    $idpdata = new \auth_saml2\idp_data($idpname, $idpurl, null);
-                }
+                $idpdata = new \auth_saml2\idp_data($idpname, $idpurl, null);
             } else if (count($parts) === 1) {
                 // One element is the previous default.
                 $idpurl = $scheme . $parts[0];

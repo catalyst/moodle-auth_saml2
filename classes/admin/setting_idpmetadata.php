@@ -148,9 +148,9 @@ class setting_idpmetadata extends admin_setting_configtextarea {
         $names = $xpath->query('.//mdui:DisplayName', $idpelements);
         $idpname = null;
         if ($names && $names->length > 0) {
-            $idpname = $names->item(0)->textContent;
+            $idpname = clean_param($names->item(0)->textContent, PARAM_TEXT);
         } else if (!empty($idp->idpname)) {
-            $idpname = $idp->idpname;
+            $idpname = clean_param($idp->idpname, PARAM_TEXT);
         } else {
             $idpname = get_string('idpnamedefault', 'auth_saml2');
         }
@@ -159,7 +159,7 @@ class setting_idpmetadata extends admin_setting_configtextarea {
         $logos = $xpath->query('.//mdui:Logo', $idpelements);
         $logo = null;
         if ($logos && $logos->length > 0) {
-            $logo = $logos->item(0)->textContent;
+            $logo = clean_param($logos->item(0)->textContent, PARAM_URL);
         }
 
         if (isset($oldidps[$idp->idpurl][$entityid])) {
@@ -197,10 +197,16 @@ class setting_idpmetadata extends admin_setting_configtextarea {
     private function remove_old_idps($oldidps) {
         global $DB;
 
+        $ids = [];
         foreach ($oldidps as $metadataidps) {
             foreach ($metadataidps as $oldidp) {
-                $DB->delete_records('auth_saml2_idps', ['id' => $oldidp->id]);
+                $ids[] = $oldidp->id;
             }
+        }
+
+        if (!empty($ids)) {
+            [$insql, $inparams] = $DB->get_in_or_equal($ids);
+            $DB->delete_records_select('auth_saml2_idps', "id $insql", $inparams);
         }
     }
 
@@ -254,7 +260,7 @@ class setting_idpmetadata extends admin_setting_configtextarea {
             $lines = explode("\n", $rawxml);
             $msg = '';
             foreach ($errors as $error) {
-                $msg .= "<br>Error ({$error->code}) line $error->line char  $error->column: $error->message";
+                $msg .= '<br>Error (' . s($error->code) . ') line ' . s($error->line) . ' char ' . s($error->column) . ': ' . s($error->message);
             }
 
             throw new setting_idpmetadata_exception(get_string('idpmetadata_invalid', 'auth_saml2') . $msg);

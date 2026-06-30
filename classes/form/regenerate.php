@@ -33,6 +33,7 @@ require_once("$CFG->libdir/formslib.php");
 /**
  * Regenerate the Private Key and Certificate files
  *
+ * @package    auth_saml2
  * @copyright  Matt Porritt <mattp@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

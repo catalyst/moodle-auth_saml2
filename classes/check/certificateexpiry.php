@@ -47,7 +47,6 @@ class certificateexpiry extends check {
      * Constructor
      */
     public function __construct() {
-        global $CFG;
         $this->id = 'certificateexpiry';
         $this->name = get_string('checkcertificateexpiry', 'auth_saml2');
     }
@@ -69,7 +68,7 @@ class certificateexpiry extends check {
      * @return result
      */
     public function get_result(): result {
-        global $CFG, $saml2auth;
+        global $saml2auth;
 
         $path = $saml2auth->certcrt;
         $data = openssl_x509_parse(file_get_contents($path));

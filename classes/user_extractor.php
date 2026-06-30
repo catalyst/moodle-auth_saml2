@@ -70,7 +70,6 @@ class user_extractor {
             $fields = array_merge(\core_user::AUTHSYNCFIELDS, ['id', 'username']);
             if (in_array($fieldname, $fields)) {
                 $fieldsql = " AND " . $DB->sql_equal('u.' . $fieldname, ':fieldvalue', !$insensitive, $accentsensitive);
-                $params['fieldname'] = $fieldname;
             }
         }
 

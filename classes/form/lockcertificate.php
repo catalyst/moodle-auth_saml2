@@ -35,8 +35,9 @@ require_once($CFG->libdir . '/formslib.php');
 /**
  * Form for locking the certificates.
  *
- * @copyright Catalyst IT
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    auth_saml2
+ * @copyright  Catalyst IT
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class lockcertificate extends moodleform {
     /**

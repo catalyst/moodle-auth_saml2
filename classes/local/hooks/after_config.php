@@ -28,6 +28,7 @@ class after_config {
      * Callback executed from setup.php, available from Moodle 3.8 in core
      *
      * @param \core\hook\after_config $hook
+     * @return void
      */
     public static function callback(\core\hook\after_config $hook): void {
         global $CFG;

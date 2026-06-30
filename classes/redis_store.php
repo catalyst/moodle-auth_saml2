@@ -119,7 +119,8 @@ class redis_store implements \SimpleSAML\Store\StoreInterface {
             $redis = new \Redis();
             $redis->connect($CFG->auth_saml2_redis_server);
         } catch (\RedisException $e) {
-            throw new \coding_exception("RedisException caught with message: {$e->getMessage()}");
+            debugging('Redis connection failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
+            throw new \coding_exception('Redis connection failed. Check server configuration.');
         }
 
         if (!$redis->setOption(\Redis::OPT_PREFIX, $this->prefix)) {

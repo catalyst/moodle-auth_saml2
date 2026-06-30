@@ -50,18 +50,7 @@ $file = $saml2auth->get_file_sp_metadata_file($baseurl);
 
 $xml = auth_saml2_get_sp_metadata($baseurl);
 
-if (array_key_exists('output', $_REQUEST) && $_REQUEST['output'] == 'xhtml') {
-
-	$t = new SimpleSAML_XHTML_Template($config, 'metadata.php', 'admin');
-
-	$t->data['header'] = 'saml20-sp';
-	$t->data['metadata'] = htmlspecialchars($xml);
-	$t->data['metadataflat'] = '$metadata[' . var_export($entityId, TRUE) . '] = ' . var_export($metaArray20, TRUE) . ';';
-	$t->data['metaurl'] = $source->getMetadataURL();
-	$t->show();
-} else {
-	// header('Content-Type: application/samlmetadata+xml');
-	header('Content-Type: text/xml');
-	echo($xml);
-}
+// header('Content-Type: application/samlmetadata+xml');
+header('Content-Type: text/xml');
+echo($xml);
 

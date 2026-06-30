@@ -53,7 +53,7 @@ foreach ($userfields as $field) {
 
 // Get data from input request.
 $id = $xpath->evaluate('normalize-space(/*/@ID)');
-$destination = htmlspecialchars($xpath->evaluate('normalize-space(/*/@AssertionConsumerServiceURL)'));
+$destination = $xpath->evaluate('normalize-space(/*/@AssertionConsumerServiceURL)');
 $sp = $xpath->evaluate('normalize-space(/*/*[local-name() = "Issuer"])');
 
 // Confirm we know about this SP.
@@ -69,6 +69,14 @@ foreach (explode(PHP_EOL, $saml2auth->config->moodleidpsplist) as $ksp) {
 if (!in_array($sp, $knownsps)) {
     throw new saml2_exception('unknown_sp_error', get_string('moodleidpsplist_error', 'auth_saml2', $sp));
 }
+
+// Validate the ACS destination URL: must be an absolute https URL.
+$parseddest = parse_url($destination);
+if (empty($parseddest['scheme']) || strtolower($parseddest['scheme']) !== 'https' || empty($parseddest['host'])) {
+    throw new saml2_exception('invalid_destination', get_string('moodleidpsplist_error', 'auth_saml2', $sp));
+}
+// Escape destination for safe use in XML attribute values.
+$destination = htmlspecialchars($destination, ENT_XML1 | ENT_QUOTES);
 
 // Get time in UTC.
 $datetime = new DateTime();

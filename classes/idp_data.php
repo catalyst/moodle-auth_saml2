@@ -64,6 +64,7 @@ class idp_data {
      * Set raw xml.
      *
      * @param string $rawxml
+     * @return void
      */
     public function set_rawxml($rawxml) {
         $this->rawxml = $rawxml;

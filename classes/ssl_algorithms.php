@@ -18,8 +18,6 @@ namespace auth_saml2;
 
 defined('MOODLE_INTERNAL') || die();
 
-global $saml2auth;
-
 /**
  * SSL Algorithms class
  *
@@ -31,6 +29,8 @@ global $saml2auth;
 abstract class ssl_algorithms {
     /**
      * Return a sensible default signature algorithm for simplesamlphp config.
+     *
+     * @return string
      */
     public static function get_default_saml_signature_algorithm() {
         // Sha1 is deprecated so we default to something more sensible.
@@ -39,6 +39,8 @@ abstract class ssl_algorithms {
 
     /**
      * Return an array of signature algorithms in a form suitable for feeding into a dropdown form.
+     *
+     * @return array
      */
     public static function get_valid_saml_signature_algorithms() {
         $return = [];

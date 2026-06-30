@@ -53,18 +53,21 @@ class testidpselect extends moodleform {
         }
 
         $mform->addElement('select', 'idp', get_string('test_auth_button_login', 'auth_saml2'), $selectvalues);
+        $mform->setType('idp', PARAM_TEXT);
 
         $radioarray = [];
         $radioarray[] = $mform->createElement('radio', 'testtype', '', get_string('test_auth_str', 'auth_saml2'), 'login');
         $radioarray[] = $mform->createElement('radio', 'testtype', '', get_string('test_passive_str', 'auth_saml2'), 'passive');
 
         $mform->setDefault('testtype', 'login');
+        $mform->setType('testtype', PARAM_TEXT);
         $mform->addGroup($radioarray, 'radioar', '', ['<br/>'], false);
         $mform->addElement('submit', 'login', get_string('test_auth_button_login', 'auth_saml2'));
 
         $mform->addElement('html', '<br /><br />');
 
         $mform->addElement('select', 'idplogout', get_string('test_auth_button_logout', 'auth_saml2'), $selectvalues);
+        $mform->setType('idplogout', PARAM_TEXT);
         $mform->addElement('submit', 'logout', get_string('test_auth_button_logout', 'auth_saml2'));
     }
 }

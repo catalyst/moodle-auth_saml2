@@ -29,7 +29,6 @@ use auth_saml2\idp_parser;
 use auth_saml2\metadata_fetcher;
 use auth_saml2\metadata_parser;
 use auth_saml2\metadata_writer;
-use moodle_exception;
 
 /**
  * Auth SAML2 metadata refresh scheduled task.
@@ -39,21 +38,6 @@ use moodle_exception;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class metadata_refresh extends \core\task\scheduled_task {
-    /**
-     * @var metadata_fetcher
-     */
-    private $fetcher;
-
-    /**
-     * @var metadata_parser
-     */
-    private $parser;
-
-    /**
-     * @var metadata_writer
-     */
-    private $writer;
-
     /**
      * @var idp_parser
      */
@@ -109,33 +93,6 @@ class metadata_refresh extends \core\task\scheduled_task {
 
         mtrace('IdP metadata refresh completed successfully.');
         return true;
-    }
-
-    /**
-     * Set fetcher.
-     *
-     * @param metadata_fetcher $fetcher
-     */
-    public function set_fetcher(metadata_fetcher $fetcher) {
-        $this->fetcher = $fetcher;
-    }
-
-    /**
-     * Set parser.
-     *
-     * @param metadata_parser $parser
-     */
-    public function set_parser(metadata_parser $parser) {
-        $this->parser = $parser;
-    }
-
-    /**
-     * Set writer.
-     *
-     * @param metadata_writer $writer
-     */
-    public function set_writer(metadata_writer $writer) {
-        $this->writer = $writer;
     }
 
     /**

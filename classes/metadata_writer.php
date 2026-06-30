@@ -44,7 +44,7 @@ class metadata_writer {
     public function __construct($path = '') {
         global $CFG;
 
-        if (empty($path) || strpos($path, $CFG->wwwroot) !== 0) {
+        if (empty($path) || strpos($path, $CFG->dataroot) !== 0) {
             $path = $CFG->dataroot . '/saml2/';
         }
         $this->certpath = $path;

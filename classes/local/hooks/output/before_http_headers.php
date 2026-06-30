@@ -28,6 +28,7 @@ class before_http_headers {
      * Callback before HTTP headers are sent.
      *
      * @param \core\hook\output\before_http_headers $hook
+     * @return void
      */
     public static function callback(\core\hook\output\before_http_headers $hook): void {
         \auth_saml2\auto_login::process();
