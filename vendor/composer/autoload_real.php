@@ -31,7 +31,7 @@ class ComposerAutoloaderInitadb4a871be02446eefeecc569fa94b8d
         require __DIR__ . '/autoload_static.php';
         call_user_func(\Composer\Autoload\ComposerStaticInitadb4a871be02446eefeecc569fa94b8d::getInitializer($loader));
 
-        $loader->register(true);
+        $loader->register(false);
 
         $filesToLoad = \Composer\Autoload\ComposerStaticInitadb4a871be02446eefeecc569fa94b8d::$files;
         $requireFile = \Closure::bind(static function ($fileIdentifier, $file) {

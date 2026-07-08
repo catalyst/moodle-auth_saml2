@@ -3,6 +3,7 @@
     "description": "SAML done 100% in Moodle, fast, simple, secure",
     "type": "library",
     "config": {
+        "prepend-autoloader": false,
         "allow-plugins": {
             "simplesamlphp/composer-xmlprovider-installer": true,
             "simplesamlphp/composer-module-installer": true,
