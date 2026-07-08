@@ -26,6 +26,8 @@
  * Callback before HTTP headers are sent.
  *
  * This is called on every page.
+ *
+ * @return void
  */
 function auth_saml2_before_http_headers() {
     \auth_saml2\auto_login::process();

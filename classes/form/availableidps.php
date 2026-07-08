@@ -28,7 +28,6 @@ namespace auth_saml2\form;
 defined('MOODLE_INTERNAL') || die();
 
 use moodleform;
-use core\output\notification;
 
 require_once("$CFG->libdir/formslib.php");
 
@@ -45,7 +44,6 @@ class availableidps extends moodleform {
      * Definition
      */
     public function definition() {
-        global $OUTPUT;
         $mform = $this->_form;
 
         $metadataentities = $this->_customdata['metadataentities'];
@@ -61,7 +59,7 @@ class availableidps extends moodleform {
 
                 // List the source.
                 $mform->addElement('html', \html_writer::div(
-                    get_string('source', 'auth_saml2', $idpentity['entityid']),
+                    get_string('source', 'auth_saml2', s($idpentity['entityid'])),
                     'alert p-2 bg-gray bg-gray020'
                 ));
 
@@ -87,6 +85,7 @@ class availableidps extends moodleform {
                     [],
                     [false, true]
                 );
+                $mform->setType($fieldkey . '[activeidp]', PARAM_BOOL);
 
                 // Add the defaultidp checkbox.
                 $mform->addElement(
@@ -97,6 +96,7 @@ class availableidps extends moodleform {
                     [],
                     [false, true]
                 );
+                $mform->setType($fieldkey . '[defaultidp]', PARAM_BOOL);
 
                 // Add the adminidp checkbox.
                 $mform->addElement(
@@ -107,6 +107,7 @@ class availableidps extends moodleform {
                     [],
                     [false, true]
                 );
+                $mform->setType($fieldkey . '[adminidp]', PARAM_BOOL);
                 $mform->addHelpButton($fieldkey . '[adminidp]', 'multiidp:label:admin', 'auth_saml2');
 
                 // Add whitelisted IP for redirection to this IdP.

@@ -647,7 +647,7 @@ class auth extends \auth_plugin_base {
             }
         }
 
-        if (isset($_GET['rememberidp']) && $_GET['rememberidp'] == 1) {
+        if (optional_param('rememberidp', 0, PARAM_BOOL) == 1) {
             $this->set_idp_cookie($SESSION->saml2idp);
         }
 
@@ -794,7 +794,7 @@ class auth extends \auth_plugin_base {
                     'reason' => AUTH_LOGIN_NOUSER]]);
                 $event->trigger();
                 $this->log(__FUNCTION__ . " user '$uid' is not in moodle so error");
-                $this->error_page(get_string('nouser', 'auth_saml2', $uid));
+                $this->error_page(get_string('nouser', 'auth_saml2', s($uid)));
             }
         } else {
             // Prevent access to users who are suspended.
@@ -808,7 +808,7 @@ class auth extends \auth_plugin_base {
                 ]);
                 $event->trigger();
 
-                $this->error_page(get_string('suspendeduser', 'auth_saml2', $uid));
+                $this->error_page(get_string('suspendeduser', 'auth_saml2', s($uid)));
             }
 
             $this->log(__FUNCTION__ . ' found user ' . $user->username);
@@ -825,7 +825,7 @@ class auth extends \auth_plugin_base {
             $event->trigger();
 
             $this->log(__FUNCTION__ . " user $uid is auth type: $user->auth");
-            $this->error_page(get_string('wrongauth', 'auth_saml2', $uid));
+            $this->error_page(get_string('wrongauth', 'auth_saml2', s($uid)));
         }
 
         if ($this->config->anyauth && !is_enabled_auth($user->auth)) {
@@ -840,7 +840,7 @@ class auth extends \auth_plugin_base {
 
             $this->log(__FUNCTION__ . " user $uid's auth type: $user->auth is not enabled");
             $this->error_page(get_string('anyauthotherdisabled', 'auth_saml2', [
-                'username' => $uid, 'auth' => $user->auth,
+                'username' => s($uid), 'auth' => s($user->auth),
             ]));
         }
 
@@ -860,8 +860,6 @@ class auth extends \auth_plugin_base {
         // Make sure all user data is fetched.
         $user = get_complete_user_data('username', $user->username, null, false);
         complete_user_login($user);
-        $USER->loggedin = true;
-        $USER->site = $CFG->wwwroot;
         set_moodle_cookie($USER->username);
 
         $wantsurl = core_login_get_return_url();

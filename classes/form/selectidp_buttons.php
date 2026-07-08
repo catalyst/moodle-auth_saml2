@@ -53,6 +53,7 @@ class selectidp_buttons extends moodleform {
         $mform->addElement('hidden', 'wants', $wants);
         $mform->setType('wants', PARAM_URL);
         $mform->addElement('checkbox', 'rememberidp', '', get_string('rememberidp', 'auth_saml2'));
+        $mform->setType('rememberidp', PARAM_BOOL);
 
         foreach ($metadataentities as $idpentities) {
             if (isset($idpentities[$storedchoiceidp])) {
@@ -82,12 +83,14 @@ class selectidp_buttons extends moodleform {
      * @return string
      */
     private function get_idpbutton($idpentityid, $idpname, $logourl, $rememberedidp = false) {
-        $logo = !is_null($logourl) ? "<img src=\"{$logourl}\"> " : "";
+        $safeentityid = s($idpentityid);
+        $safename = s($idpname);
+        $logo = !is_null($logourl) ? '<img src="' . s($logourl) . '"> ' : '';
         $extraclasses = $rememberedidp ? "rememberedidp" : "";
         return <<<EOD
 <div class="fitem fitem_actionbuttons fitem_fsubmit ">
-    <button value="{$idpentityid}" class="btn idpbtn {$extraclasses}" type="submit" name="idp">
-        {$logo}{$idpname}
+    <button value="{$safeentityid}" class="btn idpbtn {$extraclasses}" type="submit" name="idp">
+        {$logo}{$safename}
     </button>
 </div>
 EOD;

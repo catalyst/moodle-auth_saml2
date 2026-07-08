@@ -63,16 +63,16 @@ if (!empty($logout)) {
     $SESSION->saml2idp = $idplogout;
 }
 
-echo '<p>SP name: ' . $saml2auth->spname;
+echo '<p>SP name: ' . s($saml2auth->spname);
 echo '<p>Which IdP will be used? ' . s($SESSION->saml2idp);
 
 $auth = new SimpleSAML\Auth\Simple($saml2auth->spname);
 
 foreach ($saml2auth->metadataentities as $idpentity) {
     echo '<hr>';
-    echo "<h4>IDP: $idpentity->entityid</h4>";
-    echo "<p>md5: $idpentity->md5entityid</p>";
-    echo "<p>check: " . md5($idpentity->entityid) . "</p>";
+    echo '<h4>IDP: ' . s($idpentity->entityid) . '</h4>';
+    echo '<p>md5: ' . s($idpentity->md5entityid) . '</p>';
+    echo '<p>check: ' . s(md5($idpentity->entityid)) . '</p>';
 }
 
 if ($logout) {
@@ -96,7 +96,7 @@ if (!$auth->isAuthenticated() && $passive) {
     if ($passivefail) {
         $state = \SimpleSAML\Auth\State::loadExceptionState();
         $exception = $state[\SimpleSAML\Auth\State::EXCEPTION_DATA];
-        echo "Passive test failed with error: " . $exception->getMessage();
+        echo "Passive test failed with error: " . s($exception->getMessage());
     }
 } else {
     echo '<hr>';

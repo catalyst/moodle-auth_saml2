@@ -46,7 +46,7 @@ class api {
         global $saml2config;
 
         $cookiename = $saml2config['session.cookie.name'];
-        $sessid = $_COOKIE[$cookiename];
+        $sessid = clean_param($_COOKIE[$cookiename] ?? '', PARAM_ALPHANUMEXT);
 
         // In SSP should do this for us but remove stored SP session data.
         $storeclass = $saml2config['store.type'];

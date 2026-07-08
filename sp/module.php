@@ -28,9 +28,4 @@ require_once(__DIR__ . '/../../../config.php');
 // @codingStandardsIgnoreEnd
 require_once('../setup.php');
 
-// Tell SSP that we are on 443 if we are terminating SSL elsewhere.
-if (!empty($CFG->sslproxy)) {
-    $_SERVER['SERVER_PORT'] = '443';
-}
-
 require($CFG->dirroot . '/auth/saml2/vendor/simplesamlphp/simplesamlphp/public/module.php');

@@ -72,7 +72,7 @@ class store implements \SimpleSAML\Store\StoreInterface {
         $row = reset($rows);
         $value = $row->value;
         $value = urldecode($value);
-        $value = unserialize($value);
+        $value = unserialize($value, ['allowed_classes' => false]);
 
         if ($value === false) {
             return null;
@@ -87,6 +87,7 @@ class store implements \SimpleSAML\Store\StoreInterface {
      * @param string   $key    The key.
      * @param mixed    $value  The value.
      * @param int|null $expire The expiration time (unix timestamp), or NULL if it never expires.
+     * @return void
      */
     public function set(string $type, string $key, $value, ?int $expire = null): void {
         global $DB;
@@ -94,7 +95,7 @@ class store implements \SimpleSAML\Store\StoreInterface {
         assert($expire > 2592000);
 
         if (rand(0, 1000) < 10) {
-            $this->delete_expired(); // TODO convert to task.
+            $this->delete_expired();
         }
 
         if (strlen($key) > 50) {
@@ -148,6 +149,8 @@ class store implements \SimpleSAML\Store\StoreInterface {
 
     /**
      * Clean the key-value table of expired entries.
+     *
+     * @return void
      */
     public function delete_expired() {
         global $DB;

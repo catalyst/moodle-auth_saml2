@@ -66,25 +66,14 @@ class setting_button extends admin_setting_heading {
      * @return string Returns an HTML string
      */
     public function output_html($data, $query = '') {
-        if (moodle_major_version() < '3.3') {
-            $params = [
-                'type'    => 'button',
-                'value'   => $this->label,
-                'onclick' => 'location.href="' . $this->href . '"',
-            ];
+        global $OUTPUT;
+        $context = (object)[
+            'label'    => $this->label,
+            'href'     => $this->href,
+            'forceltr' => $this->get_force_ltr(),
+        ];
 
-            $content = html_writer::empty_tag('input', $params);
-            $element = html_writer::div($content, 'form-text defaultsnext');
-        } else {
-            global $OUTPUT;
-            $context = (object)[
-                'label'    => $this->label,
-                'href'     => $this->href,
-                'forceltr' => $this->get_force_ltr(),
-            ];
-
-            $element = $OUTPUT->render_from_template('auth_saml2/setting_configbutton', $context);
-        }
+        $element = $OUTPUT->render_from_template('auth_saml2/setting_configbutton', $context);
 
         return format_admin_setting($this, $this->visiblename, $element, $this->description);
     }

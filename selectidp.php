@@ -40,7 +40,7 @@ $PAGE->set_heading("$site->fullname");
 $PAGE->navbar->add($loginsite);
 $PAGE->requires->css('/auth/saml2/styles.css');
 
-$wants = optional_param('wants', '', PARAM_RAW);
+$wants = optional_param('wants', '', PARAM_LOCALURL);
 
 $idpname = $saml2auth->config->idpname;
 
@@ -70,9 +70,9 @@ if ($displaytype == saml2_settings::OPTION_MULTI_IDP_DISPLAY_DROPDOWN) {
 }
 
 if ($fromform = $mform->get_data()) {
-    $idp = required_param('idp', PARAM_RAW);
-    $wants = optional_param('wants', '', PARAM_RAW);
-    $rememberidp = optional_param('rememberidp', '', PARAM_RAW);
+    $idp = required_param('idp', PARAM_TEXT);
+    $wants = optional_param('wants', '', PARAM_LOCALURL);
+    $rememberidp = optional_param('rememberidp', 0, PARAM_BOOL);
 
     $params = [
         'wants' => $wants,
