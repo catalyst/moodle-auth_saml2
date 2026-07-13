@@ -463,4 +463,4 @@ in Luxembourg for sponsoring the user autocreation and field mapping work.
 
 This plugin was developed by [Catalyst IT Australia](https://www.catalyst-au.net/).
 
-<img alt="Catalyst IT" src="https://cdn.rawgit.com/CatalystIT-AU/moodle-auth_saml2/MOODLE_39_STABLE/pix/catalyst-logo.svg" width="400">
+<img alt="Catalyst IT" src="https://cdn.rawgit.com/CatalystIT-AU/moodle-auth_saml2/MOODLE_39_STABLE/pix/catalyst-logo.svg" width="400">    
