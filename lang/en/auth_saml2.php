@@ -150,6 +150,8 @@ $string['moodleidpguest_error'] = 'Guest users cannot log in via SAML.';
 $string['moodleidpheading'] = 'Moodle IDP Settings';
 $string['moodleidpmetadata'] = 'IDP Metadata';
 $string['moodleidpmetadata_help'] = '<a href=\'{$a}\'>View Identity Provider Metadata</a> | <a href=\'{$a}?download=1\'>Download IDP Metadata</a>';
+$string['moodleidpresponsesigning'] = 'Sign IDP responses';
+$string['moodleidpresponsesigning_help'] = 'Whether responses sent by this IDP must be signed.';
 $string['moodleidpsplist'] = 'Valid Issuers';
 $string['moodleidpsplist_error'] = 'Unknown service attempting to authenticate: {$a}. Check config.';
 $string['moodleidpsplist_help'] = 'List of services allowed to use this moodle as an IDP identified by the <code>saml:Issuer</code> tag in the SAML request. One per line. {$a->example}';
