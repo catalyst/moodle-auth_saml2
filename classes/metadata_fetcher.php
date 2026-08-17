@@ -66,10 +66,10 @@ class metadata_fetcher {
         $options = [
             'CURLOPT_SSL_VERIFYPEER' => true,
             'CURLOPT_SSL_VERIFYHOST' => true,
-            'CURLOPT_CONNECTTIMEOUT' => 20,
+            'CURLOPT_CONNECTTIMEOUT' => 5,
             'CURLOPT_FOLLOWLOCATION' => 1,
             'CURLOPT_MAXREDIRS'      => 5,
-            'CURLOPT_TIMEOUT'        => 300,
+            'CURLOPT_TIMEOUT'        => 15,
             'CURLOPT_RETURNTRANSFER' => true,
             'CURLOPT_NOBODY'         => false,
         ];
