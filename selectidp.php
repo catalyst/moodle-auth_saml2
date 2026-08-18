@@ -24,6 +24,7 @@
  */
 
 use auth_saml2\admin\saml2_settings;
+use SimpleSAML\Error\Exception as SimpleSAML_Error_Exception;
 
 // @codingStandardsIgnoreStart
 require_once(__DIR__ . '/../../config.php');
