@@ -148,12 +148,23 @@ $xpath = new DOMXPath($outdoc);
 $assertion = $xpath->query('//*[local-name()="Assertion"]')[0];
 $subject = $xpath->query('child::*[local-name()="Subject"]', $assertion)[0];
 
+//Find signing elements
+if ($saml2auth->config->moodleidpresponsesigning){
+    $response = $xpath->query('//*[local-name()="Response"]')[0];
+    $status = $xpath->query('child::*[local-name()="Status"]', $response)[0];
+}
+
 // Sign it using the fixture key/cert.
 $signer = new \SimpleSAML\XML\Signer(['id' => 'ID']);
 
 $signer->loadPrivateKey($saml2auth->certpem, $saml2auth->config->privatekeypass, true);
 $signer->loadCertificate($saml2auth->certcrt, true);
 $signer->sign($assertion, $assertion, $subject);
+
+//Sign response
+if ($saml2auth->config->moodleidpresponsesigning){
+    $signer->sign($response, $response, $status);
+}
 
 // Don't send as a referer or the login form might end up coming back here.
 header('Referrer-Policy: no-referrer');
