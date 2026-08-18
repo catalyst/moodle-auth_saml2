@@ -192,6 +192,8 @@ $string['plugindisabled'] = 'SAML2 authentication plugin is disabled';
 $string['pluginname'] = 'SAML2';
 $string['privatekeypass'] = 'Private certificate key password';
 $string['privatekeypass_help'] = 'This is used for signing the local Moodle certificate, changing this will invalidate the current certificate.';
+$string['refedscodeofconduct'] = 'REFEDS Data Protection Code of Conduct v2.0';
+$string['refedscodeofconduct_desc'] = 'Include in the Service Provider metadata that this Moodle instance adheres to the <a href="{$a}" target="_blank">REFEDS Data Protection Code of Conduct v2.0</a>.';
 $string['regenerate_submit'] = 'Regenerate';
 $string['regenerateheading'] = 'Regenerate Private Key and Certificate';
 $string['rememberidp'] = 'Remember login service';
