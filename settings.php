@@ -223,6 +223,14 @@ if ($ADMIN->fulltree) {
     $settings->add($acssetting);
 
     $settings->add(new admin_setting_configselect(
+        'auth_saml2/acsmatchissuer',
+        get_string('acsmatchissuer', 'auth_saml2'),
+        get_string('acsmatchissuer_help', 'auth_saml2'),
+        0,
+        $yesno,
+    ));
+
+    $settings->add(new admin_setting_configselect(
         'auth_saml2/allowcreate',
         get_string('allowcreate', 'auth_saml2'),
         get_string('allowcreate_help', 'auth_saml2'),

@@ -82,7 +82,12 @@ class selectidp_buttons extends moodleform {
      * @return string
      */
     private function get_idpbutton($idpentityid, $idpname, $logourl, $rememberedidp = false) {
-        $logo = !is_null($logourl) ? "<img src=\"{$logourl}\"> " : "";
+        $logo = '';
+        $logourl = clean_param($logourl, PARAM_URL);
+        if (!is_null($logourl)) {
+            $logo = "<img src=\"{$logourl}\"> ";
+        }
+        $idpname = clean_param($idpname, PARAM_TEXT);
         $extraclasses = $rememberedidp ? "rememberedidp" : "";
         return <<<EOD
 <div class="fitem fitem_actionbuttons fitem_fsubmit ">
