@@ -19,6 +19,7 @@ namespace auth_saml2\admin;
 use admin_setting_configtextarea;
 use auth_saml2\idp_data;
 use auth_saml2\idp_parser;
+use auth_saml2\local\idp_logo_cache;
 use DOMDocument;
 use DOMElement;
 use DOMNodeList;
@@ -170,7 +171,8 @@ class setting_idpmetadata extends admin_setting_configtextarea {
             }
 
             if (!empty($logo) && $oldidp->logo !== $logo) {
-                $DB->set_field('auth_saml2_idps', 'logo', $logo, ['id' => $oldidp->id]);
+                idp_logo_cache::delete_cached_logo($oldidp->id);
+                idp_logo_cache::cache_logo($logo, $oldidp->id);
             }
 
             // Remove the idp from the current array so that we don't delete it later.
@@ -185,7 +187,11 @@ class setting_idpmetadata extends admin_setting_configtextarea {
             $newidp->defaultname = $idpname;
             $newidp->logo = $logo;
 
-            $DB->insert_record('auth_saml2_idps', $newidp);
+            $idpid = $DB->insert_record('auth_saml2_idps', $newidp);
+
+            if ($idpid) {
+                idp_logo_cache::cache_logo($logo, $idpid);
+            }
         }
     }
 
@@ -200,6 +206,7 @@ class setting_idpmetadata extends admin_setting_configtextarea {
         foreach ($oldidps as $metadataidps) {
             foreach ($metadataidps as $oldidp) {
                 $DB->delete_records('auth_saml2_idps', ['id' => $oldidp->id]);
+                idp_logo_cache::delete_cached_logo($oldidp->id);
             }
         }
     }
