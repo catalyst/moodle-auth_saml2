@@ -63,11 +63,11 @@ if ($ADMIN->fulltree) {
 
     // Manage available IdPs.
     $settings->add(new setting_button(
-        'auth_saml2/availableidps',
-        get_string('availableidps', 'auth_saml2'),
-        get_string('availableidps_help', 'auth_saml2'),
-        get_string('availableidps', 'auth_saml2'),
-        $CFG->wwwroot . '/auth/saml2/availableidps.php'
+        'auth_saml2/manageidps',
+        get_string('manageidps', 'auth_saml2'),
+        get_string('manageidps_help', 'auth_saml2'),
+        get_string('manageidps', 'auth_saml2'),
+        $CFG->wwwroot . '/auth/saml2/manageidps.php'
     ));
 
     // Display IDP Link.
