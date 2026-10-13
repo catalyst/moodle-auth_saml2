@@ -1247,8 +1247,8 @@ class auth extends \auth_plugin_base {
         // To get the version there is no need to create key files and
         // perform the full initialization. For better performance
         // we only make sure \SimpleSAML\Configuration is accessible
-        // through _autoload.php.
-        require_once(__DIR__ . '/../_autoload.php');
+        // through the composer autoloader.
+        require_once(__DIR__ . '/../vendor/autoload.php');
         $config = new \SimpleSAML\Configuration(array(), '');
         return $config->getVersion();
     }
