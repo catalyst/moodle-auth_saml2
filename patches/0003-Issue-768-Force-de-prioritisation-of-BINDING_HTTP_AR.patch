@@ -1,0 +1,25 @@
+From 365ed7fa2119c210bc341817ca9feecef4b584bc Mon Sep 17 00:00:00 2001
+From: Sarah Cotton <sarah.cotton@catalyst-eu.net>
+Date: Mon, 2 Oct 2023 15:16:53 +0100
+Subject: [PATCH] Issue #768: Force de-prioritisation of BINDING_HTTP_ARTIFACT
+
+---
+ .extlib/simplesamlphp/modules/saml/src/Auth/Source/SP.php | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/modules/saml/src/Auth/Source/SP.php b/modules/saml/src/Auth/Source/SP.php
+index c823193d..a7af887c 100644
+--- a/modules/saml/src/Auth/Source/SP.php
++++ b/modules/saml/src/Auth/Source/SP.php
+@@ -676,6 +676,8 @@ class SP extends \SimpleSAML\Auth\Source
+                 [
+                     Constants::BINDING_HTTP_REDIRECT,
+                     Constants::BINDING_HTTP_POST,
++                    // auth_saml2 modification - Reordered to maintain existing  functionality.
++                    Constants::BINDING_HTTP_ARTIFACT,
+                 ],
+             );
+         }
+-- 
+2.43.0
+

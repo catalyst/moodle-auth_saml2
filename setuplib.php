@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 use auth_saml2\ssl_algorithms;
 
-require_once(__DIR__ . '/_autoload.php');
+require_once(__DIR__ . '/vendor/autoload.php');
 
 global $CFG;
 require_once("{$CFG->dirroot}/auth/saml2/auth.php");
