@@ -91,6 +91,11 @@ class auth extends \auth_plugin_base {
         'flagmessage'        => '' // Set in constructor.
     ];
 
+    public string $spname;
+    public string $certpem;
+    public string $certcrt;
+    public array $metadatalist;
+
     /**
      * Constructor.
      */

@@ -38,6 +38,9 @@ require_once($CFG->libdir . '/moodlelib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class setting_button extends admin_setting_heading {
+    public string $label;
+    public string $href;
+
     /**
      * A button element
      *
@@ -48,6 +51,7 @@ class setting_button extends admin_setting_heading {
      * @param string $href        the URL directed to on click
      */
     public function __construct($name, $visiblename, $description, $label, $href) {
+
         $this->nosave = true;
         $this->label = $label;
         $this->href = $href;
