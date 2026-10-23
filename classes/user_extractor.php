@@ -69,7 +69,13 @@ class user_extractor {
             // Check if requested field exists, required for Totara compatibility.
             $fields = array_merge(\core_user::AUTHSYNCFIELDS, ['id', 'username']);
             if (in_array($fieldname, $fields)) {
-                $fieldsql = " AND " . $DB->sql_equal('u.' . $fieldname, ':fieldvalue', !$insensitive, $accentsensitive);
+                // Core numeric fields (currently, only 'id') should match directly for maximum DB compatibility.
+                if ($fieldname === 'id') {
+                    $fieldsql = " AND u.id = :fieldvalue";
+                } else {
+                    // Otherwise core text fields should use sql_equal.
+                    $fieldsql = " AND " . $DB->sql_equal('u.' . $fieldname, ':fieldvalue', !$insensitive, $accentsensitive);
+                }
                 $params['fieldname'] = $fieldname;
             }
         }
