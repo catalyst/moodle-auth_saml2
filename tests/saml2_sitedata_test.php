@@ -60,7 +60,7 @@ final class saml2_sitedata_test extends \advanced_testcase {
         $logmanger = get_log_manager();
         $readers = $logmanger->get_readers('\core\log\reader');
         $reader = reset($readers);
-        $eventarray = $reader->get_events_select("eventname = ?", ['\auth_saml2\event\cert_regenerated'], 'id ASC', 0, 0);
+        $eventarray = $reader->get_events_select("eventname = ?", ['\auth_saml2\event\cert_regenerated'], '', 0, 0);
         self::assertEquals(1, count($eventarray));
 
         $event = reset($eventarray);
