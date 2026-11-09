@@ -16,6 +16,10 @@
 
 namespace auth_saml2;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/psr17_factory_pin.php');
+
 /**
  * Test for user fields class.
  *

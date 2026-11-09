@@ -18,6 +18,10 @@ namespace auth_saml2;
 
 use auth_saml2\form\regenerate;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/psr17_factory_pin.php');
+
 /**
  * auth_saml2 form submission unit tests
  * @package    auth_saml2
