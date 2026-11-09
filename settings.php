@@ -371,6 +371,22 @@ urn:mace:dir:attribute-def:mail *</pre>"]),
         $yesno
     ));
 
+    // Default authentication method for automatically created users.
+    $userauthoptions = [];
+    foreach (get_enabled_auth_plugins() as $authname) {
+        if (in_array($authname, ['none', 'nologin'], true)) {
+            continue;
+        }
+        $userauthoptions[$authname] = get_string('pluginname', 'auth_' . $authname);
+    }
+    $settings->add(new admin_setting_configselect(
+        'auth_saml2/defaultuserauth',
+        get_string('defaultuserauth', 'auth_saml2'),
+        get_string('defaultuserauth_help', 'auth_saml2'),
+        'saml2',
+        $userauthoptions
+    ));
+
     // Group access rules.
     $settings->add(new admin_setting_configtextarea(
         'auth_saml2/grouprules',
