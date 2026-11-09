@@ -655,7 +655,11 @@ class auth extends \auth_plugin_base {
             $params['ErrorURL'] = (new moodle_url('/login/index.php', ['saml' => 0]))->out(false);
         }
         $params['AllowCreate'] = $this->config->allowcreate == 1;
-
+        $forceauthn = get_config('auth_saml2', 'forceauthn');
+        if($forceauthn && $forceauthn == '1') {
+            $params['ForceAuthn'] = true;
+        }
+        
         $auth = new \SimpleSAML\Auth\Simple($this->spname);
         // Redirect to IdP login page for authentication.
         $auth->requireAuth($params);
