@@ -42,7 +42,7 @@ if ($download) {
 // Allow generating SP metadata for a different domain which can
 // be useful for setting up saml prior to a DNS cutover.
 // Needs to be public so an IdP can load it ahead of time.
-$baseurl = optional_param('baseurl', $CFG->wwwroot, PARAM_URL);
+$baseurl = $CFG->wwwroot;
 
 // To keep it simple, every time you visit this page, it should rebuild the SP XML.
 $file = $saml2auth->get_file_sp_metadata_file($baseurl);

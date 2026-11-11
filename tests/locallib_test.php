@@ -76,6 +76,50 @@ final class locallib_test extends \advanced_testcase {
     }
 
     /**
+     * A request supplied baseurl must not influence the SP identity or binding URLs.
+     */
+    public function test_sp_metadata_ignores_spoofed_baseurl(): void {
+        global $CFG, $DB;
+
+        $this->resetAfterTest();
+
+        $url = 'http://www.example.com';
+        set_config('supportemail', 'test@test.com');
+        set_config('idpmetadata', $url, 'auth_saml2');
+        set_config('idpentityids', json_encode([$url => $url]), 'auth_saml2');
+        // Add a fake IdP so the auth source config can pick a default IdP entity.
+        $DB->insert_record('auth_saml2_idps', [
+            'metadataurl' => $url,
+            'entityid'    => $url,
+            'name'        => 'Test IdP',
+            'activeidp'   => 1]);
+        // Make sure the default (request derived) entityID path is used.
+        // Doing this by setting the spentityid config to be empty.
+        set_config('spentityid', '', 'auth_saml2');
+
+        $_GET['baseurl'] = 'https://evil.example';
+        $_REQUEST['baseurl'] = 'https://evil.example';
+        try {
+            require($CFG->dirroot . '/auth/saml2/setup.php');
+            $rawxml = auth_saml2_get_sp_metadata($CFG->wwwroot);
+        } finally {
+            unset($_GET['baseurl'], $_REQUEST['baseurl']);
+        }
+
+        $this->assertStringNotContainsString('evil.example', $rawxml);
+
+        $xml = new SimpleXMLElement($rawxml);
+        $this->assertSame($CFG->wwwroot . '/auth/saml2/sp/metadata.php', (string) $xml['entityID']);
+
+        $xml->registerXPathNamespace('md', 'urn:oasis:names:tc:SAML:2.0:metadata');
+        $acs = $xml->xpath('//md:AssertionConsumerService');
+        $this->assertNotEmpty($acs);
+        foreach ($acs as $service) {
+            $this->assertStringStartsWith($CFG->wwwroot . '/auth/saml2/sp/saml2-acs.php/', (string) $service['Location']);
+        }
+    }
+
+    /**
      * If locked do not generate the cert, if unlocked then generate the cert.
      */
     public function test_setup_no_cert_generate_if_locked(): void {

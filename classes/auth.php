@@ -128,7 +128,7 @@ class auth extends \auth_plugin_base {
         $this->defaults['flagmessage'] = get_string('flagmessage_default', 'auth_saml2');
         $this->authtype = 'saml2';
 
-        $baseurl = optional_param('baseurl', $CFG->wwwroot, PARAM_URL);
+        $baseurl = $CFG->wwwroot;
         $mdl = new moodle_url($baseurl);
         $this->spname = $mdl->get_host();
         $this->certpem = $this->get_file("{$this->spname}.pem");

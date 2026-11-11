@@ -30,7 +30,7 @@ global $saml2auth, $CFG, $SITE, $SESSION;
 
 $config = [];
 
-$baseurl = optional_param('baseurl', $CFG->wwwroot, PARAM_URL);
+$baseurl = $CFG->wwwroot;
 
 if (!empty($SESSION->saml2idp) && array_key_exists($SESSION->saml2idp, $saml2auth->metadataentities)) {
     $idpentityid = $saml2auth->metadataentities[$SESSION->saml2idp]->entityid;
