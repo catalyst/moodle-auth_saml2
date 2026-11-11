@@ -112,6 +112,24 @@ final class auth_test extends \advanced_testcase {
     }
 
     /**
+     * A request supplied baseurl must not change the SP name (derived from the site host).
+     */
+    public function test_spname_ignores_spoofed_baseurl(): void {
+        global $CFG;
+
+        $_GET['baseurl'] = 'https://evil.example';
+        $_REQUEST['baseurl'] = 'https://evil.example';
+        try {
+            $auth = new \auth_saml2\auth();
+        } finally {
+            unset($_GET['baseurl'], $_REQUEST['baseurl']);
+        }
+
+        $this->assertSame(parse_url($CFG->wwwroot, PHP_URL_HOST), $auth->spname);
+        $this->assertNotSame('evil.example', $auth->spname);
+    }
+
+    /**
      * Test test_is_configured
      */
     public function test_is_configured(): void {
