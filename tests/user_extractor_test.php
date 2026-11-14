@@ -283,7 +283,7 @@ final class user_extractor_test extends \advanced_testcase {
         $actualuser = user_extractor::get_user('idnumber', 'Some other value entirely', true);
         $this->assertFalse($actualuser);
 
-        if ($DB->get_dbfamily() === 'mysql') {
+        if (in_array($DB->get_dbfamily(), ['mysql', 'mssql'])) {
             // Should match with different case and without accent.
             $actualuser = user_extractor::get_user('idnumber', 'nb256a', true, false);
             $this->assertNotFalse($actualuser);
@@ -298,7 +298,9 @@ final class user_extractor_test extends \advanced_testcase {
             // Should not match by default (case sensitive = false).
             $actualuser = user_extractor::get_user('idnumber', 'nb256á');
             $this->assertFalse($actualuser);
+        }
 
+        if (!in_array($DB->get_dbfamily(), ['mysql', 'mssql'])) {
             // Should not match with different case and without accent.
             $actualuser = user_extractor::get_user('idnumber', 'nb256a', true, false);
             $this->assertFalse($actualuser);
