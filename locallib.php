@@ -519,3 +519,14 @@ function auth_saml2_admin_nav($title, $url) {
     $PAGE->set_heading(get_string('pluginname', 'auth_saml2') . ': ' . $title);
     $PAGE->set_title(get_string('pluginname', 'auth_saml2') . ': ' . $title);
 }
+
+/**
+ * Validate a SAML protocol ID (xs:ID / NCName syntax) to prevent XML injection.
+ *
+ * @param string $id
+ * @return bool
+ */
+function auth_saml2_is_valid_saml_id(string $id): bool {
+    // NCName: starts with a letter or underscore, followed by letters, digits, '-', '_' or '.'.
+    return (bool) preg_match('/^[A-Za-z_][A-Za-z0-9_.-]*$/', $id) && strlen($id) <= 256;
+}

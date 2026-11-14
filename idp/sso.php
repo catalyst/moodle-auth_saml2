@@ -53,8 +53,13 @@ foreach ($userfields as $field) {
 
 // Get data from input request.
 $id = $xpath->evaluate('normalize-space(/*/@ID)');
-$destination = htmlspecialchars($xpath->evaluate('normalize-space(/*/@AssertionConsumerServiceURL)'));
+$destinationraw = $xpath->evaluate('normalize-space(/*/@AssertionConsumerServiceURL)');
 $sp = $xpath->evaluate('normalize-space(/*/*[local-name() = "Issuer"])');
+
+// Validate ID.
+if (!auth_saml2_is_valid_saml_id($id)) {
+    throw new saml2_exception('invalid_id_error', get_string('invalid_id_error', 'auth_saml2', $id));
+}
 
 // Confirm we know about this SP.
 $knownsps = [];
@@ -69,6 +74,20 @@ foreach (explode(PHP_EOL, $saml2auth->config->moodleidpsplist) as $ksp) {
 if (!in_array($sp, $knownsps)) {
     throw new saml2_exception('unknown_sp_error', get_string('moodleidpsplist_error', 'auth_saml2', $sp));
 }
+
+// Validate ACS.
+$destinationhost = parse_url($destinationraw, PHP_URL_HOST);
+$sphost = parse_url($sp, PHP_URL_HOST);
+
+if (empty($destinationhost)) {
+    throw new saml2_exception('unknown_sp_error', get_string('moodleidpsplist_error', 'auth_saml2', $sp));
+}
+
+if ($saml2auth->config->acsmatchissuer && strcasecmp($destinationhost, $sphost) !== 0) {
+    throw new saml2_exception('acs_mismatch_error', get_string('acs_mismatch_error', 'auth_saml2'));
+}
+
+$destination = htmlspecialchars($destinationraw);
 
 // Get time in UTC.
 $datetime = new DateTime();

@@ -22,6 +22,9 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['acs_mismatch_error'] = 'ACS URL does not match issuer';
+$string['acsmatchissuer'] = 'Match ACS with issuer';
+$string['acsmatchissuer_help'] = 'If enabled, the Assertion Consumer Service (ACS) URL must match the issuer host. If you know that they do/should, enable this option to improve login security.';
 $string['allowcreate'] = 'Allow create';
 $string['allowcreate_help'] = 'Allow creation of IdP users on demand';
 $string['alterlogout'] = 'Alternative Logout URL';
@@ -129,6 +132,7 @@ $string['idpname'] = 'IdP label override';
 $string['idpname_help'] = 'eg myUNI - this is detected from the metadata and will show on the dual login page (if enabled)';
 $string['idpnamedefault'] = 'Login via SAML2';
 $string['idpnamedefault_varaible'] = 'Login via SAML2 ({$a})';
+$string['invalid_id_error'] = 'Invalid SAML ID';
 $string['localityname'] = 'Locality';
 $string['locked'] = 'Locked';
 $string['logdir'] = 'Log Directory';
