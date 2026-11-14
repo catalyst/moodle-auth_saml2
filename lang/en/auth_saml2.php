@@ -22,8 +22,10 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['activateidp'] = 'Activate Identity Provider';
 $string['allowcreate'] = 'Allow create';
 $string['allowcreate_help'] = 'Allow creation of IdP users on demand';
+$string['allowlistenabled'] = 'Allow list enabled';
 $string['alterlogout'] = 'Alternative Logout URL';
 $string['alterlogout_help'] = 'The URL to redirect a user after all internal logout mechanisms are run';
 $string['anyauth'] = 'Allowed any auth type';
@@ -54,10 +56,10 @@ $string['autologinbycookie'] = 'Check when the specified cookie exists or change
 $string['autologinbysession'] = 'Check once per session';
 $string['autologincookie'] = 'Auto-login cookie';
 $string['autologincookie_help'] = 'Name of cookie used to decide when to attempt auto-login (only relevant if the cookie option is selected above).';
-$string['availableidps'] = 'Select available IdPs';
-$string['availableidps_help'] = 'If an IdP metadata xml contains multiple IdP entities, you will need to select which entities are availiable
-for users to login with.';
 $string['blockredirectheading'] = 'Account blocking actions';
+$string['cacheactivemetadata'] = 'Refresh the active metadata cache';
+$string['cacheidpmetadata'] = 'Cache IdP metadata';
+$string['cacheidpmetadata_help'] = 'Schedule Ad-Hoc task to cache active IdPs metadata.';
 $string['cannotmapfield'] = 'Mapping collision detected - two fields maps to the same grade item {$a}';
 $string['certificate'] = 'Regenerate certificate';
 $string['certificate_help'] = 'Regenerate the Private Key and Certificate used by this SP. | <a href=\'{$a}\'>View SP certificate</a>';
@@ -65,7 +67,6 @@ $string['certificatedetails'] = 'Certificate details';
 $string['certificatedetailshelp'] = '<h1>SAML2 auto generated public certificate contents</h1><p>The path for the cert is here:</p>';
 $string['certificatelock'] = 'Lock certificate';
 $string['certificatelock_help'] = 'Locking the certificates will prevent them from being overwritten once generated.';
-$string['certificatelock_locked'] = 'The certificate is locked';
 $string['certificatelock_lockedmessage'] = 'The certificates are currently locked.';
 $string['certificatelock_regenerate'] = 'Not regenerating certificates because they have been locked!';
 $string['certificatelock_unlock'] = 'Unlock certificates';
@@ -76,8 +77,11 @@ $string['checkcertificateok'] = 'SAML certificate will expire in {$a}';
 $string['checkcertificatewarn'] = 'SAML certificate will expire in {$a}';
 $string['commonname'] = 'Common Name';
 $string['countryname'] = 'Country';
+$string['deactivateidp'] = 'Deactivate Identity Provider';
 $string['debug'] = 'Debugging';
 $string['debug_help'] = '<p>This adds extra debugging to the normal moodle log | <a href=\'{$a}\'>View SSP config</a></p>';
+$string['downloadcacheidpmetadata'] = 'Download cached metadata';
+$string['downloadcacheidpmetadata_help'] = 'Download the XML file that contains all EntityDescriptors of the active IdPs.';
 $string['duallogin'] = 'Dual login';
 $string['duallogin_help'] = '
 <p>If on, then users will see both manual and a SAML login button. If off they will always be taken directly to the IdP login page.</p>
@@ -85,11 +89,13 @@ $string['duallogin_help'] = '
 <p>If off, then admins can still see the manual login page via /login/index.php?saml=off</p>
 <p>If on, then external pages can deep link into moodle using saml eg /course/view.php?id=45&saml=on</p>
 <p>If set to test IdP connection, the network will be checked for connectivity, and if functional, SAML login will be initiated.</p>';
+$string['editidp'] = 'Edit Identity Provider';
 $string['emailtaken'] = 'Can\'t create a new account, because {$a} email address is already registered';
 $string['emailtakenupdate'] = 'Your email wasn\'t updated, because email address {$a} is already registered';
 $string['error'] = 'Login error';
 $string['errorinvalidautologin'] = 'Invalid autologin request';
 $string['errorparsingxml'] = 'Error parsing XML: {$a}';
+$string['errorwritingfile'] = 'Error writing file';
 $string['exception'] = 'SAML2 exception: {$a}';
 $string['expirydays'] = 'Expiry in Days';
 $string['fielddelimiter'] = 'Field delimiter';
@@ -122,7 +128,9 @@ $string['idpmetadata'] = 'IdP metadata xml OR public xml URL';
 $string['idpmetadata_badurl'] = 'Invalid metadata at {$a}';
 $string['idpmetadata_help'] = 'To use multiple IdPs enter each public metadata url on a new line.<br/>To override a name, place text before the http. eg. "Forced IdP Name http://ssp.local/simplesaml/saml2/idp/metadata.php"';
 $string['idpmetadata_invalid'] = 'The IdP XML isn\'t valid';
-$string['idpmetadata_noentityid'] = 'The IdP XML has no entityID';
+$string['idpmetadatacacheenabled'] = 'Enable IdP Metadata cache';
+$string['idpmetadatacacheenabled_help'] = 'This triggers caching of all active IdP EntityDescriptors into a single XML file that will get passed to SimpleSAMLphp. The cached file will be rebuild by the manual trigger below, editing the active IdPs or at the end of the metadata refresh task.';
+$string['idpmetadatacachenotavailable'] = 'The cache file for the actibve IdP metadata is not available.';
 $string['idpmetadatarefresh'] = 'IdP metadata refresh';
 $string['idpmetadatarefresh_help'] = 'Run a scheduled task to update IdP metadata from IdP metadata URL';
 $string['idpname'] = 'IdP label override';
@@ -136,12 +144,18 @@ $string['logdir_help'] = 'The log directory SSPHP will write to, the file will b
 $string['logdirdefault'] = '/tmp/';
 $string['logtofile'] = 'Enable logging to file';
 $string['logtofile_help'] = 'Turning this on will redirect SSPHP log output to a file in the logdir';
+$string['manageidps'] = 'Manage available IdPs';
 $string['manageidpsheading'] = 'Manage available Identity Providers (IdPs)';
+$string['manageidps_help'] = 'If an IdP metadata xml contains multiple IdP entities, you will need to select which entities are availiable
+for users to login with.';
 $string['mdlattr'] = 'Mapping Moodle';
 $string['mdlattr_help'] = 'Which Moodle user field should the IdP attribute be matched to?';
 $string['metadatafetchfailed'] = 'Metadata fetch failed: {$a}';
 $string['metadatafetchfailedstatus'] = 'Metadata fetch failed: Status code {$a}';
 $string['metadatafetchfailedunknown'] = 'Metadata fetch failed: Unknown cURL error';
+$string['metadataurl'] = 'Metadata URL';
+$string['idpmetadatacachedescription'] = 'Cache the metadata to a single XML file that only includes active IdPs. This improves performance on login for large metadata files like eduGAIN federation';
+$string['idpmetadatacacheheading'] = 'IdP metadata cache';
 $string['moodleidpdescription'] = 'Settings for Moodle as an Identity Provider for other services.';
 $string['moodleidpenabled'] = 'Enable IDP';
 $string['moodleidpenabled_error'] = 'Moodle IDP is not enabled. Check Settings.';
@@ -187,20 +201,39 @@ $string['organizationalunitname'] = 'Organisational Unit';
 $string['organizationname'] = 'Organisation';
 $string['passivemode'] = 'Passive mode';
 $string['phone1'] = 'Phone';
-$string['phone2'] = 'Mobile phone';
 $string['plugindisabled'] = 'SAML2 authentication plugin is disabled';
 $string['pluginname'] = 'SAML2';
+/*
+ * Privacy provider (GDPR)
+ */
+$string["privacy:no_data_reason"] = "The Saml2 authentication plugin does not store any personal data.";
 $string['privatekeypass'] = 'Private certificate key password';
 $string['privatekeypass_help'] = 'This is used for signing the local Moodle certificate, changing this will invalidate the current certificate.';
 $string['regenerate_submit'] = 'Regenerate';
+$string['regenerateheader'] = 'Regenerate Private Key and Certificate';
 $string['regenerateheading'] = 'Regenerate Private Key and Certificate';
+$string['regeneratepath'] = 'Certificate path path: {$a}';
+$string['regeneratesuccess'] = 'Private Key and Certificate successfully regenerated';
+$string['regeneratewarning'] = 'Warning! Generating a new certificate will overwrite the current one and you may need to update your IDP';
 $string['rememberidp'] = 'Remember login service';
 $string['requestedattributes'] = 'Requested attributes';
 $string['requestedattributes_help'] = 'Some IdP\'s need the SP to declare which attributes will be requested or are required. Add each attribute on a new line and these will be present in the SP metadata under the <code>AttributeConsumingService</code> tag. If you want a field to be required put a space and then * after that line. {$a->example}';
 $string['required'] = 'This field is required';
 $string['requireint'] = 'This field is required and needs to be a positive integer';
+$string['scheduledmetadatacache'] = 'Scheduled Ad-Hoc task to rebuild active metadata cache';
+$string['selectloginservice'] = 'Select a login service';
+
+/*
+ * Signing Algorithm
+ */
+$string['sha1'] = 'Legacy SHA1 (Dangerous)';
+$string['sha256'] = 'SHA256';
+$string['sha384'] = 'SHA384';
+$string['sha512'] = 'SHA512';
 $string['showidplink'] = 'Display IdP link';
 $string['showidplink_help'] = 'This will display the IdP link when the site is configured.';
+$string['signaturealgorithm'] = 'Signing Algorithm';
+$string['signaturealgorithm_help'] = 'This is the algorithm that will be used to sign SAML requests. Warning: The SHA1 Algorithm is only provided for backwards compatibility, unless you absolutely must use it it is recommended to avoid it and use at least SHA256 instead.';
 $string['source'] = 'Source: {$a}';
 $string['spentityid'] = 'Entity ID';
 $string['spentityid_help'] = 'Override the Entity Id of the Service Provider. In most cases leave blank and a good default will be used instead.';
@@ -243,23 +276,3 @@ $string['update_onupdate'] = 'On update';
 $string['wantassertionssigned'] = 'Want assertions signed';
 $string['wantassertionssigned_help'] = 'Whether assertions received by this SP must be signed';
 $string['wrongauth'] = 'You have logged in successfully as \'{$a}\' but are not authorized to access Moodle.';
-/*
- * Privacy provider (GDPR)
- */
-$string["privacy:no_data_reason"] = "The Saml2 authentication plugin does not store any personal data.";
-
-/*
- * Signing Algorithm
- */
-$string['sha1'] = 'Legacy SHA1 (Dangerous)';
-$string['sha256'] = 'SHA256';
-$string['sha384'] = 'SHA384';
-$string['sha512'] = 'SHA512';
-$string['signaturealgorithm'] = 'Signing Algorithm';
-$string['signaturealgorithm_help'] = 'This is the algorithm that will be used to sign SAML requests. Warning: The SHA1 Algorithm is only provided for backwards compatibility, unless you absolutely must use it it is recommended to avoid it and use at least SHA256 instead.';
-$string['selectloginservice'] = 'Select a login service';
-$string['regenerateheader'] = 'Regenerate Private Key and Certificate';
-$string['regeneratewarning'] = 'Warning! Generating a new certificate will overwrite the current one and you may need to update your IDP';
-$string['regeneratepath'] = 'Certificate path path: {$a}';
-$string['regenerateheader'] = 'Regenerate Private Key and Certificate';
-$string['regeneratesuccess'] = 'Private Key and Certificate successfully regenerated';
