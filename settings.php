@@ -539,7 +539,7 @@ urn:mace:dir:attribute-def:mail *</pre>"]),
         'auth_saml2/moodleidpsplist',
         get_string('moodleidpsplist', 'auth_saml2'),
         get_string('moodleidpsplist_help', 'auth_saml2', ['example' => "<pre>
-https://www.someothermoodle.com/auth/saml2/sp/metadata.php
+https://www.someothermoodle.com/auth/saml2/sp/metadata.php https://www.someothermoodle.com/auth/saml2/sp/saml2-acs.php/www.someothermoodle.com
 </pre>"]),
         '',
         PARAM_TEXT
