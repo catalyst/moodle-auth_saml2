@@ -153,6 +153,8 @@ $string['moodleidpguest_error'] = 'Guest users cannot log in via SAML.';
 $string['moodleidpheading'] = 'Moodle IDP Settings';
 $string['moodleidpmetadata'] = 'IDP Metadata';
 $string['moodleidpmetadata_help'] = '<a href=\'{$a}\'>View Identity Provider Metadata</a> | <a href=\'{$a}?download=1\'>Download IDP Metadata</a>';
+$string['moodleidpresponsesigning'] = 'Sign IDP responses';
+$string['moodleidpresponsesigning_help'] = 'Whether responses sent by this IDP must be signed.';
 $string['moodleidpsplist'] = 'Valid Issuers';
 $string['moodleidpsplist_error'] = 'Unknown service attempting to authenticate: {$a}. Check config.';
 $string['moodleidpsplist_help'] = 'List of services allowed to use this moodle as an IDP identified by the <code>saml:Issuer</code> tag in the SAML request. One per line. Each line must be the issuer followed by the Assertion Consumer Service (ACS) URL of that service, separated by a space (additional ACS URLs can be added the same way). Responses are only ever sent to a registered ACS URL, and a request whose ACS URL does not exactly match one is rejected. Services listed without an ACS URL cannot log in. {$a->example}';
