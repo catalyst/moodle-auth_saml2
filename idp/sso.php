@@ -76,6 +76,13 @@ if (!in_array($sp, $knownsps)) {
 }
 
 // Validate ACS.
+if (strpos($destinationraw, '\\') !== false) {
+    throw new saml2_exception('acs_mismatch_error', get_string('acs_mismatch_error', 'auth_saml2'));
+}
+$destinationscheme = parse_url($destinationraw, PHP_URL_SCHEME);
+if (!in_array(strtolower((string) $destinationscheme), ['http', 'https'])) {
+    throw new saml2_exception('acs_mismatch_error', get_string('acs_mismatch_error', 'auth_saml2'));
+}
 $destinationhost = parse_url($destinationraw, PHP_URL_HOST);
 $sphost = parse_url($sp, PHP_URL_HOST);
 

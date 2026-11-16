@@ -83,8 +83,8 @@ class selectidp_buttons extends moodleform {
      */
     private function get_idpbutton($idpentityid, $idpname, $logourl, $rememberedidp = false) {
         $logo = '';
-        $logourl = clean_param($logourl, PARAM_URL);
-        if (!is_null($logourl)) {
+        $logourl = is_null($logourl) ? '' : clean_param($logourl, PARAM_URL);
+        if ($logourl !== '') {
             $logo = \html_writer::empty_tag('img', ['src' => $logourl]) . ' ';
         }
         $idpname = clean_param($idpname, PARAM_TEXT);
