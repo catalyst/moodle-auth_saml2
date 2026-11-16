@@ -22,9 +22,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['acs_mismatch_error'] = 'ACS URL does not match issuer';
-$string['acsmatchissuer'] = 'Match ACS with issuer';
-$string['acsmatchissuer_help'] = 'If enabled, the Assertion Consumer Service (ACS) URL must match the issuer host. If you know that they do/should, enable this option to improve login security.';
+$string['acs_mismatch_error'] = 'The ACS URL in the request is not registered for this service. Check config.';
+$string['acs_not_registered_error'] = 'No ACS URL is registered for service: {$a}. Check config.';
 $string['allowcreate'] = 'Allow create';
 $string['allowcreate_help'] = 'Allow creation of IdP users on demand';
 $string['alterlogout'] = 'Alternative Logout URL';
@@ -156,7 +155,7 @@ $string['moodleidpmetadata'] = 'IDP Metadata';
 $string['moodleidpmetadata_help'] = '<a href=\'{$a}\'>View Identity Provider Metadata</a> | <a href=\'{$a}?download=1\'>Download IDP Metadata</a>';
 $string['moodleidpsplist'] = 'Valid Issuers';
 $string['moodleidpsplist_error'] = 'Unknown service attempting to authenticate: {$a}. Check config.';
-$string['moodleidpsplist_help'] = 'List of services allowed to use this moodle as an IDP identified by the <code>saml:Issuer</code> tag in the SAML request. One per line. {$a->example}';
+$string['moodleidpsplist_help'] = 'List of services allowed to use this moodle as an IDP identified by the <code>saml:Issuer</code> tag in the SAML request. One per line. Each line must be the issuer followed by the Assertion Consumer Service (ACS) URL of that service, separated by a space (additional ACS URLs can be added the same way). Responses are only ever sent to a registered ACS URL, and a request whose ACS URL does not exactly match one is rejected. Services listed without an ACS URL cannot log in. {$a->example}';
 $string['multiidp:label:active'] = 'Active';
 $string['multiidp:label:admin'] = 'For admin users only';
 $string['multiidp:label:admin_help'] = 'Any users that log in using this IdP will automatically be made an site administrator';
