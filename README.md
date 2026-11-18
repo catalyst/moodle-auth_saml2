@@ -106,7 +106,12 @@ to your Moodle config.php file:
 $CFG->auth_saml2_disco_url = '';
 $CFG->auth_saml2_store = '\\auth_saml2\\redis_store'; # Use an alternate store
 $CFG->auth_saml2_redis_server = ''; # Required for the redis_store above
+$CFG->auth_saml2_trusted_return_hosts = []; # Additional trusted return hosts
 ```
+
+Return URLs are restricted to the Moodle host by default. To allow additional destinations,
+set `auth_saml2_trusted_return_hosts` to an array of exact hostnames, for example:
+`['portal.example.com', 'app.example.com:8443']`
 
 
 ## Testing
