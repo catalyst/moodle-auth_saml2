@@ -38,7 +38,7 @@ foreach ($saml2auth->metadataentities as $idpentity) {
 }
 
 $remoteip = getremoteaddr();
-$baseurl = optional_param('baseurl', $CFG->wwwroot, PARAM_URL);
+$baseurl = $CFG->wwwroot;
 
 $config = [
     'baseurlpath'       => $baseurl . '/auth/saml2/sp/',
@@ -78,6 +78,9 @@ $config = [
     'session.phpsession.cookiename' => null,
     'session.phpsession.savepath'   => null,
     'session.phpsession.httponly'   => true,
+
+    // An empty allowlist restricts return URLs to the host in baseurlpath.
+    'trusted.url.domains' => $CFG->auth_saml2_trusted_return_hosts ?? [],
 
     'enable.http_post' => false,
 
