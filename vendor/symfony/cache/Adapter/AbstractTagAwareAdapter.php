@@ -99,10 +99,11 @@ abstract class AbstractTagAwareAdapter implements TagAwareAdapterInterface, TagA
                     }
 
                     // Extract tag changes, these should be removed from values in doSave()
+                    // All tags are added, as the item may have been removed from them since it was fetched
                     $value['tag-operations'] = ['add' => [], 'remove' => []];
                     $oldTags = $item->metadata[CacheItem::METADATA_TAGS] ?? [];
-                    foreach (array_diff_key($value['tags'], $oldTags) as $addedTag) {
-                        $value['tag-operations']['add'][] = $getId($tagPrefix.$addedTag);
+                    foreach ($value['tags'] as $tag) {
+                        $value['tag-operations']['add'][] = $getId($tagPrefix.$tag);
                     }
                     foreach (array_diff_key($oldTags, $value['tags']) as $removedTag) {
                         $value['tag-operations']['remove'][] = $getId($tagPrefix.$removedTag);
@@ -192,8 +193,7 @@ abstract class AbstractTagAwareAdapter implements TagAwareAdapterInterface, TagA
             if (\is_array($e) || 1 === \count($values)) {
                 foreach (\is_array($e) ? $e : array_keys($values) as $id) {
                     $ok = false;
-                    $v = $values[$id];
-                    $type = get_debug_type($v);
+                    $type = \array_key_exists($id, $values) ? get_debug_type($values[$id]) : 'unknown';
                     $message = \sprintf('Failed to save key "{key}" of type %s%s', $type, $e instanceof \Exception ? ': '.$e->getMessage() : '.');
                     CacheItem::log($this->logger, $message, ['key' => substr($id, \strlen($this->namespace)), 'exception' => $e instanceof \Exception ? $e : null, 'cache-adapter' => get_debug_type($this)]);
                 }
@@ -257,6 +257,8 @@ abstract class AbstractTagAwareAdapter implements TagAwareAdapterInterface, TagA
             }
         } catch (\Exception) {
         }
+
+        $ok = true;
 
         // When bulk-delete failed, retry each item individually
         foreach ($ids as $key => $id) {

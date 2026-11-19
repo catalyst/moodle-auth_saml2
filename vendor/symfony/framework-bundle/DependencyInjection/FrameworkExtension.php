@@ -206,6 +206,8 @@ use Symfony\Contracts\Translation\LocaleAwareInterface;
  */
 class FrameworkExtension extends Extension
 {
+    private const MAPPING_FILE_PATTERN = '/\.(xml|ya?ml)$/';
+
     private array $configsEnabled = [];
 
     /**
@@ -236,6 +238,10 @@ class FrameworkExtension extends Extension
 
         $container->registerAliasForArgument('parameter_bag', PsrContainerInterface::class);
 
+        if (!ContainerBuilder::willBeAvailable('symfony/expression-language', ExpressionLanguage::class, ['symfony/framework-bundle'])) {
+            $container->removeDefinition('controller.expression_language');
+        }
+
         $loader->load('process.php');
 
         if (!class_exists(RunProcessMessageHandler::class)) {
@@ -264,6 +270,12 @@ class FrameworkExtension extends Extension
 
         // Load Cache configuration first as it is used by other components
         $loader->load('cache.php');
+
+        if ($container->getParameter('kernel.debug')) {
+            // clears the pools that cache metadata read from mapping files, so that editing one of
+            // these files is enough to refresh them
+            $loader->load('cache_debug.php');
+        }
 
         $configuration = $this->getConfiguration($configs, $container);
         $config = $this->processConfiguration($configuration, $configs);
@@ -567,8 +579,8 @@ class FrameworkExtension extends Extension
             }
         }
 
-        if ($this->readConfigEnabled('remote-event', $container, $config['remote-event'])) {
-            $this->registerRemoteEventConfiguration($config['remote-event'], $container, $loader);
+        if ($this->readConfigEnabled('remote_event', $container, $config['remote_event'])) {
+            $this->registerRemoteEventConfiguration($config['remote_event'], $container, $loader);
         }
 
         if ($this->readConfigEnabled('html_sanitizer', $container, $config['html_sanitizer'])) {
@@ -863,7 +875,6 @@ class FrameworkExtension extends Extension
 
         $loader->load('profiling.php');
         $loader->load('collectors.php');
-        $loader->load('cache_debug.php');
 
         if ($this->isInitializedConfigEnabled('form')) {
             $loader->load('form_debug.php');
@@ -1067,7 +1078,7 @@ class FrameworkExtension extends Extension
                 $validator = new Workflow\Validator\WorkflowValidator();
             }
 
-            $trs = array_map(fn (Reference $ref): Workflow\Transition => $container->get((string) $ref), $transitions);
+            $trs = array_map(static fn (Reference $ref): Workflow\Transition => $container->get((string) $ref), $transitions);
             $realDefinition = new Workflow\Definition($places, $trs, $initialMarking);
             $validator->validate($realDefinition, $name);
 
@@ -1233,8 +1244,7 @@ class FrameworkExtension extends Extension
         $container->setParameter('request_listener.https_port', $config['https_port']);
 
         if (null !== $config['default_uri']) {
-            $container->getDefinition('router.request_context')
-                ->replaceArgument(0, $config['default_uri']);
+            $container->setParameter('router.request_context.base_url', $config['default_uri']);
         }
 
         if ($this->isInitializedConfigEnabled('annotations') && (new \ReflectionClass(AttributeClassLoader::class))->hasProperty('reader')) {
@@ -1314,6 +1324,9 @@ class FrameworkExtension extends Extension
         $defaultPackage = $this->createPackageDefinition($config['base_path'], $config['base_urls'], $defaultVersion);
         $container->setDefinition('assets._default_package', $defaultPackage);
 
+        // used by the asset mapper for the assets it resolves itself, which already carry a content hash
+        $container->setDefinition('assets._default_package_without_version', $this->createPackageDefinition($config['base_path'], $config['base_urls'], new Reference('assets.empty_version_strategy')));
+
         foreach ($config['packages'] as $name => $package) {
             if (null !== $package['version_strategy']) {
                 $version = new Reference($package['version_strategy']);
@@ -1340,6 +1353,10 @@ class FrameworkExtension extends Extension
 
         if (!$assetEnabled) {
             $container->removeDefinition('asset_mapper.asset_package');
+        } else {
+            $container->getDefinition('asset_mapper.asset_package')
+                ->replaceArgument(3, $config['server'] ? $config['public_prefix'] : null)
+                ->replaceArgument(5, $config['public_prefix']);
         }
 
         if (!$httpClientEnabled) {
@@ -1367,14 +1384,15 @@ class FrameworkExtension extends Extension
         $container->getDefinition('asset_mapper.public_assets_path_resolver')
             ->setArgument(0, $config['public_prefix']);
 
+        $parameterBag = $container->getParameterBag();
         $publicDirectory = $this->getPublicDirectory($container);
         $publicAssetsDirectory = rtrim($publicDirectory.'/'.ltrim($config['public_prefix'], '/'), '/');
         $container->getDefinition('asset_mapper.local_public_assets_filesystem')
-            ->setArgument(0, $publicDirectory)
+            ->setArgument(0, $parameterBag->escapeValue($publicDirectory))
         ;
 
         $container->getDefinition('asset_mapper.compiled_asset_mapper_config_reader')
-            ->setArgument(0, $publicAssetsDirectory);
+            ->setArgument(0, $parameterBag->escapeValue($publicAssetsDirectory));
 
         if (!$config['server']) {
             $container->removeDefinition('asset_mapper.dev_server_subscriber');
@@ -1514,9 +1532,12 @@ class FrameworkExtension extends Extension
 
             $dirs[] = $transPaths[] = \dirname($r->getFileName(), 2).'/Resources/translations';
         }
-        $defaultDir = $container->getParameterBag()->resolveValue($config['default_path']);
+        $parameterBag = $container->getParameterBag();
+        // the parameter bag returns paths in their escaped form, the filesystem needs the literal one
+        $defaultDir = $parameterBag->unescapeValue($parameterBag->resolveValue($config['default_path']));
         foreach ($container->getParameter('kernel.bundles_metadata') as $name => $bundle) {
-            if ($container->fileExists($dir = $bundle['path'].'/Resources/translations') || $container->fileExists($dir = $bundle['path'].'/translations')) {
+            $bundlePath = $parameterBag->unescapeValue($bundle['path']);
+            if ($container->fileExists($dir = $bundlePath.'/Resources/translations') || $container->fileExists($dir = $bundlePath.'/translations')) {
                 $dirs[] = $transPaths[] = $dir;
             } else {
                 $nonExistingDirs[] = $dir;
@@ -1532,11 +1553,11 @@ class FrameworkExtension extends Extension
         }
 
         if ($container->hasDefinition('console.command.translation_debug')) {
-            $container->getDefinition('console.command.translation_debug')->replaceArgument(5, $transPaths);
+            $container->getDefinition('console.command.translation_debug')->replaceArgument(5, $parameterBag->escapeValue($transPaths));
         }
 
         if ($container->hasDefinition('console.command.translation_extract')) {
-            $container->getDefinition('console.command.translation_extract')->replaceArgument(6, $transPaths);
+            $container->getDefinition('console.command.translation_extract')->replaceArgument(6, $parameterBag->escapeValue($transPaths));
         }
 
         if (null === $defaultDir) {
@@ -1555,7 +1576,7 @@ class FrameworkExtension extends Extension
                 $finder = Finder::create()
                     ->followLinks()
                     ->files()
-                    ->filter(fn (\SplFileInfo $file) => 2 <= substr_count($file->getBasename(), '.') && preg_match('/\.\w+$/', $file->getBasename()))
+                    ->filter(static fn (\SplFileInfo $file) => 2 <= substr_count($file->getBasename(), '.') && preg_match('/\.\w+$/', $file->getBasename()))
                     ->in($dir)
                     ->sortByName()
                 ;
@@ -1570,15 +1591,15 @@ class FrameworkExtension extends Extension
                 }
             }
 
-            $projectDir = $container->getParameter('kernel.project_dir');
+            $projectDir = $parameterBag->unescapeValue($container->getParameter('kernel.project_dir'));
 
             $options = array_merge(
                 $translator->getArgument(4),
                 [
-                    'resource_files' => $files,
-                    'scanned_directories' => $scannedDirectories = array_merge($dirs, $nonExistingDirs),
+                    'resource_files' => $parameterBag->escapeValue($files),
+                    'scanned_directories' => $parameterBag->escapeValue($scannedDirectories = array_merge($dirs, $nonExistingDirs)),
                     'cache_vary' => [
-                        'scanned_directories' => array_map(fn ($dir) => str_starts_with($dir, $projectDir.'/') ? substr($dir, 1 + \strlen($projectDir)) : $dir, $scannedDirectories),
+                        'scanned_directories' => $parameterBag->escapeValue(array_map(static fn ($dir) => str_starts_with($dir, $projectDir.'/') ? substr($dir, 1 + \strlen($projectDir)) : $dir, $scannedDirectories)),
                     ],
                 ]
             );
@@ -1721,8 +1742,10 @@ class FrameworkExtension extends Extension
 
     private function registerValidatorMapping(ContainerBuilder $container, array $config, array &$files): void
     {
-        $fileRecorder = function ($extension, $path) use (&$files) {
-            $files['yaml' === $extension ? 'yml' : $extension][] = $path;
+        $parameterBag = $container->getParameterBag();
+        // mapping files are collected from the filesystem as literals and handed back to the container
+        $fileRecorder = static function ($extension, $path) use (&$files, $parameterBag) {
+            $files['yaml' === $extension ? 'yml' : $extension][] = $parameterBag->escapeValue($path);
         };
 
         if (ContainerBuilder::willBeAvailable('symfony/form', Form::class, ['symfony/framework-bundle', 'symfony/validator'])) {
@@ -1731,7 +1754,8 @@ class FrameworkExtension extends Extension
         }
 
         foreach ($container->getParameter('kernel.bundles_metadata') as $bundle) {
-            $configDir = is_dir($bundle['path'].'/Resources/config') ? $bundle['path'].'/Resources/config' : $bundle['path'].'/config';
+            $bundlePath = $parameterBag->unescapeValue($bundle['path']);
+            $configDir = is_dir($bundlePath.'/Resources/config') ? $bundlePath.'/Resources/config' : $bundlePath.'/config';
 
             if (
                 $container->fileExists($file = $configDir.'/validation.yaml', false)
@@ -1749,29 +1773,29 @@ class FrameworkExtension extends Extension
             }
         }
 
-        $projectDir = $container->getParameter('kernel.project_dir');
+        $projectDir = $parameterBag->unescapeValue($container->getParameter('kernel.project_dir'));
         if ($container->fileExists($dir = $projectDir.'/config/validator', '/^$/')) {
             $this->registerMappingFilesFromDir($dir, $fileRecorder);
         }
 
-        $this->registerMappingFilesFromConfig($container, $config, $fileRecorder);
+        $this->registerMappingFilesFromConfig($container, $config, $fileRecorder, false);
     }
 
     private function registerMappingFilesFromDir(string $dir, callable $fileRecorder): void
     {
-        foreach (Finder::create()->followLinks()->files()->in($dir)->name('/\.(xml|ya?ml)$/')->sortByName() as $file) {
+        foreach (Finder::create()->followLinks()->files()->in($dir)->name(self::MAPPING_FILE_PATTERN)->sortByName() as $file) {
             $fileRecorder($file->getExtension(), $file->getRealPath());
         }
     }
 
-    private function registerMappingFilesFromConfig(ContainerBuilder $container, array $config, callable $fileRecorder): void
+    private function registerMappingFilesFromConfig(ContainerBuilder $container, array $config, callable $fileRecorder, bool $trackContents): void
     {
-        foreach ($config['mapping']['paths'] as $path) {
+        foreach ($container->getParameterBag()->unescapeValue($config['mapping']['paths']) as $path) {
             if (is_dir($path)) {
                 $this->registerMappingFilesFromDir($path, $fileRecorder);
-                $container->addResource(new DirectoryResource($path, '/^$/'));
-            } elseif ($container->fileExists($path, false)) {
-                if (!preg_match('/\.(xml|ya?ml)$/', $path, $matches)) {
+                $container->addResource(new DirectoryResource($path, $trackContents ? self::MAPPING_FILE_PATTERN : '/^$/'));
+            } elseif ($container->fileExists($path, $trackContents)) {
+                if (!preg_match(self::MAPPING_FILE_PATTERN, $path, $matches)) {
                     throw new \RuntimeException(\sprintf('Unsupported mapping type in "%s", supported types are XML & Yaml.', $path));
                 }
                 $fileRecorder($matches[1], $path);
@@ -1809,15 +1833,16 @@ class FrameworkExtension extends Extension
             $definition->addTag('kernel.cache_warmer');
         } else {
             $cacheService = 'annotations.filesystem_cache_adapter';
-            $cacheDir = $container->getParameterBag()->resolveValue($config['file_cache_dir']);
+            $parameterBag = $container->getParameterBag();
+            $cacheDir = $parameterBag->unescapeValue($parameterBag->resolveValue($config['file_cache_dir']));
 
-            if (!is_dir($cacheDir) && false === @mkdir($cacheDir, 0777, true) && !is_dir($cacheDir)) {
+            if (!is_dir($cacheDir) && false === @mkdir($cacheDir, 0o777, true) && !is_dir($cacheDir)) {
                 throw new \RuntimeException(\sprintf('Could not create cache directory "%s".', $cacheDir));
             }
 
             $container
                 ->getDefinition('annotations.filesystem_cache_adapter')
-                ->replaceArgument(2, $cacheDir)
+                ->replaceArgument(2, $parameterBag->escapeValue($cacheDir))
             ;
         }
 
@@ -1944,16 +1969,29 @@ class FrameworkExtension extends Extension
             $container->removeDefinition('serializer.normalizer.mime_message');
         }
 
-        if ($container->getParameter('kernel.debug')) {
-            $container->removeDefinition('serializer.mapping.cache_class_metadata_factory');
-        }
-
         if (!$this->readConfigEnabled('translator', $container, $config)) {
             $container->removeDefinition('serializer.normalizer.translatable');
         }
 
+        $attributesEnabled = isset($config['enable_attributes']) && $config['enable_attributes'];
+
+        // attribute metadata is read from the classes at runtime, so it cannot be cached in debug
+        // mode; metadata read from mapping files can be, because the container is rebuilt when one
+        // of these files changes, which clears the pool the metadata is stored in
+        $cacheMetadata = !$attributesEnabled || !$container->getParameter('kernel.debug');
+        $mappingDirPattern = $cacheMetadata ? self::MAPPING_FILE_PATTERN : '/^$/';
+
+        if (!$cacheMetadata) {
+            $container->removeDefinition('serializer.mapping.cache_class_metadata_factory');
+        } elseif ($container->getParameter('kernel.debug')) {
+            // the PHP file behind "serializer.mapping.cache.symfony" is written by an optional cache
+            // warmer, which does not run when the container is rebuilt while handling a request
+            $container->getDefinition('serializer.mapping.cache_class_metadata_factory')
+                ->replaceArgument(1, new Reference('cache.serializer'));
+        }
+
         $serializerLoaders = [];
-        if (isset($config['enable_attributes']) && $config['enable_attributes']) {
+        if ($attributesEnabled) {
             $annotationLoader = new Definition(
                 AttributeLoader::class,
                 interface_exists(CacheableSupportsMethodInterface::class) ? [new Reference('annotation_reader', ContainerInterface::NULL_ON_INVALID_REFERENCE)] : [],
@@ -1962,36 +2000,39 @@ class FrameworkExtension extends Extension
             $serializerLoaders[] = $annotationLoader;
         }
 
-        $fileRecorder = function ($extension, $path) use (&$serializerLoaders) {
-            $definition = new Definition(\in_array($extension, ['yaml', 'yml']) ? YamlFileLoader::class : XmlFileLoader::class, [$path]);
+        $parameterBag = $container->getParameterBag();
+        // mapping files are collected from the filesystem as literals and handed back to the container
+        $fileRecorder = static function ($extension, $path) use (&$serializerLoaders, $parameterBag) {
+            $definition = new Definition(\in_array($extension, ['yaml', 'yml']) ? YamlFileLoader::class : XmlFileLoader::class, [$parameterBag->escapeValue($path)]);
             $serializerLoaders[] = $definition;
         };
 
         foreach ($container->getParameter('kernel.bundles_metadata') as $bundle) {
-            $configDir = is_dir($bundle['path'].'/Resources/config') ? $bundle['path'].'/Resources/config' : $bundle['path'].'/config';
+            $bundlePath = $parameterBag->unescapeValue($bundle['path']);
+            $configDir = is_dir($bundlePath.'/Resources/config') ? $bundlePath.'/Resources/config' : $bundlePath.'/config';
 
-            if ($container->fileExists($file = $configDir.'/serialization.xml', false)) {
+            if ($container->fileExists($file = $configDir.'/serialization.xml', $cacheMetadata)) {
                 $fileRecorder('xml', $file);
             }
 
             if (
-                $container->fileExists($file = $configDir.'/serialization.yaml', false)
-                || $container->fileExists($file = $configDir.'/serialization.yml', false)
+                $container->fileExists($file = $configDir.'/serialization.yaml', $cacheMetadata)
+                || $container->fileExists($file = $configDir.'/serialization.yml', $cacheMetadata)
             ) {
                 $fileRecorder('yml', $file);
             }
 
-            if ($container->fileExists($dir = $configDir.'/serialization', '/^$/')) {
+            if ($container->fileExists($dir = $configDir.'/serialization', $mappingDirPattern)) {
                 $this->registerMappingFilesFromDir($dir, $fileRecorder);
             }
         }
 
-        $projectDir = $container->getParameter('kernel.project_dir');
-        if ($container->fileExists($dir = $projectDir.'/config/serializer', '/^$/')) {
+        $projectDir = $parameterBag->unescapeValue($container->getParameter('kernel.project_dir'));
+        if ($container->fileExists($dir = $projectDir.'/config/serializer', $mappingDirPattern)) {
             $this->registerMappingFilesFromDir($dir, $fileRecorder);
         }
 
-        $this->registerMappingFilesFromConfig($container, $config, $fileRecorder);
+        $this->registerMappingFilesFromConfig($container, $config, $fileRecorder, $cacheMetadata);
 
         $chainLoader->replaceArgument(0, $serializerLoaders);
         $container->getDefinition('serializer.mapping.cache_warmer')->replaceArgument(0, $serializerLoaders);
@@ -2232,6 +2273,10 @@ class FrameworkExtension extends Extension
                 if ('add_bus_name_stamp_middleware' === $middlewareItem['id']) {
                     $middleware[$key]['arguments'] = [$busId];
                 }
+
+                if ('doctrine_open_transaction_logger' === $middlewareItem['id'] && isset($middleware[$key]['arguments'][0])) {
+                    $middleware[$key]['arguments'] = ['$entityManagerName' => $middleware[$key]['arguments'][0]];
+                }
             }
 
             if ($container->getParameter('kernel.debug') && class_exists(Stopwatch::class)) {
@@ -2345,7 +2390,7 @@ class FrameworkExtension extends Extension
             }
         }
 
-        $failureTransportReferencesByTransportName = array_map(fn ($failureTransportName) => $senderReferences[$failureTransportName], $failureTransportsByName);
+        $failureTransportReferencesByTransportName = array_map(static fn ($failureTransportName) => $senderReferences[$failureTransportName], $failureTransportsByName);
 
         $messageToSendersMapping = [];
         foreach ($config['routing'] as $message => $messageConfiguration) {
@@ -2388,7 +2433,7 @@ class FrameworkExtension extends Extension
                 ->replaceArgument(0, $transportRateLimiterReferences);
         }
 
-        if (\count($failureTransports) > 0) {
+        if ($failureTransports) {
             if ($this->hasConsole()) {
                 $container->getDefinition('console.command.messenger_failed_messages_retry')
                     ->replaceArgument(0, $config['failure_transport']);
@@ -2529,7 +2574,7 @@ class FrameworkExtension extends Extension
         unset($options['retry_failed']);
         $defaultUriTemplateVars = $options['vars'] ?? [];
         unset($options['vars']);
-        $container->getDefinition('http_client.transport')->setArguments([$options, $config['max_host_connections'] ?? 6]);
+        $container->getDefinition('http_client.transport')->setArguments([$options, $config['max_host_connections'] ?? 6, 0]);
 
         if (!class_exists(PingWebhookMessageHandler::class)) {
             $container->removeDefinition('http_client.messenger.ping_webhook_handler');
@@ -2666,7 +2711,7 @@ class FrameworkExtension extends Extension
 
         $loader->load('mailer.php');
         $loader->load('mailer_transports.php');
-        if (!\count($config['transports']) && null === $config['dsn']) {
+        if (!$config['transports'] && null === $config['dsn']) {
             $config['dsn'] = 'smtp://null';
         }
         $transports = $config['dsn'] ? ['main' => $config['dsn']] : $config['transports'];
@@ -2704,24 +2749,6 @@ class FrameworkExtension extends Extension
             }
         }
 
-        if ($webhookEnabled) {
-            $webhookRequestParsers = [
-                MailerBridge\Brevo\Webhook\BrevoRequestParser::class => 'mailer.webhook.request_parser.brevo',
-                MailerBridge\Mailgun\Webhook\MailgunRequestParser::class => 'mailer.webhook.request_parser.mailgun',
-                MailerBridge\Mailjet\Webhook\MailjetRequestParser::class => 'mailer.webhook.request_parser.mailjet',
-                MailerBridge\Postmark\Webhook\PostmarkRequestParser::class => 'mailer.webhook.request_parser.postmark',
-                MailerBridge\Sendgrid\Webhook\SendgridRequestParser::class => 'mailer.webhook.request_parser.sendgrid',
-            ];
-
-            foreach ($webhookRequestParsers as $class => $service) {
-                $package = substr($service, \strlen('mailer.webhook.request_parser.'));
-
-                if (!ContainerBuilder::willBeAvailable(\sprintf('symfony/%s-mailer', 'gmail' === $package ? 'google' : $package), $class, ['symfony/framework-bundle', 'symfony/mailer'])) {
-                    $container->removeDefinition($service);
-                }
-            }
-        }
-
         $envelopeListener = $container->getDefinition('mailer.envelope_listener');
         $envelopeListener->setArgument(0, $config['envelope']['sender'] ?? null);
         $envelopeListener->setArgument(1, $config['envelope']['recipients'] ?? null);
@@ -2747,6 +2774,23 @@ class FrameworkExtension extends Extension
 
         if ($webhookEnabled) {
             $loader->load('mailer_webhook.php');
+
+            $debug = $container->getParameter('kernel.debug');
+            foreach ([
+                MailerBridge\Brevo\Webhook\BrevoRequestParser::class => 'mailer.webhook.request_parser.brevo',
+                MailerBridge\Mailgun\Webhook\MailgunRequestParser::class => 'mailer.webhook.request_parser.mailgun',
+                MailerBridge\Mailjet\Webhook\MailjetRequestParser::class => 'mailer.webhook.request_parser.mailjet',
+                MailerBridge\Postmark\Webhook\PostmarkRequestParser::class => 'mailer.webhook.request_parser.postmark',
+                MailerBridge\Sendgrid\Webhook\SendgridRequestParser::class => 'mailer.webhook.request_parser.sendgrid',
+            ] as $class => $service) {
+                $package = substr($service, \strlen('mailer.webhook.request_parser.'));
+
+                if (!ContainerBuilder::willBeAvailable(\sprintf('symfony/%s-mailer', 'gmail' === $package ? 'google' : $package), $class, ['symfony/framework-bundle', 'symfony/mailer'])) {
+                    $container->removeDefinition($service);
+                } elseif ($debug && \defined($class.'::PROVIDER_IPS')) {
+                    $container->getDefinition($service)->setArgument('$allowedIPs', [...$class::PROVIDER_IPS, '127.0.0.1']);
+                }
+            }
         }
     }
 
@@ -3223,7 +3267,7 @@ class FrameworkExtension extends Extension
 
     private function getPublicDirectory(ContainerBuilder $container): string
     {
-        $projectDir = $container->getParameter('kernel.project_dir');
+        $projectDir = $container->getParameterBag()->unescapeValue($container->getParameter('kernel.project_dir'));
         $defaultPublicDir = $projectDir.'/public';
 
         $composerFilePath = $projectDir.'/composer.json';

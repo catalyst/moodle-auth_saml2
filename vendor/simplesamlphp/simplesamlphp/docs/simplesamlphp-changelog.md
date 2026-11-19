@@ -5,9 +5,62 @@
 This document lists the changes between versions of SimpleSAMLphp.
 See the [upgrade notes](https://simplesamlphp.org/docs/stable/simplesamlphp-upgrade-notes.html) for specific information about upgrading.
 
-## Version 2.4.6
+## Version 2.4.12
 
 Released TBD
+
+## Version 2.4.11
+
+* Fix file config for MetaDataStorageHandlerXML (#2682)
+
+Released 2026-11-09
+
+`saml2`
+
+* Fix a possible DoS in the HTTPRedirect-binding by limiting the input-size of payloads passed to gzinflate()
+
+## Version 2.4.10
+
+Released 2026-08-30
+
+* Fix missing namespace-declaration
+
+## Version 2.4.9
+
+Released 2026-08-09
+
+* Added `SimpleSAML\Database::readPrimary()`, for reads that must not be served by a possibly lagging secondary
+* Fix method return-type that broke the Single Logout flow
+* Fix for setting a proxy (#2662)
+* Fix multiauth not delegating when num srcs is 1 (#2663)
+* Don't delegate to preselect on discovery if it is not saved in the state (#2658)
+* Fix variable name typo in `src/SimpleSAML/Metadata/MetaDataStorageHandlerXML.php` which
+  caused raising PHP Type Error even when XML was successfully fetched from given URI.
+
+## Version 2.4.8
+
+Released 2026-07-06
+
+* Fix upgrade path for the CVE's from v2.4.6
+
+## Version 2.4.7
+
+Released 2026-06-01
+
+* Fix incorrect/missing use-statements that were breaking the previous release.
+
+## Version 2.4.6
+
+Released 2026-05-29
+
+* Have getServerHTTPS() honor https baseurlpath when $_SERVER['HTTPS'] is absent (#2638)
+* SP accepts a response from an unexpected IdP when unsigned `Response/InResponseTo`
+  is combined with a signed assertion lacking `SubjectConfirmationData/InResponseTo` (CVE-2026-49284)
+
+`saml2`
+
+* Possible DoS via XPath Transform (CVE-2026-49289)
+* HTTP-Artifact TLS validator confusion allows cross-IdP authentication bypass (CVE-2026-49283 )
 
 ## Version 2.4.5
 
@@ -331,7 +384,7 @@ to an incorrect error message.
 
 ## Version 2.2.1
 
-Released 2014-03-17
+Released 2024-03-17
 
 * Fix regression in bin/initMDSPdo.php (was #1892)
 * Fix regression in translations, causing a fallback to English (#2009 + #2010)

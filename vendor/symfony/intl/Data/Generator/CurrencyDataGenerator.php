@@ -31,6 +31,7 @@ class CurrencyDataGenerator extends AbstractDataGenerator
         'XBC' => true, // European Unit of Account (XBC)
         'XBD' => true, // European Unit of Account (XBD)
         'XUA' => true, // ADB Unit of Account
+        'XAD' => true, // Arab Accounting Dinar
         'XAU' => true, // Gold
         'XAG' => true, // Silver
         'XPT' => true, // Platinum
@@ -113,7 +114,7 @@ class CurrencyDataGenerator extends AbstractDataGenerator
 
     private function generateSymbolNamePairs(ArrayAccessibleResourceBundle $rootBundle): array
     {
-        $symbolNamePairs = array_map(fn ($pair) => \array_slice(iterator_to_array($pair), 0, 2), iterator_to_array($rootBundle['Currencies']));
+        $symbolNamePairs = array_map(static fn ($pair) => \array_slice(iterator_to_array($pair), 0, 2), iterator_to_array($rootBundle['Currencies']));
 
         // Remove unwanted currencies
         $symbolNamePairs = array_diff_key($symbolNamePairs, self::DENYLIST);
