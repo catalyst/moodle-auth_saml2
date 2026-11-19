@@ -47,7 +47,7 @@ class CouchbaseCollectionAdapter extends AbstractAdapter
         $this->marshaller = $marshaller ?? new DefaultMarshaller();
     }
 
-    public static function createConnection(#[\SensitiveParameter] array|string $dsn, array $options = []): Bucket|Collection
+    public static function createConnection(#[\SensitiveParameter] array|string $dsn, #[\SensitiveParameter] array $options = []): Bucket|Collection
     {
         if (\is_string($dsn)) {
             $dsn = [$dsn];
@@ -173,7 +173,7 @@ class CouchbaseCollectionAdapter extends AbstractAdapter
             }
         }
 
-        return 0 === \count($idsErrors);
+        return !$idsErrors;
     }
 
     protected function doSave(array $values, $lifetime): array|bool
@@ -194,6 +194,6 @@ class CouchbaseCollectionAdapter extends AbstractAdapter
             }
         }
 
-        return [] === $ko ? true : $ko;
+        return !$ko ? true : $ko;
     }
 }
