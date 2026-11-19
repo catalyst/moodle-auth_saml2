@@ -204,29 +204,29 @@ final class ProxyHelper
                 if ('get' === $hook) {
                     $ref = ($method->returnsReference() ? '&' : '');
                     $hooks .= <<<EOPHP
-                            {$ref}get {
-                                if (isset(\$this->lazyObjectState)) {
-                                    return (\$this->lazyObjectState->realInstance ??= (\$this->lazyObjectState->initializer)())->{$p->name};
+                                {$ref}get {
+                                    if (isset(\$this->lazyObjectState)) {
+                                        return (\$this->lazyObjectState->realInstance ??= (\$this->lazyObjectState->initializer)())->{$p->name};
+                                    }
+
+                                    return parent::\${$p->name}::get();
                                 }
 
-                                return parent::\${$p->name}::get();
-                            }
-
-                    EOPHP;
+                        EOPHP;
                 } elseif ('set' === $hook) {
                     $parameters = self::exportParameters($method, true);
                     $arg = '$'.$method->getParameters()[0]->name;
                     $hooks .= <<<EOPHP
-                            set({$parameters}) {
-                                if (isset(\$this->lazyObjectState)) {
-                                    \$this->lazyObjectState->realInstance ??= (\$this->lazyObjectState->initializer)();
-                                    \$this->lazyObjectState->realInstance->{$p->name} = {$arg};
+                                set({$parameters}) {
+                                    if (isset(\$this->lazyObjectState)) {
+                                        \$this->lazyObjectState->realInstance ??= (\$this->lazyObjectState->initializer)();
+                                        \$this->lazyObjectState->realInstance->{$p->name} = {$arg};
+                                    }
+
+                                    parent::\${$p->name}::set({$arg});
                                 }
 
-                                parent::\${$p->name}::set({$arg});
-                            }
-
-                    EOPHP;
+                        EOPHP;
                 } else {
                     throw new LogicException(\sprintf('Cannot generate lazy proxy: hook "%s::%s()" is not supported.', $class->name, $method->name));
                 }
@@ -281,12 +281,12 @@ final class ProxyHelper
                 $body = "        $parentCall;";
             } elseif (str_ends_with($signature, '): never') || str_ends_with($signature, '): void')) {
                 $body = <<<EOPHP
-                        if (isset(\$this->lazyObjectState)) {
-                            (\$this->lazyObjectState->realInstance ??= (\$this->lazyObjectState->initializer)())->{$method->name}({$args});
-                        } else {
-                            {$parentCall};
-                        }
-                EOPHP;
+                            if (isset(\$this->lazyObjectState)) {
+                                (\$this->lazyObjectState->realInstance ??= (\$this->lazyObjectState->initializer)())->{$method->name}({$args});
+                            } else {
+                                {$parentCall};
+                            }
+                    EOPHP;
             } else {
                 if (!$methodsHaveToBeProxied && !$method->isAbstract()) {
                     // Skip proxying methods that might return $this
@@ -303,12 +303,12 @@ final class ProxyHelper
                 }
 
                 $body = <<<EOPHP
-                        if (isset(\$this->lazyObjectState)) {
-                            return (\$this->lazyObjectState->realInstance ??= (\$this->lazyObjectState->initializer)())->{$method->name}({$args});
-                        }
+                            if (isset(\$this->lazyObjectState)) {
+                                return (\$this->lazyObjectState->realInstance ??= (\$this->lazyObjectState->initializer)())->{$method->name}({$args});
+                            }
 
-                        return {$parentCall};
-                EOPHP;
+                            return {$parentCall};
+                    EOPHP;
             }
             $methods[$lcName] = "    {$signature}\n    {\n{$body}\n    }";
         }
@@ -335,10 +335,10 @@ final class ProxyHelper
         ) {
             // fix contravariance type problem when $class declares a `__unserialize()` method without typehint.
             $lazyProxyTraitStatement = <<<EOPHP
-            use \Symfony\Component\VarExporter\LazyProxyTrait {
-                    __unserialize as private __doUnserialize;
-                }
-            EOPHP;
+                use \Symfony\Component\VarExporter\LazyProxyTrait {
+                        __unserialize as private __doUnserialize;
+                    }
+                EOPHP;
 
             $body .= <<<EOPHP
 
@@ -350,8 +350,8 @@ final class ProxyHelper
                 EOPHP;
         } else {
             $lazyProxyTraitStatement = <<<EOPHP
-            use \Symfony\Component\VarExporter\LazyProxyTrait;
-            EOPHP;
+                use \Symfony\Component\VarExporter\LazyProxyTrait;
+                EOPHP;
         }
 
         return <<<EOPHP
@@ -390,7 +390,9 @@ final class ProxyHelper
             $args .= ($param->isVariadic() ? '...$' : '$').$param->name.', ';
         }
 
-        if (!$param || !$byRefIndex) {
+        if ($param?->isVariadic() && !$byRefIndex) {
+            $args = ($param->getPosition() ? \sprintf('...\array_slice(\func_get_args(), 0, %d), ', $param->getPosition()) : '').'...$'.$param->name;
+        } elseif (!$param || !$byRefIndex) {
             $args = '...\func_get_args()';
         } elseif ($param->isVariadic()) {
             $args = substr($args, 0, -2);
@@ -510,13 +512,29 @@ final class ProxyHelper
         if (str_ends_with($default, "...'") && preg_match("/^'(?:[^'\\\\]*+(?:\\\\.)*+)*+'$/", $default)) {
             return VarExporter::export($param->getDefaultValue());
         }
+        if ((str_starts_with($default, "'") && str_ends_with($default, "'"))
+            || (str_starts_with($default, '[') && str_ends_with($default, ']'))
+        ) {
+            // Reflection renders string literals without escaping quotes, which makes them
+            // impossible to re-tokenize. Export the value instead, but only when it renders
+            // back identically, which also tells literals apart from concatenations.
+            try {
+                $value = $param->getDefaultValue();
+            } catch (\Throwable) {
+                $value = null;
+            }
+
+            if ((\is_string($value) || \is_array($value)) && $default === self::renderValue($value)) {
+                return self::exportValue($value);
+            }
+        }
 
         $regexp = "/(\"(?:[^\"\\\\]*+(?:\\\\.)*+)*+\"|'(?:[^'\\\\]*+(?:\\\\.)*+)*+')/";
         $parts = preg_split($regexp, $default, -1, \PREG_SPLIT_DELIM_CAPTURE | \PREG_SPLIT_NO_EMPTY);
 
         $regexp = '/([\[\( ]|^)([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*+(?:\\\\[a-zA-Z0-9_\x7f-\xff]++)*+)(\(?)(?!: )/';
         $callback = (false !== strpbrk($default, "\\:('") && $class = $param->getDeclaringClass())
-            ? fn ($m) => $m[1].match ($m[2]) {
+            ? static fn ($m) => $m[1].match ($m[2]) {
                 'new', 'false', 'true', 'null' => $m[2],
                 'NULL' => 'null',
                 'self' => '\\'.$class->name,
@@ -524,15 +542,15 @@ final class ProxyHelper
                 'parent' => ($parent = $class->getParentClass()) ? '\\'.$parent->name : 'parent',
                 default => self::exportSymbol($m[2], '(' !== $m[3], $namespace),
             }.$m[3]
-            : fn ($m) => $m[1].match ($m[2]) {
+            : static fn ($m) => $m[1].match ($m[2]) {
                 'new', 'false', 'true', 'null', 'self', 'parent' => $m[2],
                 'NULL' => 'null',
                 default => self::exportSymbol($m[2], '(' !== $m[3], $namespace),
             }.$m[3];
 
-        return implode('', array_map(fn ($part) => match ($part[0]) {
+        return implode('', array_map(static fn ($part) => match ($part[0]) {
             '"' => $part, // for internal classes only
-            "'" => false !== strpbrk($part, "\\\0\r\n") ? '"'.substr(str_replace(['$', "\0", "\r", "\n"], ['\$', '\0', '\r', '\n'], $part), 1, -1).'"' : $part,
+            "'" => false !== strpbrk($part, "\\\0\r\n") ? '"'.self::escapeDoubleQuoted(substr($part, 1, -1)).'"' : $part,
             default => preg_replace_callback($regexp, $callback, $part),
         }, $parts));
     }
@@ -549,5 +567,94 @@ final class ProxyHelper
         }
 
         return '\\'.substr($symbol, $ns + 1);
+    }
+
+    private static function renderString(string $value): string
+    {
+        return "'".preg_replace_callback('/[\x00-\x1F\x7F-\xFF\\\\]/', static fn ($m) => match ($m[0]) {
+            '\\' => '\\\\',
+            "\t" => '\t',
+            "\n" => '\n',
+            "\v" => '\v',
+            "\f" => '\f',
+            "\r" => '\r',
+            "\e" => '\e',
+            default => \sprintf('\x%02X', \ord($m[0])),
+        }, $value)."'";
+    }
+
+    /**
+     * Reproduces how reflection renders a resolved default value, or null when it cannot.
+     */
+    private static function renderValue(mixed $value): ?string
+    {
+        if (\is_string($value)) {
+            return self::renderString($value);
+        }
+        if (\is_int($value)) {
+            return (string) $value;
+        }
+        if (\is_float($value)) {
+            $repr = (string) $value;
+
+            return is_finite($value) && !str_contains($repr, '.') && !str_contains($repr, 'E') ? $repr.'.0' : $repr;
+        }
+        if (\is_bool($value)) {
+            return $value ? 'true' : 'false';
+        }
+        if (null === $value) {
+            return 'NULL';
+        }
+        if (!\is_array($value)) {
+            return null;
+        }
+
+        $isList = array_is_list($value);
+        $rendered = [];
+
+        foreach ($value as $k => $v) {
+            if (null === $part = self::renderValue($v)) {
+                return null;
+            }
+
+            $rendered[] = $isList ? $part : self::renderValue($k).' => '.$part;
+        }
+
+        return '['.implode(', ', $rendered).']';
+    }
+
+    /**
+     * Turns the inside of a single-quoted rendering into the inside of a double-quoted one.
+     *
+     * Reflection renders resolved values with \n-style escapes and unevaluated expressions with
+     * \'-style ones. Both encodings write a backslash as \\, so the two can be decoded at once.
+     */
+    private static function escapeDoubleQuoted(string $part): string
+    {
+        return preg_replace_callback('/\\\\[\\\\\']|["$\0\r\n]/', static fn ($m) => match ($m[0]) {
+            "\\'" => "'",
+            '"' => '\"',
+            '$' => '\$',
+            "\0" => '\0',
+            "\r" => '\r',
+            "\n" => '\n',
+            default => $m[0],
+        }, $part);
+    }
+
+    private static function exportValue(mixed $value): string
+    {
+        if (!\is_array($value)) {
+            return VarExporter::export($value);
+        }
+
+        $isList = array_is_list($value);
+        $exported = [];
+
+        foreach ($value as $k => $v) {
+            $exported[] = ($isList ? '' : VarExporter::export($k).' => ').self::exportValue($v);
+        }
+
+        return '['.implode(', ', $exported).']';
     }
 }

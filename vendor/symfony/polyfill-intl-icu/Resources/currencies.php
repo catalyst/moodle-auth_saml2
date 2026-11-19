@@ -289,10 +289,6 @@ return array (
   array (
     0 => 'CNH',
   ),
-  'CNX' => 
-  array (
-    0 => 'CNX',
-  ),
   'CNY' => 
   array (
     0 => 'CN¥',
@@ -300,7 +296,7 @@ return array (
   'COP' => 
   array (
     0 => 'COP',
-    1 => 2,
+    1 => 0,
     2 => 0,
   ),
   'COU' => 
@@ -516,13 +512,13 @@ return array (
   'HUF' => 
   array (
     0 => 'HUF',
-    1 => 2,
+    1 => 0,
     2 => 0,
   ),
   'IDR' => 
   array (
     0 => 'IDR',
-    1 => 2,
+    1 => 0,
     2 => 0,
   ),
   'IEP' => 
@@ -770,6 +766,8 @@ return array (
   'MRU' => 
   array (
     0 => 'MRU',
+    1 => 2,
+    2 => 0,
   ),
   'MTL' => 
   array (
@@ -932,7 +930,7 @@ return array (
   'RSD' => 
   array (
     0 => 'RSD',
-    1 => 0,
+    1 => 2,
     2 => 0,
   ),
   'RUB' => 
@@ -1322,6 +1320,16 @@ return array (
     0 => 'ZWR',
   ),
   'DEFAULT' => 
+  array (
+    1 => 2,
+    2 => 0,
+  ),
+  'XAD' => 
+  array (
+    1 => 2,
+    2 => 0,
+  ),
+  'XAU' => 
   array (
     1 => 2,
     2 => 0,

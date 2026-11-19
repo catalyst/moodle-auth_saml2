@@ -41,6 +41,52 @@ abstract class Locale
     public const GRANDFATHERED_LANG_TAG = 'grandfathered';
     public const PRIVATE_TAG = 'private';
 
+    private const RTL_SCRIPTS = [
+        'Adlm' => true, 'Arab' => true, 'Armi' => true, 'Avst' => true,
+        'Chrs' => true, 'Cprt' => true, 'Elym' => true, 'Hatr' => true,
+        'Hebr' => true, 'Hung' => true, 'Khar' => true, 'Lydi' => true,
+        'Mand' => true, 'Mani' => true, 'Mend' => true, 'Merc' => true,
+        'Mero' => true, 'Narb' => true, 'Nbat' => true, 'Nkoo' => true,
+        'Orkh' => true, 'Ougr' => true, 'Palm' => true, 'Phli' => true,
+        'Phlp' => true, 'Phnx' => true, 'Prti' => true, 'Rohg' => true,
+        'Samr' => true, 'Sarb' => true, 'Sogd' => true, 'Sogo' => true,
+        'Syrc' => true, 'Thaa' => true, 'Yezi' => true,
+    ];
+
+    private const LANG_TO_SCRIPT = [
+        'aeb' => 'Arab',
+        'ar' => 'Arab',
+        'arc' => 'Armi',
+        'arq' => 'Arab',
+        'ary' => 'Arab',
+        'arz' => 'Arab',
+        'bal' => 'Arab',
+        'bgn' => 'Arab',
+        'ckb' => 'Arab',
+        'dv' => 'Thaa',
+        'fa' => 'Arab',
+        'glk' => 'Arab',
+        'haz' => 'Arab',
+        'he' => 'Hebr',
+        'iw' => 'Hebr',
+        'kas' => 'Arab',
+        'ks' => 'Arab',
+        'lrc' => 'Arab',
+        'mzn' => 'Arab',
+        'nqo' => 'Nkoo',
+        'pnb' => 'Arab',
+        'ps' => 'Arab',
+        'rhg' => 'Rohg',
+        'sam' => 'Samr',
+        'sd' => 'Arab',
+        'sdh' => 'Arab',
+        'skr' => 'Arab',
+        'syr' => 'Syrc',
+        'ug' => 'Arab',
+        'ur' => 'Arab',
+        'yi' => 'Hebr',
+    ];
+
     /**
      * Not supported. Returns the best available locale based on HTTP "Accept-Language" header according to RFC 2616.
      *
@@ -306,5 +352,21 @@ abstract class Locale
         }
 
         return true;
+    }
+
+    public static function isRightToLeft(string $locale): bool
+    {
+        if ('' === $locale) {
+            return false;
+        }
+
+        $parts = preg_split('/[_-]/', substr($locale, 0, strcspn($locale, '@.')));
+        $language = strtolower($parts[0]);
+
+        if (isset($parts[1]) && 4 === \strlen($parts[1]) && ctype_alpha($parts[1])) {
+            return isset(self::RTL_SCRIPTS[ucfirst(strtolower($parts[1]))]);
+        }
+
+        return isset(self::LANG_TO_SCRIPT[$language]) && isset(self::RTL_SCRIPTS[self::LANG_TO_SCRIPT[$language]]);
     }
 }
