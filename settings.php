@@ -529,11 +529,13 @@ urn:mace:dir:attribute-def:mail *</pre>"]),
     // Enable Moodle IDP response signing.
     $settings->add(new admin_setting_configselect(
         'auth_saml2/moodleidpresponsesigning',
-        get_string('moodleidpresponsesigning','auth_saml2'),
-        get_string('moodleidpresponsesigning_help','auth_saml2'),
-        0, $yesno));
+        get_string('moodleidpresponsesigning', 'auth_saml2'),
+        get_string('moodleidpresponsesigning_help', 'auth_saml2'),
+        0,
+        $yesno
+    ));
 
-        // IDP Metadata.
+    // IDP Metadata.
     $settings->add(new setting_textonly(
         'auth_saml2/moodleidpmetadata',
         get_string('moodleidpmetadata', 'auth_saml2'),
@@ -544,9 +546,10 @@ urn:mace:dir:attribute-def:mail *</pre>"]),
     $settings->add(new admin_setting_configtextarea(
         'auth_saml2/moodleidpsplist',
         get_string('moodleidpsplist', 'auth_saml2'),
-        get_string('moodleidpsplist_help', 'auth_saml2', ['example' => "<pre>
-https://www.someothermoodle.com/auth/saml2/sp/metadata.php https://www.someothermoodle.com/auth/saml2/sp/saml2-acs.php/www.someothermoodle.com
-</pre>"]),
+        get_string('moodleidpsplist_help', 'auth_saml2', ['example' => "<pre>\n" .
+            'https://www.someothermoodle.com/auth/saml2/sp/metadata.php ' .
+            'https://www.someothermoodle.com/auth/saml2/sp/saml2-acs.php/www.someothermoodle.com' .
+            "\n</pre>"]),
         '',
         PARAM_TEXT
     ));

@@ -94,6 +94,7 @@ class ErrorHandler
 
     private bool $isRecursive = false;
     private bool $isRoot = false;
+    private bool $customExceptionHandlerCalled = false;
     /** @var callable|null */
     private $exceptionHandler;
     private ?BufferingLogger $bootstrappingLogger = null;
@@ -145,6 +146,11 @@ class ErrorHandler
                 $prev[0]->setExceptionHandler($p);
             }
         } else {
+            if (!$handlerIsRegistered && null === $prev) {
+                // another error handler is in charge and there is no exception handler to decorate
+                restore_exception_handler();
+            }
+
             $handler->setExceptionHandler($prev ?? [$handler, 'renderException']);
         }
 
@@ -494,6 +500,7 @@ class ErrorHandler
     public function handleException(\Throwable $exception): void
     {
         $handlerException = null;
+        $loggerFailed = false;
 
         if (!$exception instanceof FatalError) {
             self::$exitCode = 255;
@@ -521,6 +528,26 @@ class ErrorHandler
             try {
                 $this->loggers[$type][0]->log($this->loggers[$type][1], $message, ['exception' => $exception]);
             } catch (\Throwable $handlerException) {
+                $loggerFailed = true;
+            }
+        } elseif ([$this, 'renderException'] === $this->exceptionHandler && !$this->customExceptionHandlerCalled && !isset($this->loggers[$type][0]) && !$exception instanceof FatalError && (error_reporting() & \E_ERROR) && filter_var(\ini_get('log_errors'), \FILTER_VALIDATE_BOOL)) {
+            // renderException() replaces PHP's native handler, so log the exception like PHP does. PHP already logged fatal errors.
+            // In CLI, PHP logs to STDERR when error_log is empty, and renderException() already displays the exception.
+            // PHP logs this line with the error priority. error_log() uses the notice one, except with the SAPI logger.
+            if (($errorLog = \ini_get('error_log')) || !\in_array(\PHP_SAPI, ['cli', 'phpdbg', 'embed'], true)) {
+                try {
+                    $message = \sprintf("PHP Fatal error:  Uncaught %s\n  thrown in %s on line %d", $this->parseAnonymousClass((string) $exception), $exception->getFile(), $exception->getLine());
+
+                    if ('syslog' === $errorLog && \function_exists('openlog') && \function_exists('syslog')) {
+                        $facility = \ini_get('syslog.facility');
+                        $facility = 'security' === $facility ? 'LOG_AUTH' : (str_starts_with($facility, 'LOG_') ? $facility : 'LOG_'.strtoupper($facility));
+                        openlog(\ini_get('syslog.ident'), 0, \defined($facility) ? \constant($facility) : \LOG_USER);
+                        syslog(\LOG_ERR, $message);
+                    } else {
+                        error_log($message, $errorLog ? 0 : 4);
+                    }
+                } catch (\Throwable) {
+                }
             }
         }
 
@@ -531,6 +558,9 @@ class ErrorHandler
 
         if (null === $exceptionHandler || $exceptionHandler === $this->exceptionHandler) {
             $this->exceptionHandler = null;
+        } else {
+            // renderException() is now the fallback of a custom handler, which is in charge of logging
+            $this->customExceptionHandlerCalled = true;
         }
 
         try {
@@ -548,7 +578,8 @@ class ErrorHandler
         }
 
         $loggedErrors = $this->loggedErrors;
-        if ($exception === $handlerException) {
+        if ($exception === $handlerException || $loggerFailed) {
+            // the logger for that type is what threw, so calling it again would recurse forever
             $this->loggedErrors &= ~$type;
         }
 
@@ -599,7 +630,7 @@ class ErrorHandler
         }
         if (!$handler) {
             if (null === $error && $exitCode = self::$exitCode) {
-                register_shutdown_function('register_shutdown_function', function () use ($exitCode) { exit($exitCode); });
+                register_shutdown_function('register_shutdown_function', static function () use ($exitCode) { exit($exitCode); });
             }
 
             return;
@@ -617,7 +648,8 @@ class ErrorHandler
         if ($error && $error['type'] &= \E_PARSE | \E_ERROR | \E_CORE_ERROR | \E_COMPILE_ERROR) {
             // Let's not throw anymore but keep logging
             $handler->throwAt(0, true);
-            $trace = $error['backtrace'] ?? null;
+            // "trace" is set by PHP >= 8.5 when fatal_error_backtraces is enabled
+            $trace = $error['trace'] ?? null;
 
             if (str_starts_with($error['message'], 'Allowed memory') || str_starts_with($error['message'], 'Out of memory')) {
                 $fatalError = new OutOfMemoryError($handler->levels[$error['type']].': '.$error['message'], 0, $error, 2, false, $trace);
@@ -638,7 +670,7 @@ class ErrorHandler
         }
 
         if ($exit && $exitCode = self::$exitCode) {
-            register_shutdown_function('register_shutdown_function', function () use ($exitCode) { exit($exitCode); });
+            register_shutdown_function('register_shutdown_function', static function () use ($exitCode) { exit($exitCode); });
         }
     }
 

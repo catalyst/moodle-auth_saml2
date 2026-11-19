@@ -127,7 +127,7 @@ class CacheAttributeListener implements EventSubscriberInterface
         // Check if the response has a Vary header that should be considered, ignoring cases where
         // it's only 'Accept-Language' and the request has the '_vary_by_language' attribute
         $hasVary = ['Accept-Language'] === $response->getVary() ? !$request->attributes->get('_vary_by_language') : $response->hasVary();
-        //Check if cache-control directive was set manually in cacheControl (not auto computed)
+        // Check if cache-control directive was set manually in cacheControl (not auto computed)
         $hasCacheControlDirective = new class($response->headers) extends HeaderBag {
             public function __construct(private parent $headerBag)
             {
@@ -205,7 +205,9 @@ class CacheAttributeListener implements EventSubscriberInterface
     {
         if (!is_numeric($time)) {
             $now = time();
-            $time = strtotime($time, $now) - $now;
+            $then = strtotime($time, $now);
+            // ignore daylight saving time changes, so that "1 day" is always 86400 seconds
+            $time = $then - $now + idate('Z', $then) - idate('Z', $now);
         }
 
         return $time;

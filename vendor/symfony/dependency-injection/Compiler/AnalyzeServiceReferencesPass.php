@@ -114,7 +114,8 @@ class AnalyzeServiceReferencesPass extends AbstractRecursivePass
                 $this->lazy || ($this->hasProxyDumper && $targetDefinition?->isLazy()),
                 ContainerInterface::IGNORE_ON_UNINITIALIZED_REFERENCE === $value->getInvalidBehavior(),
                 $this->byConstructor,
-                $this->byMultiUseArgument
+                $this->byMultiUseArgument,
+                $inExpression
             );
 
             if ($inExpression) {
@@ -127,7 +128,8 @@ class AnalyzeServiceReferencesPass extends AbstractRecursivePass
                     $this->lazy || $targetDefinition?->isLazy(),
                     true,
                     $this->byConstructor,
-                    $this->byMultiUseArgument
+                    $this->byMultiUseArgument,
+                    true
                 );
             }
 
@@ -161,7 +163,10 @@ class AnalyzeServiceReferencesPass extends AbstractRecursivePass
         $this->processValue($factory);
         $this->byFactory = $byFactory;
 
+        // a lazy closure gets its service only when it is called
+        $this->lazy = ['Closure', 'fromCallable'] === $value->getFactory() && ('Closure' !== ($value->getClass() ?: 'Closure') || $value->isLazy());
         $this->processValue($value->getArguments());
+        $this->lazy = false;
 
         $properties = $value->getProperties();
         $setters = $value->getMethodCalls();

@@ -92,6 +92,6 @@ final class ElementRegistry
         Assert::nullOrValidURI($namespace, InvalidDOMElementException::class);
         Assert::validNCName($element, InvalidDOMElementException::class);
 
-        return $this->registry[$namespace][$element] ?? null;
+        return $this->registry[$namespace ?? ''][$element] ?? null;
     }
 }
