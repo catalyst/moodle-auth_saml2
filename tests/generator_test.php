@@ -42,7 +42,7 @@ final class generator_test extends \advanced_testcase {
      * @return auth_saml2_generator|auth_saml2\testing\generator
      */
     protected function get_generator() {
-        if (class_exists('\core\testing\component_generator')) { // Required for Totara 15 support
+        if (class_exists('\core\testing\component_generator')) { // Required for Totara 15 support.
             return $generator = \auth_saml2\testing\generator::instance();
         } else {
             return $this->getDataGenerator()->get_plugin_generator('auth_saml2');
@@ -104,9 +104,19 @@ final class generator_test extends \advanced_testcase {
         $this->assertCount(3, $auth->metadataentities);
         // Backwards compatibility with older PHPUnit - use old Canonicalizing method.
         if (method_exists($this, 'assertEqualsCanonicalizing')) {
-            $this->assertEqualsCanonicalizing(['Test IdP 1', 'Test IdP 2', 'Generator'], array_column($auth->metadataentities, 'name'));
+            $this->assertEqualsCanonicalizing(
+                ['Test IdP 1', 'Test IdP 2', 'Generator'],
+                array_column($auth->metadataentities, 'name')
+            );
         } else {
-            $this->assertEquals(['Test IdP 1', 'Test IdP 2', 'Generator'], array_column($auth->metadataentities, 'name'), '', 0, 10, true);
+            $this->assertEquals(
+                ['Test IdP 1', 'Test IdP 2', 'Generator'],
+                array_column($auth->metadataentities, 'name'),
+                '',
+                0,
+                10,
+                true
+            );
         }
     }
 

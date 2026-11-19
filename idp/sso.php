@@ -157,8 +157,8 @@ $xpath = new DOMXPath($outdoc);
 $assertion = $xpath->query('//*[local-name()="Assertion"]')[0];
 $subject = $xpath->query('child::*[local-name()="Subject"]', $assertion)[0];
 
-//Find signing elements
-if ($saml2auth->config->moodleidpresponsesigning){
+// Find signing elements.
+if ($saml2auth->config->moodleidpresponsesigning) {
     $response = $xpath->query('//*[local-name()="Response"]')[0];
     $status = $xpath->query('child::*[local-name()="Status"]', $response)[0];
 }
@@ -170,8 +170,8 @@ $signer->loadPrivateKey($saml2auth->certpem, $saml2auth->config->privatekeypass,
 $signer->loadCertificate($saml2auth->certcrt, true);
 $signer->sign($assertion, $assertion, $subject);
 
-//Sign response
-if ($saml2auth->config->moodleidpresponsesigning){
+// Sign response.
+if ($saml2auth->config->moodleidpresponsesigning) {
     $signer->sign($response, $response, $status);
 }
 
