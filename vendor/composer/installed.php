@@ -56,13 +56,10 @@
             'dev_requirement' => false,
         ),
         'guzzlehttp/psr7' => array(
-            'pretty_version' => '2.13.5',
-            'version' => '2.13.5.0',
-            'reference' => '5aa00c5418afbe3f435910af0e98cb03d659c49d',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../guzzlehttp/psr7',
-            'aliases' => array(),
             'dev_requirement' => false,
+            'replaced' => array(
+                0 => '*',
+            ),
         ),
         'nyholm/psr7' => array(
             'pretty_version' => '1.8.2',
@@ -192,15 +189,6 @@
             'provided' => array(
                 0 => '1.0|2.0|3.0',
             ),
-        ),
-        'ralouphie/getallheaders' => array(
-            'pretty_version' => '3.0.3',
-            'version' => '3.0.3.0',
-            'reference' => '120b605dfeb996808c31b6477290a714d356e822',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../ralouphie/getallheaders',
-            'aliases' => array(),
-            'dev_requirement' => false,
         ),
         'robrichards/xmlseclibs' => array(
             'pretty_version' => '3.1.5',
@@ -508,15 +496,6 @@
             'reference' => '122889ed24dc000165bcbfd77ec412f15cbdfc6a',
             'type' => 'library',
             'install_path' => __DIR__ . '/../symfony/polyfill-mbstring',
-            'aliases' => array(),
-            'dev_requirement' => false,
-        ),
-        'symfony/polyfill-php80' => array(
-            'pretty_version' => 'v1.43.0',
-            'version' => '1.43.0.0',
-            'reference' => '9c6a5d6b01ca51d486c813e9a9c0ed55f208bb74',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../symfony/polyfill-php80',
             'aliases' => array(),
             'dev_requirement' => false,
         ),

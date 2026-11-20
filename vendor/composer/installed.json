@@ -284,128 +284,6 @@
             "install-path": "../gettext/translator"
         },
         {
-            "name": "guzzlehttp/psr7",
-            "version": "2.13.5",
-            "version_normalized": "2.13.5.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/guzzle/psr7.git",
-                "reference": "5aa00c5418afbe3f435910af0e98cb03d659c49d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/5aa00c5418afbe3f435910af0e98cb03d659c49d",
-                "reference": "5aa00c5418afbe3f435910af0e98cb03d659c49d",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.2.5 || ^8.0",
-                "psr/http-factory": "^1.0",
-                "psr/http-message": "^1.1 || ^2.0",
-                "ralouphie/getallheaders": "^3.0",
-                "symfony/deprecation-contracts": "^2.5 || ^3.0",
-                "symfony/polyfill-php80": "^1.25"
-            },
-            "provide": {
-                "psr/http-factory-implementation": "1.0",
-                "psr/http-message-implementation": "1.0"
-            },
-            "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.8.2",
-                "http-interop/http-factory-tests": "1.1.0",
-                "jshttp/mime-db": "1.54.0.1",
-                "phpunit/phpunit": "^8.5.52 || ^9.6.34"
-            },
-            "suggest": {
-                "laminas/laminas-httphandlerrunner": "Emit PSR-7 responses"
-            },
-            "time": "2026-11-19T20:34:53+00:00",
-            "type": "library",
-            "extra": {
-                "bamarni-bin": {
-                    "bin-links": true,
-                    "forward-command": false
-                }
-            },
-            "installation-source": "dist",
-            "autoload": {
-                "psr-4": {
-                    "GuzzleHttp\\Psr7\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Graham Campbell",
-                    "email": "hello@gjcampbell.co.uk",
-                    "homepage": "https://github.com/GrahamCampbell"
-                },
-                {
-                    "name": "Michael Dowling",
-                    "email": "mtdowling@gmail.com",
-                    "homepage": "https://github.com/mtdowling"
-                },
-                {
-                    "name": "George Mponos",
-                    "email": "gmponos@gmail.com",
-                    "homepage": "https://github.com/gmponos"
-                },
-                {
-                    "name": "Tobias Nyholm",
-                    "email": "tobias.nyholm@gmail.com",
-                    "homepage": "https://github.com/Nyholm"
-                },
-                {
-                    "name": "Márk Sági-Kazár",
-                    "email": "mark.sagikazar@gmail.com",
-                    "homepage": "https://github.com/sagikazarmark"
-                },
-                {
-                    "name": "Tobias Schultze",
-                    "email": "webmaster@tubo-world.de",
-                    "homepage": "https://github.com/Tobion"
-                },
-                {
-                    "name": "Márk Sági-Kazár",
-                    "email": "mark.sagikazar@gmail.com",
-                    "homepage": "https://sagikazarmark.hu"
-                }
-            ],
-            "description": "PSR-7 message implementation that also provides common utility methods",
-            "keywords": [
-                "http",
-                "message",
-                "psr-7",
-                "request",
-                "response",
-                "stream",
-                "uri",
-                "url"
-            ],
-            "support": {
-                "issues": "https://github.com/guzzle/psr7/issues",
-                "source": "https://github.com/guzzle/psr7/tree/2.13.5"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/GrahamCampbell",
-                    "type": "github"
-                },
-                {
-                    "url": "https://github.com/Nyholm",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/guzzlehttp/psr7",
-                    "type": "tidelift"
-                }
-            ],
-            "install-path": "../guzzlehttp/psr7"
-        },
-        {
             "name": "nyholm/psr7",
             "version": "1.8.2",
             "version_normalized": "1.8.2.0",
@@ -950,53 +828,6 @@
             "install-path": "../psr/log"
         },
         {
-            "name": "ralouphie/getallheaders",
-            "version": "3.0.3",
-            "version_normalized": "3.0.3.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/ralouphie/getallheaders.git",
-                "reference": "120b605dfeb996808c31b6477290a714d356e822"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/ralouphie/getallheaders/zipball/120b605dfeb996808c31b6477290a714d356e822",
-                "reference": "120b605dfeb996808c31b6477290a714d356e822",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.6"
-            },
-            "require-dev": {
-                "php-coveralls/php-coveralls": "^2.1",
-                "phpunit/phpunit": "^5 || ^6.5"
-            },
-            "time": "2019-03-08T08:55:37+00:00",
-            "type": "library",
-            "installation-source": "dist",
-            "autoload": {
-                "files": [
-                    "src/getallheaders.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Ralph Khattar",
-                    "email": "ralph.khattar@gmail.com"
-                }
-            ],
-            "description": "A polyfill for getallheaders.",
-            "support": {
-                "issues": "https://github.com/ralouphie/getallheaders/issues",
-                "source": "https://github.com/ralouphie/getallheaders/tree/develop"
-            },
-            "install-path": "../ralouphie/getallheaders"
-        },
-        {
             "name": "robrichards/xmlseclibs",
             "version": "3.1.5",
             "version_normalized": "3.1.5.0",
@@ -1494,6 +1325,7 @@
                 "simplesamlphp/composer-module-installer": "^1.3.4"
             },
             "time": "2026-05-31T18:02:29+00:00",
+            "published-time": "2026-05-31T18:08:40+00:00",
             "type": "simplesamlphp-module",
             "installation-source": "dist",
             "notification-url": "https://packagist.org/downloads/",
@@ -3664,93 +3496,6 @@
                 }
             ],
             "install-path": "../symfony/polyfill-mbstring"
-        },
-        {
-            "name": "symfony/polyfill-php80",
-            "version": "v1.43.0",
-            "version_normalized": "1.43.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/polyfill-php80.git",
-                "reference": "9c6a5d6b01ca51d486c813e9a9c0ed55f208bb74"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/9c6a5d6b01ca51d486c813e9a9c0ed55f208bb74",
-                "reference": "9c6a5d6b01ca51d486c813e9a9c0ed55f208bb74",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.2"
-            },
-            "time": "2026-09-25T15:50:05+00:00",
-            "type": "library",
-            "extra": {
-                "thanks": {
-                    "url": "https://github.com/symfony/polyfill",
-                    "name": "symfony/polyfill"
-                }
-            },
-            "installation-source": "dist",
-            "autoload": {
-                "files": [
-                    "bootstrap.php"
-                ],
-                "psr-4": {
-                    "Symfony\\Polyfill\\Php80\\": ""
-                },
-                "classmap": [
-                    "Resources/stubs"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Ion Bazan",
-                    "email": "ion.bazan@gmail.com"
-                },
-                {
-                    "name": "Nicolas Grekas",
-                    "email": "p@tchwork.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Symfony polyfill backporting some PHP 8.0+ features to lower PHP versions",
-            "homepage": "https://symfony.com",
-            "keywords": [
-                "compatibility",
-                "polyfill",
-                "portable",
-                "shim"
-            ],
-            "support": {
-                "source": "https://github.com/symfony/polyfill-php80/tree/v1.43.0"
-            },
-            "funding": [
-                {
-                    "url": "https://symfony.com/sponsor",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/fabpot",
-                    "type": "github"
-                },
-                {
-                    "url": "https://github.com/nicolas-grekas",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
-                    "type": "tidelift"
-                }
-            ],
-            "install-path": "../symfony/polyfill-php80"
         },
         {
             "name": "symfony/polyfill-php83",
