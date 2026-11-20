@@ -22,6 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use auth_saml2\local\idp_logo_cache;
 use auth_saml2\task\metadata_refresh;
 use auth_saml2\ssl_algorithms;
 
@@ -406,6 +407,18 @@ function xmldb_auth_saml2_upgrade($oldversion) {
         set_config('assertionsconsumerservices', $protocols, 'auth_saml2');
 
         upgrade_plugin_savepoint(true, 2023100300, 'auth', 'saml2');
+    }
+
+     if ($oldversion < 2026021300) {
+        // Cache the idps logos.
+        $idps = $DB->get_records('auth_saml2_idps');
+        foreach ($idps as $idp) {
+            if (!empty($idp->logo)) {
+                idp_logo_cache::cache_logo($idp->logo, $idp->id);
+            }
+        }
+
+        upgrade_plugin_savepoint(true, 2026021300, 'auth', 'saml2');
     }
 
     return true;
