@@ -18,7 +18,7 @@ namespace auth_saml2;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once(__DIR__ . '/../vendor/autoload.php');
+require_once(__DIR__ . '/psr17_factory_pin.php');
 
 /**
  * Test Saml2 Autoloader
@@ -29,6 +29,11 @@ require_once(__DIR__ . '/../vendor/autoload.php');
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class autoloader_test extends \advanced_testcase {
+    public static function setUpBeforeClass(): void {
+        parent::setUpBeforeClass();
+        require_once(__DIR__ . '/../vendor/autoload.php');
+    }
+
     public function test_it_loads_classes(): void {
         $classes = [
             \Psr\Log\LoggerInterface::class,
