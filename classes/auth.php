@@ -100,6 +100,7 @@ class auth extends \auth_plugin_base {
         'mdlattr'            => 'username',
         'tolower'            => saml2_settings::OPTION_TOLOWER_EXACT,
         'autocreate'         => 0,
+        'defaultuserauth'    => 'saml2',
         'spmetadatasign'     => true,
         'showidplink'        => true,
         'alterlogout'        => '',
@@ -398,7 +399,11 @@ class auth extends \auth_plugin_base {
         $PAGE->set_title(get_string('error', 'auth_saml2'));
         $PAGE->set_heading(get_string('error', 'auth_saml2'));
         echo $OUTPUT->header();
-        echo $OUTPUT->box($msg, 'generalbox', 'notice');
+        $formattedmessage = format_text($msg, FORMAT_HTML, [
+            'context' => $PAGE->context,
+            'filter'  => true,
+        ]);
+        echo $OUTPUT->box($formattedmessage, 'generalbox', 'notice');
         $logouturl = new moodle_url('/auth/saml2/logout.php');
         echo $OUTPUT->single_button($logouturl, get_string('logout'), 'get');
         echo $OUTPUT->footer();
@@ -763,9 +768,9 @@ class auth extends \auth_plugin_base {
                     // Just in case username field not set, use uid.
                     $user->username = strtolower($uid);
                 }
-                // Set the auth to saml2 if it's not set from the attributes.
+                // Use the configured default auth if it is not set from the attributes.
                 if (empty($user->auth)) {
-                    $user->auth = 'saml2';
+                    $user->auth = $this->config->defaultuserauth;
                 }
 
                 $this->log(__FUNCTION__ . " user '$user->username' is not in moodle so autocreating");
