@@ -37,17 +37,17 @@ class CompiledUrlMatcherDumper extends MatcherDumper
     public function dump(array $options = []): string
     {
         return <<<EOF
-<?php
+            <?php
 
-/**
- * This file has been auto-generated
- * by the Symfony Routing Component.
- */
+            /**
+             * This file has been auto-generated
+             * by the Symfony Routing Component.
+             */
 
-return [
-{$this->generateCompiledRoutes()}];
+            return [
+            {$this->generateCompiledRoutes()}];
 
-EOF;
+            EOF;
     }
 
     /**
@@ -85,7 +85,7 @@ EOF;
 
         [$staticRoutes, $dynamicRoutes] = $this->groupStaticRoutes($routes);
 
-        $conditions = [null];
+        $conditions = ['' => null];
         $compiledRoutes[] = $this->compileStaticRoutes($staticRoutes, $conditions);
         $chunkLimit = \count($dynamicRoutes);
 
@@ -107,7 +107,7 @@ EOF;
         if ($forDump) {
             $compiledRoutes[2] = $compiledRoutes[4];
         }
-        unset($conditions[0]);
+        unset($conditions['']);
 
         if ($conditions) {
             foreach ($conditions as $expression => $condition) {
@@ -115,12 +115,12 @@ EOF;
             }
 
             $checkConditionCode = <<<EOF
-    static function (\$condition, \$context, \$request, \$params) { // \$checkCondition
-        switch (\$condition) {
-{$this->indent(implode("\n", $conditions), 3)}
-        }
-    }
-EOF;
+                    static function (\$condition, \$context, \$request, \$params) { // \$checkCondition
+                        switch (\$condition) {
+                {$this->indent(implode("\n", $conditions), 3)}
+                        }
+                    }
+                EOF;
             $compiledRoutes[4] = $forDump ? $checkConditionCode.",\n" : eval('return '.$checkConditionCode.';');
         } else {
             $compiledRoutes[4] = $forDump ? "    null, // \$checkCondition\n" : null;
@@ -318,6 +318,17 @@ EOF;
                         $state->vars = [];
                         $hostRegex = '(?i:'.preg_replace_callback('#\?P<([^>]++)>#', $state->getVars, $rx[1]).')\.';
                         $state->hostVars = $state->vars;
+
+                        if ($state->hostVars) {
+                            // Group 1 captures the path so that host variables cannot match any part of it.
+                            // Group 1 is mapped to the first host variable, then the group of that variable overwrites it.
+                            // The first lookahead skips the capture when the host cannot match.
+                            // It is left out when requirements contain named groups, because a regexp can't define the same name twice.
+                            $hostCheck = preg_replace('#\?P<[^>]++>#', '?:', $rx[1]);
+                            $hostCheck = preg_match('#\(\?(?:<[^=!]|\')#', $hostCheck) ? '' : '(?=(?i:'.$hostCheck.')\.)';
+                            $hostRegex = $hostCheck.'(?=[^/]*+(.*+))'.$hostRegex.'(?=\1)';
+                            array_unshift($state->hostVars, $state->hostVars[0]);
+                        }
                     } else {
                         $hostRegex = '(?:(?:[^./]*+\.)++)';
                         $state->hostVars = [];
@@ -430,7 +441,7 @@ EOF;
             unset($defaults['_canonical_route']);
         }
 
-        if ($condition = $route->getCondition()) {
+        if ('' !== $condition = $route->getCondition()) {
             $condition = $this->getExpressionLanguage()->compile($condition, ['context', 'request', 'params']);
             $condition = $conditions[$condition] ??= (str_contains($condition, '$request') ? 1 : -1) * \count($conditions);
         } else {

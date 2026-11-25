@@ -53,22 +53,31 @@ foreach ($userfields as $field) {
 
 // Get data from input request.
 $id = $xpath->evaluate('normalize-space(/*/@ID)');
-$destination = htmlspecialchars($xpath->evaluate('normalize-space(/*/@AssertionConsumerServiceURL)'));
+$destinationraw = $xpath->evaluate('normalize-space(/*/@AssertionConsumerServiceURL)');
 $sp = $xpath->evaluate('normalize-space(/*/*[local-name() = "Issuer"])');
 
-// Confirm we know about this SP.
-$knownsps = [];
-foreach (explode(PHP_EOL, $saml2auth->config->moodleidpsplist) as $ksp) {
-    $ksp = trim($ksp);
-    if (empty($ksp)) {
-        continue;
-    }
-    $knownsps[] = $ksp;
+// Validate ID.
+if (!auth_saml2_is_valid_saml_id($id)) {
+    throw new saml2_exception(get_string('invalid_id_error', 'auth_saml2'));
 }
 
-if (!in_array($sp, $knownsps)) {
+// Confirm we know about this SP.
+$knownsps = auth_saml2_parse_idp_splist((string) $saml2auth->config->moodleidpsplist);
+
+if (!array_key_exists($sp, $knownsps)) {
     throw new saml2_exception('unknown_sp_error', get_string('moodleidpsplist_error', 'auth_saml2', $sp));
 }
+
+// The response is only ever sent to an ACS URL registered for this SP, never to an arbitrary URL from the request.
+if (empty($knownsps[$sp])) {
+    throw new saml2_exception(get_string('acs_not_registered_error', 'auth_saml2', $sp));
+}
+
+if (!auth_saml2_is_registered_acs($knownsps[$sp], $destinationraw)) {
+    throw new saml2_exception(get_string('acs_mismatch_error', 'auth_saml2'));
+}
+
+$destination = htmlspecialchars($destinationraw);
 
 // Get time in UTC.
 $datetime = new DateTime();
@@ -148,12 +157,23 @@ $xpath = new DOMXPath($outdoc);
 $assertion = $xpath->query('//*[local-name()="Assertion"]')[0];
 $subject = $xpath->query('child::*[local-name()="Subject"]', $assertion)[0];
 
+// Find signing elements.
+if ($saml2auth->config->moodleidpresponsesigning) {
+    $response = $xpath->query('//*[local-name()="Response"]')[0];
+    $status = $xpath->query('child::*[local-name()="Status"]', $response)[0];
+}
+
 // Sign it using the fixture key/cert.
 $signer = new \SimpleSAML\XML\Signer(['id' => 'ID']);
 
 $signer->loadPrivateKey($saml2auth->certpem, $saml2auth->config->privatekeypass, true);
 $signer->loadCertificate($saml2auth->certcrt, true);
 $signer->sign($assertion, $assertion, $subject);
+
+// Sign response.
+if ($saml2auth->config->moodleidpresponsesigning) {
+    $signer->sign($response, $response, $status);
+}
 
 // Don't send as a referer or the login form might end up coming back here.
 header('Referrer-Policy: no-referrer');

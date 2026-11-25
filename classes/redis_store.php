@@ -25,8 +25,6 @@
 
 namespace auth_saml2;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Redis store simpleSAMLphp class for auth/saml2.
  *

@@ -12,6 +12,9 @@ use SimpleSAML\Utils\XML;
 
 use SAML2\Compat\AbstractContainer;
 
+/**
+ * @deprecated Please implement your own implementation of the AbstractContainer
+ */
 class Container extends AbstractContainer
 {
     /**
@@ -131,5 +134,16 @@ class Container extends AbstractContainer
             $mode = 0600;
         }
         $this->utilsSystem->writeFile($filename, $data, $mode);
+    }
+
+
+    /**
+     * A limit on how much data can be returned gzinflate() when processing a message.
+     *
+     * @return int max bytes to decode before considering the message an attack
+     */
+    public function getInflateSizeLimit(): int
+    {
+        return 100 * 1024;
     }
 }

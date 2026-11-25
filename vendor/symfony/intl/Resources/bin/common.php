@@ -46,7 +46,7 @@ function centered(string $text)
 
 function cd(string $dir): void
 {
-    if (false === chdir($dir)) {
+    if (!chdir($dir)) {
         bailout("Could not switch to directory $dir.");
     }
 }
@@ -83,11 +83,11 @@ function get_icu_version_from_genrb(string $genrb)
 
 error_reporting(\E_ALL);
 
-set_error_handler(function (int $type, string $msg, string $file, int $line) {
+set_error_handler(static function (int $type, string $msg, string $file, int $line) {
     throw new ErrorException($msg, 0, $type, $file, $line);
 });
 
-set_exception_handler(function (Throwable $exception) {
+set_exception_handler(static function (Throwable $exception) {
     echo "\n";
 
     $cause = $exception;

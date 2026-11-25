@@ -14,6 +14,7 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\FrameworkBundle\Controller\ControllerResolver;
 use Symfony\Bundle\FrameworkBundle\Controller\TemplateController;
+use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver\BackedEnumValueResolver;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver\DateTimeValueResolver;
@@ -80,10 +81,13 @@ return static function (ContainerConfigurator $container) {
             ->tag('controller.argument_value_resolver', ['priority' => 100, 'name' => RequestAttributeValueResolver::class])
 
         ->set('argument_resolver.request', RequestValueResolver::class)
-            ->tag('controller.argument_value_resolver', ['priority' => 50, 'name' => RequestValueResolver::class])
+            // Run before EntityValueResolver (DoctrineBundle, priority 110) so type-hinted
+            // Request arguments do not trigger entity-manager bootstrap. Keep this above
+            // DoctrineBundle's EntityValueResolver priority if it ever changes.
+            ->tag('controller.argument_value_resolver', ['priority' => 120, 'name' => RequestValueResolver::class])
 
         ->set('argument_resolver.session', SessionValueResolver::class)
-            ->tag('controller.argument_value_resolver', ['priority' => 50, 'name' => SessionValueResolver::class])
+            ->tag('controller.argument_value_resolver', ['priority' => 120, 'name' => SessionValueResolver::class])
 
         ->set('argument_resolver.service', ServiceValueResolver::class)
             ->args([
@@ -142,7 +146,18 @@ return static function (ContainerConfigurator $container) {
             ->tag('monolog.logger', ['channel' => 'request'])
 
         ->set('controller.cache_attribute_listener', CacheAttributeListener::class)
+            ->args([
+                service('controller.expression_language')->nullOnInvalid(),
+            ])
             ->tag('kernel.event_subscriber')
 
+        ->set('controller.expression_language', ExpressionLanguage::class)
+            ->lazy()
+            ->args([service('cache.controller_expression_language')->nullOnInvalid()])
+
+        ->set('cache.controller_expression_language')
+            ->parent('cache.system')
+            ->private()
+            ->tag('cache.pool')
     ;
 };

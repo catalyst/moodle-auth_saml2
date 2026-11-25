@@ -16,8 +16,6 @@
 
 namespace auth_saml2\testing;
 
-defined('MOODLE_INTERNAL') || die();
-
 use stdClass;
 use coding_exception;
 
