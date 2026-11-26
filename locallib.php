@@ -519,3 +519,51 @@ function auth_saml2_admin_nav($title, $url) {
     $PAGE->set_heading(get_string('pluginname', 'auth_saml2') . ': ' . $title);
     $PAGE->set_title(get_string('pluginname', 'auth_saml2') . ': ' . $title);
 }
+
+/**
+ * Validate a SAML protocol ID (xs:ID / NCName syntax) to prevent XML injection.
+ *
+ * @param string $id
+ * @return bool
+ */
+function auth_saml2_is_valid_saml_id(string $id): bool {
+    // NCName per the XML Namespaces spec: a name start character (no colon) followed by name characters.
+    $start = 'A-Z_a-z\x{C0}-\x{D6}\x{D8}-\x{F6}\x{F8}-\x{2FF}\x{370}-\x{37D}\x{37F}-\x{1FFF}\x{200C}-\x{200D}'
+        . '\x{2070}-\x{218F}\x{2C00}-\x{2FEF}\x{3001}-\x{D7FF}\x{F900}-\x{FDCF}\x{FDF0}-\x{FFFD}\x{10000}-\x{EFFFF}';
+    $other = '.\-0-9\x{B7}\x{300}-\x{36F}\x{203F}-\x{2040}';
+    // The \z anchor (unlike $) does not allow a trailing newline.
+    return preg_match('/^[' . $start . '][' . $start . $other . ']*\z/u', $id) === 1;
+}
+
+/**
+ * Parse the list of service providers allowed to use this site as an IdP.
+ *
+ * Each line is an SP entity ID, optionally followed by whitespace separated
+ * Assertion Consumer Service (ACS) URLs registered for that SP.
+ *
+ * @param string $splist Raw value of the moodleidpsplist setting.
+ * @return string[][] Registered ACS URLs, indexed by SP entity ID.
+ */
+function auth_saml2_parse_idp_splist(string $splist): array {
+    $sps = [];
+    foreach (preg_split('/\R/', $splist) as $line) {
+        $parts = preg_split('/\s+/', trim($line), -1, PREG_SPLIT_NO_EMPTY);
+        if (empty($parts)) {
+            continue;
+        }
+        $entityid = array_shift($parts);
+        $sps[$entityid] = array_values(array_unique(array_merge($sps[$entityid] ?? [], $parts)));
+    }
+    return $sps;
+}
+
+/**
+ * Check that an ACS URL from a SAML request is exactly one of the ACS URLs registered for the SP.
+ *
+ * @param string[] $registered ACS URLs registered for the SP.
+ * @param string $acs ACS URL taken from the SAML request.
+ * @return bool
+ */
+function auth_saml2_is_registered_acs(array $registered, string $acs): bool {
+    return preg_match('#^https?://#i', $acs) === 1 && in_array($acs, $registered, true);
+}

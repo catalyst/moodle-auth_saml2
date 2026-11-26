@@ -52,7 +52,6 @@ class XmlUtils
         libxml_clear_errors();
 
         $dom = new \DOMDocument();
-        $dom->validateOnParse = true;
         if (!$dom->loadXML($content, \LIBXML_NONET | \LIBXML_COMPACT)) {
             throw new XmlParsingException(implode("\n", static::getXmlErrors($internalErrors)));
         }
@@ -194,7 +193,7 @@ class XmlUtils
 
         if (false !== $nodeValue) {
             $value = static::phpize($nodeValue);
-            if (\count($config)) {
+            if ($config) {
                 $config['value'] = $value;
             } else {
                 $config = $value;

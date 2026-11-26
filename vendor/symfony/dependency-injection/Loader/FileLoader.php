@@ -35,7 +35,7 @@ use Symfony\Component\DependencyInjection\Exception\LogicException;
  */
 abstract class FileLoader extends BaseFileLoader
 {
-    public const ANONYMOUS_ID_REGEXP = '/^\.\d+_[^~]*+~[._a-zA-Z\d]{7}$/';
+    public const ANONYMOUS_ID_REGEXP = ContainerBuilder::ANONYMOUS_ID_REGEXP;
 
     protected $container;
     protected $isLoadingInstanceof = false;
@@ -134,7 +134,7 @@ abstract class FileLoader extends BaseFileLoader
                 if (strpos($serialized, 'O:48:"Symfony\Component\DependencyInjection\Definition"')
                     || strpos($serialized, 'O:53:"Symfony\Component\DependencyInjection\ChildDefinition"')
                 ) {
-                    $getPrototype = static fn () => $getPrototype()->{'set'.$key}(unserialize($serialized));
+                    $getPrototype = static fn () => $getPrototype()->{'set'.$key}(unserialize($serialized, ['allowed_classes' => true]));
                 }
             }
         }

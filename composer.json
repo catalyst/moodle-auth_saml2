@@ -21,6 +21,9 @@
         "simplesamlphp/simplesamlphp": "~2.4.5",
         "cweagans/composer-patches": "^1.7"
     },
+    "replace": {
+        "guzzlehttp/psr7": "*"
+    },
     "minimum-stability": "stable",
     "extra": {
         "patches": {

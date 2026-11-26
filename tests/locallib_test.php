@@ -76,6 +76,50 @@ final class locallib_test extends \advanced_testcase {
     }
 
     /**
+     * A request supplied baseurl must not influence the SP identity or binding URLs.
+     */
+    public function test_sp_metadata_ignores_spoofed_baseurl(): void {
+        global $CFG, $DB;
+
+        $this->resetAfterTest();
+
+        $url = 'http://www.example.com';
+        set_config('supportemail', 'test@test.com');
+        set_config('idpmetadata', $url, 'auth_saml2');
+        set_config('idpentityids', json_encode([$url => $url]), 'auth_saml2');
+        // Add a fake IdP so the auth source config can pick a default IdP entity.
+        $DB->insert_record('auth_saml2_idps', [
+            'metadataurl' => $url,
+            'entityid'    => $url,
+            'name'        => 'Test IdP',
+            'activeidp'   => 1]);
+        // Make sure the default (request derived) entityID path is used.
+        // Doing this by setting the spentityid config to be empty.
+        set_config('spentityid', '', 'auth_saml2');
+
+        $_GET['baseurl'] = 'https://evil.example';
+        $_REQUEST['baseurl'] = 'https://evil.example';
+        try {
+            require($CFG->dirroot . '/auth/saml2/setup.php');
+            $rawxml = auth_saml2_get_sp_metadata($CFG->wwwroot);
+        } finally {
+            unset($_GET['baseurl'], $_REQUEST['baseurl']);
+        }
+
+        $this->assertStringNotContainsString('evil.example', $rawxml);
+
+        $xml = new SimpleXMLElement($rawxml);
+        $this->assertSame($CFG->wwwroot . '/auth/saml2/sp/metadata.php', (string) $xml['entityID']);
+
+        $xml->registerXPathNamespace('md', 'urn:oasis:names:tc:SAML:2.0:metadata');
+        $acs = $xml->xpath('//md:AssertionConsumerService');
+        $this->assertNotEmpty($acs);
+        foreach ($acs as $service) {
+            $this->assertStringStartsWith($CFG->wwwroot . '/auth/saml2/sp/saml2-acs.php/', (string) $service['Location']);
+        }
+    }
+
+    /**
      * If locked do not generate the cert, if unlocked then generate the cert.
      */
     public function test_setup_no_cert_generate_if_locked(): void {
@@ -122,5 +166,94 @@ final class locallib_test extends \advanced_testcase {
         } catch (\saml2_exception $e) {
             $this->assertFalse(file_exists($auth->certcrt));
         }
+    }
+
+    /**
+     * Test SAML request ID validation.
+     *
+     * @dataProvider provider_is_valid_saml_id
+     * @param string $id
+     * @param bool $expected
+     */
+    public function test_auth_saml2_is_valid_saml_id(string $id, bool $expected): void {
+        $this->assertSame($expected, auth_saml2_is_valid_saml_id($id));
+    }
+
+    /**
+     * Data provider for {@see self::test_auth_saml2_is_valid_saml_id}.
+     *
+     * @return array
+     */
+    public static function provider_is_valid_saml_id(): array {
+        return [
+            'typical request id' => ['_8e8dc5f69a98cc4c1ff3427e5ce34606fd672f91e6', true],
+            'letters, digits, dot and dash' => ['a1.b-2_c', true],
+            'non ascii letters' => ['_café', true],
+            'very long' => ['_' . str_repeat('a', 1000), true],
+            'empty' => ['', false],
+            'starts with digit' => ['1abc', false],
+            'contains colon' => ['a:b', false],
+            'trailing newline' => ["_abc\n", false],
+            'attribute breakout' => ['_a" Destination="https://evil.example', false],
+            'markup' => ['_a><b', false],
+            'space' => ['_a b', false],
+            'invalid utf8' => ["_a\xff", false],
+        ];
+    }
+
+    /**
+     * Test parsing of the IdP service provider list.
+     */
+    public function test_auth_saml2_parse_idp_splist(): void {
+        $splist = "https://sp1.example/metadata https://sp1.example/acs  https://sp1.example/acs2\r\n"
+            . "\r\n"
+            . "  https://sp2.example/metadata  \n"
+            . "https://sp1.example/metadata https://sp1.example/acs https://sp1.example/acs3\n";
+
+        $this->assertSame([
+            'https://sp1.example/metadata' => [
+                'https://sp1.example/acs',
+                'https://sp1.example/acs2',
+                'https://sp1.example/acs3',
+            ],
+            'https://sp2.example/metadata' => [],
+        ], auth_saml2_parse_idp_splist($splist));
+
+        $this->assertSame([], auth_saml2_parse_idp_splist(''));
+    }
+
+    /**
+     * Test that only exactly registered http(s) ACS URLs are accepted.
+     *
+     * @dataProvider provider_is_registered_acs
+     * @param array $registered
+     * @param string $acs
+     * @param bool $expected
+     */
+    public function test_auth_saml2_is_registered_acs(array $registered, string $acs, bool $expected): void {
+        $this->assertSame($expected, auth_saml2_is_registered_acs($registered, $acs));
+    }
+
+    /**
+     * Data provider for {@see self::test_auth_saml2_is_registered_acs}.
+     *
+     * @return array
+     */
+    public static function provider_is_registered_acs(): array {
+        $registered = ['https://sp.example/acs', 'https://sp.example/other'];
+        return [
+            'first registered' => [$registered, 'https://sp.example/acs', true],
+            'second registered' => [$registered, 'https://sp.example/other', true],
+            'attacker host' => [$registered, 'https://attacker.example/collect', false],
+            'different path on same host' => [$registered, 'https://sp.example/anything', false],
+            'prefix of registered' => [$registered, 'https://sp.example/acs/extra', false],
+            'different case' => [$registered, 'https://SP.example/acs', false],
+            'different scheme' => [$registered, 'http://sp.example/acs', false],
+            'userinfo host trick' => [$registered, 'https://sp.example@attacker.example/acs', false],
+            'backslash trick' => [$registered, 'https://attacker.example\\@sp.example/acs', false],
+            'javascript scheme' => [['javascript://sp.example/%0Aalert(1)'], 'javascript://sp.example/%0Aalert(1)', false],
+            'empty request value' => [$registered, '', false],
+            'nothing registered' => [[], 'https://sp.example/acs', false],
+        ];
     }
 }
