@@ -267,6 +267,90 @@ EOF;
     }
 
     /**
+     * Configures auth_saml2 to use N mock SAML IdPs for testing.
+     *
+     * Example: Given "100" mock SAML IdPs are configured  # auth_saml2
+     *
+     * @Given /^"(?P<count>\d+)" mock SAML IdPs are configured +\# auth_saml2$/
+     */
+    public function n_mock_saml_idps_are_configured(int $count): void {
+        global $CFG;
+
+        $cert = file_get_contents(__DIR__ . '/../fixtures/mockidp/mock.crt');
+        $cert = preg_replace('~(-----(BEGIN|END) CERTIFICATE-----)|\n~', '', $cert);
+
+        $baseurl = $CFG->wwwroot . '/auth/saml2/tests/fixtures/mockidp';
+
+        $numberofidps = $count;
+
+        $idps = [];
+        for ($i = 1; $i <= $numberofidps; $i++) {
+            $idps[] = [
+                'entityid' => "{$baseurl}/idpmetadata.php?idp={$i}",
+                'sso'      => "{$baseurl}/sso.php?idp={$i}",
+                'slo'      => "{$baseurl}/slo.php?idp={$i}",
+                'name'     => "IdP {$i}",
+            ];
+        }
+
+        $entitydescriptors = [];
+
+        foreach ($idps as $idp) {
+            $entitydescriptors[] = <<<EOF
+        <md:EntityDescriptor entityID="{$idp['entityid']}" xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata">
+            <md:IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" WantAuthnRequestsSigned="false">
+                <mdui:UIInfo xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui">
+                    <mdui:DisplayName xml:lang="en">{$idp['name']}</mdui:DisplayName>
+                </mdui:UIInfo>
+                <md:KeyDescriptor>
+                    <KeyInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
+                        <X509Data><X509Certificate>{$cert}</X509Certificate></X509Data>
+                    </KeyInfo>
+                </md:KeyDescriptor>
+                <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+                    Location="{$idp['slo']}" />
+                <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</md:NameIDFormat>
+                <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+                    Location="{$idp['sso']}" />
+            </md:IDPSSODescriptor>
+
+            <md:Organization>
+                <md:OrganizationName xml:lang="en">{$idp['name']}</md:OrganizationName>
+                <md:OrganizationDisplayName xml:lang="en">{$idp['name']}</md:OrganizationDisplayName>
+            </md:Organization>
+        </md:EntityDescriptor>
+    EOF;
+        }
+
+        $entitydescriptorsstr = implode("\n", $entitydescriptors);
+
+        // Wrap all EntityDescriptors in a valid EntitiesDescriptor root.
+        $metadata = <<<EOF
+    <md:EntitiesDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
+        Name="{$baseurl}/multiidpmetadata.xml"
+        ID="mockidp-set"
+        cacheDuration="PT12H">
+    {$entitydescriptorsstr}
+    </md:EntitiesDescriptor>
+    EOF;
+
+        // Write metadata using the same admin setting as the UI.
+        $idpmetadata = new \auth_saml2\admin\setting_idpmetadata();
+        $idpmetadata->set_updatedcallback('auth_saml2_update_idp_metadata');
+        $idpmetadata->write_setting($metadata);
+
+        // Extra config needed for Behat/self-test.
+        set_config('cookiesecure', '0');
+        set_config('debug', '1', 'auth_saml2');
+
+        $auth = get_auth_plugin('saml2');
+        if (!$auth->is_configured()) {
+            require_once(__DIR__ . '/../../setuplib.php');
+            create_certificates($auth);
+        }
+    }
+
+    /**
      * Confirms a user's login from the IdP, and returns information back to Moodle.
      *
      * This step must be used while at the mock IdP 'login' screen.
