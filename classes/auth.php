@@ -775,14 +775,18 @@ class auth extends \auth_plugin_base {
                 $this->log(__FUNCTION__ . " user '$user->username' is not in moodle so autocreating");
                 require_once($CFG->dirroot . '/user/lib.php');
 
-                // Various values that user_create_user doesn't validate or set.
+                // Various values that user_create_user (\core\user::create_user in 5.3+) doesn't validate or set.
                 $user->confirmed = 1;
                 $user->lastip = getremoteaddr();
                 $user->timecreated = time();
                 $user->timemodified = $user->timecreated;
                 $user->mnethostid = $CFG->mnet_localhost_id;
 
-                $user->id = \user_create_user($user, true, true);
+                if (method_exists(\core\user::class, 'create_user')) {
+                    $user->id = \core\user::create_user($user, true, true);
+                } else {
+                    $user->id = \user_create_user($user, true, true);
+                }
                 $newuser = true;
                 // Store any custom profile fields.
                 profile_save_data($user);
@@ -1088,7 +1092,11 @@ class auth extends \auth_plugin_base {
             // then we update the user which also fires events which other
             // plugins listen to so they have the correct user data.
             profile_save_data($user);
-            user_update_user($user, false);
+            if (method_exists(\core\user::class, 'update_user')) {
+                \core\user::update_user($user, false);
+            } else {
+                user_update_user($user, false);
+            }
             return true;
         }
         return false;
