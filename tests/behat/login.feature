@@ -4,6 +4,11 @@ Feature: Login
   As a SAML2 user
   I need to be able to login into Moodle
 
+  Background:
+    Given the following config values are set as admin:
+      | forcelogin   | 0 |
+      | enablemyhome | 1 |
+
   Scenario: Use Moodle Login if SAML2 is disabled
     Given the authentication plugin saml2 is disabled                          # auth_saml2
     When I go to the login page                                                # auth_saml2

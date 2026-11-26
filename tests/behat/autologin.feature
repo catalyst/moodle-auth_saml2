@@ -4,6 +4,11 @@ Feature: Automatically log in
   As a user
   I should be automatically logged in if I am logged into the IdP
 
+  Background:
+    Given the following config values are set as admin:
+      | forcelogin   | 0 |
+      | enablemyhome | 1 |
+
   Scenario: Autologin on first request in session (logged in)
     Given the authentication plugin saml2 is enabled # auth_saml2
     And the mock SAML IdP is configured # auth_saml2
