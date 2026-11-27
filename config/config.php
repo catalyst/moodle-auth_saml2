@@ -52,7 +52,7 @@ $config = [
     'tempdir'           => $saml2auth->config->tempdir,
 
     // SSP has a %srcip token, but instead use $remoteip so Moodle handle's which header to use.
-    'logging.format'    => '%date{%b %d %H:%M:%S} ' . $remoteip . ' %process %level %stat[%trackid] %msg',
+    'logging.format'    => '%date{M d H:i:s} ' . $remoteip . ' %process %level %stat[%trackid] %msg',
 
     'loggingdir'        => $saml2auth->config->logdir,
     'logging.logfile'   => 'simplesamlphp.log',
